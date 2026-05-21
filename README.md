@@ -31,8 +31,8 @@ mininet> py s_stats(s1)
 
 ## Flow Table Flooding
 
-```bash
-(venv)(root) $ python3 flow_table_flood_v2.py --iface s2-eth1 --seed 500 --threads 8 --expand-pool --expand-interval 5 --expand-batch 50
+```text
+mininet> py FloodAttack(switch=s2, iface=s2.intfList()[2], npacket=100, threads=4, bsize=50, bdelay=1).start()
 ```
 
 ---
