@@ -25,8 +25,8 @@ $ python3 network.py
 Monitoring:
 
 ```text
-mininet> h_stats(h1, h2)
-mininet> s_stats(s1)
+mininet> py h_stats(h1, h2)
+mininet> py s_stats(s1)
 ```
 
 ## Flow Table Flooding

@@ -9,10 +9,12 @@ from mininet.log import setLogLevel, info
 
 # Custom modules
 from monitor import h_stats, s_stats
+from flow_table_flood import FloodAttack
 
 import builtins
 builtins.h_stats = h_stats
 builtins.s_stats = s_stats
+builtins.FloodAttack = FloodAttack
 
 class CustomTopo(Topo):
     "Custom Topology Network"
@@ -26,7 +28,7 @@ class CustomTopo(Topo):
 
         self.addLink(s1, s2)
         self.addLink(s2, s3)
-        self.addLink(s1, s3)
+        #self.addLink(s1, s3)
 
         # Hosts
         for i in range(1, 3):
