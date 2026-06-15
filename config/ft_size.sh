@@ -1,10 +1,18 @@
 #!/bin/bash
 
-sudo ovs-vsctl -- --id=@ft create Flow_Table flow_limit=50 overflow_policy=refuse -- set Bridge s1 flow_tables:0=@ft &> /dev/null
-sudo ovs-vsctl -- --id=@ft create Flow_Table flow_limit=50 overflow_policy=refuse -- set Bridge s2 flow_tables:0=@ft &> /dev/null
-sudo ovs-vsctl -- --id=@ft create Flow_Table flow_limit=50 overflow_policy=refuse -- set Bridge s3 flow_tables:0=@ft &> /dev/null
+for sw in s1 s2 s3; do
+  sudo ovs-vsctl clear Bridge $sw flow_tables
 
-echo -e "=== Flow Table Sizes ==="
+  sudo ovs-vsctl \
+    -- --id=@ft create Flow_Table \
+         name="${sw}_table0" \
+         flow_limit=50 \
+         overflow_policy=evict \
+         groups='["other"]' \
+    -- set Bridge $sw flow_tables:0=@ft
 
-sudo ovs-vsctl list Flow_Table | grep -E "^(_uuid|flow_limit|overflow_policy)"
+  echo "[$sw] Configurato"
+done
 
+echo -e "\n=== Verifica OVSDB ==="
+sudo ovs-vsctl list Flow_Table

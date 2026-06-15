@@ -8,12 +8,11 @@ from mininet.cli import CLI
 from mininet.log import setLogLevel, info
 
 # Custom modules
-from monitor import h_stats, s_stats
+from mmmonitor import monitor_sdn
 from flow_table_flood import FloodAttack
 
 import builtins
-builtins.h_stats = h_stats
-builtins.s_stats = s_stats
+builtins.monitor_sdn = monitor_sdn
 builtins.FloodAttack = FloodAttack
 
 class CustomTopo(Topo):
@@ -22,9 +21,9 @@ class CustomTopo(Topo):
         info("* Build Topology\n")
 
         # Switch
-        s1 = self.addSwitch('s1', cls=OVSSwitch, protocols='OpenFlow13')
-        s2 = self.addSwitch('s2', cls=OVSSwitch, protocols='OpenFlow13')
-        s3 = self.addSwitch('s3', cls=OVSSwitch, protocols='OpenFlow13')
+        s1 = self.addSwitch('s1', cls=OVSSwitch, protocols='OpenFlow14')
+        s2 = self.addSwitch('s2', cls=OVSSwitch, protocols='OpenFlow14')
+        s3 = self.addSwitch('s3', cls=OVSSwitch, protocols='OpenFlow14')
 
         self.addLink(s1, s2)
         self.addLink(s2, s3)

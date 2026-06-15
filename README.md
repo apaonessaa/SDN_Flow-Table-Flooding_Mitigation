@@ -16,7 +16,7 @@ $ pip install eventlet==0.30.2
 
 ```bash
 # Controller
-$ ryu-manager --observe-links ryu.app.simple_switch_stp_13
+$ ryu-manager --observe-links ryu.app.simple_switch_14
 
 # Topology
 $ python3 network.py 
@@ -27,6 +27,8 @@ Monitoring:
 ```text
 mininet> py h_stats(h1, h2)
 mininet> py s_stats(s1)
+
+mininet> py monitor_sdn(net=net, attack=True)
 ```
 
 ## Flow Table Flooding

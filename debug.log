@@ -1,0 +1,34 @@
+* Build Topology
+*** Creating network
+*** Adding controller
+*** Adding hosts:
+h1 h2 h3 h4 
+*** Adding switches:
+s1 s2 s3 
+*** Adding links:
+(h1, s1) (h2, s1) (h3, s3) (h4, s3) (s1, s2) (s2, s3) 
+*** Configuring hosts
+h1 h2 h3 h4 
+*** Start Network
+*** Starting controller
+c0 
+*** Starting 3 switches
+s1 s2 s3 ...
+*** Scripts
+- ./config/ft_size.sh
+=== Flow Table Sizes ===
+_uuid               : ebb7cc24-afc5-4f13-b40e-cbc4bd648eb0
+flow_limit          : 50
+overflow_policy     : refuse
+_uuid               : a048f389-781a-443c-99f7-5c34c6e385f0
+flow_limit          : 50
+overflow_policy     : refuse
+_uuid               : c366793a-b845-4ee7-aa2d-99630d845e89
+flow_limit          : 50
+overflow_policy     : refuse
+*** Verifica connettività h1->h3
+*** Rete pronta (tentativo 17)
+*** Start Monitor
+*** Starting CLI:
+stopping h1 
+[NetMon-ping] concurrent poll() invocationmininet> *** Stop Monitor
