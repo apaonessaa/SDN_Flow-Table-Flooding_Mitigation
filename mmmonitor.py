@@ -30,8 +30,7 @@ from flow_table_flood import FloodAttack
 SWITCHES         = ['s1', 's2', 's3']
 PING_PAIRS       = [('h1', 'h3'), ('h1', 'h4'), ('h2', 'h3'), ('h2', 'h4')]
 PING_COUNT       = 3          # numero di ping per coppia (ridotto per campionamento rapido)
-MONITOR_INTERVAL = 2.0        # secondi tra campionamenti durante l'attacco
-ATTACK_DURATION  = 20         # secondi di attacco
+MONITOR_INTERVAL = 1.0        # secondi tra campionamenti durante l'attacco
 
 
 # ---------------------------------------------------------------------------
@@ -40,6 +39,8 @@ ATTACK_DURATION  = 20         # secondi di attacco
 
 def get_flow_count(switch_name: str) -> int:
     """Restituisce il numero di flow rule installate sullo switch via ovs-ofctl."""
+    nn = test(switch_name)
+    info(f'Numero di regole valide su {switch_name}: {nn}\n')
     try:
         result = subprocess.run(
             ['ovs-ofctl', '-O', 'OpenFlow14', 'dump-flows', switch_name],
@@ -53,6 +54,27 @@ def get_flow_count(switch_name: str) -> int:
         return len(lines)
     except Exception as exc:
         error(f"[monitor] Eccezione get_flow_count({switch_name}): {exc}\n")
+        return -1
+
+def test(switch_name: str) -> int:
+    try:
+        comando = (
+            f"sudo ovs-ofctl -O OpenFlow14 dump-flows {switch_name} | "
+            f"grep -Ei '(00:00:00:00:00:01|00:00:00:00:00:02|00:00:00:00:00:03|00:00:00:00:00:04)' | "
+            f"wc -l"
+        )
+        result = subprocess.run(
+            comando,
+            shell=True, 
+            capture_output=True, text=True, timeout=5
+        )
+        if result.returncode != 0:
+            error(f"[monitor] Errore ovs-ofctl su {switch_name}: {result.stderr}\n")
+            return -1
+        lines = int(result.stdout.strip())
+        return lines
+    except Exception as exc:
+        error(f"[monitor] Eccezione test({switch_name}): {exc}\n")
         return -1
 
 
@@ -159,11 +181,10 @@ class AttackMonitor:
     I thread si fermano quando stop() viene chiamato o il timeout scade.
     """
 
-    def __init__(self, net: Mininet, duration: float,
+    def __init__(self, net: Mininet,
                  interval: float = MONITOR_INTERVAL,
                  attacker=None):
         self.net      = net
-        self.duration = duration
         self.interval = interval
         self.attacker = attacker   # se fornito, il monitor segue la vita dell'attacco
         self._stop    = threading.Event()
@@ -180,7 +201,7 @@ class AttackMonitor:
             elapsed = time.time() - t0
             # Termina se: timeout superato OPPURE l'attacco è finito
             attack_done = self.attacker is not None and not self.attacker.is_running()
-            if elapsed >= self.duration or attack_done:
+            if attack_done:
                 break
             counts = {sw: get_flow_count(sw) for sw in SWITCHES}
             self.flow_samples.append((elapsed, counts))
@@ -197,7 +218,7 @@ class AttackMonitor:
         while not self._stop.is_set():
             elapsed = time.time() - t0
             attack_done = self.attacker is not None and not self.attacker.is_running()
-            if elapsed >= self.duration or attack_done:
+            if attack_done:
                 break
             rtts = {}
             for src, dst in PING_PAIRS:
@@ -223,7 +244,6 @@ class AttackMonitor:
         self._t_latency.join(timeout=10)
 
     def wait(self):
-        """Attende il termine naturale (scadenza duration)."""
         self._t_flow.join()
         self._t_latency.join()
 
@@ -424,19 +444,19 @@ def monitor_sdn(net: Optional[Mininet] = None, attack: bool = True) -> None:
             # cattura lo stato iniziale appena l'attacco parte
             # Avvia l'attacco in modo NON bloccante PRIMA di creare il monitor,
             # così attacker.is_running() è già True quando i thread partono
-            attacker.start(blocking=False)
+            attacker.start()
 
-            atk_monitor = AttackMonitor(net, duration=ATTACK_DURATION,
+            atk_monitor = AttackMonitor(net,
                                         interval=MONITOR_INTERVAL,
                                         attacker=attacker)
             atk_monitor.start()
 
             info(f"    Attacco e monitor avviati in parallelo "
-                 f"(durata monitor: {ATTACK_DURATION}s, campione ogni {MONITOR_INTERVAL}s)\n\n")
+                 f"(campione ogni {MONITOR_INTERVAL}s)\n\n")
 
             # Attende che entrambi i thread del monitor terminino.
             # I thread si fermano da soli quando l'attacco finisce
-            # (attacker.is_running() → False) oppure allo scadere di ATTACK_DURATION.
+            # (attacker.is_running() → False).
             atk_monitor.wait()
 
             # Ferma l'attacco solo se è ancora in corso (timeout scaduto prima)
@@ -462,33 +482,6 @@ def monitor_sdn(net: Optional[Mininet] = None, attack: bool = True) -> None:
     print_comparison(flows_before, flows_after,
                      latency_before, latency_after,
                      monitor=atk_monitor)
-
-
-# ---------------------------------------------------------------------------
-# Funzioni di supporto esportate
-# ---------------------------------------------------------------------------
-
-def h_stats(net: Mininet, host_name: str) -> None:
-    """Stampa statistiche di rete dell'host (ifconfig + arp)."""
-    host = net.get(host_name)
-    if host is None:
-        error(f"[monitor] Host {host_name} non trovato.\n")
-        return
-    info(f"\n--- Stats {host_name} ---\n")
-    info(host.cmd('ifconfig') + "\n")
-    info(host.cmd('arp -n') + "\n")
-
-
-def s_stats(switch_name: str) -> None:
-    """Stampa le flow rule installate sullo switch."""
-    info(f"\n--- Flow Table {switch_name} ---\n")
-    result = subprocess.run(
-        ['ovs-ofctl', '-O', 'OpenFlow13', 'dump-flows', switch_name],
-        capture_output=True, text=True
-    )
-    info(result.stdout + "\n")
-    if result.returncode != 0:
-        error(result.stderr + "\n")
 
 
 # ---------------------------------------------------------------------------

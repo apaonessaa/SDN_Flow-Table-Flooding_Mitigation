@@ -83,7 +83,7 @@ class FloodAttack:
         q: queue.Queue = queue.Queue()
         for i in range(0, len(packets), self.bsize):
             q.put(packets[i:i + self.bsize])
-            print(f"* Burst[{i}]={len(packets[i:i + self.bsize])}")
+            #print(f"* Burst[{i}]={len(packets[i:i + self.bsize])}")
 
         n_workers = min(self.threads, q.qsize())
         workers = []
@@ -140,25 +140,10 @@ class FloodAttack:
         self.stage_2()
         print("[+] Attacco completato.")
 
-    def start(self, blocking: bool = False) -> None:
-        """
-        Avvia l'attacco.
-
-        Parameters
-        ----------
-        blocking : bool
-            False (default) — l'attacco gira in un thread daemon e il metodo
-                              ritorna immediatamente, permettendo al monitor di
-                              partire in parallelo.
-            True            — comportamento originale sincrono (blocca fino al
-                              termine dell'attacco).
-        """
+    def start(self) -> None:
         self._stop_event.clear()
-        if blocking:
-            self._run()
-        else:
-            self._attack_thread = Thread(target=self._run, name="flood-attack", daemon=True)
-            self._attack_thread.start()
+        self._attack_thread = Thread(target=self._run, name="flood-attack", daemon=True)
+        self._attack_thread.start()
 
     def stop(self) -> None:
         """Segnala ai worker di fermarsi e attende la fine del thread."""
@@ -179,29 +164,3 @@ class FloodAttack:
         if self._attack_thread:
             self._attack_thread.join(timeout=timeout)
 
-
-def main(switch, iface, npacket, threads, bsize, bdelay):
-    flood_attack = FloodAttack(switch, iface, npacket, threads, bsize, bdelay)
-    flood_attack.start(blocking=True)   # comportamento originale da CLI
-    return
-
-if __name__ == "__main__":
-    """
-    switch: OVSSwitch
-    iface: Intf
-    npacket: int
-    threads: int
-    bsize (burstsize): pacchetti per burst
-    bdelay (burstdelay): delay tra i burst
-    """
-    parser = argparse.ArgumentParser(
-        description="Flow Table Flooding – attacco bifase su Ryu"
-    )
-    parser.add_argument("--switch", required=True, help="Switch (es: s1, s2)")
-    parser.add_argument("--iface",  required=True, help="Interfaccia verso switch (es: h1-eth0, s2-eth1)")
-    parser.add_argument("--npacket", type=int, default=300, help="Numero di pacchetti")
-    parser.add_argument("--threads", "-t", type=int, default=4,  help="Numero di threads")
-    parser.add_argument("--bsize",   type=int, default=100, help="Pacchetti per burst")
-    parser.add_argument("--bdelay",  type=int, default=1,   help="Pausa tra burst in secondi")
-    args = parser.parse_args()
-    main(args.switch, args.iface, args.npacket, args.threads, args.bsize, args.bdelay)

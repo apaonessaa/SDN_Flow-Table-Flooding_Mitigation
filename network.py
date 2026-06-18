@@ -8,11 +8,11 @@ from mininet.cli import CLI
 from mininet.log import setLogLevel, info
 
 # Custom modules
-from mmmonitor import monitor_sdn
+from mmmmonitor import start_monitor
 from flow_table_flood import FloodAttack
 
 import builtins
-builtins.monitor_sdn = monitor_sdn
+builtins.start_monitor = start_monitor
 builtins.FloodAttack = FloodAttack
 
 class CustomTopo(Topo):

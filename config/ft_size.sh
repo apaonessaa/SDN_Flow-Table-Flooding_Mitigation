@@ -8,7 +8,6 @@ for sw in s1 s2 s3; do
          name="${sw}_table0" \
          flow_limit=50 \
          overflow_policy=evict \
-         groups='["other"]' \
     -- set Bridge $sw flow_tables:0=@ft
 
   echo "[$sw] Configurato"
