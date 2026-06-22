@@ -1,338 +1,381 @@
-import re
+#!/usr/bin/env python3
+
+import os
 import time
 import threading
-import os
-import signal
+import subprocess
+import statistics
+from datetime import datetime
+from typing import Optional, List, Tuple, Dict
 
-from mininet.log import info
-from mininet.node import Host, OVSSwitch
+from mininet.net import Mininet
+from mininet.log import info, error
 
-# ---------------------------------------------------------------------------
-# Costanti
-# ---------------------------------------------------------------------------
-IPERF_DURATION  = 300   # durata totale iperf (s) – interrotto dal monitor se
-                         # l'utente fa Ctrl+C prima
-IPERF_INTERVAL  = 1     # intervallo di report iperf (s)
-POLL_INTERVAL   = 5     # ogni quanti secondi rileggere le metriche
-PING_COUNT      = 20    # ping per ogni campione RTT
+SWITCHES         = ['s1', 's2', 's3']
+PING_PAIRS       = [('h1', 'h3'), ('h1', 'h4'), ('h2', 'h3'), ('h2', 'h4')]
+PING_COUNT       = 3
+MONITOR_INTERVAL = 1.0
+HOST_MACS        = ['00:00:00:00:00:01', '00:00:00:00:00:02',
+                     '00:00:00:00:00:03', '00:00:00:00:00:04']
+OUTPUT_DIR       = os.path.expanduser('~/Desktop/progetto/reports')
 
-
-# ---------------------------------------------------------------------------
-# Utilità: parsing
-# ---------------------------------------------------------------------------
-def _parse_iperf_line(line: str):
-    """
-    Estrae (bandwidth_Mbps, jitter_ms, loss_pct) da una riga UDP di iperf.
-    Restituisce (None, None, None) se la riga non è riconosciuta.
-
-    Formato atteso (iperf -u):
-    [  3]  0.0- 1.0 sec  1.19 MBytes  10.0 Mbits/sec  0.123 ms    0/  850 (0%)
-    """
-    bw = jitter = loss = None
-
-    bw_m = re.search(r'([\d.]+)\s+Mbits/sec', line)
-    if bw_m:
-        bw = float(bw_m.group(1))
-
-    jitter_m = re.search(r'([\d.]+)\s+ms', line)
-    if jitter_m:
-        jitter = float(jitter_m.group(1))
-
-    loss_m = re.search(r'\(\s*([\d.]+)%\)', line)
-    if loss_m:
-        loss = float(loss_m.group(1))
-
-    return bw, jitter, loss
-
-
-def _last_data_line(path: str):
-    """Restituisce l'ultima riga non vuota del file, oppure ''."""
+def get_flow_count(switch_name: str) -> int:
+    """Numero totale di flow rule installate sullo switch (incluse quelle di
+    default, es. table-miss, ed eventuali entry iniettate da un attacco)."""
     try:
-        with open(path) as fh:
-            lines = [l.strip() for l in fh.readlines() if l.strip()]
-        return lines[-1] if lines else ''
-    except FileNotFoundError:
-        return ''
+        result = subprocess.run(
+            ['ovs-ofctl', '-O', 'OpenFlow14', 'dump-flows', switch_name],
+            capture_output=True, text=True, timeout=5
+        )
+        if result.returncode != 0:
+            error(f"[monitor] Errore ovs-ofctl su {switch_name}: {result.stderr}\n")
+            return -1
+        lines = [l for l in result.stdout.strip().splitlines()
+                 if l.strip() and not l.startswith('OFPST_FLOW')]
+        return len(lines)
+    except Exception as exc:
+        error(f"[monitor] Eccezione get_flow_count({switch_name}): {exc}\n")
+        return -1
+
+def get_valid_flow_count(switch_name: str) -> int:
+    """Numero di flow rule che matchano effettivamente uno dei MAC degli
+    host reali della rete (h1-h4). Utile per distinguere il traffico
+    legittimo da eventuali entry spurie iniettate da un attacco."""
+    try:
+        mac_pattern = '|'.join(HOST_MACS)
+        comando = (
+            f"ovs-ofctl -O OpenFlow14 dump-flows {switch_name} | "
+            f"grep -Ei '({mac_pattern})' | wc -l"
+        )
+        result = subprocess.run(
+            comando, shell=True, capture_output=True, text=True, timeout=5
+        )
+        if result.returncode != 0:
+            error(f"[monitor] Errore grep su {switch_name}: {result.stderr}\n")
+            return -1
+        return int(result.stdout.strip())
+    except Exception as exc:
+        error(f"[monitor] Eccezione get_valid_flow_count({switch_name}): {exc}\n")
+        return -1
+
+def snapshot_flows(label: str = "") -> Dict[str, Dict[str, int]]:
+    """
+    Acquisisce numero totale e numero di flow valide su tutti gli switch.
+    Restituisce {switch: {'total': n, 'valid': n}}.
+    """
+    if label:
+        info(f"\n--- FLOW TABLE SNAPSHOT — {label} ---\n")
+    counts = {}
+    for sw in SWITCHES:
+        total = get_flow_count(sw)
+        valid = get_valid_flow_count(sw)
+        counts[sw] = {'total': total, 'valid': valid}
+        if label:
+            info(f"  {sw}: totale={total}  valide={valid}\n")
+    return counts
 
 
 # ---------------------------------------------------------------------------
-# Host stats (ping RTT)
+# Raccolta latenza (RTT ping)
 # ---------------------------------------------------------------------------
-def h_stats(src: Host, dst: Host, nping: int = PING_COUNT):
-    """Esegue nping ping e restituisce l'RTT medio (ms) o None."""
-    raw = src.cmd(f'ping -c {nping} -q {dst.IP()}')
-    # Formato: rtt min/avg/max/mdev = 0.123/0.456/0.789/0.012 ms
-    m = re.search(r'rtt min/avg/max/mdev = [\d.]+/([\d.]+)/', raw)
-    if m:
-        return float(m.group(1))
-    # Fallback: media manuale
-    matches = re.findall(r'time=([\d.]+)', raw)
-    if matches:
-        return sum(float(t) for t in matches) / len(matches)
+
+def measure_latency(net: Mininet, src_name: str, dst_name: str,
+                    count: int = PING_COUNT) -> Optional[float]:
+    """Esegue `count` ping da src a dst e restituisce l'RTT medio in ms."""
+    src = net.get(src_name)
+    dst = net.get(dst_name)
+    if src is None or dst is None:
+        error(f"[monitor] Host non trovato: {src_name} o {dst_name}\n")
+        return None
+
+    dst_ip = dst.IP()
+    result = src.cmd(f'ping -c {count} -W 1 {dst_ip}')
+
+    for line in result.splitlines():
+        if 'rtt min/avg/max' in line or 'round-trip min/avg/max' in line:
+            try:
+                stats_part = line.split('=')[1].strip()
+                avg_rtt = float(stats_part.split('/')[1])
+                return avg_rtt
+            except (IndexError, ValueError):
+                pass
     return None
 
 
-def print_h_stats(src: Host, dst: Host, nping: int = PING_COUNT):
-    rtt = h_stats(src, dst, nping)
-    rtt_str = f"{rtt:.2f}" if rtt is not None else "timeout"
-    print(f"{'Source':>10} | {'Destination':>11} | {'AVG RTT (ms)':>12} | pings")
-    print("-" * 55)
-    print(f"{src.name:>10} | {dst.name:>11} | {rtt_str:>12} | {nping}")
+def snapshot_latency(net: Mininet, label: str = "") -> Dict[str, Optional[float]]:
+    """Misura la latenza RTT per tutte le coppie in PING_PAIRS."""
+    if label:
+        info(f"\n--- LATENZA RTT SNAPSHOT — {label} ---\n")
+    results = {}
+    for src_name, dst_name in PING_PAIRS:
+        rtt = measure_latency(net, src_name, dst_name)
+        key = f"{src_name}→{dst_name}"
+        results[key] = rtt
+        if label:
+            rtt_str = f"{rtt:.3f} ms" if rtt is not None else "N/A (loss)"
+            info(f"  {key}: {rtt_str}\n")
+    return results
 
 
 # ---------------------------------------------------------------------------
-# Switch stats (flow rules)
+# Monitoraggio continuo in background
 # ---------------------------------------------------------------------------
-def s_stats(sw: OVSSwitch) -> int:
-    raw = sw.cmd(f'ovs-ofctl -O OpenFlow13 dump-flows {sw.name}')
-    return sum(1 for line in raw.splitlines() if 'cookie=' in line)
 
-
-def print_s_stats(sw: OVSSwitch):
-    n = s_stats(sw)
-    print(f"{'Switch':>8} | {'Flow rules':>10}")
-    print("-" * 25)
-    print(f"{sw.name:>8} | {n:>10}")
-
-
-# ---------------------------------------------------------------------------
-# iperf (avvia server + client UDP in background)
-# ---------------------------------------------------------------------------
-def iperf_start(client: Host, server: Host, bandwidth: str = '10M'):
-    """
-    Avvia iperf server sul server e client su client.
-    I log vengono scritti in /tmp/iperf_{server.name}.txt
-    """
-    log = f'/tmp/iperf_{server.name}.txt'
-    server.cmd('pkill -f "iperf -s" 2>/dev/null; true')
-    client.cmd('pkill -f "iperf -c" 2>/dev/null; true')
-
-    server.cmd(f'iperf -s -u -i {IPERF_INTERVAL} > {log} 2>&1 &')
-    time.sleep(0.5)
-    client.cmd(
-        f'iperf -c {server.IP()} -u -b {bandwidth} '
-        f'-t {IPERF_DURATION} -i {IPERF_INTERVAL} '
-        f'>> {log} 2>&1 &'
-    )
-    return log
-
-
-def iperf_stop(client: Host, server: Host):
-    """Ferma server e client iperf."""
-    server.cmd('pkill -f "iperf -s" 2>/dev/null; true')
-    client.cmd('pkill -f "iperf -c" 2>/dev/null; true')
-
-
-def iperf_read_last(log_path: str):
-    """Legge l'ultima metrica disponibile dal log iperf."""
-    line = _last_data_line(log_path)
-    return _parse_iperf_line(line)
-
-
-# ---------------------------------------------------------------------------
-# Monitor thread
-# ---------------------------------------------------------------------------
 class NetworkMonitor:
     """
-    Thread che campiona periodicamente le metriche e le accumula in liste.
-    Viene fermato chiamando .stop() oppure quando l'evento _stop è settato.
+    Campiona, in due thread paralleli indipendenti, flow rule (totali e
+    valide) e latenza RTT ad intervalli regolari, finché non viene chiamato
+    stop() oppure scade la durata massima (duration).
+
+    Pensato per essere avviato dalla CLI Mininet senza bloccarla: start()
+    lancia i thread come daemon e ritorna immediatamente, lasciando la CLI
+    libera per lanciare nel frattempo un attacco o altri comandi.
     """
 
-    def __init__(self, client: Host, serverA: Host, serverB: Host,
-                 victim: OVSSwitch, poll: int = POLL_INTERVAL):
-        self.client  = client
-        self.serverA = serverA
-        self.serverB = serverB
-        self.victim  = victim
-        self.poll    = poll
+    def __init__(self, net: Mininet,
+                 interval: float = MONITOR_INTERVAL,
+                 duration: Optional[float] = None,
+                 label: str = "monitor"):
+        self.net      = net
+        self.interval = interval
+        self.duration = duration
+        self.label    = label
+        self._stop    = threading.Event()
+        self._start_time: Optional[float] = None
 
-        # Strutture dati risultati
-        self.timestamps: list[float] = []
+        self.flow_samples:    List[Tuple[float, Dict[str, Dict[str, int]]]] = []
+        self.latency_samples: List[Tuple[float, Dict[str, Optional[float]]]] = []
 
-        self.rtt_A:   list[float] = []
-        self.rtt_B:   list[float] = []
+        self._t_flow    = threading.Thread(target=self._flow_loop,    daemon=True)
+        self._t_latency = threading.Thread(target=self._latency_loop, daemon=True)
 
-        self.bw_A:     list[float] = []
-        self.jitter_A: list[float] = []
-        self.loss_A:   list[float] = []
-
-        self.bw_B:     list[float] = []
-        self.jitter_B: list[float] = []
-        self.loss_B:   list[float] = []
-
-        self.flows:    list[int]   = []
-
-        self._stop  = threading.Event()
-        self._thread = threading.Thread(target=self._run, daemon=True)
-        self._log_A = ''
-        self._log_B = ''
-        self._t0    = time.time()
-
-    # ------------------------------------------------------------------
-    def start(self):
-        info('[monitor] Avvio iperf verso serverA e serverB…\n')
-        self._log_A = iperf_start(self.client, self.serverA)
-        #self._log_B = iperf_start(self.client, self.serverB)
-        self._t0    = time.time()
-        self._thread.start()
-        info('[monitor] Monitoraggio avviato. Usa Ctrl+C sulla CLI per fermare.\n')
-
-    def stop(self):
-        self._stop.set()
-        self._thread.join(timeout=self.poll + 2)
-        iperf_stop(self.client, self.serverA)
-        #iperf_stop(self.client, self.serverB)
-        info('[monitor] Monitoraggio fermato.\n')
-
-    # ------------------------------------------------------------------
-    def _run(self):
+    # ---- thread flow --------------------------------------------------
+    def _flow_loop(self):
+        t0 = self._start_time
+        info(f"[monitor:{self.label}] ▶ Thread flow avviato\n")
         while not self._stop.is_set():
-            t = time.time() - self._t0
-            self.timestamps.append(t)
-
-            # RTT
-            rA = h_stats(self.client, self.serverA, nping=PING_COUNT)
-            rB = h_stats(self.client, self.serverB, nping=PING_COUNT)
-            self.rtt_A.append(rA if rA is not None else float('nan'))
-            self.rtt_B.append(rB if rB is not None else float('nan'))
-
-            # iperf
-            bwA, jA, lA = iperf_read_last(self._log_A)
-            bwB, jB, lB = iperf_read_last(self._log_B)
-
-            self.bw_A.append(bwA     if bwA     is not None else float('nan'))
-            self.jitter_A.append(jA  if jA      is not None else float('nan'))
-            self.loss_A.append(lA    if lA      is not None else float('nan'))
-
-            self.bw_B.append(bwB     if bwB     is not None else float('nan'))
-            self.jitter_B.append(jB  if jB      is not None else float('nan'))
-            self.loss_B.append(lB    if lB      is not None else float('nan'))
-
-            # Flow rules
-            self.flows.append(s_stats(self.victim))
-
-            info(
-                f'[monitor] t={t:.0f}s | '
-                f'rttA={self.rtt_A[-1]:.1f}ms rttB={self.rtt_B[-1]:.1f}ms | '
-                f'flows={self.flows[-1]}\n'
+            elapsed = time.time() - t0
+            if self.duration is not None and elapsed >= self.duration:
+                break
+            counts = {sw: {'total': get_flow_count(sw),
+                            'valid': get_valid_flow_count(sw)} for sw in SWITCHES}
+            self.flow_samples.append((elapsed, counts))
+            per_sw = "  ".join(
+                f"{sw}=tot:{counts[sw]['total']}/val:{counts[sw]['valid']}"
+                for sw in SWITCHES
             )
+            info(f"  [flow t={elapsed:6.1f}s] {per_sw}\n")
+            self._stop.wait(timeout=self.interval)
+        info(f"[monitor:{self.label}] ■ Thread flow terminato\n")
 
-            self._stop.wait(self.poll)
+    # ---- thread latenza -------------------------------------------------
+    def _latency_loop(self):
+        t0 = self._start_time
+        info(f"[monitor:{self.label}] ▶ Thread latenza avviato\n")
+        while not self._stop.is_set():
+            elapsed = time.time() - t0
+            if self.duration is not None and elapsed >= self.duration:
+                break
+            rtts = {}
+            for src, dst in PING_PAIRS:
+                key = f"{src}→{dst}"
+                rtts[key] = measure_latency(self.net, src, dst)
+            self.latency_samples.append((elapsed, rtts))
+
+            valid = [v for v in rtts.values() if v is not None]
+            avg_str = f"{statistics.mean(valid):.3f} ms" if valid else "N/A"
+            losses = sum(1 for v in rtts.values() if v is None)
+            info(f"  [rtt  t={elapsed:6.1f}s] media={avg_str:<10} loss={losses}/{len(PING_PAIRS)}\n")
+            self._stop.wait(timeout=self.interval)
+        info(f"[monitor:{self.label}] ■ Thread latenza terminato\n")
+
+    # ---- controllo --------------------------------------------------------
+    def start(self) -> 'NetworkMonitor':
+        self._start_time = time.time()
+        self._t_flow.start()
+        self._t_latency.start()
+        info(f"[monitor:{self.label}] Avviato (intervallo={self.interval}s"
+             f"{f', durata={self.duration}s' if self.duration else ''}).\n")
+        return self
+
+    def wait(self, timeout: Optional[float] = None) -> None:
+        """Blocca finché entrambi i thread non terminano (utile solo se è
+        stata impostata una `duration`, altrimenti non termineranno mai)."""
+        self._t_flow.join(timeout=timeout)
+        self._t_latency.join(timeout=timeout)
+
+    def stop(self, write_report: bool = True, output_dir: str = OUTPUT_DIR) -> Optional[str]:
+        """Ferma il monitor, attende la chiusura dei thread e (default)
+        genera un report su file. Restituisce il path del report."""
+        self._stop.set()
+        self._t_flow.join(timeout=10)
+        self._t_latency.join(timeout=10)
+        info(f"[monitor:{self.label}] Fermato. "
+             f"Campioni raccolti: flow={len(self.flow_samples)}, "
+             f"latenza={len(self.latency_samples)}\n")
+        if write_report:
+            return generate_report(self, output_dir=output_dir)
+        return None
+
+    def is_running(self) -> bool:
+        return not self._stop.is_set()
 
 
 # ---------------------------------------------------------------------------
-# Plot
+# Generazione report su file
 # ---------------------------------------------------------------------------
-def plot_results(mon: NetworkMonitor, out_dir: str = '/tmp'):
-    """Genera e salva i grafici dai dati raccolti."""
-    try:
-        import matplotlib
-        matplotlib.use('Agg')          # non-interactive (nessun display richiesto)
-        import matplotlib.pyplot as plt
-        import numpy as np
-    except ImportError:
-        print('[monitor] matplotlib non trovato – installa con: pip install matplotlib')
-        return
 
-    ts = mon.timestamps
-    if not ts:
-        print('[monitor] Nessun dato raccolto, grafici non generati.')
-        return
+def generate_report(monitor: NetworkMonitor, output_dir: str = OUTPUT_DIR) -> str:
+    """
+    Scrive su file un report testuale con l'andamento temporale di flow rule
+    (totali e valide) e latenza RTT raccolti da monitor.
+    Restituisce il path del file generato.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    path = os.path.join(output_dir, f"monitor_report_{monitor.label}_{timestamp}.txt")
 
-    os.makedirs(out_dir, exist_ok=True)
-    x = np.array(ts)
+    duration_str = (f"{monitor.flow_samples[-1][0]:.1f}s"
+                     if monitor.flow_samples else "N/A")
 
-    def _safe(lst):
-        return np.array(lst, dtype=float)
+    with open(path, 'w') as f:
+        f.write("=" * 70 + "\n")
+        f.write("  SDN NETWORK MONITOR — REPORT\n")
+        f.write(f"  Label: {monitor.label}\n")
+        f.write(f"  Generato il: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        f.write(f"  Intervallo campionamento: {monitor.interval}s\n")
+        f.write(f"  Durata totale monitoraggio: {duration_str}\n")
+        f.write("=" * 70 + "\n\n")
 
-    fig, axes = plt.subplots(4, 1, figsize=(12, 16))
-    fig.suptitle('Network Monitor – Risultati', fontsize=14, fontweight='bold')
+        # --- Flow rules ---
+        f.write("[1] FLOW RULES (totale/valide) NEL TEMPO\n")
+        f.write("-" * 70 + "\n")
+        header = (f"{'t (s)':>8}  " +
+                  "  ".join(f"{sw:>14}" for sw in SWITCHES) +
+                  f"  {'TOT/VAL':>12}\n")
+        f.write(header)
+        f.write("-" * 70 + "\n")
+        for elapsed, counts in monitor.flow_samples:
+            row = f"{elapsed:>8.1f}  "
+            tot_sum = val_sum = 0
+            for sw in SWITCHES:
+                t = counts[sw]['total']
+                v = counts[sw]['valid']
+                row += f"{f'{t}/{v}':>14}  "
+                if t >= 0:
+                    tot_sum += t
+                if v >= 0:
+                    val_sum += v
+            row += f"{f'{tot_sum}/{val_sum}':>12}\n"
+            f.write(row)
 
-    # --- RTT ---
-    ax = axes[0]
-    ax.plot(x, _safe(mon.rtt_A), label=f'RTT → {mon.serverA.name}', marker='o', ms=3)
-    ax.plot(x, _safe(mon.rtt_B), label=f'RTT → {mon.serverB.name}', marker='s', ms=3)
-    ax.set_ylabel('RTT (ms)')
-    ax.set_title('Round-Trip Time')
-    ax.legend(); ax.grid(True, alpha=.3)
+        if monitor.flow_samples:
+            tot_peak = max(sum(c[sw]['total'] for sw in SWITCHES if c[sw]['total'] >= 0)
+                            for _, c in monitor.flow_samples)
+            val_peak = max(sum(c[sw]['valid'] for sw in SWITCHES if c[sw]['valid'] >= 0)
+                            for _, c in monitor.flow_samples)
+            f.write("-" * 70 + "\n")
+            f.write(f"Picco flow totali: {tot_peak}    Picco flow valide: {val_peak}\n")
 
-    # --- Bandwidth ---
-    ax = axes[1]
-    ax.plot(x, _safe(mon.bw_A), label=f'BW → {mon.serverA.name}', marker='o', ms=3)
-    ax.plot(x, _safe(mon.bw_B), label=f'BW → {mon.serverB.name}', marker='s', ms=3)
-    ax.set_ylabel('Bandwidth (Mbits/s)')
-    ax.set_title('Throughput UDP (iperf)')
-    ax.legend(); ax.grid(True, alpha=.3)
+        # --- Latenza ---
+        f.write("\n[2] LATENZA RTT (ms) NEL TEMPO\n")
+        f.write("-" * 70 + "\n")
+        keys = [f"{s}→{d}" for s, d in PING_PAIRS]
+        header2 = (f"{'t (s)':>8}  " +
+                   "  ".join(f"{k:>10}" for k in keys) +
+                   f"  {'media':>8}  {'loss':>6}\n")
+        f.write(header2)
+        f.write("-" * 70 + "\n")
+        for elapsed, rtts in monitor.latency_samples:
+            row = f"{elapsed:>8.1f}  "
+            for k in keys:
+                v = rtts.get(k)
+                row += f"{(f'{v:.2f}' if v is not None else 'loss'):>10}  "
+            valid = [v for v in rtts.values() if v is not None]
+            avg_str = f"{statistics.mean(valid):.2f}" if valid else "N/A"
+            losses = sum(1 for v in rtts.values() if v is None)
+            row += f"{avg_str:>8}  {losses}/{len(keys):<4}\n"
+            f.write(row)
 
-    # --- Jitter + Packet loss ---
-    ax = axes[2]
-    ax2b = ax.twinx()
-    ax.plot(x, _safe(mon.jitter_A), label=f'Jitter {mon.serverA.name}', color='C2', marker='o', ms=3)
-    ax.plot(x, _safe(mon.jitter_B), label=f'Jitter {mon.serverB.name}', color='C3', marker='s', ms=3)
-    ax2b.plot(x, _safe(mon.loss_A), '--', label=f'Loss {mon.serverA.name}', color='C4', ms=3)
-    ax2b.plot(x, _safe(mon.loss_B), '--', label=f'Loss {mon.serverB.name}', color='C5', ms=3)
-    ax.set_ylabel('Jitter (ms)')
-    ax2b.set_ylabel('Packet Loss (%)')
-    ax.set_title('Jitter & Packet Loss')
-    lines_a, lab_a = ax.get_legend_handles_labels()
-    lines_b, lab_b = ax2b.get_legend_handles_labels()
-    ax.legend(lines_a + lines_b, lab_a + lab_b, loc='upper left', fontsize=8)
-    ax.grid(True, alpha=.3)
+        all_rtts = [v for _, r in monitor.latency_samples for v in r.values() if v is not None]
+        if all_rtts:
+            f.write("-" * 70 + "\n")
+            f.write(f"RTT min/avg/max sull'intero periodo: "
+                    f"{min(all_rtts):.3f} / {statistics.mean(all_rtts):.3f} / {max(all_rtts):.3f} ms\n")
 
-    # --- Flow rules ---
-    ax = axes[3]
-    ax.step(x, _safe(mon.flows), where='post', color='C6', label=f'{mon.victim.name} flows')
-    ax.set_ylabel('Flow rules')
-    ax.set_xlabel('Tempo (s)')
-    ax.set_title(f'Flow Rules su {mon.victim.name}')
-    ax.legend(); ax.grid(True, alpha=.3)
+        f.write("\n" + "=" * 70 + "\n")
 
-    plt.tight_layout()
-    out_path = os.path.join(out_dir, 'network_monitor.png')
-    plt.savefig(out_path, dpi=150)
-    plt.close(fig)
-    print(f'[monitor] Grafico salvato in: {out_path}')
+    info(f"[monitor] Report salvato in: {path}\n")
+    return path
 
-    # --- Tabella riassuntiva a console ---
-    def _fmt(lst):
-        arr = _safe(lst)
-        valid = arr[~np.isnan(arr)]
-        if len(valid) == 0:
-            return 'N/A', 'N/A', 'N/A'
-        return f'{valid.mean():.2f}', f'{valid.min():.2f}', f'{valid.max():.2f}'
 
-    print('\n=== Riepilogo metriche ===')
-    hdr = f"{'Metrica':<30} {'Media':>10} {'Min':>10} {'Max':>10}"
-    print(hdr)
-    print('-' * len(hdr))
-    for label, data in [
-        (f'RTT → {mon.serverA.name} (ms)',       mon.rtt_A),
-        (f'RTT → {mon.serverB.name} (ms)',       mon.rtt_B),
-        (f'BW → {mon.serverA.name} (Mbps)',      mon.bw_A),
-        (f'BW → {mon.serverB.name} (Mbps)',      mon.bw_B),
-        (f'Jitter → {mon.serverA.name} (ms)',    mon.jitter_A),
-        (f'Jitter → {mon.serverB.name} (ms)',    mon.jitter_B),
-        (f'Loss → {mon.serverA.name} (%)',       mon.loss_A),
-        (f'Loss → {mon.serverB.name} (%)',       mon.loss_B),
-        (f'Flow rules ({mon.victim.name})',       mon.flows),
-    ]:
-        avg, mn, mx = _fmt(data)
-        print(f'{label:<30} {avg:>10} {mn:>10} {mx:>10}')
+# ---------------------------------------------------------------------------
+# Funzioni di convenienza per la CLI Mininet
+# ---------------------------------------------------------------------------
+
+def start_monitor(net: Optional[Mininet] = None,
+                  interval: float = MONITOR_INTERVAL,
+                  duration: Optional[float] = None,
+                  label: str = "manual") -> Optional[NetworkMonitor]:
+    """
+    Avvia il monitoraggio in background e ritorna immediatamente l'oggetto
+    NetworkMonitor, lasciando la CLI Mininet libera per lanciare un attacco
+    o altri comandi nel frattempo.
+
+    Esempio dalla CLI:
+        mininet> py monitor = start_monitor(net)
+        mininet> py FloodAttack(switch=s2, iface=s2.intfList()[2], npacket=1000, threads=4, bsize=100, bdelay=1).start()
+        ... attendere, fare ping, ecc. ...
+        mininet> py monitor.stop()
+    """
+    if net is None:
+        import builtins as _b
+        net = getattr(_b, 'net', None)
+        if net is None:
+            error("[monitor] Impossibile ottenere l'istanza Mininet.\n")
+            return None
+    m = NetworkMonitor(net, interval=interval, duration=duration, label=label)
+    m.start()
+    return m
+
+
+def monitor_sdn(net: Optional[Mininet] = None,
+               duration: float = 60.0,
+               interval: float = MONITOR_INTERVAL) -> str:
+    """
+    Versione bloccante e self-contained: avvia il monitor, campiona per
+    `duration` secondi, poi genera e salva il report.
+
+    NON gestisce alcun attacco: se vuoi correlare i dati a un attacco,
+    lancialo tu manualmente (es. in un'altra finestra/xterm) mentre questa
+    funzione gira, oppure usa il workflow non bloccante
+    start_monitor()/monitor.stop().
+
+    Restituisce il path del file di report generato.
+    """
+    if net is None:
+        import builtins as _b
+        net = getattr(_b, 'net', None)
+        if net is None:
+            error("[monitor] Impossibile ottenere l'istanza Mininet.\n")
+            return ""
+
+    info(f"\n*** SDN Network Monitor — avvio (durata={duration}s) ***\n")
+    m = NetworkMonitor(net, interval=interval, duration=duration, label="auto")
+    m.start()
+    m.wait()
+    return m.stop()
+
+
+if __name__ == '__main__':
+    print("Questo script è pensato per essere importato o usato dalla CLI Mininet.")
     print()
-
-
-# ---------------------------------------------------------------------------
-# API pubblica
-# ---------------------------------------------------------------------------
-def start_monitor(client: Host, serverA: Host, serverB: Host,
-                  victim: OVSSwitch, poll: int = POLL_INTERVAL) -> NetworkMonitor:
-    """Avvia il monitoraggio in background e restituisce l'oggetto monitor."""
-    mon = NetworkMonitor(client, serverA, serverB, victim, poll)
-    mon.start()
-    return mon
-
-
-def stop_monitor_and_plot(mon: NetworkMonitor, out_dir: str = '/tmp'):
-    """Ferma il monitor e genera i grafici. Chiamare dopo CLI(net)."""
-    mon.stop()
-    plot_results(mon, out_dir)
+    print("Workflow consigliato (non bloccante, attacco indipendente):")
+    print("  mininet> py monitor = start_monitor(net)")
+    print("  mininet> py FloodAttack(switch=s2, iface=s2.intfList()[2], "
+          "npacket=1000, threads=4, bsize=100, bdelay=1).start()")
+    print("  ... attendere / fare ping ...")
+    print("  mininet> py monitor.stop()")
+    print()
+    print("Workflow alternativo (bloccante, durata fissa):")
+    print("  mininet> py monitor_sdn(duration=60)")
