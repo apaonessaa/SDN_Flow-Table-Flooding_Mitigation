@@ -12,23 +12,14 @@ Downgrade:
 $ pip install eventlet==0.30.2
 ```
 
-## Network
+## Network, Monitoring and Flow Table Flooding
 
 ```bash
 # Controller
-$ ryu-manager --observe-links ryu.app.simple_switch_14
+$ ryu-manager --observe-links simple_switch_14_mod.py 
 
 # Topology
-$ python3 network.py 
-```
-
-Monitoring:
-
-```text
-mininet> py h_stats(h1, h2)
-mininet> py s_stats(s1)
-
-mininet> py monitor_sdn(net=net, attack=True)
+$ python3 network.py
 ```
 
 ## Flow Table Flooding
