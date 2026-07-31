@@ -23,8 +23,10 @@ from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 from ryu.lib import hub
 
-from collections import defaultdict, Counter
-import math
+from collections import defaultdict
+from netaddr import IPAddress, IPNetwork
+import numpy as np
+
 
 class SimpleSwitch14(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_4.OFP_VERSION]
@@ -47,11 +49,10 @@ class SimpleSwitch14(app_manager.RyuApp):
             hub.sleep(1)
 
     def _request_stats(self, datapath):
-        ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
         req = parser.OFPFlowStatsRequest(datapath)
         datapath.send_msg(req)
-    
+
     """
     Per gli switch
     """
@@ -82,7 +83,7 @@ class SimpleSwitch14(app_manager.RyuApp):
         # correctly.  The bug has been fixed in OVS v2.1.0.
         match = parser.OFPMatch()
         actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
-                                          ofproto.OFPCML_NO_BUFFER)]
+                                           ofproto.OFPCML_NO_BUFFER)]
         self.add_flow(datapath, 0, match, actions)
 
     def add_flow(self, datapath, priority, match, actions, idle_timeout=0, hard_timeout=0):
@@ -90,10 +91,11 @@ class SimpleSwitch14(app_manager.RyuApp):
         parser = datapath.ofproto_parser
 
         inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS,
-                                             actions)]
+                                              actions)]
 
         mod = parser.OFPFlowMod(datapath=datapath, priority=priority,
-                                match=match, instructions=inst, idle_timeout=idle_timeout, hard_timeout=hard_timeout)
+                                 match=match, instructions=inst,
+                                 idle_timeout=idle_timeout, hard_timeout=hard_timeout)
         datapath.send_msg(mod)
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
@@ -138,7 +140,7 @@ class SimpleSwitch14(app_manager.RyuApp):
             data = msg.data
 
         out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
-                                  in_port=in_port, actions=actions, data=data)
+                                   in_port=in_port, actions=actions, data=data)
         datapath.send_msg(out)
 
     """
@@ -150,58 +152,103 @@ class SimpleSwitch14(app_manager.RyuApp):
 
         stats = [stat for stat in body if stat.priority == 1]
 
-        # Group by eth_src
-        grouped = defaultdict(list)
-        for stat in stats:
-            eth_src = stat.match.get('eth_src')
-            grouped[eth_src].append(stat)
-
-        # Collect Stats
-        for eth_src, new_stats in grouped.items():
-            self.flow_stats[eth_src] += new_stats
-            diff = len(self.flow_stats[eth_src]) - self.WINDOW
-            if diff > 0:
-                del self.flow_stats[eth_src][diff:]
+        dpid = ev.msg.datapath.id
 
         # Check occupancy
-        occupancy = len(stats) / float(FLOW_TABLE_CAPACITY)
-        if occupancy < FLOW_TABLE_THRESHOLD:
+        occupancy = len(stats) / float(self.FLOW_TABLE_CAPACITY)
+        if occupancy < self.FLOW_TABLE_THRESHOLD:
             return
 
+        self.logger.debug(f"[GAP] DPID: {dpid:016x}")
+
+        # Get Flow Table Feature
+        (paf, ft_psi,
+         (mean_duration, cvd),
+         (mean_pkts, cvp),
+         (mean_bytes, cvb)) = self.get_ft_features(stats)
+
+        self.logger.debug(
+            f"[GAP] > PAF: {paf}, PSI: {ft_psi}, Mean Duration: {mean_duration}, "
+            f"CVD: {cvd}, Mean Packet: {mean_pkts}, CVP: {cvp}, "
+            f"Mean Bytes: {mean_bytes}, CVB: {cvb}"
+        )
+
         # Get Features
-        for eth_src, new_stats in self.flow_stats.items():
-            self.logger.debug(f"{eth_src}")
-            for stat in new_stats:
-                duration, packet_count, byte_count, psi = self.get_flow_feature(stat)
-                self.logger.debug(f"Duration: {duration}, Packet count: {packet_count}, Byte count: {byte_count}, PSI: {psi}")
+        for stat in stats:
+            duration, packet_count, byte_count, pkt_rate, byte_rate, psi = self.get_flow_feature(stat)
+            self.logger.debug(
+                f"[GAP] >> Duration: {duration}, Packet count: {packet_count}, "
+                f"Byte count: {byte_count}, Packet Rate: {pkt_rate}, "
+                f"Byte Rate: {byte_rate}, PSI: {psi}"
+            )
 
     """
-    Features:
-    - Duration
-    - Packet count
-    - Byte count
-    - PSI
+    Feature Per Flow Table
+        - Packet Arrival Frequency
+        - Cumulative Possibility Spoofed Ip
+        - Mean Duration and CVD
+        - Mean Packets and CVP
+        - Mean Bytes and CVB
+    """
+    def get_ft_features(self, flows):
+        return (
+            self.calculate_paf(flows),
+            self.calculate_ft_psi(flows),
+            self.calculate_mean_and_cv([self.effective_duration(flow) for flow in flows]),
+            self.calculate_mean_and_cv([flow.packet_count for flow in flows]),
+            self.calculate_mean_and_cv([flow.byte_count for flow in flows]))
+
+    def calculate_paf(self, flows):
+        if len(flows) < 2:
+            return 0
+        t = [self.effective_duration(flow) for flow in flows]
+        delta_t = np.diff(sorted(t))
+        mean_delta_t = np.mean(delta_t)
+        return 1 / mean_delta_t if mean_delta_t != 0 else 0
+
+    def calculate_ft_psi(self, flows):
+        total_psi = 0
+        for flow in flows:
+            total_psi += self.calculate_psi(flow)
+        return total_psi
+
+    """
+    - Mean
+    - Coeff var
+    """
+    def calculate_mean_and_cv(self, values):
+        mean = np.mean(values)
+        cv = np.std(values) / mean if mean != 0 else 0
+        return mean, cv
+
+    """
+    Feature Per Flow Rule
+        - Duration
+        - Packet Count
+        - Byte Count
+        - Packet Per Seconds
+        - Bytes Per Seconds
+        - PSI
     """
     def get_flow_feature(self, flow):
+        flow_duration = self.effective_duration(flow)
         return (
-            self.effective_duration(flow),
-            flow.packet_count, 
+            flow_duration,
+            flow.packet_count,
             flow.byte_count,
-            self.psi(flow))
-    
+            flow.packet_count / flow_duration if flow_duration else 0,
+            flow.byte_count / flow_duration if flow_duration else 0,
+            self.calculate_psi(flow))
+
     def effective_duration(self, flow):
-        return flow.duration_sec + flow.duration_nsec / 1e-9
+        return flow.duration_sec + flow.duration_nsec / 1e9
 
-    def psi(self, flow):
+    def calculate_psi(self, flow):
+        src_ip = flow.match.get('ipv4_src')
+        if src_ip is None:
+            # Flow non basato su IP (es. match L2 puro): non spoofabile via IP.
+            return 0
         for valid_range in self.valid_ip_ranges:
-            if IP(flow.match['ipv4_src']) in IP(valid_range)
-                return 1
-        return 0
-
-    def calculate_shannon_entropy(self, values):
-        """H(D) = - sum( P(Di) * log2(P(Di)) )"""
-        if not values:
-            return 0.0
-        counts = Counter(values)
-        n = len(values)
-        return -sum((c / n) * math.log2(c / n) for c in counts.values())
+            if IPAddress(src_ip) in IPNetwork(valid_range):
+                return 0
+        return 1

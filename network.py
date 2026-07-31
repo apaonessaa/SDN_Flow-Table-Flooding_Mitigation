@@ -96,7 +96,7 @@ def main() -> None:
 
     wait_for_network(net)
     
-    """
+    
     # ── Fase 1: monitoraggio PRE-attacco ────────────────────────────────────
     info("*** [PRE-ATTACK] Avvio monitor\n")
     monitor = NetworkMonitor(
@@ -136,7 +136,7 @@ def main() -> None:
     monitor.stop()
     monitor.wait()
     info("*** Monitor fermato\n")
-    """
+    
 
     CLI(net)
     net.stop()

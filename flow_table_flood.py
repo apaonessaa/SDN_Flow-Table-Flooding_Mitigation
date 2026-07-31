@@ -184,4 +184,3 @@ class FloodAttack:
         """Attende la fine naturale dell'attacco (senza fermarlo)."""
         if self._attack_thread:
             self._attack_thread.join(timeout=timeout)
-
