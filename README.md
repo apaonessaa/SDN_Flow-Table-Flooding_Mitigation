@@ -16,7 +16,7 @@ $ pip install eventlet==0.30.2
 
 ```bash
 # Controller
-$ ryu-manager --observe-links simple_switch_14_mod.py 
+$ ryu-manager --verbose --observe-links mycontroller.py 
 
 # Topology
 $ python3 network.py

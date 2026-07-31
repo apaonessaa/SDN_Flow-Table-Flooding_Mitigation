@@ -15,7 +15,6 @@ from flow_table_flood import FloodAttack
 # ── Parametri configurabili ──────────────────────────────────────────────────
 MONITOR_INTERVAL = 1      # secondi tra un campionamento e l'altro
 ATTACK_NPACKET   = 10000   # pacchetti per thread di attacco
-ATTACK_THREADS   = 4
 ATTACK_BSIZE     = 100    # burst size
 ATTACK_BDELAY    = 1      # burst delay (s)
 PRE_ATTACK_WAIT  = 10     # secondi di monitoraggio prima dell'attacco
@@ -113,9 +112,8 @@ def main() -> None:
         switch=s2,
         iface=s2.intfList()[2],
         npacket=ATTACK_NPACKET,
-        threads=ATTACK_THREADS,
-        bsize=ATTACK_BSIZE,
-        bdelay=ATTACK_BDELAY,
+        added_new_packets=ATTACK_BSIZE,
+        attack_frequency=ATTACK_BDELAY,
     )
 
     attack.start()

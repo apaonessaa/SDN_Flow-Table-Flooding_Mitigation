@@ -246,7 +246,6 @@ class SimpleSwitch14(app_manager.RyuApp):
     def calculate_psi(self, flow):
         src_ip = flow.match.get('ipv4_src')
         if src_ip is None:
-            # Flow non basato su IP (es. match L2 puro): non spoofabile via IP.
             return 0
         for valid_range in self.valid_ip_ranges:
             if IPAddress(src_ip) in IPNetwork(valid_range):
