@@ -117,7 +117,10 @@ def main() -> None:
         switch=s2,
         iface=s2.intfList()[2],
         npacket=ATTACK_NPACKET,
-        added_new_packets=ATTACK_ANP
+        added_new_packets=ATTACK_ANP,
+        net=net,
+        probe_src='h7',
+        probe_dst_ip='10.0.0.66',
     )
 
     attack.start()

