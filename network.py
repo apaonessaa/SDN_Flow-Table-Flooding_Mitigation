@@ -13,13 +13,13 @@ from monitor import NetworkMonitor
 from flow_table_flood import FloodAttack
 
 # ── Parametri configurabili ──────────────────────────────────────────────────
-MONITOR_INTERVAL = 1      # secondi tra un campionamento e l'altro
-ATTACK_NPACKET   = 10000   # pacchetti per thread di attacco
-ATTACK_BSIZE     = 100    # burst size
-ATTACK_BDELAY    = 1      # burst delay (s)
-PRE_ATTACK_WAIT  = 10     # secondi di monitoraggio prima dell'attacco
+MONITOR_INTERVAL = 1        # secondi tra un campionamento e l'altro
+ATTACK_NPACKET   = 100      # pacchetti per thread di attacco
+ATTACK_ANP       = 10       # burst size
+ATTACK_FREQUENCY = 10        # burst delay (s)
+PRE_ATTACK_WAIT  = 10       # secondi di monitoraggio prima dell'attacco
 ATTACK_WAIT      = None     # secondi di durata attacco (None = aspetta fine naturale)
-POST_ATTACK_WAIT = 10     # secondi di monitoraggio dopo l'attacco
+POST_ATTACK_WAIT = 10       # secondi di monitoraggio dopo l'attacco
 # ────────────────────────────────────────────────────────────────────────────
 
 
@@ -45,7 +45,13 @@ class CustomTopo(Topo):
         for i in range(3, 5):
             h = self.addHost(f'h{i}', ip=f'10.0.0.{i}/24')
             self.addLink(h, s3)
+        
+        attacker = self.addHost('h6', ip='10.0.0.66/24', mac='66:66:66:66:66:66')
+        self.addLink(attacker, s2)
 
+        h7 = self.addHost('h7', ip='10.0.0.77/24', mac='77:77:77:77:77:77')
+        self.addLink(h7, s2)
+    
 
 def run_script(path: str) -> None:
     info(f"- {path}\n")
@@ -95,7 +101,6 @@ def main() -> None:
 
     wait_for_network(net)
     
-    
     # ── Fase 1: monitoraggio PRE-attacco ────────────────────────────────────
     info("*** [PRE-ATTACK] Avvio monitor\n")
     monitor = NetworkMonitor(
@@ -112,8 +117,7 @@ def main() -> None:
         switch=s2,
         iface=s2.intfList()[2],
         npacket=ATTACK_NPACKET,
-        added_new_packets=ATTACK_BSIZE,
-        attack_frequency=ATTACK_BDELAY,
+        added_new_packets=ATTACK_ANP
     )
 
     attack.start()
@@ -135,7 +139,6 @@ def main() -> None:
     monitor.wait()
     info("*** Monitor fermato\n")
     
-
     CLI(net)
     net.stop()
 

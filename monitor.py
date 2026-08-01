@@ -45,7 +45,7 @@ def get_valid_flow_count(switch_name: str) -> int:
         mac_pattern = '|'.join(HOST_MACS)
         comando = (
             f"ovs-ofctl -O OpenFlow14 dump-flows {switch_name} | "
-            f"grep -Ei '({mac_pattern})' | wc -l"
+            f"grep -Ei '({mac_pattern}|actions=CONTROLLER:*)' | wc -l"
         )
         result = subprocess.run(
             comando, shell=True, capture_output=True, text=True, timeout=5
