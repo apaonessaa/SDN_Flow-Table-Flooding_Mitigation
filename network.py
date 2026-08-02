@@ -10,7 +10,7 @@ from mininet.log import setLogLevel, info
 
 # Custom modules
 from monitor import NetworkMonitor
-from flow_table_flood import FloodAttack
+from flow_table_flood import FTFAttack
 
 # ── Parametri configurabili ──────────────────────────────────────────────────
 MONITOR_INTERVAL = 1        # secondi tra un campionamento e l'altro
@@ -113,14 +113,14 @@ def main() -> None:
 
     # ── Fase 2: attacco (monitor continua a girare) ──────────────────────────
     info("*** [ATTACK] Avvio flood attack su s2\n")
-    attack = FloodAttack(
+    attack = FTFAttack(
         switch=s2,
         iface=s2.intfList()[2],
-        npacket=ATTACK_NPACKET,
-        added_new_packets=ATTACK_ANP,
         net=net,
         probe_src='h7',
-        probe_dst_ip='10.0.0.66',
+        probe_dst='h6',
+        npacket=ATTACK_NPACKET,
+        added_new_packets=ATTACK_ANP
     )
 
     attack.start()
