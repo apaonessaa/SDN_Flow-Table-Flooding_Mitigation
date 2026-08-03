@@ -26,13 +26,108 @@ from netaddr import IPAddress, IPNetwork
 import numpy as np
 
 class PacketStats():
-    def __init__(self, payload_entropy, payload_size, src_ip, dst_ip, src_mac, dst_mac):
-        self.payload_entropy = payload_entropy
-        self.payload_size = payload_size
+    def __init__(self, payload, src_ip, dst_ip, src_mac, dst_mac):
+        self.payload = payload
+        #self.payload_size = len(payload)
         self.src_ip = src_ip
         self.dst_ip = dst_ip
         self.src_mac = src_mac
         self.dst_mac = dst_mac
+
+    """
+    - Data Entropy
+    - 
+    """
+    def get_features(self):
+        return (
+            FeatureExt.shannon_entropy(self.payload),
+            len(self.payload))
+
+class FeatureExt():
+    def __init__(self, valid_ip_ranges):
+        self.valid_ip_ranges = valid_ip_ranges
+    
+    """
+    Feature Per Flow Table
+        - Packet Arrival Frequency
+        - Cumulative Possibility Spoofed Ip
+        - Mean Duration and CVD
+        - Mean Packets and CVP
+        - Mean Bytes and CVB
+        
+        - Mean, cv and entr
+    """
+    def get_ft_features(self, flows):
+        return (
+            FeatureExt.calculate_paf(flows),
+            FeatureExt.calculate_ft_psi(flows, self.valid_ip_ranges),
+            FeatureExt.calculate_mean_and_cv([FeatureExt.effective_duration(flow) for flow in flows]),
+            FeatureExt.calculate_mean_and_cv([flow.packet_count for flow in flows]),
+            FeatureExt.calculate_mean_and_cv([flow.byte_count for flow in flows]))
+
+    """
+    Feature Per Flow Rule
+        - Duration
+        - Packet Count
+        - Byte Count
+        - Packet Per Seconds
+        - Bytes Per Seconds
+        - PSI
+    """
+    def get_flow_feature(self, flow):
+        flow_duration = FeatureExt.effective_duration(flow)
+        return (
+            flow_duration,
+            flow.packet_count,
+            flow.byte_count,
+            flow.packet_count / flow_duration if flow_duration else 0,
+            flow.byte_count / flow_duration if flow_duration else 0,
+            FeatureExt.calculate_psi(flow, self.valid_ip_ranges))
+
+    @staticmethod
+    def calculate_paf(flows):
+        if len(flows) < 2:
+            return 0
+        t = [FeatureExt.effective_duration(flow) for flow in flows]
+        delta_t = np.diff(sorted(t))
+        mean_delta_t = np.mean(delta_t)
+        return 1 / mean_delta_t if mean_delta_t != 0 else 0
+
+    @staticmethod
+    def calculate_ft_psi(flows, valid_ip_ranges):
+        total_psi = 0
+        for flow in flows:
+            total_psi += FeatureExt.calculate_psi(flow, valid_ip_ranges)
+        return total_psi
+
+    @staticmethod
+    def calculate_mean_and_cv(values):
+        mean = np.mean(values)
+        cv = np.std(values) / mean if mean != 0 else 0
+        return mean, cv
+
+    @staticmethod
+    def effective_duration(flow):
+        return flow.duration_sec + flow.duration_nsec / 1e9
+
+    @staticmethod
+    def calculate_psi(flow, valid_ip_ranges):
+        src_ip = flow.match.get('ipv4_src')
+        if src_ip is None:
+            return 0
+        for valid_range in valid_ip_ranges:
+            if IPAddress(src_ip) in IPNetwork(valid_range):
+                return 0
+        return 1
+
+    @staticmethod
+    def shannon_entropy(data: bytes) -> float:
+        n = len(data)
+        if n == 0:
+            return 0.0
+        counts = Counter(data)
+        pbs = [nb / n for nb in counts.values()]
+        return -np.sum([pb * np.log2(pb) for pb in pbs])
 
 class SimpleSwitch14(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_4.OFP_VERSION]
@@ -46,7 +141,7 @@ class SimpleSwitch14(app_manager.RyuApp):
         self.flow_stats = defaultdict(list)
         self.datapaths = {}
         self.collector = hub.spawn(self._collector)
-        self.valid_ip_ranges = ['10.0.0.0/8']
+        self.flow_stats = FeatureExt(valid_ip_ranges=['10.0.0.0/24'])
         self.pkt_in_per_switch = defaultdict(list)
 
     def _collector(self):
@@ -57,7 +152,7 @@ class SimpleSwitch14(app_manager.RyuApp):
 
     def _request_stats(self, datapath):
         parser = datapath.ofproto_parser
-        req = parser.OFPFlowStatsRequest(datapath)
+        req = parser.OFPFeatureExtRequest(datapath)
         datapath.send_msg(req)
 
     """
@@ -165,15 +260,13 @@ class SimpleSwitch14(app_manager.RyuApp):
             payload = b""
 
         self.pkt_in_per_switch[dpid].append(PacketStats(
-            payload_entropy=self.shannon_entropy(payload),
-            payload_size=len(payload),
+            payload=payload,
             src_ip=ip.src,
             dst_ip=ip.dst,
             src_mac=eth.src,
             dst_mac=eth.dst
         ))
 
-        print(payload, self.shannon_entropy(payload), len(payload), ip.src, ip.dst)
 
     """
     Flow Stats Handler
@@ -197,7 +290,7 @@ class SimpleSwitch14(app_manager.RyuApp):
         (paf, ft_psi,
          (mean_duration, cvd),
          (mean_pkts, cvp),
-         (mean_bytes, cvb)) = self.get_ft_features(stats)
+         (mean_bytes, cvb)) = self.flow_stats.get_ft_features(stats)
 
         self.logger.debug(
             f"[GAP] > PAF: {paf}, PSI: {ft_psi}, Mean Duration: {mean_duration}, "
@@ -207,90 +300,9 @@ class SimpleSwitch14(app_manager.RyuApp):
 
         # Get Features
         for stat in stats:
-            duration, packet_count, byte_count, pkt_rate, byte_rate, psi = self.get_flow_feature(stat)
+            duration, packet_count, byte_count, pkt_rate, byte_rate, psi = self.flow_stats.get_flow_feature(stat)
             self.logger.debug(
                 f"[GAP] >> Duration: {duration}, Packet count: {packet_count}, "
                 f"Byte count: {byte_count}, Packet Rate: {pkt_rate}, "
                 f"Byte Rate: {byte_rate}, PSI: {psi}"
             )
-
-    """
-    Feature Per Flow Table
-        - Packet Arrival Frequency
-        - Cumulative Possibility Spoofed Ip
-        - Mean Duration and CVD
-        - Mean Packets and CVP
-        - Mean Bytes and CVB
-        
-        - Mean, cv and entr
-    """
-    def get_ft_features(self, flows):
-        return (
-            self.calculate_paf(flows),
-            self.calculate_ft_psi(flows),
-            self.calculate_mean_and_cv([self.effective_duration(flow) for flow in flows]),
-            self.calculate_mean_and_cv([flow.packet_count for flow in flows]),
-            self.calculate_mean_and_cv([flow.byte_count for flow in flows]))
-
-    def calculate_paf(self, flows):
-        if len(flows) < 2:
-            return 0
-        t = [self.effective_duration(flow) for flow in flows]
-        delta_t = np.diff(sorted(t))
-        mean_delta_t = np.mean(delta_t)
-        return 1 / mean_delta_t if mean_delta_t != 0 else 0
-
-    def calculate_ft_psi(self, flows):
-        total_psi = 0
-        for flow in flows:
-            total_psi += self.calculate_psi(flow)
-        return total_psi
-
-    """
-    - Mean
-    - Coeff var
-    """
-    def calculate_mean_and_cv(self, values):
-        mean = np.mean(values)
-        cv = np.std(values) / mean if mean != 0 else 0
-        return mean, cv
-
-    """
-    Feature Per Flow Rule
-        - Duration
-        - Packet Count
-        - Byte Count
-        - Packet Per Seconds
-        - Bytes Per Seconds
-        - PSI
-    """
-    def get_flow_feature(self, flow):
-        flow_duration = self.effective_duration(flow)
-        return (
-            flow_duration,
-            flow.packet_count,
-            flow.byte_count,
-            flow.packet_count / flow_duration if flow_duration else 0,
-            flow.byte_count / flow_duration if flow_duration else 0,
-            self.calculate_psi(flow))
-
-    def effective_duration(self, flow):
-        return flow.duration_sec + flow.duration_nsec / 1e9
-
-    def calculate_psi(self, flow):
-        src_ip = flow.match.get('ipv4_src')
-        if src_ip is None:
-            return 0
-        for valid_range in self.valid_ip_ranges:
-            if IPAddress(src_ip) in IPNetwork(valid_range):
-                return 0
-        return 1
-
-    @staticmethod
-    def shannon_entropy(data: bytes) -> float:
-        n = len(data)
-        if n == 0:
-            return 0.0
-        counts = Counter(data)
-        pbs = [nb / n for nb in counts.values()]
-        return -np.sum([pb * np.log2(pb) for pb in pbs])

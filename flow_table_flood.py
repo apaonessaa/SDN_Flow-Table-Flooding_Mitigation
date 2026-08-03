@@ -1,3 +1,4 @@
+import os
 import random
 import time
 import re
@@ -32,6 +33,11 @@ class FTFUtils:
         return random.choice(FTFUtils.SUPPORTED_PROTOS)
 
     @staticmethod
+    def random_data() -> bytes:
+        n = random.randint(100, 1400)
+        return os.urandom(n)
+
+    @staticmethod
     def build_packet(src_mac: str, src_ip: str, dst_mac: str, dst_ip: str) -> Packet:
         eth = Ether(src=src_mac, dst=dst_mac)
         ip  = IP(src=src_ip, dst=dst_ip)
@@ -52,7 +58,7 @@ class FTFUtils:
                 type=random.choice([0, 8]),   # 0 = reply, 8 = echo request
                 code=0
             )
-        return eth / ip / transport
+        return eth / ip / transport / FTFUtils.random_data()
 
     @staticmethod
     def random_af(attack_frequency: int) -> int:
