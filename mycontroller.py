@@ -18,15 +18,21 @@ from ryu.controller import ofp_event
 from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER, DEAD_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_4
-from ryu.lib.packet import packet
-from ryu.lib.packet import ethernet
-from ryu.lib.packet import ether_types
+from ryu.lib.packet import packet, ethernet, ether_types, ipv4
 from ryu.lib import hub
 
-from collections import defaultdict
+from collections import defaultdict, Counter
 from netaddr import IPAddress, IPNetwork
 import numpy as np
 
+class PacketStats():
+    def __init__(self, payload_entropy, payload_size, src_ip, dst_ip, src_mac, dst_mac):
+        self.payload_entropy = payload_entropy
+        self.payload_size = payload_size
+        self.src_ip = src_ip
+        self.dst_ip = dst_ip
+        self.src_mac = src_mac
+        self.dst_mac = dst_mac
 
 class SimpleSwitch14(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_4.OFP_VERSION]
@@ -41,6 +47,7 @@ class SimpleSwitch14(app_manager.RyuApp):
         self.datapaths = {}
         self.collector = hub.spawn(self._collector)
         self.valid_ip_ranges = ['10.0.0.0/8']
+        self.pkt_in_per_switch = defaultdict(list)
 
     def _collector(self):
         while True:
@@ -96,6 +103,7 @@ class SimpleSwitch14(app_manager.RyuApp):
         mod = parser.OFPFlowMod(datapath=datapath, priority=priority,
                                  match=match, instructions=inst,
                                  idle_timeout=idle_timeout, hard_timeout=hard_timeout)
+        
         datapath.send_msg(mod)
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
@@ -112,19 +120,16 @@ class SimpleSwitch14(app_manager.RyuApp):
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             # ignore lldp packet
             return
-        dst = eth.dst
-        src = eth.src
 
         dpid = datapath.id
         self.mac_to_port.setdefault(dpid, {})
-
-        self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
+        self.logger.info("packet in %s %s %s %s", dpid, eth.src, eth.dst, in_port)
 
         # learn a mac address to avoid FLOOD next time.
-        self.mac_to_port[dpid][src] = in_port
+        self.mac_to_port[dpid][eth.src] = in_port
 
-        if dst in self.mac_to_port[dpid]:
-            out_port = self.mac_to_port[dpid][dst]
+        if eth.dst in self.mac_to_port[dpid]:
+            out_port = self.mac_to_port[dpid][eth.dst]
         else:
             out_port = ofproto.OFPP_FLOOD
 
@@ -132,7 +137,11 @@ class SimpleSwitch14(app_manager.RyuApp):
 
         # install a flow to avoid packet_in next time
         if out_port != ofproto.OFPP_FLOOD:
-            match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
+            match = parser.OFPMatch(
+                in_port=in_port,
+                eth_dst=eth.dst,
+                eth_src=eth.src
+            )   
             self.add_flow(datapath, 1, match, actions, idle_timeout=7, hard_timeout=15)
 
         data = None
@@ -142,6 +151,29 @@ class SimpleSwitch14(app_manager.RyuApp):
         out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
                                    in_port=in_port, actions=actions, data=data)
         datapath.send_msg(out)
+
+        """
+        Packet-In Collector
+        """
+        if eth.ethertype != ether_types.ETH_TYPE_IP:
+            return
+
+        ip = pkt.get_protocol(ipv4.ipv4)
+
+        payload = pkt.protocols[-1]
+        if not isinstance(payload, (bytes, bytearray)):
+            payload = b""
+
+        self.pkt_in_per_switch[dpid].append(PacketStats(
+            payload_entropy=self.shannon_entropy(payload),
+            payload_size=len(payload),
+            src_ip=ip.src,
+            dst_ip=ip.dst,
+            src_mac=eth.src,
+            dst_mac=eth.dst
+        ))
+
+        print(payload, self.shannon_entropy(payload), len(payload), ip.src, ip.dst)
 
     """
     Flow Stats Handler
@@ -189,6 +221,8 @@ class SimpleSwitch14(app_manager.RyuApp):
         - Mean Duration and CVD
         - Mean Packets and CVP
         - Mean Bytes and CVB
+        
+        - Mean, cv and entr
     """
     def get_ft_features(self, flows):
         return (
@@ -251,3 +285,12 @@ class SimpleSwitch14(app_manager.RyuApp):
             if IPAddress(src_ip) in IPNetwork(valid_range):
                 return 0
         return 1
+
+    @staticmethod
+    def shannon_entropy(data: bytes) -> float:
+        n = len(data)
+        if n == 0:
+            return 0.0
+        counts = Counter(data)
+        pbs = [nb / n for nb in counts.values()]
+        return -np.sum([pb * np.log2(pb) for pb in pbs])
