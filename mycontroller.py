@@ -35,7 +35,7 @@ class EntropyStats():
         self.dst_macs = [] 
 
     def add(self, payload, src_ip, dst_ip, src_mac, dst_mac):
-        self.payloads.append(FeatureExt.shannon_entropy(payload))
+        self.payloads.append(payload)
         self.payload_size.append(len(payload))
         self.src_ips.append(src_ip)
         self.dst_ips.append(dst_ip)
@@ -47,9 +47,9 @@ class EntropyStats():
     - Source and Destination IP entropy
     - Source and Destination MAC entropy
     """
-    def get():
+    def get(self):
         return (
-            FeatureExt.calculate_mean_and_cv(self.payloads),
+            FeatureExt.calculate_mean_and_cv([FeatureExt.shannon_entropy(payload) for payload in self.payloads]),
             FeatureExt.shannon_entropy(self.payload_size),
             FeatureExt.shannon_entropy(self.src_ips),
             FeatureExt.shannon_entropy(self.dst_ips),
@@ -80,7 +80,7 @@ class FeatureExt():
             FeatureExt.calculate_paf(flows),
             FeatureExt.calculate_ft_psi(flows, self.valid_ip_ranges),
             FeatureExt.shannon_entropy(durations),
-            FeatureExt.shannon_entropy(byte_counts),
+            FeatureExt.shannon_entropy(pkt_counts),
             FeatureExt.shannon_entropy(byte_counts),
             FeatureExt.calculate_mean_and_cv(durations),
             FeatureExt.calculate_mean_and_cv(pkt_counts),
@@ -133,7 +133,7 @@ class FeatureExt():
 
     @staticmethod
     def calculate_psi(flow, valid_ip_ranges):
-        src_ip = flow.match.get('ipv4_src')
+        src_ip = flow.match.get('ipv4_src', None)
         if src_ip is None:
             return 0
         for valid_range in valid_ip_ranges:
@@ -235,16 +235,20 @@ class SimpleSwitch14(app_manager.RyuApp):
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             # ignore lldp packet
             return
+        
+        dst = eth.dst
+        src = eth.src
 
         dpid = datapath.id
         self.mac_to_port.setdefault(dpid, {})
-        self.logger.info("packet in %s %s %s %s", dpid, eth.src, eth.dst, in_port)
+
+        self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
 
         # learn a mac address to avoid FLOOD next time.
-        self.mac_to_port[dpid][eth.src] = in_port
+        self.mac_to_port[dpid][src] = in_port
 
-        if eth.dst in self.mac_to_port[dpid]:
-            out_port = self.mac_to_port[dpid][eth.dst]
+        if dst in self.mac_to_port[dpid]:
+            out_port = self.mac_to_port[dpid][dst]
         else:
             out_port = ofproto.OFPP_FLOOD
 
@@ -252,19 +256,15 @@ class SimpleSwitch14(app_manager.RyuApp):
 
         # install a flow to avoid packet_in next time
         if out_port != ofproto.OFPP_FLOOD:
-            match = parser.OFPMatch(
-                in_port=in_port,
-                eth_dst=eth.dst,
-                eth_src=eth.src
-            )   
-            self.add_flow(datapath, 1, match, actions, idle_timeout=7, hard_timeout=15)
+            match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
+            self.add_flow(datapath, 1, match, actions, idle_timeout=10, hard_timeout=20)
 
         data = None
         if msg.buffer_id == ofproto.OFP_NO_BUFFER:
             data = msg.data
 
         out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
-                                   in_port=in_port, actions=actions, data=data)
+                                  in_port=in_port, actions=actions, data=data)
         datapath.send_msg(out)
 
         """
@@ -281,10 +281,10 @@ class SimpleSwitch14(app_manager.RyuApp):
 
         self.pkt_in_per_switch[dpid].add(
             payload=payload, 
-            src_ip=ip.src, 
+            src_ip=ip.src,
             dst_ip=ip.dst, 
-            src_mac=eth.src, 
-            dst_mac=eth.dst
+            src_mac=src, 
+            dst_mac=dst
         )
 
     """
@@ -306,17 +306,28 @@ class SimpleSwitch14(app_manager.RyuApp):
         self.logger.debug(f"[GAP] DPID: {dpid:016x}")
 
         # Get Pkt In Feature
-        print(self.pkt_in_per_switch[dpid].get())
+        ((payload_mean, payload_cv), payload_size_entropy,
+         src_ip_entropy, dst_ip_entropy,
+         src_mac_entropy, dst_mac_entropy) = self.pkt_in_per_switch[dpid].get()
+        self.logger.debug(
+            f"[GAP] > Payload Entropy Mean: {payload_mean}, Payload Entropy CV: {payload_cv}, "
+            f"Payload Size Entropy: {payload_size_entropy}, "
+            f"Src IP Entropy: {src_ip_entropy}, Dst IP Entropy: {dst_ip_entropy}, "
+            f"Src MAC Entropy: {src_mac_entropy}, Dst MAC Entropy: {dst_mac_entropy}"
+        )
 
         # Get Flow Table Feature
         (paf, ft_psi,
+         durations_entropy, pkts_entropy, bytes_entropy,
          (mean_duration, cvd),
          (mean_pkts, cvp),
          (mean_bytes, cvb)) = self.flow_stats.get_ft_features(stats)
 
         self.logger.debug(
-            f"[GAP] > PAF: {paf}, PSI: {ft_psi}, Mean Duration: {mean_duration}, "
-            f"CVD: {cvd}, Mean Packet: {mean_pkts}, CVP: {cvp}, "
+            f"[GAP] > PAF: {paf}, PSI: {ft_psi}, Duration Entropy: {durations_entropy}, "
+            f"Duration entropy: {durations_entropy}, Packet entropy: {pkts_entropy}, Bytes_entropy: {bytes_entropy}, "
+            f"Mean Duration: {mean_duration}, CVD: {cvd}, "
+            f"Mean Packet: {mean_pkts}, CVP: {cvp}, "
             f"Mean Bytes: {mean_bytes}, CVB: {cvb}"
         )
 
