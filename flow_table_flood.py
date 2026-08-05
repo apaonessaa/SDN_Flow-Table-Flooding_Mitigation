@@ -208,3 +208,4 @@ class FTFAttack:
     def join(self, timeout: float = None) -> None:
         if self._attack_thread:
             self._attack_thread.join(timeout=timeout)
+        

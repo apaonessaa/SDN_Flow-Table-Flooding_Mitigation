@@ -25,23 +25,37 @@ from collections import defaultdict, Counter
 from netaddr import IPAddress, IPNetwork
 import numpy as np
 
-class PacketStats():
-    def __init__(self, payload, src_ip, dst_ip, src_mac, dst_mac):
-        self.payload = payload
-        #self.payload_size = len(payload)
-        self.src_ip = src_ip
-        self.dst_ip = dst_ip
-        self.src_mac = src_mac
-        self.dst_mac = dst_mac
+class EntropyStats():
+    def __init__(self):
+        self.payloads = []
+        self.payload_size = []
+        self.src_ips = []
+        self.dst_ips = []
+        self.src_macs = []
+        self.dst_macs = [] 
+
+    def add(self, payload, src_ip, dst_ip, src_mac, dst_mac):
+        self.payloads.append(FeatureExt.shannon_entropy(payload))
+        self.payload_size.append(len(payload))
+        self.src_ips.append(src_ip)
+        self.dst_ips.append(dst_ip)
+        self.src_macs.append(src_mac)
+        self.dst_macs.append(dst_mac)
 
     """
-    - Data Entropy
-    - 
+    - Mean and CV payloads entropy
+    - Source and Destination IP entropy
+    - Source and Destination MAC entropy
     """
-    def get_features(self):
+    def get():
         return (
-            FeatureExt.shannon_entropy(self.payload),
-            len(self.payload))
+            FeatureExt.calculate_mean_and_cv(self.payloads),
+            FeatureExt.shannon_entropy(self.payload_size),
+            FeatureExt.shannon_entropy(self.src_ips),
+            FeatureExt.shannon_entropy(self.dst_ips),
+            FeatureExt.shannon_entropy(self.src_macs),
+            FeatureExt.shannon_entropy(self.dst_macs))
+
 
 class FeatureExt():
     def __init__(self, valid_ip_ranges):
@@ -51,19 +65,26 @@ class FeatureExt():
     Feature Per Flow Table
         - Packet Arrival Frequency
         - Cumulative Possibility Spoofed Ip
+        - Duration entropy
+        - Packet Count entropy
+        - Byte Count entropy
         - Mean Duration and CVD
         - Mean Packets and CVP
         - Mean Bytes and CVB
-        
-        - Mean, cv and entr
     """
     def get_ft_features(self, flows):
+        durations = [FeatureExt.effective_duration(flow) for flow in flows]
+        pkt_counts = [flow.packet_count for flow in flows]
+        byte_counts = [flow.byte_count for flow in flows]
         return (
             FeatureExt.calculate_paf(flows),
             FeatureExt.calculate_ft_psi(flows, self.valid_ip_ranges),
-            FeatureExt.calculate_mean_and_cv([FeatureExt.effective_duration(flow) for flow in flows]),
-            FeatureExt.calculate_mean_and_cv([flow.packet_count for flow in flows]),
-            FeatureExt.calculate_mean_and_cv([flow.byte_count for flow in flows]))
+            FeatureExt.shannon_entropy(durations),
+            FeatureExt.shannon_entropy(byte_counts),
+            FeatureExt.shannon_entropy(byte_counts),
+            FeatureExt.calculate_mean_and_cv(durations),
+            FeatureExt.calculate_mean_and_cv(pkt_counts),
+            FeatureExt.calculate_mean_and_cv(byte_counts))
 
     """
     Feature Per Flow Rule
@@ -138,11 +159,10 @@ class SimpleSwitch14(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch14, self).__init__(*args, **kwargs)
         self.mac_to_port = {}
-        self.flow_stats = defaultdict(list)
         self.datapaths = {}
         self.collector = hub.spawn(self._collector)
         self.flow_stats = FeatureExt(valid_ip_ranges=['10.0.0.0/24'])
-        self.pkt_in_per_switch = defaultdict(list)
+        self.pkt_in_per_switch = defaultdict(EntropyStats)
 
     def _collector(self):
         while True:
@@ -152,7 +172,7 @@ class SimpleSwitch14(app_manager.RyuApp):
 
     def _request_stats(self, datapath):
         parser = datapath.ofproto_parser
-        req = parser.OFPFeatureExtRequest(datapath)
+        req = parser.OFPFlowStatsRequest(datapath)
         datapath.send_msg(req)
 
     """
@@ -259,14 +279,13 @@ class SimpleSwitch14(app_manager.RyuApp):
         if not isinstance(payload, (bytes, bytearray)):
             payload = b""
 
-        self.pkt_in_per_switch[dpid].append(PacketStats(
-            payload=payload,
-            src_ip=ip.src,
-            dst_ip=ip.dst,
-            src_mac=eth.src,
+        self.pkt_in_per_switch[dpid].add(
+            payload=payload, 
+            src_ip=ip.src, 
+            dst_ip=ip.dst, 
+            src_mac=eth.src, 
             dst_mac=eth.dst
-        ))
-
+        )
 
     """
     Flow Stats Handler
@@ -285,6 +304,9 @@ class SimpleSwitch14(app_manager.RyuApp):
             return
 
         self.logger.debug(f"[GAP] DPID: {dpid:016x}")
+
+        # Get Pkt In Feature
+        print(self.pkt_in_per_switch[dpid].get())
 
         # Get Flow Table Feature
         (paf, ft_psi,
