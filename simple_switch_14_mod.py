@@ -25,6 +25,7 @@ from ryu.lib.packet import ether_types
 
 class SimpleSwitch14(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_4.OFP_VERSION]
+    IDLE_TIMEOUT = 3
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch14, self).__init__(*args, **kwargs)
@@ -94,7 +95,7 @@ class SimpleSwitch14(app_manager.RyuApp):
         # install a flow to avoid packet_in next time
         if out_port != ofproto.OFPP_FLOOD:
             match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
-            self.add_flow(datapath, 1, match, actions, idle_timeout=10, hard_timeout=20)
+            self.add_flow(datapath, 1, match, actions, idle_timeout=self.IDLE_TIMEOUT, hard_timeout=2*self.IDLE_TIMEOUT)
 
         data = None
         if msg.buffer_id == ofproto.OFP_NO_BUFFER:

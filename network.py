@@ -46,13 +46,12 @@ class CustomTopo(Topo):
             h = self.addHost(f'h{i}', ip=f'10.0.0.{i}/24')
             self.addLink(h, s3)
         
-        attacker = self.addHost('h6', ip='10.0.0.66/24', mac='66:66:66:66:66:66')
+        h5 = self.addHost('h5', ip='10.0.0.5/24')
+        self.addLink(h5, s2)
+
+        attacker = self.addHost('h6', ip='10.0.0.6/24')
         self.addLink(attacker, s2)
-
-        h7 = self.addHost('h7', ip='10.0.0.77/24', mac='77:77:77:77:77:77')
-        self.addLink(h7, s2)
     
-
 def run_script(path: str) -> None:
     info(f"- {path}\n")
     result = subprocess.run(
@@ -117,8 +116,8 @@ def main() -> None:
         switch=s2,
         iface=s2.intfList()[2],
         net=net,
-        probe_src='h7',
-        probe_dst='h6',
+        probe_src='h6',
+        probe_dst='h5',
         npacket=ATTACK_NPACKET,
         added_new_packets=ATTACK_ANP
     )
