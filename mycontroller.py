@@ -317,7 +317,7 @@ class SimpleSwitch14(app_manager.RyuApp):
         # Check occupancy
         occupancy = len(stats) / float(self.FLOW_TABLE_CAPACITY)
         if occupancy < self.FLOW_TABLE_THRESHOLD:
-            return
+            pass #return
 
         self.logger.debug(f"[GAP] DPID: {dpid:016x}")
 

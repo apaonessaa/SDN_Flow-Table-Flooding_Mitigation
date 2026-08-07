@@ -99,6 +99,10 @@ def main() -> None:
     s2 = net.get('s2')
 
     wait_for_network(net)
+
+    info("*** [TRAFFIC]\n")
+    subprocess.Popen(["sudo", "tcpreplay", "--loop", "500",
+                       "-i", "s2-eth2", "out.pcap"])
     
     # ── Fase 1: monitoraggio PRE-attacco ────────────────────────────────────
     info("*** [PRE-ATTACK] Avvio monitor\n")
