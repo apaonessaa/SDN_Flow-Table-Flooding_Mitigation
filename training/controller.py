@@ -62,6 +62,7 @@ class FeatureExt():
     
     """
     Feature Per Flow Table
+        - Number of Flow Rules
         - Packet Arrival Frequency
         - Cumulative Possibility Spoofed Ip
         - Duration entropy
@@ -76,6 +77,7 @@ class FeatureExt():
         pkt_counts = [flow.packet_count for flow in flows]
         byte_counts = [flow.byte_count for flow in flows]
         return (
+            len(flows),
             FeatureExt.calculate_paf(flows),
             FeatureExt.calculate_ft_psi(flows),
             FeatureExt.shannon_entropy(durations),
@@ -154,13 +156,13 @@ class SimpleSwitch14(app_manager.RyuApp):
     FLOW_TABLE_CAPACITY = 50
     FLOW_TABLE_THRESHOLD = 0.8
     IDLE_TIMEOUT = 10
-    DATASET_PATH = "/home/ubuntu/Desktop/progetto/training/dataset.csv"
     DATASET_COLUMNS = ["payload_entropy_mean", "payload_entropy_cv", "payload_size_entropy",
         "src_ip_entropy", "dst_ip_entropy", "src_mac_entropy", "dst_mac_entropy",
-        "paf, ft_psi", "durations_entropy", "pkts_entropy", "bytes_entropy",
+        "c_used", "paf, ft_psi", "durations_entropy", "pkts_entropy", "bytes_entropy",
         "mean_duration", "cvd", "mean_pkts", "cvp", "mean_bytes", "cvb", "label"
     ]
-    CURRENT_LABEL = 0 #0 buono, 1 cattivo
+    CURRENT_LABEL = 1 #0 buono, 1 cattivo
+    DATASET_PATH = "/home/ubuntu/Desktop/progetto/training/datasets/malicious.csv"
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch14, self).__init__(*args, **kwargs)
@@ -347,14 +349,14 @@ class SimpleSwitch14(app_manager.RyuApp):
         )
 
         # Get Flow Table Feature
-        (paf, ft_psi,
+        (c_used, paf, ft_psi,
          durations_entropy, pkts_entropy, bytes_entropy,
          (mean_duration, cvd),
          (mean_pkts, cvp),
          (mean_bytes, cvb)) = self.feature_ext[dpid].get_ft_features(stats)
 
         self.logger.debug(
-            f"[GAP] > PAF: {paf}, PSI: {ft_psi}, Duration Entropy: {durations_entropy}, "
+            f"[GAP] > C_used: {c_used}, PAF: {paf}, PSI: {ft_psi}, Duration Entropy: {durations_entropy}, "
             f"Duration entropy: {durations_entropy}, Packet entropy: {pkts_entropy}, Bytes_entropy: {bytes_entropy}, "
             f"Mean Duration: {mean_duration}, CVD: {cvd}, "
             f"Mean Packet: {mean_pkts}, CVP: {cvp}, "
@@ -373,7 +375,7 @@ class SimpleSwitch14(app_manager.RyuApp):
         row = [
             payload_entropy_mean, payload_entropy_cv, payload_size_entropy,
             src_ip_entropy, dst_ip_entropy, src_mac_entropy, dst_mac_entropy,
-            paf, ft_psi, durations_entropy, pkts_entropy, bytes_entropy,
+            c_used, paf, ft_psi, durations_entropy, pkts_entropy, bytes_entropy,
             mean_duration, cvd, mean_pkts, cvp, mean_bytes, cvb, self.CURRENT_LABEL
         ]
         self._csv_writer.writerow(row)

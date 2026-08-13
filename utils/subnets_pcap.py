@@ -4,7 +4,7 @@ from collections import Counter
 subnet_counter = Counter()
 ip_set = set()
 
-with PcapReader("/home/ubuntu/Downloads/test.pcap") as pcap:
+with PcapReader("/home/ubuntu/Desktop/progetto/training/pcaps/bottom.pcap") as pcap:
     for pkt in pcap:
         if pkt.haslayer("IP"):
             src = pkt["IP"].src

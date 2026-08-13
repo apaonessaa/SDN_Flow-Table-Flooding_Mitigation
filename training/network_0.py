@@ -1,12 +1,13 @@
 #!/usr/bin/python
-from __future__ import annotations
+import json
+import threading
 import subprocess
 import sys
-from time import sleep
+from time import time, sleep
 from mininet.net import Mininet
 from mininet.node import RemoteController, OVSSwitch
 from mininet.topo import Topo
-from mininet.cli import CLI
+#from mininet.cli import CLI
 from mininet.log import setLogLevel, info
 
 class CustomTopo(Topo):
@@ -21,17 +22,23 @@ class CustomTopo(Topo):
         self.addLink(s2, s3)
         # Hosts
         for i in range(1, 3):
-            h = self.addHost(f'h{i}', ip=f'10.0.0.{i}/24')
+            h = self.addHost(f'h{i}', ip=f'10.0.0.{i}/24', mac=f'00:00:00:00:00:0{i}')
             self.addLink(h, s1)
         for i in range(3, 5):
-            h = self.addHost(f'h{i}', ip=f'10.0.0.{i}/24')
+            h = self.addHost(f'h{i}', ip=f'10.0.0.{i}/24', mac=f'00:00:00:00:00:0{i}')
             self.addLink(h, s3)
 
-        h5 = self.addHost('h5', ip='10.0.0.5/24')
+        h5 = self.addHost('h5', ip='10.0.0.5/24', mac='00:00:00:00:00:05')
         self.addLink(h5, s2)
-        attacker = self.addHost('h6', ip='10.0.0.6/24')
+        attacker = self.addHost('h6', ip='10.0.0.6/24', mac='00:00:00:00:00:06')
         self.addLink(attacker, s2)
 
+
+PCAP_PREFIX = "/home/ubuntu/Desktop/progetto/training/pcaps/traffic"
+
+def load_metadata(prefix):
+    with open(f"{prefix}_metadata.json") as f:
+        return json.load(f)
 
 def run_script(path: str) -> None:
     info(f"- {path}\n")
@@ -59,41 +66,22 @@ def wait_for_network(net: Mininet, timeout: int = 60) -> None:
         sleep(1)
     info("*** ATTENZIONE: rete non pronta dopo timeout, avvio monitor comunque\n")
 
-def start_tcpreplay(iface: str, pcap: str, loop: int = 500) -> subprocess.Popen:
-    """Avvia un tcpreplay in background e restituisce il Popen associato."""
-    return subprocess.Popen(
-        ["sudo", "tcpreplay", "--loop", str(loop), "-i", iface, pcap],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )
+def replay_worker(host, pcap_file, launch_time, offset):
+    """Attende fino all'istante sincronizzato (launch_time + offset),
+    poi avvia tcpreplay per questo host. --multiplier=1.0 preserva
+    i delta temporali ORIGINALI tra i pacchetti dello stesso host,
+    invece di forzare un rate fisso come --pps."""
+    sleep_duration = (launch_time + offset) - time()
+    if sleep_duration > 0:
+        sleep(sleep_duration)
 
-def wait_for_tcpreplays(procs: list[tuple[str, subprocess.Popen]]) -> None:
-    """Attende il termine di tutti i processi tcpreplay avviati.
+    iface = host.defaultIntf().name
+    cmd = f"tcpreplay --intf1={iface} --multiplier=1.0 {pcap_file}"
+    print(f"[*] {host.name}: avvio a t+{offset:.3f}s -> {cmd}")
 
-    I processi girano già in parallelo (sono stati lanciati con Popen),
-    quindi attenderli in sequenza con .wait() non li serializza: si limita
-    a bloccare finché anche l'ultimo non ha terminato. Se uno dei processi
-    termina con errore, l'eccezione viene sollevata solo dopo aver atteso
-    (e loggato) tutti gli altri, per non lasciare repliche orfane in corso.
-    """
-    info(f"*** In attesa del termine di {len(procs)} tcpreplay...\n")
-    failures = []
-    for iface, proc in procs:
-        stdout, stderr = proc.communicate()
-        if proc.returncode != 0:
-            failures.append((iface, proc.returncode, stderr))
-            info(f"*** [tcpreplay:{iface}] terminato con errore ({proc.returncode})\n")
-        else:
-            info(f"*** [tcpreplay:{iface}] completato\n")
-
-    if failures:
-        for iface, code, stderr in failures:
-            print(f"[tcpreplay:{iface}] exit code {code}\n{stderr}", file=sys.stderr)
-        raise RuntimeError(f"{len(failures)} tcpreplay terminati con errore")
-
-    info("*** Tutti i tcpreplay sono terminati con successo\n")
-
+    proc = host.popen(cmd, shell=True)
+    proc.wait()
+    print(f"[*] {host.name}: replay terminato")
 
 def main() -> None:
     topo = CustomTopo()
@@ -101,7 +89,6 @@ def main() -> None:
         topo=topo,
         controller=lambda name: RemoteController(name, ip='127.0.0.1', port=6653),
         switch=OVSSwitch,
-        autoSetMacs=True,
         autoStaticArp=True,
     )
     info("*** Start Network\n")
@@ -111,19 +98,34 @@ def main() -> None:
     wait_for_network(net)
 
     info("*** [TRAFFIC]\n")
-    interfaces = [
-        's1-eth2', 's1-eth3',
-        's2-eth3', 's2-eth4',
-        's3-eth2', 's3-eth3',
-    ]
-    procs = [(iface, start_tcpreplay(iface, "normal.pcap")) for iface in interfaces]
 
-    wait_for_tcpreplays(procs)
+    metadata = load_metadata(PCAP_PREFIX)
+    offsets = metadata["offsets"]
+
+    # istante di riferimento COMUNE per tutti i thread, calcolato
+    # una sola volta, cosi' ogni offset e' relativo allo stesso punto zero
+    launch_time = time() + 1.0  # 1s di margine per lo spawn dei thread
+
+    threads = []
+    for h in net.hosts:
+        ip = h.IP()
+        pcap_file = f"{PCAP_PREFIX}_{ip.replace('.', '_')}.pcap"
+        offset = offsets.get(ip, 0.0)
+
+        t = threading.Thread(
+            target=replay_worker,
+            args=(h, pcap_file, launch_time, offset)
+        )
+        threads.append(t)
+
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
 
     info("*** [END]\n")
-    CLI(net)
+    #CLI(net)
     net.stop()
-
 
 if __name__ == '__main__':
     setLogLevel('info')
