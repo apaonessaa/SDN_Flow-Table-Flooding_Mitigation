@@ -9,8 +9,8 @@ import ipaddress
 from collections import Counter
 from scapy.all import PcapReader, PcapWriter, IP, Ether
 
-N_MININET_HOSTS = 6
-N_DEDICATED_HOSTS = 4
+N_MININET_HOSTS = 4
+N_DEDICATED_HOSTS = 3
 MININET_SUBNET = ipaddress.ip_network("10.0.0.0/24")
 
 MININET_HOST_MACS = [
@@ -18,8 +18,8 @@ MININET_HOST_MACS = [
     "00:00:00:00:00:02",  # h2 -> 10.0.0.2
     "00:00:00:00:00:03",  # h3 -> 10.0.0.3
     "00:00:00:00:00:04",  # h4 -> 10.0.0.4
-    "00:00:00:00:00:05",  # h5 -> 10.0.0.5
-    "00:00:00:00:00:06",  # h6 -> 10.0.0.6
+    #"00:00:00:00:00:05",  # h5 -> 10.0.0.5
+    #"00:00:00:00:00:06",  # h6 -> 10.0.0.6
 ]
 
 def analyze_top_talkers(pcap_path, top_n):

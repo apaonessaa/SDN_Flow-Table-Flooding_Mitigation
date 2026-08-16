@@ -36,4 +36,20 @@ $ python3 ../../utils/remapping_pcap.py /home/ubuntu/Desktop/progetto/training/p
     10.0.0.6: offset=6.461s, 9080 pacchetti
 ```
 
+## Balanced Dataset
+
+```bash
+$ wc -l *
+  16387 benign.csv
+   3115 malicious.csv
+  19502 total
+
+$ cp benign.csv training_set.csv
+
+$ tail -n 3114 malicious.csv | tee -a training_set.csv
+
+$ wc -l training_set.csv
+19501 balanced.csv
+```
+
 ---

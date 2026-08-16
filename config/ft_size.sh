@@ -6,7 +6,7 @@ for sw in s1 s2 s3; do
   sudo ovs-vsctl \
     -- --id=@ft create Flow_Table \
          name="${sw}_table0" \
-         flow_limit=50 \
+         flow_limit=30 \
          overflow_policy=evict \
     -- set Bridge $sw flow_tables:0=@ft
 

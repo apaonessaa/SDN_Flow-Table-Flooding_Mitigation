@@ -90,7 +90,8 @@ def main() -> None:
     net.start()
     info("*** Scripts\n")
     run_script('../config/ft_size.sh')
-    wait_for_network(net)
+    #wait_for_network(net)
+    sleep(20)
 
     info("*** [TRAFFIC] Flow Table Flooding Attack\n")
 

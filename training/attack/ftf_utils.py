@@ -90,18 +90,18 @@ class FTFUtils:
             print(f"[!] Not reachable host {dst_ip}")
             return None
 
-        if abs(rtt1 - rtt0) / rtt1 <= 0.1:
+        if abs(rtt1 - rtt0) / rtt1 <= 0.5:
             print("[!] No Packet In")
             return None
 
-        interval = 1
+        interval = 2
         for _ in range(MAX_INT):
             time.sleep(interval)
             rtti = FTFUtils.measure_rtt(dst_ip)
             if rtti is None:
                 print("[!] Failed Probe")
                 return None
-            if rtti > rtt0 or abs(rtti - rtt0) / rtti <= 0.9:
+            if abs(rtti - rtt0) / rtti <= 0.5:
                 return interval
             interval += 1
             if interval > MAX_INTERVAL:

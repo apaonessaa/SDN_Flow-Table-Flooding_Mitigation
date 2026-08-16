@@ -158,7 +158,7 @@ class SimpleSwitch14(app_manager.RyuApp):
     IDLE_TIMEOUT = 10
     DATASET_COLUMNS = ["payload_entropy_mean", "payload_entropy_cv", "payload_size_entropy",
         "src_ip_entropy", "dst_ip_entropy", "src_mac_entropy", "dst_mac_entropy",
-        "c_used", "paf, ft_psi", "durations_entropy", "pkts_entropy", "bytes_entropy",
+        "c_used", "paf", "ft_psi", "durations_entropy", "pkts_entropy", "bytes_entropy",
         "mean_duration", "cvd", "mean_pkts", "cvp", "mean_bytes", "cvb", "label"
     ]
     CURRENT_LABEL = 1 #0 buono, 1 cattivo

@@ -1,7 +1,7 @@
 from scapy.all import rdpcap, IP, TCP, UDP, ICMP
 from collections import Counter, defaultdict
 
-packets = rdpcap("/home/ubuntu/Desktop/progetto/training/pcaps/bottom.pcap")
+packets = rdpcap("/home/ubuntu/Desktop/progetto/models/pcaps/new_SkypeIRC.pcap")
 
 # Counters for analysis
 src_ips = Counter()
