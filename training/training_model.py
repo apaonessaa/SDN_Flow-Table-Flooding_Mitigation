@@ -3,12 +3,17 @@ from sklearn.model_selection import train_test_split
 from catboost import CatBoostClassifier
 from sklearn.metrics import accuracy_score, classification_report
 
+TRAINING_SET = '/home/ubuntu/Desktop/progetto/training/datasets/training_set.csv'
+OUTPUT_MODEL = '/tmp/catboost_model.cbm'
+
 # Load the dataset
-file_path = '/home/ubuntu/Desktop/progetto/training/datasets/training_set.csv'
-df = pd.read_csv(file_path)
+df = pd.read_csv(TRAINING_SET)
 
 # Prepare the features and target
-X = df[['payload_entropy_mean','payload_entropy_cv','payload_size_entropy','src_ip_entropy','dst_ip_entropy','src_mac_entropy','dst_mac_entropy','c_used','paf','ft_psi','durations_entropy','pkts_entropy','bytes_entropy','mean_duration','cvd','mean_pkts','cvp','mean_bytes','cvb']]
+X = df[['payload_entropy_mean','payload_entropy_cv','payload_size_entropy',
+'src_ip_entropy','dst_ip_entropy','src_mac_entropy',
+'dst_mac_entropy','c_used','paf','ft_psi','durations_entropy',
+'pkts_entropy','bytes_entropy','mean_duration','cvd','mean_pkts','cvp','mean_bytes','cvb']]
 y = df['label']
 
 # Split the dataset into training and testing sets
@@ -36,4 +41,4 @@ print(f"Accuracy: {accuracy}")
 print(f"Classification Report:\n{report}")
 
 # Save the model
-catboost_classifier.save_model('/home/ubuntu/Desktop/progetto/training/models/catboost_model.cbm')
+catboost_classifier.save_model(OUTPUT_MODEL)

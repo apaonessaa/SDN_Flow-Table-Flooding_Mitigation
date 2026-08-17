@@ -27,24 +27,27 @@ import numpy as np
 import os
 from catboost import CatBoostClassifier
 
+from queue import LifoQueue
+
 class FeatureExt():
     VALID_IP_RANGES = ['10.0.0.0/24']
+    WINDOW_SIZE = 200
 
     def __init__(self):
-        self.payloads = []
-        self.payload_size = []
-        self.src_ips = []
-        self.dst_ips = []
-        self.src_macs = []
-        self.dst_macs = [] 
+        self.payloads = LifoQueue(maxsize=self.WINDOW_SIZE)
+        self.payload_size = LifoQueue(maxsize=self.WINDOW_SIZE)
+        self.src_ips = LifoQueue(maxsize=self.WINDOW_SIZE)
+        self.dst_ips = LifoQueue(maxsize=self.WINDOW_SIZE)
+        self.src_macs = LifoQueue(maxsize=self.WINDOW_SIZE)
+        self.dst_macs = LifoQueue(maxsize=self.WINDOW_SIZE)
 
     def add_pkt_in(self, payload, src_ip, dst_ip, src_mac, dst_mac):
-        self.payloads.append(payload)
-        self.payload_size.append(len(payload))
-        self.src_ips.append(src_ip)
-        self.dst_ips.append(dst_ip)
-        self.src_macs.append(src_mac)
-        self.dst_macs.append(dst_mac)
+        self.payloads.put(payload)
+        self.payload_size.put(len(payload))
+        self.src_ips.put(src_ip)
+        self.dst_ips.put(dst_ip)
+        self.src_macs.put(src_mac)
+        self.dst_macs.put(dst_mac)
 
     """
     - Mean and CV payloads entropy
@@ -53,12 +56,12 @@ class FeatureExt():
     """
     def get_pkt_in_features(self):
         return (
-            FeatureExt.calculate_mean_and_cv([FeatureExt.shannon_entropy(payload) for payload in self.payloads]),
-            FeatureExt.shannon_entropy(self.payload_size),
-            FeatureExt.shannon_entropy(self.src_ips),
-            FeatureExt.shannon_entropy(self.dst_ips),
-            FeatureExt.shannon_entropy(self.src_macs),
-            FeatureExt.shannon_entropy(self.dst_macs))
+            FeatureExt.calculate_mean_and_cv([FeatureExt.shannon_entropy(payload) for payload in list(self.payloads.queue)]),
+            FeatureExt.shannon_entropy(list(self.payload_size.queue)),
+            FeatureExt.shannon_entropy(list(self.src_ips.queue)),
+            FeatureExt.shannon_entropy(list(self.dst_ips.queue)),
+            FeatureExt.shannon_entropy(list(self.src_macs.queue)),
+            FeatureExt.shannon_entropy(list(self.dst_macs.queue)))
     
     """
     Feature Per Flow Table
@@ -124,16 +127,20 @@ class FeatureExt():
 
     @staticmethod
     def calculate_mean_and_cv(values):
+        if len(values) == 0:
+            return 0.0, 0.0
         mean = np.mean(values)
         cv = np.std(values) / mean if mean != 0 else 0
         return mean, cv
 
     @staticmethod
     def effective_duration(flow):
-        return flow.duration_sec + flow.duration_nsec / 1e9
+        return flow.duration_sec + flow.duration_nsec / 1e9 if flow else 0
 
     @staticmethod
     def calculate_psi(flow):
+        if flow is None:
+            return 0
         src_ip = flow.match.get('ipv4_src', None)
         if src_ip is None:
             return 0
@@ -153,9 +160,9 @@ class FeatureExt():
 
 class SimpleSwitch14(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_4.OFP_VERSION]
-    FLOW_TABLE_CAPACITY = 30
+    FLOW_TABLE_CAPACITY = 100
     FLOW_TABLE_THRESHOLD = 0.8
-    IDLE_TIMEOUT = 12
+    IDLE_TIMEOUT = 8
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch14, self).__init__(*args, **kwargs)
@@ -319,7 +326,7 @@ class SimpleSwitch14(app_manager.RyuApp):
         # Check occupancy
         occupancy = len(stats) / float(self.FLOW_TABLE_CAPACITY)
         if occupancy < self.FLOW_TABLE_THRESHOLD:
-            return
+            pass #return
 
         self.logger.debug(f"[GAP] DPID: {dpid:016x}")
 
@@ -348,4 +355,4 @@ class SimpleSwitch14(app_manager.RyuApp):
         
         anomaly_detected = self.model.predict([features])
         if anomaly_detected:
-            self.logger.info('[ANOMALY] Detected FTF attack for %s', dpid)
+            self.logger.info('[ANOMALY] Detected FTF attack for %s with c_used=%d/%d', dpid, c_used, self.FLOW_TABLE_CAPACITY)

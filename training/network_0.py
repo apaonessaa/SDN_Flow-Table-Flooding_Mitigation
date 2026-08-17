@@ -124,6 +124,7 @@ def main() -> None:
         t.join()
 
     info("*** [END]\n")
+    sleep(60)
     #CLI(net)
     net.stop()
 

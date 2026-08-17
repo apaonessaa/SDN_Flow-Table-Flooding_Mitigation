@@ -35,19 +35,6 @@ class CustomTopo(Topo):
         attacker = self.addHost('h6', ip='10.0.0.6/24', mac='00:00:00:00:00:06')
         self.addLink(attacker, s2)
 
-PAIRS = {
-    'h1':'h2',
-    'h3':'h4',
-    'h5':'h6',
-}
-ATTACK_NPACKET   = 100      # pacchetti per thread di attacco
-ATTACK_ANP       = 10       # burst size
-ATTACK_FREQUENCY = 10       # burst delay (s)
-PRE_ATTACK_WAIT  = 10       # secondi di monitoraggio prima dell'attacco
-ATTACK_WAIT      = None     # secondi di durata attacco (None = aspetta fine naturale)
-POST_ATTACK_WAIT = 10       # secondi di monitoraggio dopo l'attacco
-PCAP_PREFIX = "/home/ubuntu/Desktop/progetto/training/pcaps/traffic"
-
 def load_metadata(prefix):
     with open(f"{prefix}_metadata.json") as f:
         return json.load(f)
@@ -95,6 +82,16 @@ def main() -> None:
 
     info("*** [TRAFFIC] Flow Table Flooding Attack\n")
 
+    PAIRS = {
+        'h1':'h2',
+        'h3':'h4',
+        'h5':'h6',
+    }
+    ATTACK_NPACKET   = [200, 80, 50]
+    ATTACK_ANP       = [20, 10, 5]
+    ATTACK_WAIT      = None
+    PCAP_PREFIX = "/home/ubuntu/Desktop/progetto/training/pcaps/traffic"
+
     """
     h1-eth0<->s1-eth2 (OK OK) 
     h2-eth0<->s1-eth3 (OK OK) 
@@ -104,15 +101,16 @@ def main() -> None:
     h6-eth0<->s2-eth4 (OK OK) 
     s1-eth1<->s2-eth1 (OK OK) 
     s2-eth2<->s3-eth1 (OK OK)
-    """ 
+    """
+    i = 0
     for src, dst in PAIRS.items():
-        info(f"*** [ATTACK] Coppia: {src} -> {dst}\n")
+        info(f"*** [ATTACK] Coppia: {src} -> {dst}, NPkts={ATTACK_NPACKET[i]}, ANP={ATTACK_ANP[i]}\n")
 
         attack = FTFAttack(
             attacker=src,
             probe_dst=dst,
-            npacket=ATTACK_NPACKET,
-            added_new_packets=ATTACK_ANP,
+            npacket=ATTACK_NPACKET[i],
+            added_new_packets=ATTACK_ANP[i],
             max_iter=100,
             max_interval=20,
             net=net
@@ -128,13 +126,13 @@ def main() -> None:
 
         sleep(20)
 
-        info(f"*** [ATTACK] Coppia: {dst} -> {src}\n")
+        info(f"*** [ATTACK] Coppia: {dst} -> {src}, NPkts={ATTACK_NPACKET[(i+1)%3]}, ANP={ATTACK_ANP[(i+1)%3]}\n")
 
         attack = FTFAttack(
             attacker=dst,
             probe_dst=src,
-            npacket=ATTACK_NPACKET,
-            added_new_packets=ATTACK_ANP,
+            npacket=ATTACK_NPACKET[(i+1)%3],
+            added_new_packets=ATTACK_ANP[(i+1)%3],
             max_iter=100,
             max_interval=20,
             net=net
@@ -148,8 +146,11 @@ def main() -> None:
         else:
             attack.join()
         
+        i=(i+1)%3
+        
         sleep(20)
 
+    sleep(60)
 
     info("*** [END]\n")
     #CLI(net)

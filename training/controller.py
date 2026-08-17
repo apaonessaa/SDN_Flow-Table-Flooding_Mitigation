@@ -21,7 +21,7 @@ from ryu.ofproto import ofproto_v1_4
 from ryu.lib.packet import packet, ethernet, ether_types, ipv4
 from ryu.lib import hub
 
-from collections import defaultdict, Counter
+from collections import namedtuple, deque, defaultdict, Counter 
 from netaddr import IPAddress, IPNetwork
 import numpy as np
 import os
@@ -29,22 +29,16 @@ import csv
 
 class FeatureExt():
     VALID_IP_RANGES = ['10.0.0.0/24']
+    WINDOW_SIZE = 500
+    FLOW_TABLE_CAPACITY = 50
+    
+    PktInData = namedtuple('PktInData', ['payload', 'size', 'src_ip', 'dst_ip', 'src_mac', 'dst_mac'])
 
     def __init__(self):
-        self.payloads = []
-        self.payload_size = []
-        self.src_ips = []
-        self.dst_ips = []
-        self.src_macs = []
-        self.dst_macs = [] 
+        self.window = deque(maxlen=self.WINDOW_SIZE)
 
     def add_pkt_in(self, payload, src_ip, dst_ip, src_mac, dst_mac):
-        self.payloads.append(payload)
-        self.payload_size.append(len(payload))
-        self.src_ips.append(src_ip)
-        self.dst_ips.append(dst_ip)
-        self.src_macs.append(src_mac)
-        self.dst_macs.append(dst_mac)
+        self.window.append(self.PktInData(payload, len(payload), src_ip, dst_ip, src_mac, dst_mac))
 
     """
     - Mean and CV payloads entropy
@@ -53,16 +47,16 @@ class FeatureExt():
     """
     def get_pkt_in_features(self):
         return (
-            FeatureExt.calculate_mean_and_cv([FeatureExt.shannon_entropy(payload) for payload in self.payloads]),
-            FeatureExt.shannon_entropy(self.payload_size),
-            FeatureExt.shannon_entropy(self.src_ips),
-            FeatureExt.shannon_entropy(self.dst_ips),
-            FeatureExt.shannon_entropy(self.src_macs),
-            FeatureExt.shannon_entropy(self.dst_macs))
+            FeatureExt.calculate_mean_and_cv([FeatureExt.shannon_entropy(pktin.payload) for pktin in self.window]),
+            FeatureExt.shannon_entropy([pktin.size for pktin in self.window]),
+            FeatureExt.shannon_entropy([pktin.src_ip for pktin in self.window]),
+            FeatureExt.shannon_entropy([pktin.dst_ip for pktin in self.window]),
+            FeatureExt.shannon_entropy([pktin.src_mac for pktin in self.window]),
+            FeatureExt.shannon_entropy([pktin.dst_mac for pktin in self.window]))
     
     """
     Feature Per Flow Table
-        - Number of Flow Rules
+        - Capacity used (%)
         - Packet Arrival Frequency
         - Cumulative Possibility Spoofed Ip
         - Duration entropy
@@ -77,7 +71,7 @@ class FeatureExt():
         pkt_counts = [flow.packet_count for flow in flows]
         byte_counts = [flow.byte_count for flow in flows]
         return (
-            len(flows),
+            (len(flows)*100)/self.FLOW_TABLE_CAPACITY,
             FeatureExt.calculate_paf(flows),
             FeatureExt.calculate_ft_psi(flows),
             FeatureExt.shannon_entropy(durations),
@@ -124,16 +118,20 @@ class FeatureExt():
 
     @staticmethod
     def calculate_mean_and_cv(values):
+        if len(values) == 0:
+            return 0.0, 0.0
         mean = np.mean(values)
         cv = np.std(values) / mean if mean != 0 else 0
         return mean, cv
 
     @staticmethod
     def effective_duration(flow):
-        return flow.duration_sec + flow.duration_nsec / 1e9
+        return flow.duration_sec + flow.duration_nsec / 1e9 if flow else 0
 
     @staticmethod
     def calculate_psi(flow):
+        if flow is None:
+            return 0
         src_ip = flow.match.get('ipv4_src', None)
         if src_ip is None:
             return 0
@@ -151,6 +149,7 @@ class FeatureExt():
         pbs = [nb / n for nb in counts.values()]
         return -np.sum([pb * np.log2(pb) for pb in pbs])
 
+
 class SimpleSwitch14(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_4.OFP_VERSION]
     FLOW_TABLE_CAPACITY = 50
@@ -162,7 +161,7 @@ class SimpleSwitch14(app_manager.RyuApp):
         "mean_duration", "cvd", "mean_pkts", "cvp", "mean_bytes", "cvb", "label"
     ]
     CURRENT_LABEL = 1 #0 buono, 1 cattivo
-    DATASET_PATH = "/home/ubuntu/Desktop/progetto/training/datasets/malicious.csv"
+    DATASET_PATH = "/home/ubuntu/Desktop/progetto/training/datasets/malicious_2.csv"
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch14, self).__init__(*args, **kwargs)
@@ -291,7 +290,7 @@ class SimpleSwitch14(app_manager.RyuApp):
             self.add_flow(
                 datapath, 1, match, actions,
                 idle_timeout=self.IDLE_TIMEOUT,
-                hard_timeout=2 * self.IDLE_TIMEOUT
+                hard_timeout=2*self.IDLE_TIMEOUT
             )
 
         data = None

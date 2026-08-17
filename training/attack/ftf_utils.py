@@ -81,30 +81,77 @@ class FTFUtils:
         return rtt
 
     @staticmethod
-    def estimate_idle_timeout(dst_ip: str, MAX_INT: int, MAX_INTERVAL: int) -> int:
-        rtt0 = FTFUtils.measure_rtt(dst_ip)
-        time.sleep(1)
-        rtt1 = FTFUtils.measure_rtt(dst_ip)
+    def estimate_hard_timeout(dst_ip: str, max_int: int, max_interval: int) -> int:
+        for _ in range(max_int):
+            rtt0 = FTFUtils.measure_rtt(dst_ip)
+            time.sleep(1)
+            rtt1 = FTFUtils.measure_rtt(dst_ip)
 
-        if rtt0 is None or rtt1 is None:
-            print(f"[!] Not reachable host {dst_ip}")
-            return None
+            if rtt0 is None or rtt1 is None:
+                print(f"[!] Not reachable host {dst_ip}")
+                time.sleep(10)
+                continue
 
-        if abs(rtt1 - rtt0) / rtt1 <= 0.5:
-            print("[!] No Packet In")
-            return None
+            if abs(rtt1 - rtt0) / rtt1 <= 0.5:
+                print("[!] No Packet In")
+                time.sleep(10)
+                continue
+            
+            for interval in range(2, max_interval+1):
+                time.sleep(1)
+                rtti = FTFUtils.measure_rtt(dst_ip)
 
-        interval = 2
-        for _ in range(MAX_INT):
-            time.sleep(interval)
-            rtti = FTFUtils.measure_rtt(dst_ip)
-            if rtti is None:
-                print("[!] Failed Probe")
-                return None
-            if abs(rtti - rtt0) / rtti <= 0.5:
-                return interval
-            interval += 1
-            if interval > MAX_INTERVAL:
-                break
-            print(f"    [.] Interval={interval}", flush=True)
-        return None
+                if rtti is None:
+                    print("[!] Failed Probe")
+                    break
+                
+                if abs(rtti - rtt0) / rtti <= 0.5:
+                    return interval
+
+                print(f"[.] Interval={interval}", flush=True)
+            
+            time.sleep(max_interval)
+        
+        return max_interval
+
+    @staticmethod
+    def estimate_idle_timeout(dst_ip: str, max_int: int, hard_timeout: int) -> int:
+        def gauss(n: int):
+            return 
+
+        for _ in range(max_int):
+            rtt0 = FTFUtils.measure_rtt(dst_ip)
+            time.sleep(1)
+            rtt1 = FTFUtils.measure_rtt(dst_ip)
+
+            if rtt0 is None or rtt1 is None:
+                print(f"[!] Not reachable host {dst_ip}")
+                time.sleep(10)
+                continue
+
+            if abs(rtt1 - rtt0) / rtt1 <= 0.5:
+                print("[!] No Packet In")
+                time.sleep(10)
+                continue
+
+            interval = 2
+            gauss = lambda n : n*(n+1)/2
+
+            while gauss(interval) <= hard_timeout:
+                time.sleep(interval)
+                rtti = FTFUtils.measure_rtt(dst_ip)
+
+                if rtti is None:
+                    print("[!] Failed Probe")
+                    break
+                
+                if abs(rtti - rtt0) / rtti <= 0.5:
+                    return interval
+
+                print(f"[.] Interval={interval}", flush=True)
+                
+                interval+=1
+            
+            time.sleep(hard_timeout)
+        
+        return hard_timeout

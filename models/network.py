@@ -27,11 +27,6 @@ class CustomTopo(Topo):
         h4 = self.addHost('h4', ip='10.0.0.4/24', mac='00:00:00:00:00:04')
         self.addLink(h4, s1)
 
-PCAP_PREFIX = "/home/ubuntu/Desktop/progetto/models/pcaps/traffic"
-ATTACK_NPACKET   = 20       # pacchetti per thread di attacco
-ATTACK_ANP       = 5        # burst size
-ATTACK_WAIT      = None     # secondi di durata attacco (None = aspetta fine naturale)
-
 def load_metadata(prefix):
     with open(f"{prefix}_metadata.json") as f:
         return json.load(f)
@@ -82,6 +77,11 @@ def main() -> None:
 
     info("*** [TRAFFIC] Normal + Flow Table Flooding Attack\n")
 
+    PCAP_PREFIX = "/home/ubuntu/Desktop/progetto/models/pcaps/traffic"
+    ATTACK_NPACKET   = 200      # number of packets
+    ATTACK_ANP       = 5        # added new packet
+    ATTACK_WAIT      = None     # secondi di durata attacco (None = aspetta fine naturale)
+
     # --- Thread 1: traffic replay ---
     metadata = load_metadata(PCAP_PREFIX)
     offsets = metadata["offsets"]
@@ -98,32 +98,37 @@ def main() -> None:
         threads.append(t)
 
     # --- Thread 1: FTF attack ---
-    src = 'h3'; dst = 'h2'
-    info(f"*** [ATTACK] Coppia: {src} -> {dst}\n")
+    """
+    src = 'h3'; probe_dst = 'h2'
+    info(f"*** [ATTACK] Coppia: {src} -> {probe_dst}\n")
     attack = FTFAttack(
         attacker=src,
-        probe_dst=dst,
+        probe_dst=probe_dst,
         npacket=ATTACK_NPACKET,
         added_new_packets=ATTACK_ANP,
         max_iter=100,
         max_interval=20,
         net=net
     )
-
+    """
+    
     for t in threads:
         t.start()
 
+    """
     attack.start()
+    """
 
     for t in threads:
         t.join()
 
+    """
     if ATTACK_WAIT is not None:
         attack.join(timeout=ATTACK_WAIT)
         attack.stop()
     else:
         attack.join()
-
+    """
     info("*** [END]\n")
     #CLI(net)
     net.stop()
