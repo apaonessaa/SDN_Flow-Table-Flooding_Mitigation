@@ -21,33 +21,24 @@ from ryu.ofproto import ofproto_v1_4
 from ryu.lib.packet import packet, ethernet, ether_types, ipv4
 from ryu.lib import hub
 
-from collections import defaultdict, Counter
+from collections import namedtuple, deque, defaultdict, Counter
 from netaddr import IPAddress, IPNetwork
 import numpy as np
 import os
 from catboost import CatBoostClassifier
 
-from queue import LifoQueue
-
 class FeatureExt():
     VALID_IP_RANGES = ['10.0.0.0/24']
-    WINDOW_SIZE = 200
+    WINDOW_SIZE = 500
+    FLOW_TABLE_CAPACITY = 50
+    
+    PktInData = namedtuple('PktInData', ['payload', 'size', 'src_ip', 'dst_ip', 'src_mac', 'dst_mac'])
 
     def __init__(self):
-        self.payloads = LifoQueue(maxsize=self.WINDOW_SIZE)
-        self.payload_size = LifoQueue(maxsize=self.WINDOW_SIZE)
-        self.src_ips = LifoQueue(maxsize=self.WINDOW_SIZE)
-        self.dst_ips = LifoQueue(maxsize=self.WINDOW_SIZE)
-        self.src_macs = LifoQueue(maxsize=self.WINDOW_SIZE)
-        self.dst_macs = LifoQueue(maxsize=self.WINDOW_SIZE)
+        self.window = deque(maxlen=self.WINDOW_SIZE)
 
     def add_pkt_in(self, payload, src_ip, dst_ip, src_mac, dst_mac):
-        self.payloads.put(payload)
-        self.payload_size.put(len(payload))
-        self.src_ips.put(src_ip)
-        self.dst_ips.put(dst_ip)
-        self.src_macs.put(src_mac)
-        self.dst_macs.put(dst_mac)
+        self.window.append(self.PktInData(payload, len(payload), src_ip, dst_ip, src_mac, dst_mac))
 
     """
     - Mean and CV payloads entropy
@@ -56,16 +47,16 @@ class FeatureExt():
     """
     def get_pkt_in_features(self):
         return (
-            FeatureExt.calculate_mean_and_cv([FeatureExt.shannon_entropy(payload) for payload in list(self.payloads.queue)]),
-            FeatureExt.shannon_entropy(list(self.payload_size.queue)),
-            FeatureExt.shannon_entropy(list(self.src_ips.queue)),
-            FeatureExt.shannon_entropy(list(self.dst_ips.queue)),
-            FeatureExt.shannon_entropy(list(self.src_macs.queue)),
-            FeatureExt.shannon_entropy(list(self.dst_macs.queue)))
+            FeatureExt.calculate_mean_and_cv([FeatureExt.shannon_entropy(pktin.payload) for pktin in self.window]),
+            FeatureExt.shannon_entropy([pktin.size for pktin in self.window]),
+            FeatureExt.shannon_entropy([pktin.src_ip for pktin in self.window]),
+            FeatureExt.shannon_entropy([pktin.dst_ip for pktin in self.window]),
+            FeatureExt.shannon_entropy([pktin.src_mac for pktin in self.window]),
+            FeatureExt.shannon_entropy([pktin.dst_mac for pktin in self.window]))
     
     """
     Feature Per Flow Table
-        - Number of Flow Rules
+        - Capacity used (%)
         - Packet Arrival Frequency
         - Cumulative Possibility Spoofed Ip
         - Duration entropy
@@ -80,7 +71,7 @@ class FeatureExt():
         pkt_counts = [flow.packet_count for flow in flows]
         byte_counts = [flow.byte_count for flow in flows]
         return (
-            len(flows),
+            (len(flows)*100)/self.FLOW_TABLE_CAPACITY,
             FeatureExt.calculate_paf(flows),
             FeatureExt.calculate_ft_psi(flows),
             FeatureExt.shannon_entropy(durations),
@@ -158,11 +149,12 @@ class FeatureExt():
         pbs = [nb / n for nb in counts.values()]
         return -np.sum([pb * np.log2(pb) for pb in pbs])
 
+
 class SimpleSwitch14(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_4.OFP_VERSION]
-    FLOW_TABLE_CAPACITY = 100
+    FLOW_TABLE_CAPACITY = 50
     FLOW_TABLE_THRESHOLD = 0.8
-    IDLE_TIMEOUT = 8
+    IDLE_TIMEOUT = 10
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch14, self).__init__(*args, **kwargs)
@@ -355,4 +347,11 @@ class SimpleSwitch14(app_manager.RyuApp):
         
         anomaly_detected = self.model.predict([features])
         if anomaly_detected:
-            self.logger.info('[ANOMALY] Detected FTF attack for %s with c_used=%d/%d', dpid, c_used, self.FLOW_TABLE_CAPACITY)
+            self.logger.info('[ANOMALY] Detected FTF attack for %s', dpid)
+            self.logger.debug(
+                f"[GAP] > C_used: {c_used}, PAF: {paf}, PSI: {ft_psi}, Duration Entropy: {durations_entropy}, "
+                f"Duration entropy: {durations_entropy}, Packet entropy: {pkts_entropy}, Bytes_entropy: {bytes_entropy}, "
+                f"Mean Duration: {mean_duration}, CVD: {cvd}, "
+                f"Mean Packet: {mean_pkts}, CVP: {cvp}, "
+                f"Mean Bytes: {mean_bytes}, CVB: {cvb}"
+            )

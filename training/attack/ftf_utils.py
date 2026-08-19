@@ -116,9 +116,6 @@ class FTFUtils:
 
     @staticmethod
     def estimate_idle_timeout(dst_ip: str, max_int: int, hard_timeout: int) -> int:
-        def gauss(n: int):
-            return 
-
         for _ in range(max_int):
             rtt0 = FTFUtils.measure_rtt(dst_ip)
             time.sleep(1)
@@ -134,24 +131,30 @@ class FTFUtils:
                 time.sleep(10)
                 continue
 
-            interval = 2
-            gauss = lambda n : n*(n+1)/2
+            inter_sum = 1
+            for interval in range(2, hard_timeout):
 
-            while gauss(interval) <= hard_timeout:
                 time.sleep(interval)
+
+                inter_sum += interval
+
+                if inter_sum >= hard_timeout:
+                    rtt0 = FTFUtils.measure_rtt(dst_ip)
+                    print(f"[+] rtt0={rtt0}")
+                    inter_sum = interval
+                    time.sleep(interval)
+
                 rtti = FTFUtils.measure_rtt(dst_ip)
 
                 if rtti is None:
                     print("[!] Failed Probe")
                     break
-                
+
                 if abs(rtti - rtt0) / rtti <= 0.5:
                     return interval
-
+                    
                 print(f"[.] Interval={interval}", flush=True)
-                
-                interval+=1
-            
+                            
             time.sleep(hard_timeout)
         
         return hard_timeout

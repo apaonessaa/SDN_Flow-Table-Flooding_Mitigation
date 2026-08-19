@@ -4,6 +4,7 @@ import threading
 import subprocess
 import sys
 from time import time, sleep
+from random import randint
 from mininet.net import Mininet
 from mininet.node import RemoteController, OVSSwitch
 from mininet.topo import Topo
@@ -77,8 +78,26 @@ def main() -> None:
     net.start()
     info("*** Scripts\n")
     run_script('../config/ft_size.sh')
-    #wait_for_network(net)
     sleep(20)
+
+    info("*** [TRAFFIC] Normal traffic\n")
+    metadata = load_metadata(PCAP_PREFIX)
+    offsets = metadata["offsets"]
+    launch_time = time() + 1.0
+    threads = []
+    for h in net.hosts:
+        ip = h.IP()
+        pcap_file = f"{PCAP_PREFIX}_{ip.replace('.', '_')}.pcap"
+        offset = offsets.get(ip, 0.0)
+
+        t = threading.Thread(
+            target=replay_worker,
+            args=(h, pcap_file, launch_time, offset)
+        )
+        threads.append(t)
+
+    for t in threads:
+        t.start()
 
     info("*** [TRAFFIC] Flow Table Flooding Attack\n")
 
@@ -105,52 +124,47 @@ def main() -> None:
     i = 0
     for src, dst in PAIRS.items():
         info(f"*** [ATTACK] Coppia: {src} -> {dst}, NPkts={ATTACK_NPACKET[i]}, ANP={ATTACK_ANP[i]}\n")
-
         attack = FTFAttack(
             attacker=src,
             probe_dst=dst,
             npacket=ATTACK_NPACKET[i],
             added_new_packets=ATTACK_ANP[i],
             max_iter=100,
-            max_interval=20,
+            max_interval=50,
             net=net
         )
-
         attack.start()
-
         if ATTACK_WAIT is not None:
             attack.join(timeout=ATTACK_WAIT)
             attack.stop()
         else:
             attack.join()
 
-        sleep(20)
+        sleep(randint(5, 20))
 
         info(f"*** [ATTACK] Coppia: {dst} -> {src}, NPkts={ATTACK_NPACKET[(i+1)%3]}, ANP={ATTACK_ANP[(i+1)%3]}\n")
-
         attack = FTFAttack(
             attacker=dst,
             probe_dst=src,
             npacket=ATTACK_NPACKET[(i+1)%3],
             added_new_packets=ATTACK_ANP[(i+1)%3],
             max_iter=100,
-            max_interval=20,
+            max_interval=50,
             net=net
         )
-
         attack.start()
-
         if ATTACK_WAIT is not None:
             attack.join(timeout=ATTACK_WAIT)
             attack.stop()
         else:
             attack.join()
-        
-        i=(i+1)%3
-        
-        sleep(20)
 
-    sleep(60)
+        i=(i+1)%3
+
+        sleep(randint(5, 20))
+
+    for t in threads:
+        t.join()
 
     info("*** [END]\n")
     #CLI(net)

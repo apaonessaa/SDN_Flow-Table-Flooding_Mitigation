@@ -4,6 +4,7 @@ from catboost import CatBoostClassifier
 from sklearn.metrics import accuracy_score, classification_report
 
 TRAINING_SET = '/home/ubuntu/Desktop/progetto/training/datasets/training_set.csv'
+#OUTPUT_MODEL = '/home/ubuntu/Desktop/progetto/models/catboost_model.cbm'
 OUTPUT_MODEL = '/tmp/catboost_model.cbm'
 
 # Load the dataset
@@ -24,8 +25,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 catboost_classifier = CatBoostClassifier(
     silent=True,
     random_state=42,
-    auto_class_weights='Balanced'
-)
+    auto_class_weights='Balanced')
 
 # Train the classifier
 catboost_classifier.fit(X_train, y_train)

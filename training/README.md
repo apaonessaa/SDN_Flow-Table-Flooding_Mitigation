@@ -40,16 +40,24 @@ $ python3 ../../utils/remapping_pcap.py /home/ubuntu/Desktop/progetto/training/p
 
 ```bash
 $ wc -l *
-  16387 benign.csv
-   3115 malicious.csv
-  19502 total
+   15316 benign.csv
+    7075 malicious.csv
 
-$ cp benign.csv training_set.csv
+$ cp benign.csv raw_training_set.csv
 
-$ tail -n 3114 malicious.csv | tee -a training_set.csv
+$ cat malicious.csv | tail -n 7074 >> raw_training_set.csv
 
-$ wc -l training_set.csv
-19501 balanced.csv
+# Elimina pattern 0
+$ cat raw_training_set.csv | grep -v -e '^0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,*' > training_set.csv
+
+$ wc -l *training_set.csv 
+   22390 raw_training_set.csv
+   22080 training_set.csv
 ```
+
+Pattern a zero eliminati:
+
+- benign.csv: 6
+- malicious.csv: 304
 
 ---

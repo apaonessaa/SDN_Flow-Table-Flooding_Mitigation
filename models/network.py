@@ -78,7 +78,7 @@ def main() -> None:
     info("*** [TRAFFIC] Normal + Flow Table Flooding Attack\n")
 
     PCAP_PREFIX = "/home/ubuntu/Desktop/progetto/models/pcaps/traffic"
-    ATTACK_NPACKET   = 200      # number of packets
+    ATTACK_NPACKET   = 100      # number of packets
     ATTACK_ANP       = 5        # added new packet
     ATTACK_WAIT      = None     # secondi di durata attacco (None = aspetta fine naturale)
 
