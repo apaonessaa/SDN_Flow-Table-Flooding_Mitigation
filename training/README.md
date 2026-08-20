@@ -41,7 +41,7 @@ $ python3 ../../utils/remapping_pcap.py /home/ubuntu/Desktop/progetto/training/p
 ```bash
 $ wc -l *
    15316 benign.csv
-    7075 malicious.csv
+    3298 malicious.csv
 
 $ cp benign.csv raw_training_set.csv
 
@@ -51,13 +51,17 @@ $ cat malicious.csv | tail -n 7074 >> raw_training_set.csv
 $ cat raw_training_set.csv | grep -v -e '^0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,*' > training_set.csv
 
 $ wc -l *training_set.csv 
-   22390 raw_training_set.csv
-   22080 training_set.csv
+   18613 raw_training_set.csv
+   18541 training_set.csv
 ```
 
-Pattern a zero eliminati:
+```bash
+$ python3 training_model.py
+```
 
-- benign.csv: 6
-- malicious.csv: 304
+## Data Leakage
+
+- https://northhavenanalytics.com/definitive-guide-data-leakage-machine-learning-prevention/
+
 
 ---

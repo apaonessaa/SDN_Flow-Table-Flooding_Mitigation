@@ -53,18 +53,33 @@ def run_script(path: str) -> None:
         print(result.stderr, file=sys.stderr)
         raise RuntimeError(f"Error code: {result.returncode}")
 
+def replay_worker(host, pcap_file, launch_time, offset, proc_holder, stop_event):
+    sleep_duration = (launch_time + offset) - time()
+    if sleep_duration > 0:
+        sleep(sleep_duration)
 
-def wait_for_network(net: Mininet, timeout: int = 60) -> None:
-    """Aspetta che h1 raggiunga h3 prima di avviare il monitor."""
-    h1, h3 = net.get('h1', 'h3')
-    info("*** Verifica connettività h1->h3\n")
-    for attempt in range(timeout):
-        result = h1.cmd(f'ping -c 1 -W 1 {h3.IP()}')
-        if '1 received' in result:
-            info(f"*** Rete pronta (tentativo {attempt + 1})\n")
-            return
-        sleep(1)
-    info("*** ATTENZIONE: rete non pronta dopo timeout, avvio monitor comunque\n")
+    if stop_event.is_set():
+        return
+
+    iface = host.defaultIntf().name
+    cmd = f"tcpreplay --intf1={iface} --multiplier=1.0 {pcap_file}"
+    print(f"[*] {host.name}: avvio a t+{offset:.3f}s -> {cmd}")
+
+    proc = host.popen(cmd, shell=True)
+    proc_holder[host.name] = proc  # lo rendiamo visibile al thread principale
+    proc.wait()
+    print(f"[*] {host.name}: replay terminato")
+
+def kill_replay_traffic(procs, stop_event):
+    stop_event.set()
+    for name, proc in procs.items():
+        if proc.poll() is None:
+            print(f"[*] Termino tcpreplay su {name} (pid={proc.pid})")
+            proc.terminate()
+    sleep(1)
+    for name, proc in procs.items():
+        if proc.poll() is None:
+            proc.kill()
 
 def main() -> None:
     topo = CustomTopo()
@@ -81,10 +96,14 @@ def main() -> None:
     sleep(20)
 
     info("*** [TRAFFIC] Normal traffic\n")
+    PCAP_PREFIX = "/home/ubuntu/Desktop/progetto/training/pcaps/traffic"
     metadata = load_metadata(PCAP_PREFIX)
     offsets = metadata["offsets"]
     launch_time = time() + 1.0
     threads = []
+    procs = {}                     # host.name -> Popen
+    stop_event = threading.Event()
+
     for h in net.hosts:
         ip = h.IP()
         pcap_file = f"{PCAP_PREFIX}_{ip.replace('.', '_')}.pcap"
@@ -92,15 +111,16 @@ def main() -> None:
 
         t = threading.Thread(
             target=replay_worker,
-            args=(h, pcap_file, launch_time, offset)
+            args=(h, pcap_file, launch_time, offset, procs, stop_event)
         )
         threads.append(t)
 
     for t in threads:
         t.start()
 
-    info("*** [TRAFFIC] Flow Table Flooding Attack\n")
+    sleep(5)
 
+    info("*** [TRAFFIC] Flow Table Flooding Attack\n")
     PAIRS = {
         'h1':'h2',
         'h3':'h4',
@@ -109,7 +129,6 @@ def main() -> None:
     ATTACK_NPACKET   = [200, 80, 50]
     ATTACK_ANP       = [20, 10, 5]
     ATTACK_WAIT      = None
-    PCAP_PREFIX = "/home/ubuntu/Desktop/progetto/training/pcaps/traffic"
 
     """
     h1-eth0<->s1-eth2 (OK OK) 
@@ -140,7 +159,7 @@ def main() -> None:
         else:
             attack.join()
 
-        sleep(randint(5, 20))
+        sleep(5)
 
         info(f"*** [ATTACK] Coppia: {dst} -> {src}, NPkts={ATTACK_NPACKET[(i+1)%3]}, ANP={ATTACK_ANP[(i+1)%3]}\n")
         attack = FTFAttack(
@@ -153,6 +172,7 @@ def main() -> None:
             net=net
         )
         attack.start()
+
         if ATTACK_WAIT is not None:
             attack.join(timeout=ATTACK_WAIT)
             attack.stop()
@@ -161,10 +181,11 @@ def main() -> None:
 
         i=(i+1)%3
 
-        sleep(randint(5, 20))
+        sleep(5)
 
+    kill_replay_traffic(procs, stop_event)
     for t in threads:
-        t.join()
+        t.join(timeout=5)
 
     info("*** [END]\n")
     #CLI(net)
