@@ -44,6 +44,19 @@ def run_script(path: str) -> None:
         print(result.stderr, file=sys.stderr)
         raise RuntimeError(f"Error code: {result.returncode}")
 
+def wait_for_network(net: Mininet, timeout: int = 60) -> None:
+    """Aspetta che h1 raggiunga h3 prima di avviare il monitor."""
+    h1, h3 = net.get('h1', 'h3')
+    info("*** Verifica connettività h1->h3\n")
+    for attempt in range(timeout):
+        result = h1.cmd(f'ping -c 1 -W 1 {h3.IP()}')
+        if '1 received' in result:
+            info(f"*** Rete pronta (tentativo {attempt + 1})\n")
+            return
+        sleep(1)
+    info("*** ATTENZIONE: rete non pronta dopo timeout, avvio monitor comunque\n")
+
+
 def replay_worker(host, pcap_file, launch_time, offset):
     """Attende fino all'istante sincronizzato (launch_time + offset),
     poi avvia tcpreplay per questo host. --multiplier=1.0 preserva
@@ -54,7 +67,7 @@ def replay_worker(host, pcap_file, launch_time, offset):
         sleep(sleep_duration)
 
     iface = host.defaultIntf().name
-    cmd = f"tcpreplay --intf1={iface} --multiplier=1.0 {pcap_file}"
+    cmd = f"tcpreplay --intf1={iface} --multiplier=1.0 --loop=2 {pcap_file}"
     print(f"[*] {host.name}: avvio a t+{offset:.3f}s -> {cmd}")
 
     proc = host.popen(cmd, shell=True)
@@ -73,13 +86,13 @@ def main() -> None:
     net.start()
     info("*** Scripts\n")
     run_script('../config/ft_size.sh')
-    sleep(20)
+    wait_for_network(net)
 
     info("*** [TRAFFIC] Normal + Flow Table Flooding Attack\n")
 
     PCAP_PREFIX = "/home/ubuntu/Desktop/progetto/models/pcaps/traffic"
-    ATTACK_NPACKET   = 100      # number of packets
-    ATTACK_ANP       = 5        # added new packet
+    ATTACK_NPACKET   = 100       # number of packets
+    ATTACK_ANP       = 10        # added new packet
     ATTACK_WAIT      = None     # secondi di durata attacco (None = aspetta fine naturale)
 
     # --- Thread 1: traffic replay ---
@@ -97,8 +110,11 @@ def main() -> None:
         )
         threads.append(t)
 
+    for t in threads:
+        t.start()
+
     # --- Thread 1: FTF attack ---
-    """
+    sleep(5)
     src = 'h3'; probe_dst = 'h2'
     info(f"*** [ATTACK] Coppia: {src} -> {probe_dst}\n")
     attack = FTFAttack(
@@ -110,25 +126,18 @@ def main() -> None:
         max_interval=20,
         net=net
     )
-    """
+
+    attack.start()
     
     for t in threads:
-        t.start()
-
-    """
-    attack.start()
-    """
-
-    for t in threads:
         t.join()
-
-    """
+    
     if ATTACK_WAIT is not None:
         attack.join(timeout=ATTACK_WAIT)
         attack.stop()
     else:
         attack.join()
-    """
+    
     info("*** [END]\n")
     #CLI(net)
     net.stop()

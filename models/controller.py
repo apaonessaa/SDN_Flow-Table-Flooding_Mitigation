@@ -26,10 +26,11 @@ from netaddr import IPAddress, IPNetwork
 import numpy as np
 import os
 from catboost import CatBoostClassifier
+import csv
 
 class FeatureExt():
     VALID_IP_RANGES = ['10.0.0.0/24']
-    WINDOW_SIZE = 500
+    WINDOW_SIZE = 100
     FLOW_TABLE_CAPACITY = 50
     
     PktInData = namedtuple('PktInData', ['payload', 'size', 'src_ip', 'dst_ip', 'src_mac', 'dst_mac'])
@@ -149,12 +150,17 @@ class FeatureExt():
         pbs = [nb / n for nb in counts.values()]
         return -np.sum([pb * np.log2(pb) for pb in pbs])
 
-
 class SimpleSwitch14(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_4.OFP_VERSION]
     FLOW_TABLE_CAPACITY = 50
     FLOW_TABLE_THRESHOLD = 0.8
     IDLE_TIMEOUT = 10
+
+    DATASET_COLUMNS = ["payload_entropy_mean", "payload_entropy_cv", #"payload_size_entropy",
+        "src_ip_entropy", "dst_ip_entropy", "src_mac_entropy", "dst_mac_entropy",
+        "c_used", "paf", "ft_psi", "durations_entropy", "pkts_entropy", "bytes_entropy",
+        "mean_duration", "cvd", "mean_pkts", "cvp", "mean_bytes", "cvb", "label"]
+    DATASET_PATH = "/home/ubuntu/Desktop/progetto/models/false_positives.csv"
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch14, self).__init__(*args, **kwargs)
@@ -164,6 +170,15 @@ class SimpleSwitch14(app_manager.RyuApp):
         self.feature_ext = defaultdict(FeatureExt)
         self.model = CatBoostClassifier()
         self.model.load_model('/home/ubuntu/Desktop/progetto/models/catboost_model.cbm')
+        self._init_csv()
+
+    def _init_csv(self):
+        write_header = not os.path.exists(self.DATASET_PATH)
+        self._csv_file = open(self.DATASET_PATH, "a", newline="")
+        self._csv_writer = csv.writer(self._csv_file)
+        if write_header:
+            self._csv_writer.writerow(self.DATASET_COLUMNS)
+            self._csv_file.flush()
 
     def _collector(self):
         while True:
@@ -339,7 +354,7 @@ class SimpleSwitch14(app_manager.RyuApp):
             duration, packet_count, byte_count, pkt_rate, byte_rate, psi = self.feature_ext[dpid].get_flow_feature(stat)
 
         features = [
-            payload_entropy_mean, payload_entropy_cv, payload_size_entropy,
+            payload_entropy_mean, payload_entropy_cv, #payload_size_entropy,
             src_ip_entropy, dst_ip_entropy, src_mac_entropy, dst_mac_entropy,
             c_used, paf, ft_psi, durations_entropy, pkts_entropy, bytes_entropy,
             mean_duration, cvd, mean_pkts, cvp, mean_bytes, cvb
@@ -355,3 +370,11 @@ class SimpleSwitch14(app_manager.RyuApp):
                 f"Mean Packet: {mean_pkts}, CVP: {cvp}, "
                 f"Mean Bytes: {mean_bytes}, CVB: {cvb}"
             )
+            row = [
+                payload_entropy_mean, payload_entropy_cv, #payload_size_entropy,
+                src_ip_entropy, dst_ip_entropy, src_mac_entropy, dst_mac_entropy,
+                c_used, paf, ft_psi, durations_entropy, pkts_entropy, bytes_entropy,
+                mean_duration, cvd, mean_pkts, cvp, mean_bytes, cvb, 1
+            ]
+            self._csv_writer.writerow(row)
+            self._csv_file.flush()
