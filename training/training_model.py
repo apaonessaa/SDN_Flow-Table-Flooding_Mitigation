@@ -1,5 +1,5 @@
 import pandas as pd
-from catboost import CatBoostClassifier, Pool, cv
+from catboost import CatBoostClassifier, Pool
 from sklearn.model_selection import train_test_split, GroupKFold
 from sklearn.metrics import accuracy_score, classification_report
 
@@ -17,6 +17,11 @@ X = df[['payload_entropy_mean','payload_entropy_cv',#'payload_size_entropy',
 'pkts_entropy','bytes_entropy','mean_duration','cvd',
 'mean_pkts','cvp','mean_bytes','cvb']]
 y = df['label']
+
+# Verifica che nessuno scenario domini eccessivamente il dataset
+counts = df.groupby(['scenario_id', 'label']).size().unstack(fill_value=0)
+print(counts)
+print(f"\nDeviazione standard tra scenari: {counts.sum(axis=1).std()}")
 
 # Split the dataset into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(

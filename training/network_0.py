@@ -7,7 +7,6 @@ from time import time, sleep
 from mininet.net import Mininet
 from mininet.node import RemoteController, OVSSwitch
 from mininet.topo import Topo
-#from mininet.cli import CLI
 from mininet.log import setLogLevel, info
 
 class CustomTopo(Topo):
@@ -33,7 +32,6 @@ class CustomTopo(Topo):
         attacker = self.addHost('h6', ip='10.0.0.6/24', mac='00:00:00:00:00:06')
         self.addLink(attacker, s2)
 
-
 PCAP_PREFIX = "/home/ubuntu/Desktop/progetto/training/pcaps/traffic"
 
 def load_metadata(prefix):
@@ -52,7 +50,6 @@ def run_script(path: str) -> None:
     if result.returncode != 0:
         print(result.stderr, file=sys.stderr)
         raise RuntimeError(f"Error code: {result.returncode}")
-
 
 def wait_for_network(net: Mininet, timeout: int = 60) -> None:
     """Aspetta che h1 raggiunga h3 prima di avviare il monitor."""
@@ -125,7 +122,6 @@ def main() -> None:
 
     info("*** [END]\n")
     sleep(60)
-    #CLI(net)
     net.stop()
 
 if __name__ == '__main__':

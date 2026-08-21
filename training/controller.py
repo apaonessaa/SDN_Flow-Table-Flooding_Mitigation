@@ -30,7 +30,6 @@ import csv
 class FeatureExt():
     VALID_IP_RANGES = ['10.0.0.0/24']
     WINDOW_SIZE = 500
-    FLOW_TABLE_CAPACITY = 50
     
     PktInData = namedtuple('PktInData', ['payload', 'size', 'src_ip', 'dst_ip', 'src_mac', 'dst_mac'])
 
@@ -66,12 +65,12 @@ class FeatureExt():
         - Mean Packets and CVP
         - Mean Bytes and CVB
     """
-    def get_ft_features(self, flows):
+    def get_ft_features(self, flows, flow_table_size: int):
         durations = [FeatureExt.effective_duration(flow) for flow in flows]
         pkt_counts = [flow.packet_count for flow in flows]
         byte_counts = [flow.byte_count for flow in flows]
         return (
-            (len(flows)*100)/self.FLOW_TABLE_CAPACITY,
+            (len(flows)*100)/flow_table_size,
             FeatureExt.calculate_paf(flows),
             FeatureExt.calculate_ft_psi(flows),
             FeatureExt.shannon_entropy(durations),
@@ -149,19 +148,21 @@ class FeatureExt():
         pbs = [nb / n for nb in counts.values()]
         return -np.sum([pb * np.log2(pb) for pb in pbs])
 
-
 class SimpleSwitch14(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_4.OFP_VERSION]
-    FLOW_TABLE_CAPACITY = 50
-    FLOW_TABLE_THRESHOLD = 0.8
-    IDLE_TIMEOUT = 10
-    DATASET_COLUMNS = ["payload_entropy_mean", "payload_entropy_cv", "payload_size_entropy",
+    DATASET_COLUMNS = [
+        "payload_entropy_mean", "payload_entropy_cv", "payload_size_entropy",
         "src_ip_entropy", "dst_ip_entropy", "src_mac_entropy", "dst_mac_entropy",
         "c_used", "paf", "ft_psi", "durations_entropy", "pkts_entropy", "bytes_entropy",
-        "mean_duration", "cvd", "mean_pkts", "cvp", "mean_bytes", "cvb", "label"
+        "mean_duration", "cvd", "mean_pkts", "cvp", "mean_bytes", "cvb", 
+        "group_id", "label"
     ]
-    CURRENT_LABEL = 1 #0 buono, 1 cattivo
-    DATASET_PATH = "/home/ubuntu/Desktop/progetto/training/datasets/malicious_2.csv"
+    GROUP_ID = os.environ.get('GROUP_ID', 0)
+    LABEL = os.environ.get('LABEL', 0) #0 buono, 1 cattivo
+    DATASET_PATH = os.environ.get('DATASET', '/tmp/dataset.csv')
+    FLOW_TABLE_SIZE = int(os.environ.get('FLOW_TABLE_SIZE', '50'))
+    IDLE_TIMEOUT = int(os.environ.get('IDLE_TIMEOUT', '10'))
+    HARD_TIMEOUT = int(os.environ.get('HARD_TIMEOUT', '20'))
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch14, self).__init__(*args, **kwargs)
@@ -290,7 +291,7 @@ class SimpleSwitch14(app_manager.RyuApp):
             self.add_flow(
                 datapath, 1, match, actions,
                 idle_timeout=self.IDLE_TIMEOUT,
-                hard_timeout=2*self.IDLE_TIMEOUT
+                hard_timeout=self.HARD_TIMEOUT
             )
 
         data = None
@@ -324,15 +325,8 @@ class SimpleSwitch14(app_manager.RyuApp):
     @set_ev_cls(ofp_event.EventOFPFlowStatsReply, MAIN_DISPATCHER)
     def flow_stats_reply_handler(self, ev):
         body = ev.msg.body
-
         stats = [stat for stat in body if stat.priority == 1]
-
         dpid = ev.msg.datapath.id
-
-        # Check occupancy
-        occupancy = len(stats) / float(self.FLOW_TABLE_CAPACITY)
-        if occupancy < self.FLOW_TABLE_THRESHOLD:
-            pass #return
 
         self.logger.debug(f"[GAP] DPID: {dpid:016x}")
 
@@ -352,7 +346,7 @@ class SimpleSwitch14(app_manager.RyuApp):
          durations_entropy, pkts_entropy, bytes_entropy,
          (mean_duration, cvd),
          (mean_pkts, cvp),
-         (mean_bytes, cvb)) = self.feature_ext[dpid].get_ft_features(stats)
+         (mean_bytes, cvb)) = self.feature_ext[dpid].get_ft_features(stats, self.FLOW_TABLE_SIZE)
 
         self.logger.debug(
             f"[GAP] > C_used: {c_used}, PAF: {paf}, PSI: {ft_psi}, Duration Entropy: {durations_entropy}, "
@@ -375,7 +369,8 @@ class SimpleSwitch14(app_manager.RyuApp):
             payload_entropy_mean, payload_entropy_cv, payload_size_entropy,
             src_ip_entropy, dst_ip_entropy, src_mac_entropy, dst_mac_entropy,
             c_used, paf, ft_psi, durations_entropy, pkts_entropy, bytes_entropy,
-            mean_duration, cvd, mean_pkts, cvp, mean_bytes, cvb, self.CURRENT_LABEL
+            mean_duration, cvd, mean_pkts, cvp, mean_bytes, cvb, 
+            self.GROUP_ID, self.LABEL
         ]
         self._csv_writer.writerow(row)
         self._csv_file.flush()

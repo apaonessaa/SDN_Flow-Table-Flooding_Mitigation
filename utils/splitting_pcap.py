@@ -9,7 +9,6 @@ import sys
 import json
 from scapy.all import PcapReader, PcapWriter, IP
 
-
 def split_pcap_with_timing(infile, output_prefix, host_ips):
     writers = {
         ip: PcapWriter(f"{output_prefix}_{ip.replace('.', '_')}.pcap", sync=True)
@@ -17,15 +16,18 @@ def split_pcap_with_timing(infile, output_prefix, host_ips):
     }
 
     global_min_time = None
+    global_max_time = None
     first_packet_time = {ip: None for ip in host_ips}
     per_host_count = {ip: 0 for ip in host_ips}
 
     with PcapReader(infile) as reader:
         for pkt in reader:
-            ts = float(pkt.time)   # timestamp assoluto (epoch) del pacchetto
+            ts = float(pkt.time)
 
             if global_min_time is None or ts < global_min_time:
                 global_min_time = ts
+            if global_max_time is None or ts > global_max_time:
+                global_max_time = ts
 
             if pkt.haslayer(IP):
                 src = pkt[IP].src
@@ -38,20 +40,24 @@ def split_pcap_with_timing(infile, output_prefix, host_ips):
     for w in writers.values():
         w.close()
 
-    # offset di ogni host rispetto all'inizio assoluto del pcap
+    original_capture_duration = global_max_time - global_min_time
+
     offsets = {
         ip: (first_packet_time[ip] - global_min_time) if first_packet_time[ip] is not None else 0.0
         for ip in host_ips
     }
 
-    metadata = {"offsets": offsets, "packet_counts": per_host_count}
+    metadata = {
+        "offsets": offsets,
+        "packet_counts": per_host_count,
+        "original_capture_duration": original_capture_duration,
+    }
     with open(f"{output_prefix}_metadata.json", "w") as f:
         json.dump(metadata, f, indent=2)
 
-    print(f"[*] Timestamp assoluto minimo globale: {global_min_time}")
+    print(f"[*] Durata cattura originale: {original_capture_duration:.1f}s")
     for ip in host_ips:
         print(f"    {ip}: offset={offsets[ip]:.3f}s, {per_host_count[ip]} pacchetti")
-
 
 if __name__ == "__main__":
     if len(sys.argv) < 4:
