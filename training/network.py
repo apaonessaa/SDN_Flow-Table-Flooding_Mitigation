@@ -4,6 +4,7 @@ import threading
 import subprocess
 import socket
 import sys
+import os
 from time import time, sleep
 from mininet.net import Mininet
 from mininet.node import RemoteController, OVSSwitch, Host
@@ -156,9 +157,11 @@ def load_metadata(prefix):
 
 def start_controller(env_vars: dict, log_path: str = "controller.log") -> subprocess.Popen:
     log_file = open(log_path, "w")
+    full_env = os.environ.copy()
+    full_env.update(env_vars)
     proc = subprocess.Popen(
-        ['/usr/local/bin/ryu-manager','--verbose','--observe-links','controller.py'],
-        env=env_vars,
+        ['ryu-manager','--verbose','--observe-links','controller.py'],
+        env=full_env,
         stdout=log_file,
         stderr=subprocess.STDOUT,
         text=True,)
@@ -214,7 +217,10 @@ def replay_worker(host, pcap_file, launch_time, pps, duration, offset, proc_hold
     if stop_event.is_set():
         return
     iface = host.defaultIntf().name
-    cmd = f"tcpreplay --intf1={iface} --pps={pps} --duration={duration} {pcap_file}"
+    if duration > 0:
+        cmd = f"tcpreplay --intf1={iface} --pps={pps} --duration={duration} {pcap_file}"
+    else:
+        cmd = f"tcpreplay --intf1={iface} --pps={pps} {pcap_file}"
     print(f"[*] {host.name}: avvio a t+{offset:.3f}s -> {cmd}")
     proc = host.popen(cmd, shell=True)
     proc_holder[host.name] = proc
@@ -242,6 +248,16 @@ def rescale_offset(raw_offset, original_capture_duration, group_duration):
         return 0.0
     fraction = raw_offset / original_capture_duration
     return min(fraction, 1.0) * group_duration
+
+def estimate_timeout_inference(idle_timeout: int, hard_timeout: int):
+    res = 0
+    s = 0
+    for t in range(1,idle_timeout+1):
+        s += t
+        if s >= hard_timeout:
+            res += (s+t)
+            s = 0
+    return res + hard_timeout
 
 def main() -> None:
     # Topologies
@@ -273,12 +289,12 @@ def main() -> None:
         "/home/ubuntu/Desktop/progetto/training/pcaps/traffic"
     ]
     flow_table_sizes = [10]
-    idle_timeouts = [10]
-    hard_timeouts = [20]
+    idle_timeouts = [5]
+    hard_timeouts = [8]
     pps = [30]
 
-    att_npkts = [100]
-    att_anps = [20]
+    att_npkts = [25]
+    att_anps = [4]
     att_wait = None
 
     n_topos = len(topos)
@@ -288,7 +304,7 @@ def main() -> None:
         info("*** CONTROLLER\n")
         controller_envs = {
             "GROUP_ID": f"{i}",
-            "CURRENT_LABEL": "1",
+            "LABEL": "1",
             "DATASET_PATH": "/tmp/dataset.csv",
             "FLOW_TABLE_SIZE": f"{flow_table_sizes[i]}",
             "IDLE_TIMEOUT": f"{idle_timeouts[i]}",
@@ -317,11 +333,7 @@ def main() -> None:
                 "FLOW_TABLE_SIZE": f"{flow_table_sizes[i]}",
             }
             run_script('./set_ft_size.sh', ft_envs)
-            
-            src, dst = conn_hosts[i]
-            h_src, h_dst = net.get(src, dst)
-            wait_for_network(h_src, h_dst)
-
+                
             info("*** START TRAFFIC\n")
 
             metadata = load_metadata(pcap_prefixes[i])
@@ -352,18 +364,28 @@ def main() -> None:
                 probe_dst=dst,
                 npacket=att_npkts[i],
                 added_new_packets=att_anps[i],
-                max_iter=100,
-                max_interval=50,
+                max_iter=10,
+                max_interval=30,
                 net=net
             )
 
             # Start threads
             t0 = time()
+            
+            src, dst = conn_hosts[i]
+            h_src, h_dst = net.get(src, dst)
+            wait_for_network(h_src, h_dst)
+
+            sleep(hard_timeouts[i])
+            
+            attack.start()
+            
+            # Wait for stage 0 
+            sleep(2*estimate_timeout_inference(idle_timeouts[i], hard_timeouts[i]))
+
             for t in threads:
                 t.start()
-            attack.start()
-
-
+            
             # Stop threads
             attack.join()
             kill_replay_traffic(procs, stop_event)
@@ -380,12 +402,13 @@ def main() -> None:
         info("*** CONTROLLER\n")
         controller_envs = {
             "GROUP_ID": f"{i}",
-            "CURRENT_LABEL": "0",
+            "LABEL": "0",
             "DATASET_PATH": "/tmp/dataset.csv",
             "FLOW_TABLE_SIZE": f"{flow_table_sizes[i]}",
             "IDLE_TIMEOUT": f"{idle_timeouts[i]}",
             "HARD_TIMEOUT": f"{hard_timeouts[i]}",
         }
+        
         controller = start_controller(controller_envs, log_path=f"/tmp/controller_{i}.log")
 
         if controller.poll() is not None:
@@ -409,11 +432,7 @@ def main() -> None:
                 "FLOW_TABLE_SIZE": f"{flow_table_sizes[i]}",
             }
             run_script('./set_ft_size.sh', ft_envs)
-            
-            src, dst = conn_hosts[i]
-            h_src, h_dst = net.get(src, dst)
-            wait_for_network(h_src, h_dst)
-
+                
             info("*** START TRAFFIC\n")
 
             metadata = load_metadata(pcap_prefixes[i])
@@ -437,16 +456,19 @@ def main() -> None:
                 )
                 threads.append(t)
             
-            # Start threads
+            # Start threads            
+            src, dst = conn_hosts[i]
+            h_src, h_dst = net.get(src, dst)
+            wait_for_network(h_src, h_dst)
+            
             for t in threads:
                 t.start()
-        
-            # Stop treads
-            kill_replay_traffic(procs, stop_event)
+            
+            # Stop threads
             for t in threads:
-                t.join(timeout=5)
+                t.join()
 
-            info("*** END TRAFFIC\n")
+            info(f"*** END TRAFFIC\n")
 
         finally:
             net.stop()

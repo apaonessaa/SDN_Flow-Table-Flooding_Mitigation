@@ -9,11 +9,10 @@ from scapy.all import sendp
 from ftf_utils import FTFUtils
 
 def stage_0(dst_ip, max_iter=1000, max_interval=100):
-    #hard_timeout = FTFUtils.estimate_hard_timeout(dst_ip, max_iter, max_interval)
-    #print(f"[*] T_hard={hard_timeout}", flush=True)
-    #time.sleep(hard_timeout)
-    #af = FTFUtils.estimate_idle_timeout(dst_ip, max_iter, hard_timeout)
-    af = random.randint(8,12)
+    hard_timeout = FTFUtils.estimate_hard_timeout(dst_ip, max_iter, max_interval)
+    print(f"[*] T_hard={hard_timeout}", flush=True)
+    time.sleep(hard_timeout)
+    af = FTFUtils.estimate_idle_timeout(dst_ip, max_iter, hard_timeout)
     print(f"[*] T_idle={af}", flush=True)
     return af
 
