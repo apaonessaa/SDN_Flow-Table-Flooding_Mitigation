@@ -25,9 +25,11 @@ class CustomTopo1(Topo):
         h1 = self.addHost('h1', ip='10.0.0.1/24', mac='00:00:00:00:00:01')
         h2 = self.addHost('h2', ip='10.0.0.2/24', mac='00:00:00:00:00:02')
         h3 = self.addHost('h3', ip='10.0.0.3/24', mac='00:00:00:00:00:03')
+        h4 = self.addHost('h4', ip='10.0.0.4/24', mac='00:00:00:00:00:04')
         self.addLink(h1, s1)
         self.addLink(h2, s1)
         self.addLink(h3, s2)
+        self.addLink(h4, s2)
 
 class CustomTopo2(Topo):
     "Custom Topology Network"
@@ -188,9 +190,11 @@ def stop_controller(proc: subprocess.Popen, timeout: float = 5.0) -> None:
 
 def run_script(path: str, env_vars: dict) -> None:
     info(f"- {path}\n")
+    full_env = os.environ.copy()
+    full_env.update(env_vars)
     result = subprocess.run(
         ['bash', path],
-        env=env_vars,
+        env=full_env,
         capture_output=True,
         text=True,
     )
@@ -278,7 +282,7 @@ def main() -> None:
     ]
 
     att_hosts = [
-        ('h1', 'h2'),
+        ('h4', 'h3'),
         ('h5', 'h6'),
         ('h3', 'h4'),
         ('h4', 'h5'),
@@ -288,12 +292,12 @@ def main() -> None:
     pcap_prefixes = [
         "/home/ubuntu/Desktop/progetto/training/pcaps/traffic"
     ]
-    flow_table_sizes = [10]
-    idle_timeouts = [5]
-    hard_timeouts = [8]
+    flow_table_sizes = [50]
+    idle_timeouts = [10]
+    hard_timeouts = [20]
     pps = [30]
 
-    att_npkts = [25]
+    att_npkts = [70]
     att_anps = [4]
     att_wait = None
 
@@ -330,6 +334,7 @@ def main() -> None:
 
             info("*** NETWORK CONFIG\n")
             ft_envs = {
+                "SWITCHES": " ".join([sw.name for sw in net.switches]),
                 "FLOW_TABLE_SIZE": f"{flow_table_sizes[i]}",
             }
             run_script('./set_ft_size.sh', ft_envs)
@@ -347,20 +352,21 @@ def main() -> None:
             stop_event = threading.Event()
             threads = []
 
+            attacker, dst = att_hosts[i]
             for h in net.hosts:
-                ip = h.IP()
-                pcap_file = f"{pcap_prefixes[i]}_{ip.replace('.', '_')}.pcap"
-                offset = rescale_offset(offsets.get(ip, 0.0), original_capture_duration, implied_duration)
-                t = threading.Thread(
-                    target=replay_worker,
-                    args=(h, pcap_file, launch_time, pps[i], -1, offset, procs, stop_event)
-                )
-                threads.append(t)
-            
-            src, dst = conn_hosts[i]
-            info(f"*** [FTF ATTACK] ({src} -> {dst}), NPkts={att_npkts[i]}, ANP={att_anps[i]}\n")
+                if h.name != attacker:
+                    ip = h.IP()
+                    pcap_file = f"{pcap_prefixes[i]}_{ip.replace('.', '_')}.pcap"
+                    offset = rescale_offset(offsets.get(ip, 0.0), original_capture_duration, implied_duration)
+                    t = threading.Thread(
+                        target=replay_worker,
+                        args=(h, pcap_file, launch_time, pps[i], -1, offset, procs, stop_event)
+                    )
+                    threads.append(t)
+
+            info(f"*** [FTF ATTACK] ({attacker} -> {dst}), NPkts={att_npkts[i]}, ANP={att_anps[i]}\n")
             attack = FTFAttack(
-                attacker=src,
+                attacker=attacker,
                 probe_dst=dst,
                 npacket=att_npkts[i],
                 added_new_packets=att_anps[i],
@@ -369,106 +375,27 @@ def main() -> None:
                 net=net
             )
 
-            # Start threads
-            t0 = time()
-            
             src, dst = conn_hosts[i]
             h_src, h_dst = net.get(src, dst)
             wait_for_network(h_src, h_dst)
 
             sleep(hard_timeouts[i])
-            
-            attack.start()
-            
-            # Wait for stage 0 
-            sleep(2*estimate_timeout_inference(idle_timeouts[i], hard_timeouts[i]))
+
+            # Start threads
+            t0 = time()
 
             for t in threads:
                 t.start()
-            
+            attack.start()
+
             # Stop threads
             attack.join()
             kill_replay_traffic(procs, stop_event)
             for t in threads:
                 t.join(timeout=5)
+
             att_duration = time() - t0
-
             info(f"*** END TRAFFIC: Session duration {att_duration}\n")
-
-        finally:
-            net.stop()
-            stop_controller(controller)
-        
-        info("*** CONTROLLER\n")
-        controller_envs = {
-            "GROUP_ID": f"{i}",
-            "LABEL": "0",
-            "DATASET_PATH": "/tmp/dataset.csv",
-            "FLOW_TABLE_SIZE": f"{flow_table_sizes[i]}",
-            "IDLE_TIMEOUT": f"{idle_timeouts[i]}",
-            "HARD_TIMEOUT": f"{hard_timeouts[i]}",
-        }
-        
-        controller = start_controller(controller_envs, log_path=f"/tmp/controller_{i}.log")
-
-        if controller.poll() is not None:
-            raise RuntimeError(f"Il controller è terminato subito con codice {controller.returncode}, controlla controller.log")
-
-        if not wait_for_controller(port=6653, timeout=20):
-            controller.terminate()
-            raise RuntimeError("Timeout: il controller non si è messo in ascolto sulla porta 6653")
-
-        info("*** NETWORK\n")
-        try:
-            net = Mininet(
-                topo=topos[i],
-                controller=lambda name: RemoteController(name, ip='127.0.0.1', port=6653),
-                switch=OVSSwitch,
-                autoStaticArp=True)
-            net.start()
-
-            info("*** NETWORK CONFIG\n")
-            ft_envs = {
-                "FLOW_TABLE_SIZE": f"{flow_table_sizes[i]}",
-            }
-            run_script('./set_ft_size.sh', ft_envs)
-                
-            info("*** START TRAFFIC\n")
-
-            metadata = load_metadata(pcap_prefixes[i])
-            offsets = metadata["offsets"]
-            original_capture_duration = metadata["original_capture_duration"]
-            packet_counts = metadata["packet_counts"]
-            implied_duration, durations_per_host = group_duration(packet_counts, pps[i])
-
-            launch_time = time() + 1.0
-            procs = {}
-            stop_event = threading.Event()
-            threads = []
-
-            for h in net.hosts:
-                ip = h.IP()
-                pcap_file = f"{pcap_prefixes[i]}_{ip.replace('.', '_')}.pcap"
-                offset = rescale_offset(offsets.get(ip, 0.0), original_capture_duration, implied_duration)
-                t = threading.Thread(
-                    target=replay_worker,
-                    args=(h, pcap_file, launch_time, pps[i], att_duration, offset, procs, stop_event)
-                )
-                threads.append(t)
-            
-            # Start threads            
-            src, dst = conn_hosts[i]
-            h_src, h_dst = net.get(src, dst)
-            wait_for_network(h_src, h_dst)
-            
-            for t in threads:
-                t.start()
-            
-            # Stop threads
-            for t in threads:
-                t.join()
-
-            info(f"*** END TRAFFIC\n")
 
         finally:
             net.stop()

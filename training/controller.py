@@ -159,7 +159,7 @@ class SimpleSwitch14(app_manager.RyuApp):
     ]
     GROUP_ID = os.environ.get('GROUP_ID', 0)
     LABEL = os.environ.get('LABEL', 0) #0 buono, 1 cattivo
-    DATASET_PATH = os.environ.get('DATASET', '/tmp/dataset.csv')
+    DATASET_PATH = os.environ.get('DATASET_PATH', '/tmp/dataset.csv')
     FLOW_TABLE_SIZE = int(os.environ.get('FLOW_TABLE_SIZE', '50'))
     IDLE_TIMEOUT = int(os.environ.get('IDLE_TIMEOUT', '10'))
     HARD_TIMEOUT = int(os.environ.get('HARD_TIMEOUT', '20'))

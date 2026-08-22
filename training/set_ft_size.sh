@@ -1,6 +1,8 @@
 #!/bin/bash
 
-for sw in s1 s2 s3; do
+read -ra switches_array <<< "${SWITCHES}"
+
+for sw in "${switches_array[@]}"; do
   sudo ovs-vsctl clear Bridge $sw flow_tables
 
   sudo ovs-vsctl \
