@@ -290,15 +290,15 @@ def main() -> None:
     ]
 
     pcap_prefixes = [
-        "/home/ubuntu/Desktop/progetto/training/pcaps/traffic"
+        "/home/ubuntu/Desktop/progetto/training/pcaps/topo1/traffic"
     ]
     flow_table_sizes = [50]
     idle_timeouts = [10]
     hard_timeouts = [20]
-    pps = [30]
+    pps = [5]
 
     att_npkts = [70]
-    att_anps = [4]
+    att_anps = [10]
     att_wait = None
 
     n_topos = len(topos)
@@ -306,15 +306,16 @@ def main() -> None:
         att_duration = -1
 
         info("*** CONTROLLER\n")
+        timestamp = time()
         controller_envs = {
             "GROUP_ID": f"{i}",
             "LABEL": "1",
-            "DATASET_PATH": "/tmp/dataset.csv",
+            "DATASET_PATH": f"/tmp/dataset_{timestamp}.csv",
             "FLOW_TABLE_SIZE": f"{flow_table_sizes[i]}",
             "IDLE_TIMEOUT": f"{idle_timeouts[i]}",
             "HARD_TIMEOUT": f"{hard_timeouts[i]}",
         }
-        controller = start_controller(controller_envs, log_path=f"/tmp/controller_{i}.log")
+        controller = start_controller(controller_envs, log_path=f"/tmp/controller_{i}_{timestamp}.log")
 
         if controller.poll() is not None:
             raise RuntimeError(f"Il controller è terminato subito con codice {controller.returncode}, controlla controller.log")

@@ -117,7 +117,7 @@ class FTFUtils:
     @staticmethod
     def estimate_idle_timeout(dst_ip: str, max_int: int, hard_timeout: int) -> int:
         for _ in range(max_int):
-            rtt0 = FTFUtils.measure_rtt(dst_ip)
+            rtt0 = FTFUtils.measure_rtt(dst_ip) 
             time.sleep(1)
             rtt1 = FTFUtils.measure_rtt(dst_ip)
 
