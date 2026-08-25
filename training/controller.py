@@ -70,7 +70,7 @@ class FeatureExt():
         pkt_counts = [flow.packet_count for flow in flows]
         byte_counts = [flow.byte_count for flow in flows]
         return (
-            (len(flows)*100)/flow_table_size,
+            100.0*len(flows)/flow_table_size,
             FeatureExt.calculate_paf(flows),
             FeatureExt.calculate_ft_psi(flows),
             FeatureExt.shannon_entropy(durations),
@@ -102,15 +102,15 @@ class FeatureExt():
     @staticmethod
     def calculate_paf(flows):
         if len(flows) < 2:
-            return 0
+            return 0.0
         t = [FeatureExt.effective_duration(flow) for flow in flows]
         delta_t = np.diff(sorted(t))
         mean_delta_t = np.mean(delta_t)
-        return 1 / mean_delta_t if mean_delta_t != 0 else 0
+        return 1 / mean_delta_t if mean_delta_t != 0 else 0.0
 
     @staticmethod
     def calculate_ft_psi(flows):
-        total_psi = 0
+        total_psi = 0.0
         for flow in flows:
             total_psi += FeatureExt.calculate_psi(flow)
         return total_psi
@@ -120,24 +120,24 @@ class FeatureExt():
         if len(values) == 0:
             return 0.0, 0.0
         mean = np.mean(values)
-        cv = np.std(values) / mean if mean != 0 else 0
+        cv = np.std(values) / mean if mean != 0 else 0.0
         return mean, cv
 
     @staticmethod
     def effective_duration(flow):
-        return flow.duration_sec + flow.duration_nsec / 1e9 if flow else 0
+        return flow.duration_sec + flow.duration_nsec / 1e9 if flow else 0.0
 
     @staticmethod
     def calculate_psi(flow):
         if flow is None:
-            return 0
+            return 0.0
         src_ip = flow.match.get('ipv4_src', None)
         if src_ip is None:
-            return 0
+            return 0.0
         for valid_range in FeatureExt.VALID_IP_RANGES:
             if IPAddress(src_ip) in IPNetwork(valid_range):
-                return 0
-        return 1
+                return 0.0
+        return 1.0
 
     @staticmethod
     def shannon_entropy(data: bytes) -> float:
@@ -146,7 +146,7 @@ class FeatureExt():
             return 0.0
         counts = Counter(data)
         pbs = [nb / n for nb in counts.values()]
-        return -np.sum([pb * np.log2(pb) for pb in pbs])
+        return -1.0*np.sum([pb * np.log2(pb) for pb in pbs])
 
 class SimpleSwitch14(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_4.OFP_VERSION]

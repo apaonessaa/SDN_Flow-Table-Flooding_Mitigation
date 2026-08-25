@@ -48,7 +48,7 @@ $ cp benign.csv raw_training_set.csv
 $ cat malicious.csv | tail -n 7074 >> raw_training_set.csv
 
 # Elimina pattern 0
-$ cat raw_training_set.csv | grep -v -e '^0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,*' > training_set.csv
+$ cat raw_training_set.csv | grep -v -e '^0.0,0.0,*,*,*,*,*,0.0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.*,*' > training_set.csv
 
 $ wc -l *training_set.csv 
    18613 raw_training_set.csv

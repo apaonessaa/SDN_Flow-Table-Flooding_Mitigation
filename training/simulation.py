@@ -72,6 +72,8 @@ class CustomTopo2(Topo):
 
 class CustomTopo3(Topo):
     "Custom Topology Network"
+    conn_hosts = ('h1', 'h5')
+    att_hosts = ('h3', 'h4')
     def build(self):
         info("* Build Topology\n")
         # Switch
@@ -102,6 +104,8 @@ class CustomTopo3(Topo):
 
 class CustomTopo4(Topo):
     "Custom Topology Network"
+    conn_hosts = ('h1', 'h9')
+    att_hosts = ('h7', 'h8')
     def build(self):
         info("* Build Topology\n")
         # Switch
@@ -132,6 +136,8 @@ class CustomTopo4(Topo):
 
 class CustomTopo5(Topo):
     "Custom Topology Network"
+    conn_hosts = ('h4', 'h5')
+    att_hosts = ('h2', 'h3')
     def build(self):
         info("* Build Topology\n")
         # Switch
@@ -290,13 +296,14 @@ def main() -> None:
     att_npkts = [70, 170]
     att_anps = [10, 15]
     att_wait = None
+    log_timestamp = int(time())
 
     n_topos = len(topos)
     for i in range(n_topos):
         att_duration = -1
 
         info("*** CONTROLLER\n")
-        log_timestamp = int(time())
+        
         controller_envs = {
             "GROUP_ID": f"{i}",
             "LABEL": "1",
