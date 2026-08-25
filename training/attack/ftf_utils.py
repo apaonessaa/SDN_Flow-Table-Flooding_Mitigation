@@ -82,7 +82,7 @@ class FTFUtils:
 
     @staticmethod
     def estimate_hard_timeout(dst_ip: str, max_int: int, max_interval: int) -> int:
-        for _ in range(max_int):
+        for i in range(1, max_int+1):
             rtt0 = FTFUtils.measure_rtt(dst_ip)
             time.sleep(1)
             rtt1 = FTFUtils.measure_rtt(dst_ip)
@@ -97,7 +97,7 @@ class FTFUtils:
                 time.sleep(10)
                 continue
             
-            for interval in range(2, max_interval+1):
+            for interval in range(2, i*max_interval+1):
                 time.sleep(1)
                 rtti = FTFUtils.measure_rtt(dst_ip)
 

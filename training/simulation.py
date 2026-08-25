@@ -5,6 +5,7 @@ import subprocess
 import socket
 import sys
 import os
+import math
 from time import time, sleep
 from mininet.net import Mininet
 from mininet.node import RemoteController, OVSSwitch, Host
@@ -15,6 +16,8 @@ from attack.ftf_attack import FTFAttack
 
 class CustomTopo1(Topo):
     "Custom Topology Network"
+    conn_hosts = ('h1', 'h3')
+    att_hosts = ('h4', 'h3')
     def build(self):
         info("* Build Topology\n")
         # Switch
@@ -33,6 +36,8 @@ class CustomTopo1(Topo):
 
 class CustomTopo2(Topo):
     "Custom Topology Network"
+    conn_hosts = ('h1', 'h8')
+    att_hosts = ('h9', 'h8')
     def build(self):
         info("* Build Topology\n")
         # Switch
@@ -222,9 +227,9 @@ def replay_worker(host, pcap_file, launch_time, pps, duration, offset, proc_hold
         return
     iface = host.defaultIntf().name
     if duration > 0:
-        cmd = f"tcpreplay --intf1={iface} --pps={pps} --duration={duration} {pcap_file}"
+        cmd = f"tcpreplay --intf1={iface} --loop=0 --pps={pps} --duration={duration} {pcap_file}"
     else:
-        cmd = f"tcpreplay --intf1={iface} --pps={pps} {pcap_file}"
+        cmd = f"tcpreplay --intf1={iface} --loop=0 --pps={pps} {pcap_file}"
     print(f"[*] {host.name}: avvio a t+{offset:.3f}s -> {cmd}")
     proc = host.popen(cmd, shell=True)
     proc_holder[host.name] = proc
@@ -267,38 +272,23 @@ def main() -> None:
     # Topologies
     topos = [
         CustomTopo1(),
-        #CustomTopo2(),
+        CustomTopo2(),
         #CustomTopo3(),
         #CustomTopo4(),
         #CustomTopo5()
     ]
 
-    conn_hosts = [
-        ('h1', 'h3'),
-        ('h1', 'h9'),
-        ('h1', 'h6'),
-        ('h1', 'h9'),
-        ('h1', 'h4')
-    ]
-
-    att_hosts = [
-        ('h4', 'h3'),
-        ('h5', 'h6'),
-        ('h3', 'h4'),
-        ('h4', 'h5'),
-        ('h2', 'h3')
-    ]
-
     pcap_prefixes = [
-        "/home/ubuntu/Desktop/progetto/training/pcaps/topo1/traffic"
+        "/home/ubuntu/Desktop/progetto/training/pcaps/topo1/traffic",
+        "/home/ubuntu/Desktop/progetto/training/pcaps/topo2/traffic"
     ]
-    flow_table_sizes = [50]
-    idle_timeouts = [10]
-    hard_timeouts = [20]
-    pps = [5]
+    flow_table_sizes = [60, 150]
+    idle_timeouts = [10, 5]
+    hard_timeouts = [20, 15]
+    pps = [120, 300]
 
-    att_npkts = [70]
-    att_anps = [10]
+    att_npkts = [70, 170]
+    att_anps = [10, 15]
     att_wait = None
 
     n_topos = len(topos)
@@ -306,16 +296,16 @@ def main() -> None:
         att_duration = -1
 
         info("*** CONTROLLER\n")
-        timestamp = time()
+        log_timestamp = int(time())
         controller_envs = {
             "GROUP_ID": f"{i}",
             "LABEL": "1",
-            "DATASET_PATH": f"/tmp/dataset_{timestamp}.csv",
+            "DATASET_PATH": f"/tmp/dataset_{log_timestamp}.csv",
             "FLOW_TABLE_SIZE": f"{flow_table_sizes[i]}",
             "IDLE_TIMEOUT": f"{idle_timeouts[i]}",
             "HARD_TIMEOUT": f"{hard_timeouts[i]}",
         }
-        controller = start_controller(controller_envs, log_path=f"/tmp/controller_{i}_{timestamp}.log")
+        controller = start_controller(controller_envs, log_path=f"/tmp/controller_{i}_{log_timestamp}.log")
 
         if controller.poll() is not None:
             raise RuntimeError(f"Il controller è terminato subito con codice {controller.returncode}, controlla controller.log")
@@ -353,7 +343,7 @@ def main() -> None:
             stop_event = threading.Event()
             threads = []
 
-            attacker, dst = att_hosts[i]
+            (attacker, dst) = topos[i].att_hosts
             for h in net.hosts:
                 if h.name != attacker:
                     ip = h.IP()
@@ -376,7 +366,7 @@ def main() -> None:
                 net=net
             )
 
-            src, dst = conn_hosts[i]
+            (src, dst) = topos[i].conn_hosts
             h_src, h_dst = net.get(src, dst)
             wait_for_network(h_src, h_dst)
 
@@ -395,12 +385,95 @@ def main() -> None:
             for t in threads:
                 t.join(timeout=5)
 
-            att_duration = time() - t0
+            att_duration = math.ceil(time() - t0)
             info(f"*** END TRAFFIC: Session duration {att_duration}\n")
 
         finally:
             net.stop()
             stop_controller(controller)
+
+        sleep(10)
+
+        info("*** CONTROLLER\n")
+        controller_envs = {
+            "GROUP_ID": f"{i}",
+            "LABEL": "0",
+            "DATASET_PATH": f"/tmp/dataset_{log_timestamp}.csv",
+            "FLOW_TABLE_SIZE": f"{flow_table_sizes[i]}",
+            "IDLE_TIMEOUT": f"{idle_timeouts[i]}",
+            "HARD_TIMEOUT": f"{hard_timeouts[i]}",
+        }
+        controller = start_controller(controller_envs, log_path=f"/tmp/controller_{i}_{log_timestamp}.log")
+
+        if controller.poll() is not None:
+            raise RuntimeError(f"Il controller è terminato subito con codice {controller.returncode}, controlla controller.log")
+
+        if not wait_for_controller(port=6653, timeout=20):
+            controller.terminate()
+            raise RuntimeError("Timeout: il controller non si è messo in ascolto sulla porta 6653")
+
+        info("*** NETWORK\n")
+        try:
+            net = Mininet(
+                topo=topos[i],
+                controller=lambda name: RemoteController(name, ip='127.0.0.1', port=6653),
+                switch=OVSSwitch,
+                autoStaticArp=True)
+            net.start()
+
+            info("*** NETWORK CONFIG\n")
+            ft_envs = {
+                "SWITCHES": " ".join([sw.name for sw in net.switches]),
+                "FLOW_TABLE_SIZE": f"{flow_table_sizes[i]}",
+            }
+            run_script('./set_ft_size.sh', ft_envs)
+                
+            info("*** START TRAFFIC\n")
+
+            metadata = load_metadata(pcap_prefixes[i])
+            offsets = metadata["offsets"]
+            original_capture_duration = metadata["original_capture_duration"]
+            packet_counts = metadata["packet_counts"]
+            implied_duration, durations_per_host = group_duration(packet_counts, pps[i])
+
+            launch_time = time() + 1.0
+            procs = {}
+            stop_event = threading.Event()
+            threads = []
+
+            (attacker, dst) = topos[i].att_hosts
+            for h in net.hosts:
+                if h.name != attacker:
+                    ip = h.IP()
+                    pcap_file = f"{pcap_prefixes[i]}_{ip.replace('.', '_')}.pcap"
+                    offset = rescale_offset(offsets.get(ip, 0.0), original_capture_duration, implied_duration)
+                    t = threading.Thread(
+                        target=replay_worker,
+                        args=(h, pcap_file, launch_time, pps[i], att_duration, offset, procs, stop_event)
+                    )
+                    threads.append(t)
+
+            (src, dst) = topos[i].conn_hosts
+            h_src, h_dst = net.get(src, dst)
+            wait_for_network(h_src, h_dst)
+
+            sleep(hard_timeouts[i])
+
+            # Start threads
+            for t in threads:
+                t.start()
+
+            # Stop threads
+            for t in threads:
+                t.join()
+
+            info(f"*** END TRAFFIC\n")
+
+        finally:
+            net.stop()
+            stop_controller(controller)
+        
+        sleep(10)
 
 if __name__ == '__main__':
     setLogLevel('info')
