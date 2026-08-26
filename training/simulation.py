@@ -303,7 +303,6 @@ def main() -> None:
         att_duration = -1
 
         info("*** CONTROLLER\n")
-        
         controller_envs = {
             "GROUP_ID": f"{i}",
             "LABEL": "1",

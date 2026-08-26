@@ -26,6 +26,7 @@ from netaddr import IPAddress, IPNetwork
 import numpy as np
 import os
 import csv
+from decimal import Decimal, ROUND_DOWN
 
 class FeatureExt():
     VALID_IP_RANGES = ['10.0.0.0/24']
@@ -106,7 +107,7 @@ class FeatureExt():
         t = [FeatureExt.effective_duration(flow) for flow in flows]
         delta_t = np.diff(sorted(t))
         mean_delta_t = np.mean(delta_t)
-        return 1 / mean_delta_t if mean_delta_t != 0 else 0.0
+        return 1.0 / mean_delta_t if mean_delta_t != 0 else 0.0
 
     @staticmethod
     def calculate_ft_psi(flows):
@@ -163,6 +164,7 @@ class SimpleSwitch14(app_manager.RyuApp):
     FLOW_TABLE_SIZE = int(os.environ.get('FLOW_TABLE_SIZE', '50'))
     IDLE_TIMEOUT = int(os.environ.get('IDLE_TIMEOUT', '10'))
     HARD_TIMEOUT = int(os.environ.get('HARD_TIMEOUT', '20'))
+    K_FACTOR = 3
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch14, self).__init__(*args, **kwargs)
@@ -171,6 +173,13 @@ class SimpleSwitch14(app_manager.RyuApp):
         self.collector = hub.spawn(self._collector)
         self.feature_ext = defaultdict(FeatureExt)
         self._init_csv()
+        self.T = float(
+            Decimal(min(self.IDLE_TIMEOUT, self.HARD_TIMEOUT) / self.K_FACTOR)
+            .quantize(Decimal('0.00'), rounding=ROUND_DOWN)
+        )
+        self.logger.debug(f"[GAP] Intervallo di tempo per la cattura delle features: {self.T}s")
+
+        self.collector = hub.spawn(self._collector)
 
     def _init_csv(self):
         write_header = not os.path.exists(self.DATASET_PATH)
@@ -181,10 +190,26 @@ class SimpleSwitch14(app_manager.RyuApp):
             self._csv_file.flush()
 
     def _collector(self):
+        """
+        T_max = min { idle, hard } tempo massimo per intercettare una flow rule prima che venga rimossa
+
+        Per il teorema del campionamento
+        - fs > 2*fM
+        - 1/ts > 2*1/tM (=>) 2*ts <= tM
+    
+        (=>) T <= T_max/2
+
+        Per catturare piu'campioni si puo' considerare un fattore k>=2
+
+        (=>) T <= T_max/k
+
+        Il valore k=2 e' minimo, k=3 o k=4 e' il piu' sicuro dipende da quanto vogliamo raccogliere
+        in un periodo.
+        """
         while True:
             for datapath in list(self.datapaths.values()):
                 self._request_stats(datapath)
-            hub.sleep(1)
+            hub.sleep(self.T)
 
     def _request_stats(self, datapath):
         parser = datapath.ofproto_parser
@@ -327,7 +352,9 @@ class SimpleSwitch14(app_manager.RyuApp):
         body = ev.msg.body
         stats = [stat for stat in body if stat.priority == 1]
         dpid = ev.msg.datapath.id
+        hub.spawn(self._process_stats, dpid, stats)
 
+    def _process_stats(self, dpid, stats):
         self.logger.debug(f"[GAP] DPID: {dpid:016x}")
 
         # Get Pkt In Feature
