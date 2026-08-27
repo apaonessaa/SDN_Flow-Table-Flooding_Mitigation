@@ -3,12 +3,17 @@ from catboost import CatBoostClassifier, Pool
 from sklearn.model_selection import GroupShuffleSplit
 from sklearn.metrics import accuracy_score, classification_report
 
-TRAINING_SET = '/home/ubuntu/Desktop/progetto/training/datasets/dataset_1787692855.csv'
+TRAINING_SET = '/home/ubuntu/Desktop/progetto/training/datasets/dataset_1787854868.csv'
 OUTPUT_MODEL = '/home/ubuntu/Desktop/progetto/models/catboost_model.cbm'
 #OUTPUT_MODEL = '/tmp/catboost_model.cbm'
 
 # Load the dataset
 df = pd.read_csv(TRAINING_SET)
+#df = df_raw[df_raw["c_used"] > 0.0].copy()
+#df.to_csv("dataset_clean.csv", index=False)
+
+#print(f"Righe totali: {len(df_raw)}, righe scartate: {len(df_raw) - len(df)}, righe valide: {len(df)}")
+print(f"Numero di entry del dataset: {len(df)-1}")
 
 # Prepare the features and target
 X = df[['payload_entropy_mean','payload_entropy_cv','payload_size_entropy',
@@ -45,8 +50,8 @@ params = {
     'eval_metric': 'F1',            # Evaluation metric
     'random_seed': 42,              # Random seed for reproducibility
     'auto_class_weights': 'Balanced',
-    #'bagging_temperature': 1.0,
-    #'random_strength': 2.0,
+    'bagging_temperature': 1.0,
+    'random_strength': 2.0,
 }
 catboost_classifier = CatBoostClassifier(**params)
 

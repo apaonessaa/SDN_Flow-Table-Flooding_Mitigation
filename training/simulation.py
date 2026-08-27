@@ -169,7 +169,7 @@ def load_metadata(prefix):
         return json.load(f)
 
 def start_controller(env_vars: dict, log_path: str = "controller.log") -> subprocess.Popen:
-    log_file = open(log_path, "w")
+    log_file = open(log_path, "a")
     full_env = os.environ.copy()
     full_env.update(env_vars)
     proc = subprocess.Popen(
@@ -395,6 +395,7 @@ def main() -> None:
             info(f"*** END TRAFFIC: Session duration {att_duration}\n")
 
         finally:
+            sleep(60)
             net.stop()
             stop_controller(controller)
 
@@ -476,6 +477,7 @@ def main() -> None:
             info(f"*** END TRAFFIC\n")
 
         finally:
+            sleep(60)
             net.stop()
             stop_controller(controller)
         

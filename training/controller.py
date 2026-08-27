@@ -26,11 +26,10 @@ from netaddr import IPAddress, IPNetwork
 import numpy as np
 import os
 import csv
-from decimal import Decimal, ROUND_DOWN
 
 class FeatureExt():
     VALID_IP_RANGES = ['10.0.0.0/24']
-    WINDOW_SIZE = 500
+    WINDOW_SIZE = 200
     
     PktInData = namedtuple('PktInData', ['payload', 'size', 'src_ip', 'dst_ip', 'src_mac', 'dst_mac'])
 
@@ -173,12 +172,8 @@ class SimpleSwitch14(app_manager.RyuApp):
         self.collector = hub.spawn(self._collector)
         self.feature_ext = defaultdict(FeatureExt)
         self._init_csv()
-        self.T = float(
-            Decimal(min(self.IDLE_TIMEOUT, self.HARD_TIMEOUT) / self.K_FACTOR)
-            .quantize(Decimal('0.00'), rounding=ROUND_DOWN)
-        )
+        self.T = float("{:.2f}".format(min(self.IDLE_TIMEOUT, self.HARD_TIMEOUT) / self.K_FACTOR))
         self.logger.debug(f"[GAP] Intervallo di tempo per la cattura delle features: {self.T}s")
-
         self.collector = hub.spawn(self._collector)
 
     def _init_csv(self):
@@ -191,7 +186,8 @@ class SimpleSwitch14(app_manager.RyuApp):
 
     def _collector(self):
         """
-        T_max = min { idle, hard } tempo massimo per intercettare una flow rule prima che venga rimossa
+        T_max = min { idle, hard } tempo massimo per intercettare una flow rule 
+        prima che venga rimossa
 
         Per il teorema del campionamento
         - fs > 2*fM
@@ -203,8 +199,8 @@ class SimpleSwitch14(app_manager.RyuApp):
 
         (=>) T <= T_max/k
 
-        Il valore k=2 e' minimo, k=3 o k=4 e' il piu' sicuro dipende da quanto vogliamo raccogliere
-        in un periodo.
+        Il valore k=2 e' minimo, k=3 o k=4 e' il piu' sicuro dipende da quanto 
+        vogliamo raccogliere in un periodo.
         """
         while True:
             for datapath in list(self.datapaths.values()):
@@ -350,9 +346,11 @@ class SimpleSwitch14(app_manager.RyuApp):
     @set_ev_cls(ofp_event.EventOFPFlowStatsReply, MAIN_DISPATCHER)
     def flow_stats_reply_handler(self, ev):
         body = ev.msg.body
-        stats = [stat for stat in body if stat.priority == 1]
         dpid = ev.msg.datapath.id
-        hub.spawn(self._process_stats, dpid, stats)
+        stats = [stat for stat in body if stat.priority == 1]
+        if not stats:
+            return
+        hub.spawn(self._process_stats, dpid, stats) 
 
     def _process_stats(self, dpid, stats):
         self.logger.debug(f"[GAP] DPID: {dpid:016x}")
