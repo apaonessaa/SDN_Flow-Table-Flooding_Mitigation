@@ -73,7 +73,7 @@ class CustomTopo2(Topo):
 class CustomTopo3(Topo):
     "Custom Topology Network"
     conn_hosts = ('h1', 'h5')
-    att_hosts = ('h3', 'h4')
+    att_hosts = ('h8', 'h7')
     def build(self):
         info("* Build Topology\n")
         # Switch
@@ -105,7 +105,7 @@ class CustomTopo3(Topo):
 class CustomTopo4(Topo):
     "Custom Topology Network"
     conn_hosts = ('h1', 'h9')
-    att_hosts = ('h7', 'h8')
+    #att_hosts = ('h7', 'h8')
     def build(self):
         info("* Build Topology\n")
         # Switch
@@ -137,7 +137,7 @@ class CustomTopo4(Topo):
 class CustomTopo5(Topo):
     "Custom Topology Network"
     conn_hosts = ('h4', 'h5')
-    att_hosts = ('h2', 'h3')
+    #att_hosts = ('h2', 'h3')
     def build(self):
         info("* Build Topology\n")
         # Switch
@@ -279,22 +279,23 @@ def main() -> None:
     topos = [
         CustomTopo1(),
         CustomTopo2(),
-        #CustomTopo3(),
+        CustomTopo3(),
         #CustomTopo4(),
         #CustomTopo5()
     ]
 
     pcap_prefixes = [
         "/home/ubuntu/Desktop/progetto/training/pcaps/topo1/traffic",
-        "/home/ubuntu/Desktop/progetto/training/pcaps/topo2/traffic"
+        "/home/ubuntu/Desktop/progetto/training/pcaps/topo2/traffic",
+        "/home/ubuntu/Desktop/progetto/training/pcaps/topo3/traffic"
     ]
-    flow_table_sizes = [60, 150]
-    idle_timeouts = [10, 5]
-    hard_timeouts = [20, 15]
-    pps = [120, 300]
+    flow_table_sizes = [60, 150, 350]
+    idle_timeouts = [10, 5, 15]
+    hard_timeouts = [20, 15, 30]
+    pps = [120, 300, 200]
 
-    att_npkts = [70, 170]
-    att_anps = [10, 15]
+    att_npkts = [70, 170, 400]
+    att_anps = [10, 15, 5]
     att_wait = None
     log_timestamp = int(time())
 

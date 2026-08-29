@@ -8,12 +8,12 @@ OUTPUT_MODEL = '/home/ubuntu/Desktop/progetto/models/catboost_model.cbm'
 #OUTPUT_MODEL = '/tmp/catboost_model.cbm'
 
 # Load the dataset
-df = pd.read_csv(TRAINING_SET)
-#df = df_raw[df_raw["c_used"] > 0.0].copy()
+df_raw = pd.read_csv(TRAINING_SET)
+df = df_raw[(df_raw["c_used"] > 0.0)].copy()
 #df.to_csv("dataset_clean.csv", index=False)
 
 #print(f"Righe totali: {len(df_raw)}, righe scartate: {len(df_raw) - len(df)}, righe valide: {len(df)}")
-print(f"Numero di entry del dataset: {len(df)-1}")
+print(f"Numero di entry del dataset: {len(df)-1}\nEntry eliminate: {len(df_raw)-len(df)}")
 
 # Prepare the features and target
 X = df[['payload_entropy_mean','payload_entropy_cv','payload_size_entropy',
