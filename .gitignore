@@ -10,3 +10,4 @@
 **training/pcaps/raw_traffic.pcap
 **training/pcaps/traffic.pcap
 **catboost_info
+**training/pcaps/**

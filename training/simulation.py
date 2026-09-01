@@ -16,28 +16,144 @@ from attack.ftf_attack import FTFAttack
 
 class CustomTopo1(Topo):
     "Custom Topology Network"
-    conn_hosts = ('h1', 'h3')
-    att_hosts = ('h4', 'h3')
+    conn_hosts = ('h1', 'h11')
+    att_hosts = ('h15', 'h14')
     def build(self):
         info("* Build Topology\n")
         # Switch
         s1 = self.addSwitch('s1', cls=OVSSwitch, protocols='OpenFlow14')
         s2 = self.addSwitch('s2', cls=OVSSwitch, protocols='OpenFlow14')
+        s3 = self.addSwitch('s3', cls=OVSSwitch, protocols='OpenFlow14')
         self.addLink(s1, s2)
+        self.addLink(s2, s3)
         # Hosts
         h1 = self.addHost('h1', ip='10.0.0.1/24', mac='00:00:00:00:00:01')
         h2 = self.addHost('h2', ip='10.0.0.2/24', mac='00:00:00:00:00:02')
         h3 = self.addHost('h3', ip='10.0.0.3/24', mac='00:00:00:00:00:03')
         h4 = self.addHost('h4', ip='10.0.0.4/24', mac='00:00:00:00:00:04')
+        h5 = self.addHost('h5', ip='10.0.0.5/24', mac='00:00:00:00:00:05')
+        h6 = self.addHost('h6', ip='10.0.0.6/24', mac='00:00:00:00:00:06')
+        h7 = self.addHost('h7', ip='10.0.0.7/24', mac='00:00:00:00:00:07')
+        h8 = self.addHost('h8', ip='10.0.0.8/24', mac='00:00:00:00:00:08')
+        h9 = self.addHost('h9', ip='10.0.0.9/24', mac='00:00:00:00:00:09')
+        h10 = self.addHost('h10', ip='10.0.0.10/24', mac='00:00:00:00:00:10')
+        h11 = self.addHost('h11', ip='10.0.0.11/24', mac='00:00:00:00:00:11')
+        h12 = self.addHost('h12', ip='10.0.0.12/24', mac='00:00:00:00:00:12')
+        h13 = self.addHost('h13', ip='10.0.0.13/24', mac='00:00:00:00:00:13')
+        h14 = self.addHost('h14', ip='10.0.0.14/24', mac='00:00:00:00:00:14')
+        h15 = self.addHost('h15', ip='10.0.0.15/24', mac='00:00:00:00:00:15')
         self.addLink(h1, s1)
         self.addLink(h2, s1)
-        self.addLink(h3, s2)
-        self.addLink(h4, s2)
+        self.addLink(h3, s1)
+        self.addLink(h4, s1)
+        self.addLink(h5, s1)
+        self.addLink(h6, s2)
+        self.addLink(h7, s2)
+        self.addLink(h8, s2)
+        self.addLink(h9, s2)
+        self.addLink(h10, s2)
+        self.addLink(h11, s3)
+        self.addLink(h12, s3)
+        self.addLink(h13, s3)
+        self.addLink(h14, s3)
+        self.addLink(h15, s3)
 
 class CustomTopo2(Topo):
     "Custom Topology Network"
-    conn_hosts = ('h1', 'h8')
-    att_hosts = ('h9', 'h8')
+    conn_hosts = ('h1', 'h12')
+    att_hosts = ('h15', 'h2')
+    def build(self):
+        info("* Build Topology\n")
+        # Switch
+        s1 = self.addSwitch('s1', cls=OVSSwitch, protocols='OpenFlow14')
+        s2 = self.addSwitch('s2', cls=OVSSwitch, protocols='OpenFlow14')
+        s3 = self.addSwitch('s3', cls=OVSSwitch, protocols='OpenFlow14')
+        s4 = self.addSwitch('s4', cls=OVSSwitch, protocols='OpenFlow14')
+        self.addLink(s1, s2)
+        self.addLink(s2, s3)
+        self.addLink(s2, s4)
+        # Hosts
+        h1 = self.addHost('h1', ip='10.0.0.1/24', mac='00:00:00:00:00:01')
+        h2 = self.addHost('h2', ip='10.0.0.2/24', mac='00:00:00:00:00:02')
+        h3 = self.addHost('h3', ip='10.0.0.3/24', mac='00:00:00:00:00:03')
+        h4 = self.addHost('h4', ip='10.0.0.4/24', mac='00:00:00:00:00:04')
+        h5 = self.addHost('h5', ip='10.0.0.5/24', mac='00:00:00:00:00:05')
+        h6 = self.addHost('h6', ip='10.0.0.6/24', mac='00:00:00:00:00:06')
+        h7 = self.addHost('h7', ip='10.0.0.7/24', mac='00:00:00:00:00:07')
+        h8 = self.addHost('h8', ip='10.0.0.8/24', mac='00:00:00:00:00:08')
+        h9 = self.addHost('h9', ip='10.0.0.9/24', mac='00:00:00:00:00:09')
+        h10 = self.addHost('h10', ip='10.0.0.10/24', mac='00:00:00:00:00:10')
+        h11 = self.addHost('h11', ip='10.0.0.11/24', mac='00:00:00:00:00:11')
+        h12 = self.addHost('h12', ip='10.0.0.12/24', mac='00:00:00:00:00:12')
+        h13 = self.addHost('h13', ip='10.0.0.13/24', mac='00:00:00:00:00:13')
+        h14 = self.addHost('h14', ip='10.0.0.14/24', mac='00:00:00:00:00:14')
+        h15 = self.addHost('h15', ip='10.0.0.15/24', mac='00:00:00:00:00:15')
+        self.addLink(h1, s1)
+        self.addLink(h2, s1)
+        self.addLink(h3, s1)
+        self.addLink(h4, s1)
+        self.addLink(h5, s2)
+        self.addLink(h6, s2)
+        self.addLink(h7, s2)
+        self.addLink(h8, s3)
+        self.addLink(h9, s3)
+        self.addLink(h10, s3)
+        self.addLink(h11, s3)
+        self.addLink(h12, s4)
+        self.addLink(h13, s4)
+        self.addLink(h14, s4)
+        self.addLink(h15, s1)
+
+class CustomTopo3(Topo):
+    "Custom Topology Network"
+    conn_hosts = ('h1', 'h13')
+    att_hosts = ('h15', 'h10')
+    def build(self):
+        info("* Build Topology\n")
+        # Switch
+        s1 = self.addSwitch('s1', cls=OVSSwitch, protocols='OpenFlow14')
+        s2 = self.addSwitch('s2', cls=OVSSwitch, protocols='OpenFlow14')
+        s3 = self.addSwitch('s3', cls=OVSSwitch, protocols='OpenFlow14')
+        s4 = self.addSwitch('s4', cls=OVSSwitch, protocols='OpenFlow14')
+        self.addLink(s1, s2)
+        self.addLink(s2, s3)
+        self.addLink(s3, s4)
+        # Hosts
+        h1 = self.addHost('h1', ip='10.0.0.1/24', mac='00:00:00:00:00:01')
+        h2 = self.addHost('h2', ip='10.0.0.2/24', mac='00:00:00:00:00:02')
+        h3 = self.addHost('h3', ip='10.0.0.3/24', mac='00:00:00:00:00:03')
+        h4 = self.addHost('h4', ip='10.0.0.4/24', mac='00:00:00:00:00:04')
+        h5 = self.addHost('h5', ip='10.0.0.5/24', mac='00:00:00:00:00:05')
+        h6 = self.addHost('h6', ip='10.0.0.6/24', mac='00:00:00:00:00:06')
+        h7 = self.addHost('h7', ip='10.0.0.7/24', mac='00:00:00:00:00:07')
+        h8 = self.addHost('h8', ip='10.0.0.8/24', mac='00:00:00:00:00:08')
+        h9 = self.addHost('h9', ip='10.0.0.9/24', mac='00:00:00:00:00:09')
+        h10 = self.addHost('h10', ip='10.0.0.10/24', mac='00:00:00:00:00:10')
+        h11 = self.addHost('h11', ip='10.0.0.11/24', mac='00:00:00:00:00:11')
+        h12 = self.addHost('h12', ip='10.0.0.12/24', mac='00:00:00:00:00:12')
+        h13 = self.addHost('h13', ip='10.0.0.13/24', mac='00:00:00:00:00:13')
+        h14 = self.addHost('h14', ip='10.0.0.14/24', mac='00:00:00:00:00:14')
+        h15 = self.addHost('h15', ip='10.0.0.15/24', mac='00:00:00:00:00:15')
+        self.addLink(h1, s1)
+        self.addLink(h2, s1)
+        self.addLink(h3, s1)
+        self.addLink(h4, s1)
+        self.addLink(h5, s2)
+        self.addLink(h6, s2)
+        self.addLink(h7, s2)
+        self.addLink(h8, s2)
+        self.addLink(h9, s3)
+        self.addLink(h10, s3)
+        self.addLink(h11, s3)
+        self.addLink(h12, s4)
+        self.addLink(h13, s4)
+        self.addLink(h14, s4)
+        self.addLink(h15, s3)
+
+class CustomTopo4(Topo):
+    "Custom Topology Network"
+    conn_hosts = ('h1', 'h13')
+    att_hosts = ('h15', 'h4')
     def build(self):
         info("* Build Topology\n")
         # Switch
@@ -60,70 +176,12 @@ class CustomTopo2(Topo):
         h7 = self.addHost('h7', ip='10.0.0.7/24', mac='00:00:00:00:00:07')
         h8 = self.addHost('h8', ip='10.0.0.8/24', mac='00:00:00:00:00:08')
         h9 = self.addHost('h9', ip='10.0.0.9/24', mac='00:00:00:00:00:09')
-        self.addLink(h1, s1)
-        self.addLink(h2, s1)
-        self.addLink(h3, s3)
-        self.addLink(h4, s3)
-        self.addLink(h5, s4)
-        self.addLink(h6, s4)
-        self.addLink(h7, s4)
-        self.addLink(h8, s5)
-        self.addLink(h9, s5)
-
-class CustomTopo3(Topo):
-    "Custom Topology Network"
-    conn_hosts = ('h1', 'h5')
-    att_hosts = ('h8', 'h7')
-    def build(self):
-        info("* Build Topology\n")
-        # Switch
-        s1 = self.addSwitch('s1', cls=OVSSwitch, protocols='OpenFlow14')
-        s2 = self.addSwitch('s2', cls=OVSSwitch, protocols='OpenFlow14')
-        s3 = self.addSwitch('s3', cls=OVSSwitch, protocols='OpenFlow14')
-        s4 = self.addSwitch('s4', cls=OVSSwitch, protocols='OpenFlow14')
-        self.addLink(s1, s2)
-        self.addLink(s2, s3)
-        self.addLink(s3, s4)
-        # Hosts
-        h1 = self.addHost('h1', ip='10.0.0.1/24', mac='00:00:00:00:00:01')
-        h2 = self.addHost('h2', ip='10.0.0.2/24', mac='00:00:00:00:00:02')
-        h3 = self.addHost('h3', ip='10.0.0.3/24', mac='00:00:00:00:00:03')
-        h4 = self.addHost('h4', ip='10.0.0.4/24', mac='00:00:00:00:00:04')
-        h5 = self.addHost('h5', ip='10.0.0.5/24', mac='00:00:00:00:00:05')
-        h6 = self.addHost('h6', ip='10.0.0.6/24', mac='00:00:00:00:00:06')
-        h7 = self.addHost('h7', ip='10.0.0.7/24', mac='00:00:00:00:00:07')
-        h8 = self.addHost('h8', ip='10.0.0.8/24', mac='00:00:00:00:00:08')
-        self.addLink(h1, s1)
-        self.addLink(h2, s1)
-        self.addLink(h3, s3)
-        self.addLink(h4, s3)
-        self.addLink(h5, s4)
-        self.addLink(h6, s4)
-        self.addLink(h7, s2)
-        self.addLink(h8, s2)
-
-class CustomTopo4(Topo):
-    "Custom Topology Network"
-    conn_hosts = ('h1', 'h9')
-    #att_hosts = ('h7', 'h8')
-    def build(self):
-        info("* Build Topology\n")
-        # Switch
-        s1 = self.addSwitch('s1', cls=OVSSwitch, protocols='OpenFlow14')
-        s2 = self.addSwitch('s2', cls=OVSSwitch, protocols='OpenFlow14')
-        s3 = self.addSwitch('s3', cls=OVSSwitch, protocols='OpenFlow14')
-        self.addLink(s1, s2)
-        self.addLink(s2, s3)
-        # Hosts
-        h1 = self.addHost('h1', ip='10.0.0.1/24', mac='00:00:00:00:00:01')
-        h2 = self.addHost('h2', ip='10.0.0.2/24', mac='00:00:00:00:00:02')
-        h3 = self.addHost('h3', ip='10.0.0.3/24', mac='00:00:00:00:00:03')
-        h4 = self.addHost('h4', ip='10.0.0.4/24', mac='00:00:00:00:00:04')
-        h5 = self.addHost('h5', ip='10.0.0.5/24', mac='00:00:00:00:00:05')
-        h6 = self.addHost('h6', ip='10.0.0.6/24', mac='00:00:00:00:00:06')
-        h7 = self.addHost('h7', ip='10.0.0.7/24', mac='00:00:00:00:00:07')
-        h8 = self.addHost('h8', ip='10.0.0.8/24', mac='00:00:00:00:00:08')
-        h9 = self.addHost('h9', ip='10.0.0.9/24', mac='00:00:00:00:00:09')
+        h10 = self.addHost('h10', ip='10.0.0.10/24', mac='00:00:00:00:00:10')
+        h11 = self.addHost('h11', ip='10.0.0.11/24', mac='00:00:00:00:00:11')
+        h12 = self.addHost('h12', ip='10.0.0.12/24', mac='00:00:00:00:00:12')
+        h13 = self.addHost('h13', ip='10.0.0.13/24', mac='00:00:00:00:00:13')
+        h14 = self.addHost('h14', ip='10.0.0.14/24', mac='00:00:00:00:00:14')
+        h15 = self.addHost('h15', ip='10.0.0.15/24', mac='00:00:00:00:00:15')
         self.addLink(h1, s1)
         self.addLink(h2, s1)
         self.addLink(h3, s1)
@@ -133,36 +191,12 @@ class CustomTopo4(Topo):
         self.addLink(h7, s3)
         self.addLink(h8, s3)
         self.addLink(h9, s3)
-
-class CustomTopo5(Topo):
-    "Custom Topology Network"
-    conn_hosts = ('h4', 'h5')
-    #att_hosts = ('h2', 'h3')
-    def build(self):
-        info("* Build Topology\n")
-        # Switch
-        s1 = self.addSwitch('s1', cls=OVSSwitch, protocols='OpenFlow14')
-        s2 = self.addSwitch('s2', cls=OVSSwitch, protocols='OpenFlow14')
-        s3 = self.addSwitch('s3', cls=OVSSwitch, protocols='OpenFlow14')
-        s4 = self.addSwitch('s4', cls=OVSSwitch, protocols='OpenFlow14')
-        s5 = self.addSwitch('s5', cls=OVSSwitch, protocols='OpenFlow14')
-        s6 = self.addSwitch('s6', cls=OVSSwitch, protocols='OpenFlow14')
-        self.addLink(s1, s2)
-        self.addLink(s2, s3)
-        self.addLink(s2, s4)
-        self.addLink(s1, s5)
-        self.addLink(s3, s6)
-        # Hosts
-        h1 = self.addHost('h1', ip='10.0.0.1/24', mac='00:00:00:00:00:01')
-        h2 = self.addHost('h2', ip='10.0.0.2/24', mac='00:00:00:00:00:02')
-        h3 = self.addHost('h3', ip='10.0.0.3/24', mac='00:00:00:00:00:03')
-        h4 = self.addHost('h4', ip='10.0.0.4/24', mac='00:00:00:00:00:04')
-        h5 = self.addHost('h5', ip='10.0.0.5/24', mac='00:00:00:00:00:05')
-        self.addLink(h1, s5)
-        self.addLink(h2, s2)
-        self.addLink(h3, s2)
-        self.addLink(h4, s6)
-        self.addLink(h5, s4)
+        self.addLink(h10, s4)
+        self.addLink(h11, s4)
+        self.addLink(h12, s4)
+        self.addLink(h13, s5)
+        self.addLink(h14, s5)
+        self.addLink(h15, s2)
 
 def load_metadata(prefix):
     with open(f"{prefix}_metadata.json") as f:
@@ -280,37 +314,47 @@ def main() -> None:
         CustomTopo1(),
         CustomTopo2(),
         CustomTopo3(),
-        #CustomTopo4(),
-        #CustomTopo5()
+        CustomTopo4(),
     ]
 
     pcap_prefixes = [
-        "/home/ubuntu/Desktop/progetto/training/pcaps/topo1/traffic",
-        "/home/ubuntu/Desktop/progetto/training/pcaps/topo2/traffic",
-        "/home/ubuntu/Desktop/progetto/training/pcaps/topo3/traffic"
+        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/scenarios/scenario_0/traffic",
+        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/scenarios/scenario_1/traffic",
+        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/scenarios/scenario_2/traffic",
+        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/scenarios/scenario_3/traffic",
+        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/scenarios/scenario_4/traffic",
+        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/scenarios/scenario_5/traffic",
+        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/scenarios/scenario_6/traffic",
     ]
-    flow_table_sizes = [60, 150, 350]
-    idle_timeouts = [10, 5, 15]
-    hard_timeouts = [20, 15, 30]
-    pps = [120, 300, 200]
+    n_host = 15
+    flow_table_sizes = [15*n_host, 25*n_host, 20*n_host]
+    idle_timeouts = [5, 10, 15, 20]
+    hard_timeouts = [10, 15, 20, 25]
+    ppss = [10] #[30*(n_host-1), 40*(n_host-1), 50*(n_host)]
 
-    att_npkts = [70, 170, 400]
-    att_anps = [10, 15, 5]
+    att_npkts = [15*n_host+10, 25*n_host+20, 20*n_host+30]
+    att_anps = [10, 20, 30]
     att_wait = None
     log_timestamp = int(time())
 
-    n_topos = len(topos)
-    for i in range(n_topos):
+    for i in range(len(pcap_prefixes)):
         att_duration = -1
+        flow_table_size = flow_table_sizes[i%len(flow_table_sizes)]
+        idle_timeout = idle_timeouts[i%len(idle_timeouts)]
+        hard_timeout = hard_timeouts[i%len(hard_timeouts)]
+        pps = ppss[i%len(ppss)]
+        npkts = att_npkts[i%len(att_npkts)]
+        anp = att_anps[i%len(att_anps)]
+        topo = topos[i%len(topos)]
 
         info("*** CONTROLLER\n")
         controller_envs = {
             "GROUP_ID": f"{i}",
             "LABEL": "1",
             "DATASET_PATH": f"/tmp/dataset_{log_timestamp}.csv",
-            "FLOW_TABLE_SIZE": f"{flow_table_sizes[i]}",
-            "IDLE_TIMEOUT": f"{idle_timeouts[i]}",
-            "HARD_TIMEOUT": f"{hard_timeouts[i]}",
+            "FLOW_TABLE_SIZE": f"{flow_table_size}",
+            "IDLE_TIMEOUT": f"{idle_timeout}",
+            "HARD_TIMEOUT": f"{hard_timeout}",
         }
         controller = start_controller(controller_envs, log_path=f"/tmp/controller_{i}_{log_timestamp}.log")
 
@@ -324,7 +368,7 @@ def main() -> None:
         info("*** NETWORK\n")
         try:
             net = Mininet(
-                topo=topos[i],
+                topo=topo,
                 controller=lambda name: RemoteController(name, ip='127.0.0.1', port=6653),
                 switch=OVSSwitch,
                 autoStaticArp=True)
@@ -333,7 +377,7 @@ def main() -> None:
             info("*** NETWORK CONFIG\n")
             ft_envs = {
                 "SWITCHES": " ".join([sw.name for sw in net.switches]),
-                "FLOW_TABLE_SIZE": f"{flow_table_sizes[i]}",
+                "FLOW_TABLE_SIZE": f"{flow_table_size}",
             }
             run_script('./set_ft_size.sh', ft_envs)
                 
@@ -343,14 +387,14 @@ def main() -> None:
             offsets = metadata["offsets"]
             original_capture_duration = metadata["original_capture_duration"]
             packet_counts = metadata["packet_counts"]
-            implied_duration, durations_per_host = group_duration(packet_counts, pps[i])
+            implied_duration, durations_per_host = group_duration(packet_counts, pps)
 
             launch_time = time() + 1.0
             procs = {}
             stop_event = threading.Event()
             threads = []
 
-            (attacker, dst) = topos[i].att_hosts
+            (attacker, dst) = topo.att_hosts
             for h in net.hosts:
                 if h.name != attacker:
                     ip = h.IP()
@@ -358,26 +402,26 @@ def main() -> None:
                     offset = rescale_offset(offsets.get(ip, 0.0), original_capture_duration, implied_duration)
                     t = threading.Thread(
                         target=replay_worker,
-                        args=(h, pcap_file, launch_time, pps[i], -1, offset, procs, stop_event)
+                        args=(h, pcap_file, launch_time, pps, -1, offset, procs, stop_event)
                     )
                     threads.append(t)
 
-            info(f"*** [FTF ATTACK] ({attacker} -> {dst}), NPkts={att_npkts[i]}, ANP={att_anps[i]}\n")
+            info(f"*** [FTF ATTACK] ({attacker} -> {dst}), NPkts={npkts}, ANP={anp}\n")
             attack = FTFAttack(
                 attacker=attacker,
                 probe_dst=dst,
-                npacket=att_npkts[i],
-                added_new_packets=att_anps[i],
+                npacket=npkts,
+                added_new_packets=anp,
                 max_iter=10,
                 max_interval=30,
                 net=net
             )
 
-            (src, dst) = topos[i].conn_hosts
+            (src, dst) = topo.conn_hosts
             h_src, h_dst = net.get(src, dst)
             wait_for_network(h_src, h_dst)
 
-            sleep(hard_timeouts[i])
+            sleep(hard_timeout)
 
             # Start threads
             t0 = time()
@@ -407,9 +451,9 @@ def main() -> None:
             "GROUP_ID": f"{i}",
             "LABEL": "0",
             "DATASET_PATH": f"/tmp/dataset_{log_timestamp}.csv",
-            "FLOW_TABLE_SIZE": f"{flow_table_sizes[i]}",
-            "IDLE_TIMEOUT": f"{idle_timeouts[i]}",
-            "HARD_TIMEOUT": f"{hard_timeouts[i]}",
+            "FLOW_TABLE_SIZE": f"{flow_table_size}",
+            "IDLE_TIMEOUT": f"{idle_timeout}",
+            "HARD_TIMEOUT": f"{hard_timeout}",
         }
         controller = start_controller(controller_envs, log_path=f"/tmp/controller_{i}_{log_timestamp}.log")
 
@@ -423,7 +467,7 @@ def main() -> None:
         info("*** NETWORK\n")
         try:
             net = Mininet(
-                topo=topos[i],
+                topo=topo,
                 controller=lambda name: RemoteController(name, ip='127.0.0.1', port=6653),
                 switch=OVSSwitch,
                 autoStaticArp=True)
@@ -432,7 +476,7 @@ def main() -> None:
             info("*** NETWORK CONFIG\n")
             ft_envs = {
                 "SWITCHES": " ".join([sw.name for sw in net.switches]),
-                "FLOW_TABLE_SIZE": f"{flow_table_sizes[i]}",
+                "FLOW_TABLE_SIZE": f"{flow_table_size}",
             }
             run_script('./set_ft_size.sh', ft_envs)
                 
@@ -442,14 +486,14 @@ def main() -> None:
             offsets = metadata["offsets"]
             original_capture_duration = metadata["original_capture_duration"]
             packet_counts = metadata["packet_counts"]
-            implied_duration, durations_per_host = group_duration(packet_counts, pps[i])
+            implied_duration, durations_per_host = group_duration(packet_counts, pps)
 
             launch_time = time() + 1.0
             procs = {}
             stop_event = threading.Event()
             threads = []
 
-            (attacker, dst) = topos[i].att_hosts
+            (attacker, dst) = topo.att_hosts
             for h in net.hosts:
                 if h.name != attacker:
                     ip = h.IP()
@@ -457,15 +501,15 @@ def main() -> None:
                     offset = rescale_offset(offsets.get(ip, 0.0), original_capture_duration, implied_duration)
                     t = threading.Thread(
                         target=replay_worker,
-                        args=(h, pcap_file, launch_time, pps[i], att_duration, offset, procs, stop_event)
+                        args=(h, pcap_file, launch_time, pps, att_duration, offset, procs, stop_event)
                     )
                     threads.append(t)
 
-            (src, dst) = topos[i].conn_hosts
+            (src, dst) = topo.conn_hosts
             h_src, h_dst = net.get(src, dst)
             wait_for_network(h_src, h_dst)
 
-            sleep(hard_timeouts[i])
+            sleep(hard_timeout)
 
             # Start threads
             for t in threads:

@@ -64,4 +64,13 @@ $ python3 training_model.py
 - https://northhavenanalytics.com/definitive-guide-data-leakage-machine-learning-prevention/
 
 
+## Scenarios
+
+```bash
+$ python3 ../../utils/split_pcap_sessions.py --input Monday-WorkingHours-sorted.pcap --outdir ./scenarios --segment-seconds 600
+
+
+```
+
+
 ---

@@ -1,7 +1,10 @@
 from scapy.all import rdpcap, IP, TCP, UDP, ICMP
 from collections import Counter, defaultdict
+import sys
 
-packets = rdpcap("/home/ubuntu/Desktop/progetto/training/pcaps/topo3/bottom.pcap")
+path = sys.args[1]
+
+packets = rdpcap(path)
 
 # Counters for analysis
 src_ips = Counter()
