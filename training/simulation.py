@@ -267,9 +267,9 @@ def replay_worker(host, pcap_file, launch_time, pps, duration, offset, proc_hold
         return
     iface = host.defaultIntf().name
     if duration > 0:
-        cmd = f"tcpreplay --intf1={iface} --loop=0 --pps={pps} --duration={duration} {pcap_file}"
+        cmd = f"tcpreplay --intf1={iface} --loop=0 --duration={duration} {pcap_file}"
     else:
-        cmd = f"tcpreplay --intf1={iface} --loop=0 --pps={pps} {pcap_file}"
+        cmd = f"tcpreplay --intf1={iface} --loop=0 {pcap_file}"
     print(f"[*] {host.name}: avvio a t+{offset:.3f}s -> {cmd}")
     proc = host.popen(cmd, shell=True)
     proc_holder[host.name] = proc
@@ -318,13 +318,14 @@ def main() -> None:
     ]
 
     pcap_prefixes = [
-        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/scenarios/scenario_0/traffic",
-        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/scenarios/scenario_1/traffic",
-        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/scenarios/scenario_2/traffic",
-        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/scenarios/scenario_3/traffic",
-        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/scenarios/scenario_4/traffic",
-        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/scenarios/scenario_5/traffic",
-        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/scenarios/scenario_6/traffic",
+        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/traffics/scenario_001/traffic",
+        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/traffics/scenario_002/traffic",
+        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/traffics/scenario_003/traffic",
+        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/traffics/scenario_004/traffic",
+        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/traffics/scenario_005/traffic",
+        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/traffics/scenario_006/traffic",
+        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/traffics/scenario_007/traffic",
+        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/traffics/scenario_008/traffic",
     ]
     n_host = 15
     flow_table_sizes = [15*n_host, 25*n_host, 20*n_host]
@@ -333,7 +334,7 @@ def main() -> None:
     ppss = [10] #[30*(n_host-1), 40*(n_host-1), 50*(n_host)]
 
     att_npkts = [15*n_host+10, 25*n_host+20, 20*n_host+30]
-    att_anps = [10, 20, 30]
+    att_anps = [7, 10, 20, 30]
     att_wait = None
     log_timestamp = int(time())
 
@@ -399,7 +400,7 @@ def main() -> None:
                 if h.name != attacker:
                     ip = h.IP()
                     pcap_file = f"{pcap_prefixes[i]}_{ip.replace('.', '_')}.pcap"
-                    offset = rescale_offset(offsets.get(ip, 0.0), original_capture_duration, implied_duration)
+                    offset = offsets.get(ip, 0.0) #rescale_offset(offsets.get(ip, 0.0), original_capture_duration, implied_duration)
                     t = threading.Thread(
                         target=replay_worker,
                         args=(h, pcap_file, launch_time, pps, -1, offset, procs, stop_event)
