@@ -3,8 +3,8 @@ from catboost import CatBoostClassifier, Pool
 from sklearn.model_selection import GroupShuffleSplit
 from sklearn.metrics import accuracy_score, classification_report
 
-TRAINING_SET = '/home/ubuntu/Desktop/progetto/training/datasets/dataset_1787854868.csv'
-OUTPUT_MODEL = '/home/ubuntu/Desktop/progetto/models/catboost_model.cbm'
+TRAINING_SET = '/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/datasets/dataset_1788349679.csv'
+OUTPUT_MODEL = '/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/catboost_model.cbm'
 #OUTPUT_MODEL = '/tmp/catboost_model.cbm'
 
 # Load the dataset
@@ -45,7 +45,7 @@ params = {
     'learning_rate': 0.1,           # Learning rate of the model
     'l2_leaf_reg': 3.0,             # L2 regularization term on weights
     'rsm': 0.8,                     # Random Selection Rate
-    'iterations': 100,              # Number of boosting iterations
+    'iterations': 50,              # Number of boosting iterations
     'loss_function': 'Logloss',     # Loss function
     'eval_metric': 'F1',            # Evaluation metric
     'random_seed': 42,              # Random seed for reproducibility

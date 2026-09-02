@@ -90,7 +90,7 @@ def main() -> None:
 
     info("*** [TRAFFIC] Normal + Flow Table Flooding Attack\n")
 
-    PCAP_PREFIX = "/home/ubuntu/Desktop/progetto/models/pcaps/traffic"
+    PCAP_PREFIX = "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/pcaps/traffic"
     ATTACK_NPACKET   = 100       # number of packets
     ATTACK_ANP       = 10        # added new packet
     ATTACK_WAIT      = None     # secondi di durata attacco (None = aspetta fine naturale)
@@ -110,11 +110,7 @@ def main() -> None:
         )
         threads.append(t)
 
-    for t in threads:
-        t.start()
-
     # --- Thread 1: FTF attack ---
-    sleep(5)
     src = 'h3'; probe_dst = 'h2'
     info(f"*** [ATTACK] Coppia: {src} -> {probe_dst}\n")
     attack = FTFAttack(
@@ -127,6 +123,9 @@ def main() -> None:
         net=net
     )
 
+    for t in threads:
+        t.start()
+    sleep(30)
     attack.start()
     
     for t in threads:

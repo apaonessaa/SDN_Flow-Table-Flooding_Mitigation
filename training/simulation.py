@@ -331,7 +331,6 @@ def main() -> None:
     flow_table_sizes = [15*n_host, 25*n_host, 20*n_host]
     idle_timeouts = [5, 10, 15, 20]
     hard_timeouts = [10, 15, 20, 25]
-    ppss = [10] #[30*(n_host-1), 40*(n_host-1), 50*(n_host)]
 
     att_npkts = [15*n_host+10, 25*n_host+20, 20*n_host+30]
     att_anps = [7, 10, 20, 30]
@@ -343,7 +342,7 @@ def main() -> None:
         flow_table_size = flow_table_sizes[i%len(flow_table_sizes)]
         idle_timeout = idle_timeouts[i%len(idle_timeouts)]
         hard_timeout = hard_timeouts[i%len(hard_timeouts)]
-        pps = ppss[i%len(ppss)]
+        pps = -1 # not setted
         npkts = att_npkts[i%len(att_npkts)]
         anp = att_anps[i%len(att_anps)]
         topo = topos[i%len(topos)]

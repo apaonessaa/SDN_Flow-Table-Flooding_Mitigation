@@ -5,15 +5,17 @@ import pandas as pd
 from catboost import CatBoostClassifier
 from collections import defaultdict
 
-TRAINING_SET = '/home/ubuntu/Desktop/progetto/training/datasets/training_set.csv'
-OUTPUT_MODEL = '/home/ubuntu/Desktop/progetto/models/catboost_model.cbm'
+TRAINING_SET = '/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/datasets/dataset_1788349679.csv'
+OUTPUT_MODEL = '/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/catboost_model.cbm'
 #OUTPUT_MODEL = '/tmp/catboost_model.cbm'
-FALSE_POSITIVES = '/home/ubuntu/Desktop/progetto/models/false_positives.csv'
+FALSE_POSITIVES = '/tmp/false_positives.csv'
 
-feature_cols = ["payload_entropy_mean", "payload_entropy_cv", #"payload_size_entropy",
-        "src_ip_entropy", "dst_ip_entropy", "src_mac_entropy", "dst_mac_entropy",
-        "c_used", "paf", "ft_psi", "durations_entropy", "pkts_entropy", "bytes_entropy",
-        "mean_duration", "cvd", "mean_pkts", "cvp", "mean_bytes", "cvb"]
+feature_cols = [
+    "payload_entropy_mean", "payload_entropy_cv", "payload_size_entropy",
+    "src_ip_entropy", "dst_ip_entropy", "src_mac_entropy", "dst_mac_entropy",
+    "c_used", "paf", "ft_psi", "durations_entropy", "pkts_entropy", "bytes_entropy",
+    "mean_duration", "cvd", "mean_pkts", "cvp", "mean_bytes", "cvb"
+]
 
 model = CatBoostClassifier()
 model.load_model(OUTPUT_MODEL)

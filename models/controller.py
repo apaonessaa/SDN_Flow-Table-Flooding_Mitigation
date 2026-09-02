@@ -21,17 +21,17 @@ from ryu.ofproto import ofproto_v1_4
 from ryu.lib.packet import packet, ethernet, ether_types, ipv4
 from ryu.lib import hub
 
-from collections import namedtuple, deque, defaultdict, Counter
+from collections import namedtuple, deque, defaultdict, Counter 
 from netaddr import IPAddress, IPNetwork
 import numpy as np
 import os
-from catboost import CatBoostClassifier
 import csv
+
+from catboost import CatBoostClassifier
 
 class FeatureExt():
     VALID_IP_RANGES = ['10.0.0.0/24']
-    WINDOW_SIZE = 100
-    FLOW_TABLE_CAPACITY = 50
+    WINDOW_SIZE = 200
     
     PktInData = namedtuple('PktInData', ['payload', 'size', 'src_ip', 'dst_ip', 'src_mac', 'dst_mac'])
 
@@ -67,12 +67,12 @@ class FeatureExt():
         - Mean Packets and CVP
         - Mean Bytes and CVB
     """
-    def get_ft_features(self, flows):
+    def get_ft_features(self, flows, flow_table_size: int):
         durations = [FeatureExt.effective_duration(flow) for flow in flows]
         pkt_counts = [flow.packet_count for flow in flows]
         byte_counts = [flow.byte_count for flow in flows]
         return (
-            (len(flows)*100)/self.FLOW_TABLE_CAPACITY,
+            100.0*len(flows)/flow_table_size,
             FeatureExt.calculate_paf(flows),
             FeatureExt.calculate_ft_psi(flows),
             FeatureExt.shannon_entropy(durations),
@@ -104,15 +104,15 @@ class FeatureExt():
     @staticmethod
     def calculate_paf(flows):
         if len(flows) < 2:
-            return 0
+            return 0.0
         t = [FeatureExt.effective_duration(flow) for flow in flows]
         delta_t = np.diff(sorted(t))
         mean_delta_t = np.mean(delta_t)
-        return 1 / mean_delta_t if mean_delta_t != 0 else 0
+        return 1.0 / mean_delta_t if mean_delta_t != 0 else 0.0
 
     @staticmethod
     def calculate_ft_psi(flows):
-        total_psi = 0
+        total_psi = 0.0
         for flow in flows:
             total_psi += FeatureExt.calculate_psi(flow)
         return total_psi
@@ -122,24 +122,24 @@ class FeatureExt():
         if len(values) == 0:
             return 0.0, 0.0
         mean = np.mean(values)
-        cv = np.std(values) / mean if mean != 0 else 0
+        cv = np.std(values) / mean if mean != 0 else 0.0
         return mean, cv
 
     @staticmethod
     def effective_duration(flow):
-        return flow.duration_sec + flow.duration_nsec / 1e9 if flow else 0
+        return flow.duration_sec + flow.duration_nsec / 1e9 if flow else 0.0
 
     @staticmethod
     def calculate_psi(flow):
         if flow is None:
-            return 0
+            return 0.0
         src_ip = flow.match.get('ipv4_src', None)
         if src_ip is None:
-            return 0
+            return 0.0
         for valid_range in FeatureExt.VALID_IP_RANGES:
             if IPAddress(src_ip) in IPNetwork(valid_range):
-                return 0
-        return 1
+                return 0.0
+        return 1.0
 
     @staticmethod
     def shannon_entropy(data: bytes) -> float:
@@ -148,19 +148,23 @@ class FeatureExt():
             return 0.0
         counts = Counter(data)
         pbs = [nb / n for nb in counts.values()]
-        return -np.sum([pb * np.log2(pb) for pb in pbs])
+        return -1.0*np.sum([pb * np.log2(pb) for pb in pbs])
 
 class SimpleSwitch14(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_4.OFP_VERSION]
-    FLOW_TABLE_CAPACITY = 50
-    FLOW_TABLE_THRESHOLD = 0.8
-    IDLE_TIMEOUT = 10
-
-    DATASET_COLUMNS = ["payload_entropy_mean", "payload_entropy_cv", #"payload_size_entropy",
+    DATASET_COLUMNS = [
+        "payload_entropy_mean", "payload_entropy_cv", "payload_size_entropy",
         "src_ip_entropy", "dst_ip_entropy", "src_mac_entropy", "dst_mac_entropy",
         "c_used", "paf", "ft_psi", "durations_entropy", "pkts_entropy", "bytes_entropy",
-        "mean_duration", "cvd", "mean_pkts", "cvp", "mean_bytes", "cvb", "label"]
-    DATASET_PATH = "/home/ubuntu/Desktop/progetto/models/false_positives.csv"
+        "mean_duration", "cvd", "mean_pkts", "cvp", "mean_bytes", "cvb", 
+        "group_id", "label"
+    ]
+    DATASET_PATH = os.environ.get('DATASET_PATH', '/tmp/false_positives.csv')
+    FLOW_TABLE_SIZE = int(os.environ.get('FLOW_TABLE_SIZE', '50'))
+    IDLE_TIMEOUT = int(os.environ.get('IDLE_TIMEOUT', '10'))
+    HARD_TIMEOUT = int(os.environ.get('HARD_TIMEOUT', '20'))
+    K_FACTOR = 3
+    FLOW_TABLE_THRESHOLD = 0.8
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch14, self).__init__(*args, **kwargs)
@@ -168,23 +172,44 @@ class SimpleSwitch14(app_manager.RyuApp):
         self.datapaths = {}
         self.collector = hub.spawn(self._collector)
         self.feature_ext = defaultdict(FeatureExt)
-        self.model = CatBoostClassifier()
-        self.model.load_model('/home/ubuntu/Desktop/progetto/models/catboost_model.cbm')
         self._init_csv()
+        self.T = float("{:.2f}".format(min(self.IDLE_TIMEOUT, self.HARD_TIMEOUT) / self.K_FACTOR))
+        self.logger.debug(f"[GAP] Intervallo di tempo per la cattura delle features: {self.T}s")
+        self.collector = hub.spawn(self._collector)
+        # Catboost
+        self.model = CatBoostClassifier()
+        self.model.load_model('/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/catboost_model.cbm')
 
     def _init_csv(self):
         write_header = not os.path.exists(self.DATASET_PATH)
-        self._csv_file = open(self.DATASET_PATH, "a", newline="")
+        self._csv_file = open(self.DATASET_PATH, "w", newline="")
         self._csv_writer = csv.writer(self._csv_file)
         if write_header:
             self._csv_writer.writerow(self.DATASET_COLUMNS)
             self._csv_file.flush()
 
     def _collector(self):
+        """
+        T_max = min { idle, hard } tempo massimo per intercettare una flow rule 
+        prima che venga rimossa
+
+        Per il teorema del campionamento
+        - fs > 2*fM
+        - 1/ts > 2*1/tM (=>) 2*ts <= tM
+    
+        (=>) T <= T_max/2
+
+        Per catturare piu'campioni si puo' considerare un fattore k>=2
+
+        (=>) T <= T_max/k
+
+        Il valore k=2 e' minimo, k=3 o k=4 e' il piu' sicuro dipende da quanto 
+        vogliamo raccogliere in un periodo.
+        """
         while True:
             for datapath in list(self.datapaths.values()):
                 self._request_stats(datapath)
-            hub.sleep(1)
+            hub.sleep(self.T)
 
     def _request_stats(self, datapath):
         parser = datapath.ofproto_parser
@@ -291,7 +316,7 @@ class SimpleSwitch14(app_manager.RyuApp):
             self.add_flow(
                 datapath, 1, match, actions,
                 idle_timeout=self.IDLE_TIMEOUT,
-                hard_timeout=2 * self.IDLE_TIMEOUT
+                hard_timeout=self.HARD_TIMEOUT
             )
 
         data = None
@@ -325,41 +350,60 @@ class SimpleSwitch14(app_manager.RyuApp):
     @set_ev_cls(ofp_event.EventOFPFlowStatsReply, MAIN_DISPATCHER)
     def flow_stats_reply_handler(self, ev):
         body = ev.msg.body
-
-        stats = [stat for stat in body if stat.priority == 1]
-
         dpid = ev.msg.datapath.id
-
+        stats = [stat for stat in body if stat.priority == 1]
+        if not stats:
+            return
         # Check occupancy
-        occupancy = len(stats) / float(self.FLOW_TABLE_CAPACITY)
+        occupancy = len(stats) / float(self.FLOW_TABLE_SIZE)
         if occupancy < self.FLOW_TABLE_THRESHOLD:
             pass #return
+        hub.spawn(self._process_stats, dpid, stats) 
 
+    def _process_stats(self, dpid, stats):
         self.logger.debug(f"[GAP] DPID: {dpid:016x}")
 
         # Get Pkt In Feature
         ((payload_entropy_mean, payload_entropy_cv), payload_size_entropy,
          src_ip_entropy, dst_ip_entropy,
          src_mac_entropy, dst_mac_entropy) = self.feature_ext[dpid].get_pkt_in_features()
+        self.logger.debug(
+            f"[GAP] > Payload Entropy Mean: {payload_entropy_mean}, Payload Entropy CV: {payload_entropy_cv}, "
+            f"Payload Size Entropy: {payload_size_entropy}, "
+            f"Src IP Entropy: {src_ip_entropy}, Dst IP Entropy: {dst_ip_entropy}, "
+            f"Src MAC Entropy: {src_mac_entropy}, Dst MAC Entropy: {dst_mac_entropy}"
+        )
 
         # Get Flow Table Feature
         (c_used, paf, ft_psi,
          durations_entropy, pkts_entropy, bytes_entropy,
          (mean_duration, cvd),
          (mean_pkts, cvp),
-         (mean_bytes, cvb)) = self.feature_ext[dpid].get_ft_features(stats)
+         (mean_bytes, cvb)) = self.feature_ext[dpid].get_ft_features(stats, self.FLOW_TABLE_SIZE)
+
+        self.logger.debug(
+            f"[GAP] > C_used: {c_used}, PAF: {paf}, PSI: {ft_psi}, Duration Entropy: {durations_entropy}, "
+            f"Duration entropy: {durations_entropy}, Packet entropy: {pkts_entropy}, Bytes_entropy: {bytes_entropy}, "
+            f"Mean Duration: {mean_duration}, CVD: {cvd}, "
+            f"Mean Packet: {mean_pkts}, CVP: {cvp}, "
+            f"Mean Bytes: {mean_bytes}, CVB: {cvb}"
+        )
 
         # Get Features
         for stat in stats:
             duration, packet_count, byte_count, pkt_rate, byte_rate, psi = self.feature_ext[dpid].get_flow_feature(stat)
+            self.logger.debug(
+                f"[GAP] >> Duration: {duration}, Packet count: {packet_count}, "
+                f"Byte count: {byte_count}, Packet Rate: {pkt_rate}, "
+                f"Byte Rate: {byte_rate}, PSI: {psi}"
+            )
 
         features = [
-            payload_entropy_mean, payload_entropy_cv, #payload_size_entropy,
+            payload_entropy_mean, payload_entropy_cv, payload_size_entropy,
             src_ip_entropy, dst_ip_entropy, src_mac_entropy, dst_mac_entropy,
             c_used, paf, ft_psi, durations_entropy, pkts_entropy, bytes_entropy,
             mean_duration, cvd, mean_pkts, cvp, mean_bytes, cvb
         ]
-        
         anomaly_detected = self.model.predict([features])
         if anomaly_detected:
             self.logger.info('[ANOMALY] Detected FTF attack for %s', dpid)

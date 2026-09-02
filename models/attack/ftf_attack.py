@@ -6,7 +6,7 @@ from mininet.net import Mininet
 
 class FTFAttack:
     
-    WORKER_PATH = '/home/ubuntu/Desktop/progetto/models/attack/ftf_worker.py'
+    WORKER_PATH = '/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/attack/ftf_worker.py'
     
     def __init__(self, attacker: str, probe_dst: str, npacket: int, added_new_packets: int, 
                 max_iter: int, max_interval: int, net: Mininet):

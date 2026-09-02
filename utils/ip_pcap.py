@@ -2,7 +2,7 @@ from scapy.all import rdpcap, IP, TCP, UDP, ICMP
 from collections import Counter, defaultdict
 import sys
 
-path = sys.args[1]
+path = sys.argv[1]
 
 packets = rdpcap(path)
 
