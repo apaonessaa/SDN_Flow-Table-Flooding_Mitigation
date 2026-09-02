@@ -427,9 +427,9 @@ def main() -> None:
             # Start threads
             t0 = time()
 
+            attack.start()
             for t in threads:
                 t.start()
-            attack.start()
 
             # Stop threads
             attack.join()
@@ -444,8 +444,9 @@ def main() -> None:
             sleep(60)
             net.stop()
             stop_controller(controller)
+            subprocess.run(['sudo', 'mn', '-c'], capture_output=True)
 
-        sleep(10)
+        sleep(20)
 
         info("*** CONTROLLER\n")
         controller_envs = {
@@ -526,8 +527,9 @@ def main() -> None:
             sleep(60)
             net.stop()
             stop_controller(controller)
+            subprocess.run(['sudo', 'mn', '-c'], capture_output=True)
         
-        sleep(10)
+        sleep(20)
 
 if __name__ == '__main__':
     setLogLevel('info')

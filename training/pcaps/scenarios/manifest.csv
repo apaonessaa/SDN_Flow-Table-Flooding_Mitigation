@@ -1,0 +1,10 @@
+group_id,file,start,end,packet_count
+0,./pcaps/scenarios/scenario_000.pcap,2017-07-03 11:55:58,2017-07-03 12:55:58,6004237
+1,./pcaps/scenarios/scenario_001.pcap,2017-07-03 12:55:58,2017-07-03 13:55:58,1025709
+2,./pcaps/scenarios/scenario_002.pcap,2017-07-03 13:55:58,2017-07-03 14:55:58,1029647
+3,./pcaps/scenarios/scenario_003.pcap,2017-07-03 14:55:58,2017-07-03 15:55:58,673785
+4,./pcaps/scenarios/scenario_004.pcap,2017-07-03 15:55:58,2017-07-03 16:55:58,686514
+5,./pcaps/scenarios/scenario_005.pcap,2017-07-03 16:55:58,2017-07-03 17:55:58,619805
+6,./pcaps/scenarios/scenario_006.pcap,2017-07-03 17:55:58,2017-07-03 18:55:58,753224
+7,./pcaps/scenarios/scenario_007.pcap,2017-07-03 18:55:58,2017-07-03 19:55:58,856285
+8,./pcaps/scenarios/scenario_008.pcap,2017-07-03 19:55:58,2017-07-03 20:01:34,60765

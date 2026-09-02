@@ -3,11 +3,5 @@
 **venv/**
 **rules/**
 **__pycache__**
-**training/pcaps/bottom.pcap
-**training/pcaps/left.pcap
-**training/pcaps/right.pcap
-**training/pcaps/merged_raw.pcap
-**training/pcaps/raw_traffic.pcap
-**training/pcaps/traffic.pcap
 **catboost_info
-**training/pcaps/**
+**training/pcaps/traffics/**
