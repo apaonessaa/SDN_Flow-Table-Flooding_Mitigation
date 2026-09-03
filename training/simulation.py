@@ -314,7 +314,7 @@ def main() -> None:
         current + "/pcaps/traffics/scenario_008/traffic",
     ]
     n_host = 15
-    flow_table_sizes = [15*n_host, 25*n_host, 20*n_host]
+    flow_table_sizes = [15*n_host, 20*n_host, 25*n_host, 30*n_host]
     idle_timeouts = [5, 10, 15, 20]
     hard_timeouts = [10, 15, 20, 25]
     k_factor = 3

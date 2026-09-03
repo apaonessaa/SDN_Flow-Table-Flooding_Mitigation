@@ -33,6 +33,7 @@ sys.path.append(parent)
 from mitigation.feature_ext import FeatureExt
 
 from catboost import CatBoostClassifier
+from xgboost import XGBClassifier
 
 class SimpleSwitch14(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_4.OFP_VERSION]
@@ -50,7 +51,8 @@ class SimpleSwitch14(app_manager.RyuApp):
     K_FACTOR = int(os.environ.get('K_FACTOR', '3'))
     FLOW_TABLE_THRESHOLD = 0.8
     LABEL = 1
-    MODEL_PATH = current + '/catboost_model.cbm'
+    CATBOOST_PATH = parent + '/models/catboost_model.cbm'
+    XGBOOST_PATH = parent + '/models/xgboost_model.json'
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch14, self).__init__(*args, **kwargs)
@@ -63,8 +65,11 @@ class SimpleSwitch14(app_manager.RyuApp):
         self.logger.debug(f"[GAP] Intervallo di tempo per la cattura delle features: {self.T}s")
         self.collector = hub.spawn(self._collector)
         # Catboost
-        self.model = CatBoostClassifier()
-        self.model.load_model(self.MODEL_PATH)
+        #self.model = CatBoostClassifier()
+        #self.model.load_model(self.CATBOOST_PATH)
+        # XGBoost
+        self.model = XGBClassifier()
+        self.model.load_model(self.XGBOOST_PATH)
 
     def _init_csv(self):
         write_header = not os.path.exists(self.DATASET_PATH)
