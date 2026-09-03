@@ -3,9 +3,15 @@ from catboost import CatBoostClassifier, Pool
 from sklearn.model_selection import GroupShuffleSplit
 from sklearn.metrics import accuracy_score, classification_report
 
-TRAINING_SET = '/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/datasets/dataset_1788349679.csv'
-OUTPUT_MODEL = '/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/catboost_model.cbm'
-#OUTPUT_MODEL = '/tmp/catboost_model.cbm'
+# Modules loader
+import sys
+import os
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent)
+
+TRAINING_SET = current + '/datasets/dataset.csv'
+OUTPUT_MODEL = parent + '/testing/catboost_model_80.cbm'
 
 # Load the dataset
 df_raw = pd.read_csv(TRAINING_SET)

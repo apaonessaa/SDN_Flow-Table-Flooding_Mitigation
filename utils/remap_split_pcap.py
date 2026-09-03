@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-"""
-$ mdkir ./pcaps/traffics/scenario_007/traffic
-$ python3 ../utils/remap_split_pcap.py ./pcaps/scenarios/scenario_007.pcap ./pcaps/traffics/scenario_007/traffic -n 14 -d 7
-"""
 import sys
 import json
 import socket
@@ -14,7 +10,6 @@ from collections import Counter
 import dpkt
 
 MININET_SUBNET = ipaddress.ip_network("10.0.0.0/24")
-
 
 # --------------------------------------------------------------------------
 # Utility indirizzi

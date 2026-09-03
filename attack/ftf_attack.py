@@ -1,12 +1,11 @@
+import os
+import subprocess
+from mininet.net import Mininet
 from threading import Thread, Event
 
-import subprocess
-
-from mininet.net import Mininet
-
 class FTFAttack:
-    
-    WORKER_PATH = '/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/attack/ftf_worker.py'
+
+    WORKER_PATH = os.path.dirname(os.path.realpath(__file__))+'/ftf_worker.py'
     
     def __init__(self, attacker: str, probe_dst: str, npacket: int, added_new_packets: int, 
                 max_iter: int, max_interval: int, net: Mininet):

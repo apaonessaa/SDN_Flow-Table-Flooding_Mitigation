@@ -3,8 +3,6 @@ import json
 import threading
 import subprocess
 import socket
-import sys
-import os
 import math
 from time import time, sleep
 from mininet.net import Mininet
@@ -12,7 +10,16 @@ from mininet.node import RemoteController, OVSSwitch, Host
 from mininet.topo import Topo
 from mininet.log import setLogLevel, info
 
+# Modules loader
+import sys
+import os
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent)
+
 from attack.ftf_attack import FTFAttack
+
+SET_FT_SIZE_PATH = parent + "/config/set_ft_size.sh"
 
 class CustomTopo1(Topo):
     "Custom Topology Network"
@@ -259,7 +266,7 @@ def wait_for_network(src: Host, dst: Host, timeout: int = 60) -> None:
         sleep(1)
     info("*** ATTENZIONE: rete non pronta dopo timeout\n")
 
-def replay_worker(host, pcap_file, launch_time, pps, duration, offset, proc_holder, stop_event):
+def replay_worker(host, pcap_file, launch_time, duration, offset, proc_holder, stop_event):
     sleep_duration = (launch_time + offset) - time()
     if sleep_duration > 0:
         sleep(sleep_duration)
@@ -287,27 +294,6 @@ def kill_replay_traffic(procs, stop_event):
         if proc.poll() is None:
             proc.kill()
 
-def group_duration(packet_counts, pps):
-    durations_per_host = {ip: count / pps for ip, count in packet_counts.items()}
-    implied_duration = max(durations_per_host.values())
-    return implied_duration, durations_per_host
-
-def rescale_offset(raw_offset, original_capture_duration, group_duration):
-    if original_capture_duration <= 0:
-        return 0.0
-    fraction = raw_offset / original_capture_duration
-    return min(fraction, 1.0) * group_duration
-
-def estimate_timeout_inference(idle_timeout: int, hard_timeout: int):
-    res = 0
-    s = 0
-    for t in range(1,idle_timeout+1):
-        s += t
-        if s >= hard_timeout:
-            res += (s+t)
-            s = 0
-    return res + hard_timeout
-
 def main() -> None:
     # Topologies
     topos = [
@@ -318,34 +304,33 @@ def main() -> None:
     ]
 
     pcap_prefixes = [
-        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/traffics/scenario_001/traffic",
-        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/traffics/scenario_002/traffic",
-        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/traffics/scenario_003/traffic",
-        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/traffics/scenario_004/traffic",
-        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/traffics/scenario_005/traffic",
-        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/traffics/scenario_006/traffic",
-        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/traffics/scenario_007/traffic",
-        "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/pcaps/traffics/scenario_008/traffic",
+        current + "/pcaps/traffics/scenario_001/traffic",
+        current + "/pcaps/traffics/scenario_002/traffic",
+        current + "/pcaps/traffics/scenario_003/traffic",
+        current + "/pcaps/traffics/scenario_004/traffic",
+        current + "/pcaps/traffics/scenario_005/traffic",
+        current + "/pcaps/traffics/scenario_006/traffic",
+        current + "/pcaps/traffics/scenario_007/traffic",
+        current + "/pcaps/traffics/scenario_008/traffic",
     ]
     n_host = 15
     flow_table_sizes = [15*n_host, 25*n_host, 20*n_host]
     idle_timeouts = [5, 10, 15, 20]
     hard_timeouts = [10, 15, 20, 25]
-
+    k_factor = 3
     att_npkts = [15*n_host+10, 25*n_host+20, 20*n_host+30]
     att_anps = [7, 10, 20, 30]
     att_wait = None
     log_timestamp = int(time())
 
     for i in range(len(pcap_prefixes)):
-        att_duration = -1
+        topo = topos[i%len(topos)]
         flow_table_size = flow_table_sizes[i%len(flow_table_sizes)]
         idle_timeout = idle_timeouts[i%len(idle_timeouts)]
         hard_timeout = hard_timeouts[i%len(hard_timeouts)]
-        pps = -1 # not setted
         npkts = att_npkts[i%len(att_npkts)]
         anp = att_anps[i%len(att_anps)]
-        topo = topos[i%len(topos)]
+        att_duration = -1
 
         info("*** CONTROLLER\n")
         controller_envs = {
@@ -355,6 +340,7 @@ def main() -> None:
             "FLOW_TABLE_SIZE": f"{flow_table_size}",
             "IDLE_TIMEOUT": f"{idle_timeout}",
             "HARD_TIMEOUT": f"{hard_timeout}",
+            "K_FACTOR": f"{k_factor}"
         }
         controller = start_controller(controller_envs, log_path=f"/tmp/controller_{i}_{log_timestamp}.log")
 
@@ -379,7 +365,7 @@ def main() -> None:
                 "SWITCHES": " ".join([sw.name for sw in net.switches]),
                 "FLOW_TABLE_SIZE": f"{flow_table_size}",
             }
-            run_script('./set_ft_size.sh', ft_envs)
+            run_script(SET_FT_SIZE_PATH, ft_envs)
                 
             info("*** START TRAFFIC\n")
 
@@ -387,7 +373,6 @@ def main() -> None:
             offsets = metadata["offsets"]
             original_capture_duration = metadata["original_capture_duration"]
             packet_counts = metadata["packet_counts"]
-            implied_duration, durations_per_host = group_duration(packet_counts, pps)
 
             launch_time = time() + 1.0
             procs = {}
@@ -399,10 +384,10 @@ def main() -> None:
                 if h.name != attacker:
                     ip = h.IP()
                     pcap_file = f"{pcap_prefixes[i]}_{ip.replace('.', '_')}.pcap"
-                    offset = offsets.get(ip, 0.0) #rescale_offset(offsets.get(ip, 0.0), original_capture_duration, implied_duration)
+                    offset = offsets.get(ip, 0.0)
                     t = threading.Thread(
                         target=replay_worker,
-                        args=(h, pcap_file, launch_time, pps, -1, offset, procs, stop_event)
+                        args=(h, pcap_file, launch_time, att_duration, offset, procs, stop_event)
                     )
                     threads.append(t)
 
@@ -455,6 +440,7 @@ def main() -> None:
             "FLOW_TABLE_SIZE": f"{flow_table_size}",
             "IDLE_TIMEOUT": f"{idle_timeout}",
             "HARD_TIMEOUT": f"{hard_timeout}",
+            "K_FACTOR": f"{k_factor}"
         }
         controller = start_controller(controller_envs, log_path=f"/tmp/controller_{i}_{log_timestamp}.log")
 
@@ -479,7 +465,7 @@ def main() -> None:
                 "SWITCHES": " ".join([sw.name for sw in net.switches]),
                 "FLOW_TABLE_SIZE": f"{flow_table_size}",
             }
-            run_script('./set_ft_size.sh', ft_envs)
+            run_script(SET_FT_SIZE_PATH, ft_envs)
                 
             info("*** START TRAFFIC\n")
 

@@ -28,5 +28,17 @@ $ python3 network.py
 mininet> py FloodAttack(switch=s2, iface=s2.intfList()[2], npacket=100, threads=4, bsize=50, bdelay=1).start()
 ```
 
+```python
+def estimate_timeout_inference(idle_timeout: int, hard_timeout: int):
+    res = 0
+    s = 0
+    for t in range(1,idle_timeout+1):
+        s += t
+        if s >= hard_timeout:
+            res += (s+t)
+            s = 0
+    return res + hard_timeout
+```
+
 ---
 
