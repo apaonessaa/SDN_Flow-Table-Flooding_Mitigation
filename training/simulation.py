@@ -308,18 +308,21 @@ def main() -> None:
         current + "/pcaps/traffics/scenario_002/traffic",
         current + "/pcaps/traffics/scenario_003/traffic",
         current + "/pcaps/traffics/scenario_004/traffic",
+        """
         current + "/pcaps/traffics/scenario_005/traffic",
         current + "/pcaps/traffics/scenario_006/traffic",
         current + "/pcaps/traffics/scenario_007/traffic",
         current + "/pcaps/traffics/scenario_008/traffic",
+        """
     ]
     n_host = 15
-    flow_table_sizes = [15*n_host, 20*n_host, 25*n_host, 30*n_host]
+    min_size = int(math.factorial(n_host) / math.factorial(n_host-2) + 1)
+    flow_table_sizes = [min_size, 15*n_host, 25*n_host, 30*n_host]
     idle_timeouts = [5, 10, 15, 20]
     hard_timeouts = [10, 15, 20, 25]
-    k_factor = 3
-    att_npkts = [15*n_host+10, 25*n_host+20, 20*n_host+30]
-    att_anps = [7, 10, 20, 30]
+    k_factor = 4
+    att_npkts = [flow_table_sizes[i]+10*i for i in range(len(flow_table_sizes))]
+    att_anps = [5, 10, 20, 30]
     att_wait = None
     log_timestamp = int(time())
 
@@ -336,13 +339,13 @@ def main() -> None:
         controller_envs = {
             "GROUP_ID": f"{i}",
             "LABEL": "1",
-            "DATASET_PATH": f"/tmp/dataset_{log_timestamp}.csv",
+            "DATASET_PATH": f"{current}/logs/dataset_{log_timestamp}.csv",
             "FLOW_TABLE_SIZE": f"{flow_table_size}",
             "IDLE_TIMEOUT": f"{idle_timeout}",
             "HARD_TIMEOUT": f"{hard_timeout}",
             "K_FACTOR": f"{k_factor}"
         }
-        controller = start_controller(controller_envs, log_path=f"/tmp/controller_{i}_{log_timestamp}.log")
+        controller = start_controller(controller_envs, log_path=f"{current}/logs/controller_{i}_{log_timestamp}.log")
 
         if controller.poll() is not None:
             raise RuntimeError(f"Il controller è terminato subito con codice {controller.returncode}, controlla controller.log")
@@ -436,13 +439,13 @@ def main() -> None:
         controller_envs = {
             "GROUP_ID": f"{i}",
             "LABEL": "0",
-            "DATASET_PATH": f"/tmp/dataset_{log_timestamp}.csv",
+            "DATASET_PATH": f"{current}/logs/dataset_{log_timestamp}.csv",
             "FLOW_TABLE_SIZE": f"{flow_table_size}",
             "IDLE_TIMEOUT": f"{idle_timeout}",
             "HARD_TIMEOUT": f"{hard_timeout}",
             "K_FACTOR": f"{k_factor}"
         }
-        controller = start_controller(controller_envs, log_path=f"/tmp/controller_{i}_{log_timestamp}.log")
+        controller = start_controller(controller_envs, log_path=f"{current}/logs/controller_{i}_{log_timestamp}.log")
 
         if controller.poll() is not None:
             raise RuntimeError(f"Il controller è terminato subito con codice {controller.returncode}, controlla controller.log")
@@ -473,7 +476,6 @@ def main() -> None:
             offsets = metadata["offsets"]
             original_capture_duration = metadata["original_capture_duration"]
             packet_counts = metadata["packet_counts"]
-            implied_duration, durations_per_host = group_duration(packet_counts, pps)
 
             launch_time = time() + 1.0
             procs = {}
@@ -485,10 +487,10 @@ def main() -> None:
                 if h.name != attacker:
                     ip = h.IP()
                     pcap_file = f"{pcap_prefixes[i]}_{ip.replace('.', '_')}.pcap"
-                    offset = rescale_offset(offsets.get(ip, 0.0), original_capture_duration, implied_duration)
+                    offset = offsets.get(ip, 0.0)
                     t = threading.Thread(
                         target=replay_worker,
-                        args=(h, pcap_file, launch_time, pps, att_duration, offset, procs, stop_event)
+                        args=(h, pcap_file, launch_time, att_duration, offset, procs, stop_event)
                     )
                     threads.append(t)
 
