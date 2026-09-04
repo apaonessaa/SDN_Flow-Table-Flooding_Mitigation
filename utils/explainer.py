@@ -2,8 +2,10 @@ import lime
 import lime.lime_tabular
 import numpy as np
 import pandas as pd
-from catboost import CatBoostClassifier
 from collections import defaultdict
+
+from catboost import CatBoostClassifier
+from xgboost import XGBClassifier
 
 # Modules loader
 import sys
@@ -13,8 +15,8 @@ parent = os.path.dirname(current)
 sys.path.append(parent)
 
 TRAINING_SET = parent + '/training/datasets/dataset.csv'
-OUTPUT_MODEL = parent + '/testing/catboost_model.cbm'
-FALSE_POSITIVES = parent + '/testing/logs/dataset.csv'
+OUTPUT_MODEL = parent + '/models/xgboost_model.json'
+FALSE_POSITIVES = parent + '/testing/logs/xgboost/dataset_1788452334.csv'
 
 feature_cols = [
     "payload_entropy_mean", "payload_entropy_cv", "payload_size_entropy",
@@ -23,7 +25,8 @@ feature_cols = [
     "mean_duration", "cvd", "mean_pkts", "cvp", "mean_bytes", "cvb"
 ]
 
-model = CatBoostClassifier()
+#model = CatBoostClassifier()
+model = XGBClassifier()
 model.load_model(OUTPUT_MODEL)
 
 # Serve un campione rappresentativo dei dati di TRAINING (non di test),

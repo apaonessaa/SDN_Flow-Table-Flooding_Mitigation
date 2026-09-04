@@ -140,7 +140,7 @@ def main() -> None:
     npkts = 20
     anp = 5
     att_wait = None
-    att_duration = -1
+    att_duration = 250
     log_path = current + "/logs"
     log_timestamp = int(time())
 
@@ -221,15 +221,15 @@ def main() -> None:
         # Start threads
         t0 = time()
 
-        attack.start()
+        #attack.start()
         for t in threads:
             t.start()
 
         # Stop threads
-        attack.join()
-        kill_replay_traffic(procs, stop_event)
+        #attack.join()
+        #kill_replay_traffic(procs, stop_event)
         for t in threads:
-            t.join(timeout=5) #t.join() #  #
+            t.join() #t.join(timeout=5)
 
         att_duration = math.ceil(time() - t0)
         info(f"*** END TRAFFIC: Session duration {att_duration}\n")

@@ -65,11 +65,11 @@ class SimpleSwitch14(app_manager.RyuApp):
         self.logger.debug(f"[GAP] Intervallo di tempo per la cattura delle features: {self.T}s")
         self.collector = hub.spawn(self._collector)
         # Catboost
-        #self.model = CatBoostClassifier()
-        #self.model.load_model(self.CATBOOST_PATH)
+        self.model = CatBoostClassifier()
+        self.model.load_model(self.CATBOOST_PATH)
         # XGBoost
-        self.model = XGBClassifier()
-        self.model.load_model(self.XGBOOST_PATH)
+        #self.model = XGBClassifier()
+        #self.model.load_model(self.XGBOOST_PATH)
 
     def _init_csv(self):
         write_header = not os.path.exists(self.DATASET_PATH)
