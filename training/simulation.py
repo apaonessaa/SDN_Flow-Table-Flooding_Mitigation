@@ -302,18 +302,17 @@ def main() -> None:
         CustomTopo3(),
         CustomTopo4(),
     ]
-
+    """
+    current + "/pcaps/traffics/scenario_001/traffic",
+    current + "/pcaps/traffics/scenario_002/traffic",
+    current + "/pcaps/traffics/scenario_003/traffic",
+    current + "/pcaps/traffics/scenario_004/traffic",
+    """
     pcap_prefixes = [
-        current + "/pcaps/traffics/scenario_001/traffic",
-        current + "/pcaps/traffics/scenario_002/traffic",
-        current + "/pcaps/traffics/scenario_003/traffic",
-        current + "/pcaps/traffics/scenario_004/traffic",
-        """
         current + "/pcaps/traffics/scenario_005/traffic",
         current + "/pcaps/traffics/scenario_006/traffic",
         current + "/pcaps/traffics/scenario_007/traffic",
         current + "/pcaps/traffics/scenario_008/traffic",
-        """
     ]
     n_host = 15
     min_size = int(math.factorial(n_host) / math.factorial(n_host-2) + 1)
@@ -326,7 +325,7 @@ def main() -> None:
     att_wait = None
     log_timestamp = int(time())
 
-    for i in range(len(pcap_prefixes)):
+    for i in range(4,8):
         topo = topos[i%len(topos)]
         flow_table_size = flow_table_sizes[i%len(flow_table_sizes)]
         idle_timeout = idle_timeouts[i%len(idle_timeouts)]
@@ -372,7 +371,7 @@ def main() -> None:
                 
             info("*** START TRAFFIC\n")
 
-            metadata = load_metadata(pcap_prefixes[i])
+            metadata = load_metadata(pcap_prefixes[i%len(topos)])
             offsets = metadata["offsets"]
             original_capture_duration = metadata["original_capture_duration"]
             packet_counts = metadata["packet_counts"]
@@ -386,7 +385,7 @@ def main() -> None:
             for h in net.hosts:
                 if h.name != attacker:
                     ip = h.IP()
-                    pcap_file = f"{pcap_prefixes[i]}_{ip.replace('.', '_')}.pcap"
+                    pcap_file = f"{pcap_prefixes[i%len(topos)]}_{ip.replace('.', '_')}.pcap"
                     offset = offsets.get(ip, 0.0)
                     t = threading.Thread(
                         target=replay_worker,
@@ -472,7 +471,7 @@ def main() -> None:
                 
             info("*** START TRAFFIC\n")
 
-            metadata = load_metadata(pcap_prefixes[i])
+            metadata = load_metadata(pcap_prefixes[i%len(topos)])
             offsets = metadata["offsets"]
             original_capture_duration = metadata["original_capture_duration"]
             packet_counts = metadata["packet_counts"]
@@ -486,7 +485,7 @@ def main() -> None:
             for h in net.hosts:
                 if h.name != attacker:
                     ip = h.IP()
-                    pcap_file = f"{pcap_prefixes[i]}_{ip.replace('.', '_')}.pcap"
+                    pcap_file = f"{pcap_prefixes[i%len(topos)]}_{ip.replace('.', '_')}.pcap"
                     offset = offsets.get(ip, 0.0)
                     t = threading.Thread(
                         target=replay_worker,

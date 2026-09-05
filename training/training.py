@@ -22,7 +22,7 @@ current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
 
-TRAINING_SET = current + '/logs/dataset_1788515678.csv'
+TRAINING_SET = '/tmp/dataset.csv' #current + '/logs/dataset_1788515678.csv'
 MODELS_DIR = parent + '/models'
 
 os.makedirs(MODELS_DIR, exist_ok=True)
@@ -95,14 +95,14 @@ def evaluate(name, y_true, y_pred, results, elapsed=None):
 def train_catboost(X_train, X_test, y_train, y_test, results):
     params = {
         'silent': True,
-        'depth': 8,                     # Depth of the trees
-        'learning_rate': 0.1,           # Learning rate of the model
-        'l2_leaf_reg': 3.0,             # L2 regularization term on weights
-        'rsm': 0.8,                     # Random Selection Rate
-        'iterations': 50,              # Number of boosting iterations
-        'loss_function': 'Logloss',     # Loss function
-        'eval_metric': 'F1',            # Evaluation metric
-        'random_seed': 42,              # Random seed for reproducibility
+        'depth': 8,                         # Depth of the trees
+        'learning_rate': 0.05,              # Learning rate of the model
+        'l2_leaf_reg': 8.0,                 # L2 regularization term on weights
+        'rsm': 0.8,                         # Random Selection Rate
+        'iterations': 60,                   # Number of boosting iterations
+        'loss_function': 'Logloss',         # Loss function
+        'eval_metric': 'F1',                # Evaluation metric
+        'random_seed': 42,                  # Random seed for reproducibility
         'auto_class_weights': 'Balanced',
         'bagging_temperature': 1.0,
         'random_strength': 2.0,
