@@ -8,7 +8,7 @@ class FTFAttack:
     WORKER_PATH = os.path.dirname(os.path.realpath(__file__))+'/ftf_worker.py'
     
     def __init__(self, attacker: str, probe_dst: str, npacket: int, added_new_packets: int, 
-                max_iter: int, max_interval: int, net: Mininet):
+                max_iter: int, max_interval: int, net: Mininet, out_file: str='/tmp/ftf.csv'):
         self.attacker = attacker
         self.probe_dst = probe_dst
         self.npacket = npacket
@@ -18,6 +18,7 @@ class FTFAttack:
         self.max_interval = max_interval
         self._stop_event: Event = Event()
         self._worker_proc = None
+        self.out_file = out_file
 
     def run(self):
         attacker_host = self.net.get(self.attacker)
@@ -31,6 +32,7 @@ class FTFAttack:
             '--anp', str(self.added_new_packets),
             '--max-iter', str(self.max_iter),
             '--max-interval', str(self.max_interval),
+            '--out-file', self.out_file
         ]
 
         print(f"[*] Lancio worker: {' '.join(cmd)}")

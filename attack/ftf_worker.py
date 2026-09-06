@@ -65,10 +65,10 @@ def main():
     parser.add_argument('--anp', type=int, required=True)
     parser.add_argument('--max-iter', type=int, default=1000)
     parser.add_argument('--max-interval', type=int, default=100)
-    parser.add_argument('--logs', type=str, default="/tmp/ftf.csv")
+    parser.add_argument('--out-file', type=str, default="/tmp/ftf.csv")
     args = parser.parse_args()
 
-    with open(args.logs, "w", newline="") as f:
+    with open(args.out_file, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["npacket", "estimated_hard_timeout", "estimated_idle_timeout"])
 

@@ -603,7 +603,8 @@ def main() -> None:
                 added_new_packets=anp,
                 max_iter=10,
                 max_interval=30,
-                net=net
+                net=net,
+                out_file=f"{current}/logs/ftf_{i}_{log_timestamp}.csv",
             )
 
             (src, dst) = topo.conn_hosts
