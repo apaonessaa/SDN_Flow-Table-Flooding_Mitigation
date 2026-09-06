@@ -18,4 +18,10 @@ $ mdkir ./pcaps/traffics/scenario_007/traffic
 $ python3 $PROJECT/utils/remap_split_pcap.py ./pcaps/scenarios/scenario_007.pcap ./pcaps/traffics/scenario_007/traffic -n 14 -d 7
 ```
 
+## Exclude group_id
+
+```bash
+$ cat datasets/dataset.csv > /tmp/dataset.csv && tail -n 8952 logs/dataset_1788536029.csv | awk -F',' '$20 != "6"' - >> /tmp/dataset.csv
+```
+
 ---
