@@ -68,10 +68,6 @@ def main():
     parser.add_argument('--out-file', type=str, default="/tmp/ftf.csv")
     args = parser.parse_args()
 
-    with open(args.out_file, "w", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(["npacket", "estimated_hard_timeout", "estimated_idle_timeout"])
-
     print("# [STAGE 0] T_idle Inference", flush=True)
     hard_timeout, attack_frequency = stage_0(args.dst_ip, args.max_iter, args.max_interval)
 
@@ -82,7 +78,11 @@ def main():
     stage_2(args.iface, args.npacket, args.anp, attack_frequency, macs)
 
     print("[+] Attacco completato.", flush=True)
-    writer.writerow([args.npacket, hard_timeout, attack_frequency])
+    
+    with open(args.out_file, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["npacket", "estimated_hard_timeout", "estimated_idle_timeout"])
+        writer.writerow([args.npacket, hard_timeout, attack_frequency])
 
 if __name__ == '__main__':
     main()
