@@ -292,8 +292,58 @@ class CustomTopo6(Topo):
         self.addLink(h14, s5)
         self.addLink(h15, s2)
 
+class CustomTopo7(Topo):
+    "Custom Topology Network"
+    conn_hosts = ('h1', 'h13')
+    att_hosts = ('h15', 'h4')
+    def build(self):
+        info("* Build Topology\n")
+        # Switch
+        s1 = self.addSwitch('s1', cls=OVSSwitch, protocols='OpenFlow14')
+        s2 = self.addSwitch('s2', cls=OVSSwitch, protocols='OpenFlow14')
+        s3 = self.addSwitch('s3', cls=OVSSwitch, protocols='OpenFlow14')
+        s4 = self.addSwitch('s4', cls=OVSSwitch, protocols='OpenFlow14')
+        s5 = self.addSwitch('s5', cls=OVSSwitch, protocols='OpenFlow14')
+        s6 = self.addSwitch('s6', cls=OVSSwitch, protocols='OpenFlow14')
+        self.addLink(s1, s2)
+        self.addLink(s2, s3)
+        self.addLink(s2, s4)
+        self.addLink(s2, s5)
+        self.addLink(s3, s6)
+        # Hosts
+        h1 = self.addHost('h1', ip='10.0.0.1/24', mac='00:00:00:00:00:01')
+        h2 = self.addHost('h2', ip='10.0.0.2/24', mac='00:00:00:00:00:02')
+        h3 = self.addHost('h3', ip='10.0.0.3/24', mac='00:00:00:00:00:03')
+        h4 = self.addHost('h4', ip='10.0.0.4/24', mac='00:00:00:00:00:04')
+        h5 = self.addHost('h5', ip='10.0.0.5/24', mac='00:00:00:00:00:05')
+        h6 = self.addHost('h6', ip='10.0.0.6/24', mac='00:00:00:00:00:06')
+        h7 = self.addHost('h7', ip='10.0.0.7/24', mac='00:00:00:00:00:07')
+        h8 = self.addHost('h8', ip='10.0.0.8/24', mac='00:00:00:00:00:08')
+        h9 = self.addHost('h9', ip='10.0.0.9/24', mac='00:00:00:00:00:09')
+        h10 = self.addHost('h10', ip='10.0.0.10/24', mac='00:00:00:00:00:10')
+        h11 = self.addHost('h11', ip='10.0.0.11/24', mac='00:00:00:00:00:11')
+        h12 = self.addHost('h12', ip='10.0.0.12/24', mac='00:00:00:00:00:12')
+        h13 = self.addHost('h13', ip='10.0.0.13/24', mac='00:00:00:00:00:13')
+        h14 = self.addHost('h14', ip='10.0.0.14/24', mac='00:00:00:00:00:14')
+        h15 = self.addHost('h15', ip='10.0.0.15/24', mac='00:00:00:00:00:15')
+        self.addLink(h1, s1)
+        self.addLink(h2, s1)
+        self.addLink(h3, s6)
+        self.addLink(h4, s6)
+        self.addLink(h5, s2)
+        self.addLink(h6, s2)
+        self.addLink(h7, s3)
+        self.addLink(h8, s3)
+        self.addLink(h9, s3)
+        self.addLink(h10, s4)
+        self.addLink(h11, s4)
+        self.addLink(h12, s4)
+        self.addLink(h13, s5)
+        self.addLink(h14, s5)
+        self.addLink(h15, s2)
+
 def load_metadata(prefix):
-    with open(f"{prefix}_metadata.json") as f:
+    with open(f"{prefix}traffic_metadata.json") as f:
         return json.load(f)
 
 def start_controller(env_vars: dict, log_path: str = "controller.log") -> subprocess.Popen:
@@ -394,7 +444,8 @@ def main() -> None:
         CustomTopo3(),
         CustomTopo4(),
         CustomTopo5(),
-        CustomTopo6()
+        CustomTopo6(),
+        CustomTopo7()
     ]
 
     pcap_prefixes = [
@@ -451,10 +502,13 @@ def main() -> None:
     
     att_wait = None
     k_factor = 4
+    n_host = 15
+    full_size = int(math.factorial(n_host) / math.factorial(n_host-2)) + 1
+    half_size = int(full_size / 2)
     log_timestamp = int(time())
 
     df = pd.read_csv(current + "/pcaps/scenarios/manifest.csv")
-    csv_path = curret + "/logs/attack_config.csv"
+    csv_path = current + "/logs/attack_config.csv"
 
     with open(csv_path, "w", newline="") as f:
         writer = csv.writer(f)
@@ -468,17 +522,16 @@ def main() -> None:
         # idle_timeout: idle <= hard
         idle_timeout = rng.randint(1, hard_timeout)
         # flow_table_size
-        n_host = len(topos[i].hosts)
         flow_table_size = rng.randint(half_size, 30 * n_host)
         # att_npkts: att_npkts >= flow_table_size
-        margin = rng.randint(0, 10 * n_host)
+        margin = rng.randint(0, 10*n_host)
         npkts = flow_table_size + margin
         # att_anp: 1 min - ~10 min
         df['start'] = pd.to_datetime(df['start'])
         df['end'] = pd.to_datetime(df['end'])
         T_min = 60
-        T_max = (df['end'] - df['start']).dt.total_seconds() - 30
-        anp = sample_attack_rate(att_npkts, T_min=T_min, T_max=T_max)
+        T_max = int((df['end'].iloc[i] - df['start'].iloc[i]).total_seconds() - 30)
+        anp = sample_attack_rate(npkts, T_min=T_min, T_max=T_max)
 
         # att_duration
         att_duration = -1
@@ -520,7 +573,7 @@ def main() -> None:
                 
             info("*** START TRAFFIC\n")
 
-            metadata = load_metadata(pcap_prefixes[i%len(topos)])
+            metadata = load_metadata(pcap_prefixes[i])
             offsets = metadata["offsets"]
             original_capture_duration = metadata["original_capture_duration"]
             packet_counts = metadata["packet_counts"]
@@ -534,7 +587,7 @@ def main() -> None:
             for h in net.hosts:
                 if h.name != attacker:
                     ip = h.IP()
-                    pcap_file = f"{pcap_prefixes[i%len(topos)]}_{ip.replace('.', '_')}.pcap"
+                    pcap_file = f"{pcap_prefixes[i]}traffic_{ip.replace('.', '_')}.pcap"
                     offset = offsets.get(ip, 0.0)
                     t = threading.Thread(
                         target=replay_worker,
@@ -620,7 +673,7 @@ def main() -> None:
                 
             info("*** START TRAFFIC\n")
 
-            metadata = load_metadata(pcap_prefixes[i%len(topos)])
+            metadata = load_metadata(pcap_prefixes[i])
             offsets = metadata["offsets"]
             original_capture_duration = metadata["original_capture_duration"]
             packet_counts = metadata["packet_counts"]
@@ -634,7 +687,7 @@ def main() -> None:
             for h in net.hosts:
                 if h.name != attacker:
                     ip = h.IP()
-                    pcap_file = f"{pcap_prefixes[i%len(topos)]}_{ip.replace('.', '_')}.pcap"
+                    pcap_file = f"{pcap_prefixes[i]}traffic_{ip.replace('.', '_')}.pcap"
                     offset = offsets.get(ip, 0.0)
                     t = threading.Thread(
                         target=replay_worker,
