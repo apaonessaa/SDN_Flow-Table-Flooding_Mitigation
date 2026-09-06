@@ -7,15 +7,36 @@ Benign traffic PCAP:
 ## Splitting by scenarios
 
 ```bash
-$ python3 $PROJECT/utils/split_pcap_sessions.py --input Monday-WorkingHours.pcap --outdir ./pcaps/scenarios --segment-seconds 3600
+cat <<'EOF' | bash
+#!/bin/bash
+
+PROJECT="$(pwd)" 
+
+python3 "$PROJECT/utils/split_pcap_sessions.py" --input "$PROJECT/Monday-WorkingHours.pcap" --outdir "$PROJECT/training/pcaps/scenarios" --segment-seconds 1800
+EOF
 ```
 
 ## Remapping & Splitting by hosts
 
 ```bash
-$ mdkir ./pcaps/traffics/scenario_007/traffic
+cat <<'EOF' | bash
+#!/bin/bash
 
-$ python3 $PROJECT/utils/remap_split_pcap.py ./pcaps/scenarios/scenario_007.pcap ./pcaps/traffics/scenario_007/traffic -n 14 -d 7
+PROJECT="$(pwd)"
+
+for SCENARIO_DIR in "$PROJECT"/training/pcaps/scenarios/*.pcap; do
+    SCENARIO=$(basename "$SCENARIO_DIR" .pcap)
+    mkdir -p "$PROJECT/training/pcaps/traffics/$SCENARIO/"
+done
+
+for SCENARIO_DIR in "$PROJECT"/training/pcaps/traffics/*/; do
+    SCENARIO=$(basename "$SCENARIO_DIR")
+    python3 "$PROJECT/utils/remap_split_pcap.py" \
+        "$PROJECT/training/pcaps/scenarios/$SCENARIO.pcap" \
+        "$PROJECT/training/pcaps/traffics/$SCENARIO/" \
+        -n 14 -d 7
+done
+EOF
 ```
 
 ## Exclude group_id

@@ -4,6 +4,8 @@ import threading
 import subprocess
 import socket
 import math
+import csv
+import pandas as pd
 from time import time, sleep
 from mininet.net import Mininet
 from mininet.node import RemoteController, OVSSwitch, Host
@@ -19,9 +21,94 @@ sys.path.append(parent)
 
 from attack.ftf_attack import FTFAttack
 
+import random
+rng = random.Random(42)
+
 SET_FT_SIZE_PATH = parent + "/config/set_ft_size.sh"
 
 class CustomTopo1(Topo):
+    "Custom Topology Network"
+    conn_hosts = ('h1', 'h11')
+    att_hosts = ('h15', 'h14')
+    def build(self):
+        info("* Build Topology\n")
+        # Switch
+        s1 = self.addSwitch('s1', cls=OVSSwitch, protocols='OpenFlow14')
+        # Hosts
+        h1 = self.addHost('h1', ip='10.0.0.1/24', mac='00:00:00:00:00:01')
+        h2 = self.addHost('h2', ip='10.0.0.2/24', mac='00:00:00:00:00:02')
+        h3 = self.addHost('h3', ip='10.0.0.3/24', mac='00:00:00:00:00:03')
+        h4 = self.addHost('h4', ip='10.0.0.4/24', mac='00:00:00:00:00:04')
+        h5 = self.addHost('h5', ip='10.0.0.5/24', mac='00:00:00:00:00:05')
+        h6 = self.addHost('h6', ip='10.0.0.6/24', mac='00:00:00:00:00:06')
+        h7 = self.addHost('h7', ip='10.0.0.7/24', mac='00:00:00:00:00:07')
+        h8 = self.addHost('h8', ip='10.0.0.8/24', mac='00:00:00:00:00:08')
+        h9 = self.addHost('h9', ip='10.0.0.9/24', mac='00:00:00:00:00:09')
+        h10 = self.addHost('h10', ip='10.0.0.10/24', mac='00:00:00:00:00:10')
+        h11 = self.addHost('h11', ip='10.0.0.11/24', mac='00:00:00:00:00:11')
+        h12 = self.addHost('h12', ip='10.0.0.12/24', mac='00:00:00:00:00:12')
+        h13 = self.addHost('h13', ip='10.0.0.13/24', mac='00:00:00:00:00:13')
+        h14 = self.addHost('h14', ip='10.0.0.14/24', mac='00:00:00:00:00:14')
+        h15 = self.addHost('h15', ip='10.0.0.15/24', mac='00:00:00:00:00:15')
+        self.addLink(h1, s1)
+        self.addLink(h2, s1)
+        self.addLink(h3, s1)
+        self.addLink(h4, s1)
+        self.addLink(h5, s1)
+        self.addLink(h6, s1)
+        self.addLink(h7, s1)
+        self.addLink(h8, s1)
+        self.addLink(h9, s1)
+        self.addLink(h10, s1)
+        self.addLink(h11, s1)
+        self.addLink(h12, s1)
+        self.addLink(h13, s1)
+        self.addLink(h14, s1)
+        self.addLink(h15, s1)
+
+class CustomTopo2(Topo):
+    "Custom Topology Network"
+    conn_hosts = ('h1', 'h11')
+    att_hosts = ('h15', 'h14')
+    def build(self):
+        info("* Build Topology\n")
+        # Switch
+        s1 = self.addSwitch('s1', cls=OVSSwitch, protocols='OpenFlow14')
+        s2 = self.addSwitch('s2', cls=OVSSwitch, protocols='OpenFlow14')
+        self.addLink(s1, s2)
+        # Hosts
+        h1 = self.addHost('h1', ip='10.0.0.1/24', mac='00:00:00:00:00:01')
+        h2 = self.addHost('h2', ip='10.0.0.2/24', mac='00:00:00:00:00:02')
+        h3 = self.addHost('h3', ip='10.0.0.3/24', mac='00:00:00:00:00:03')
+        h4 = self.addHost('h4', ip='10.0.0.4/24', mac='00:00:00:00:00:04')
+        h5 = self.addHost('h5', ip='10.0.0.5/24', mac='00:00:00:00:00:05')
+        h6 = self.addHost('h6', ip='10.0.0.6/24', mac='00:00:00:00:00:06')
+        h7 = self.addHost('h7', ip='10.0.0.7/24', mac='00:00:00:00:00:07')
+        h8 = self.addHost('h8', ip='10.0.0.8/24', mac='00:00:00:00:00:08')
+        h9 = self.addHost('h9', ip='10.0.0.9/24', mac='00:00:00:00:00:09')
+        h10 = self.addHost('h10', ip='10.0.0.10/24', mac='00:00:00:00:00:10')
+        h11 = self.addHost('h11', ip='10.0.0.11/24', mac='00:00:00:00:00:11')
+        h12 = self.addHost('h12', ip='10.0.0.12/24', mac='00:00:00:00:00:12')
+        h13 = self.addHost('h13', ip='10.0.0.13/24', mac='00:00:00:00:00:13')
+        h14 = self.addHost('h14', ip='10.0.0.14/24', mac='00:00:00:00:00:14')
+        h15 = self.addHost('h15', ip='10.0.0.15/24', mac='00:00:00:00:00:15')
+        self.addLink(h1, s1)
+        self.addLink(h2, s1)
+        self.addLink(h3, s1)
+        self.addLink(h4, s1)
+        self.addLink(h5, s1)
+        self.addLink(h6, s1)
+        self.addLink(h7, s1)
+        self.addLink(h8, s1)
+        self.addLink(h9, s1)
+        self.addLink(h10, s2)
+        self.addLink(h11, s2)
+        self.addLink(h12, s2)
+        self.addLink(h13, s2)
+        self.addLink(h14, s2)
+        self.addLink(h15, s2)
+
+class CustomTopo3(Topo):
     "Custom Topology Network"
     conn_hosts = ('h1', 'h11')
     att_hosts = ('h15', 'h14')
@@ -65,7 +152,7 @@ class CustomTopo1(Topo):
         self.addLink(h14, s3)
         self.addLink(h15, s3)
 
-class CustomTopo2(Topo):
+class CustomTopo4(Topo):
     "Custom Topology Network"
     conn_hosts = ('h1', 'h12')
     att_hosts = ('h15', 'h2')
@@ -111,7 +198,7 @@ class CustomTopo2(Topo):
         self.addLink(h14, s4)
         self.addLink(h15, s1)
 
-class CustomTopo3(Topo):
+class CustomTopo5(Topo):
     "Custom Topology Network"
     conn_hosts = ('h1', 'h13')
     att_hosts = ('h15', 'h10')
@@ -157,7 +244,7 @@ class CustomTopo3(Topo):
         self.addLink(h14, s4)
         self.addLink(h15, s3)
 
-class CustomTopo4(Topo):
+class CustomTopo6(Topo):
     "Custom Topology Network"
     conn_hosts = ('h1', 'h13')
     att_hosts = ('h15', 'h4')
@@ -294,6 +381,11 @@ def kill_replay_traffic(procs, stop_event):
         if proc.poll() is None:
             proc.kill()
 
+def sample_attack_rate(att_npkts, min_anp=5, T_min=5, T_max=1800):
+    duration = rng.uniform(T_min, T_max)
+    anp = max(min_anp, att_npkts / duration)
+    return round(anp, 2)
+
 def main() -> None:
     # Topologies
     topos = [
@@ -301,39 +393,96 @@ def main() -> None:
         CustomTopo2(),
         CustomTopo3(),
         CustomTopo4(),
+        CustomTopo5(),
+        CustomTopo6()
     ]
-    """
-    current + "/pcaps/traffics/scenario_001/traffic",
-    current + "/pcaps/traffics/scenario_002/traffic",
-    current + "/pcaps/traffics/scenario_003/traffic",
-    current + "/pcaps/traffics/scenario_004/traffic",
-    """
+
     pcap_prefixes = [
-        current + "/pcaps/traffics/scenario_005/traffic",
-        current + "/pcaps/traffics/scenario_006/traffic",
-        current + "/pcaps/traffics/scenario_007/traffic",
-        current + "/pcaps/traffics/scenario_008/traffic",
+        current + "/pcaps/traffics/scenario_000/",
+        current + "/pcaps/traffics/scenario_001/",
+        current + "/pcaps/traffics/scenario_002/",
+        current + "/pcaps/traffics/scenario_003/",
+        current + "/pcaps/traffics/scenario_004/",
+        current + "/pcaps/traffics/scenario_005/",
+        current + "/pcaps/traffics/scenario_006/",
+        current + "/pcaps/traffics/scenario_007/",
+        current + "/pcaps/traffics/scenario_008/",
+        current + "/pcaps/traffics/scenario_009/",
+        current + "/pcaps/traffics/scenario_010/",
+        current + "/pcaps/traffics/scenario_011/",
+        current + "/pcaps/traffics/scenario_012/",
+        current + "/pcaps/traffics/scenario_013/",
+        current + "/pcaps/traffics/scenario_014/",
+        current + "/pcaps/traffics/scenario_015/",
+        current + "/pcaps/traffics/scenario_016/",
+        current + "/pcaps/traffics/scenario_017/",
+        current + "/pcaps/traffics/scenario_018/",
+        current + "/pcaps/traffics/scenario_019/",
+        current + "/pcaps/traffics/scenario_020/",
+        current + "/pcaps/traffics/scenario_021/",
+        current + "/pcaps/traffics/scenario_022/",
+        current + "/pcaps/traffics/scenario_023/",
+        current + "/pcaps/traffics/scenario_024/",
+        current + "/pcaps/traffics/scenario_025/",
+        current + "/pcaps/traffics/scenario_026/",
+        current + "/pcaps/traffics/scenario_027/",
+        current + "/pcaps/traffics/scenario_028/",
+        current + "/pcaps/traffics/scenario_029/",
+        current + "/pcaps/traffics/scenario_030/",
+        current + "/pcaps/traffics/scenario_031/",
+        current + "/pcaps/traffics/scenario_032/",
+        current + "/pcaps/traffics/scenario_033/",
+        current + "/pcaps/traffics/scenario_034/",
+        current + "/pcaps/traffics/scenario_035/",
+        current + "/pcaps/traffics/scenario_036/",
+        current + "/pcaps/traffics/scenario_037/",
+        current + "/pcaps/traffics/scenario_038/",
+        current + "/pcaps/traffics/scenario_039/",
+        current + "/pcaps/traffics/scenario_040/",
+        current + "/pcaps/traffics/scenario_041/",
+        current + "/pcaps/traffics/scenario_042/",
+        current + "/pcaps/traffics/scenario_043/",
+        current + "/pcaps/traffics/scenario_044/",
+        current + "/pcaps/traffics/scenario_045/",
+        current + "/pcaps/traffics/scenario_046/",
+        current + "/pcaps/traffics/scenario_047/",
+        current + "/pcaps/traffics/scenario_048/",
     ]
-    n_host = 15
-    min_size = int(math.factorial(n_host) / math.factorial(n_host-2) + 1)
-    flow_table_sizes = [min_size, 15*n_host, 25*n_host, 30*n_host]
-    idle_timeouts = [5, 10, 15, 20]
-    hard_timeouts = [10, 15, 20, 25]
-    k_factor = 4
-    att_npkts = [flow_table_sizes[i]+10*i for i in range(len(flow_table_sizes))]
-    att_anps = [5, 10, 20, 30]
+    
     att_wait = None
+    k_factor = 4
     log_timestamp = int(time())
 
-    for i in range(4,8):
-        topo = topos[i%len(topos)]
-        flow_table_size = flow_table_sizes[i%len(flow_table_sizes)]
-        idle_timeout = idle_timeouts[i%len(idle_timeouts)]
-        hard_timeout = hard_timeouts[i%len(hard_timeouts)]
-        npkts = att_npkts[i%len(att_npkts)]
-        anp = att_anps[i%len(att_anps)]
-        att_duration = -1
+    df = pd.read_csv(current + "/pcaps/scenarios/manifest.csv")
+    csv_path = curret + "/logs/attack_config.csv"
 
+    with open(csv_path, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["topo", "hard_timeout", "idle_timeout", "flow_table_size", "npkts", "anp", "duration"])
+
+    for i in range(len(pcap_prefixes)):
+        info("*** Parameters\n")
+        topo = topos[i%len(topos)]
+        # hard_timeout: 5 < hard <= 30
+        hard_timeout = rng.randint(6, 30)
+        # idle_timeout: idle <= hard
+        idle_timeout = rng.randint(1, hard_timeout)
+        # flow_table_size
+        n_host = len(topos[i].hosts)
+        flow_table_size = rng.randint(half_size, 30 * n_host)
+        # att_npkts: att_npkts >= flow_table_size
+        margin = rng.randint(0, 10 * n_host)
+        npkts = flow_table_size + margin
+        # att_anp: 1 min - ~10 min
+        df['start'] = pd.to_datetime(df['start'])
+        df['end'] = pd.to_datetime(df['end'])
+        T_min = 60
+        T_max = (df['end'] - df['start']).dt.total_seconds() - 30
+        anp = sample_attack_rate(att_npkts, T_min=T_min, T_max=T_max)
+
+        # att_duration
+        att_duration = -1
+        
         info("*** CONTROLLER\n")
         controller_envs = {
             "GROUP_ID": f"{i}",
@@ -516,6 +665,8 @@ def main() -> None:
             subprocess.run(['sudo', 'mn', '-c'], capture_output=True)
         
         sleep(20)
+
+        writer.writerow([i%len(topos), hard_timeout, idle_timeout, flow_table_size, npkts, anp, att_duration])
 
 if __name__ == '__main__':
     setLogLevel('info')
