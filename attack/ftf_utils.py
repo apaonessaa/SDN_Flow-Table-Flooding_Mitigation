@@ -105,7 +105,7 @@ class FTFUtils:
                     print("[!] Failed Probe")
                     break
                 
-                if abs(rtti - rtt0) / rtti <= 0.5:
+                if rtti > rtt0 or abs(rtti - rtt0) / rtti <= 0.5:
                     return interval
 
                 print(f"[.] Interval={interval}", flush=True)
@@ -150,7 +150,7 @@ class FTFUtils:
                     print("[!] Failed Probe")
                     break
 
-                if abs(rtti - rtt0) / rtti <= 0.5:
+                if rtti > rtt0 or abs(rtti - rtt0) / rtti <= 0.5:
                     return interval
                     
                 print(f"[.] Interval={interval}", flush=True)

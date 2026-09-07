@@ -692,7 +692,7 @@ def main() -> None:
                     offset = offsets.get(ip, 0.0)
                     t = threading.Thread(
                         target=replay_worker,
-                        args=(h, pcap_file, launch_time, att_duration, offset, procs, stop_event)
+                        args=(h, pcap_file, launch_time, att_duration-offset, offset, procs, stop_event)
                     )
                     threads.append(t)
 
