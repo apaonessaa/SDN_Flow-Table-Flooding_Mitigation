@@ -690,9 +690,10 @@ def main() -> None:
                     ip = h.IP()
                     pcap_file = f"{pcap_prefixes[i]}traffic_{ip.replace('.', '_')}.pcap"
                     offset = offsets.get(ip, 0.0)
+                    host_duration = max(1, att_duration-offset)
                     t = threading.Thread(
                         target=replay_worker,
-                        args=(h, pcap_file, launch_time, att_duration-offset, offset, procs, stop_event)
+                        args=(h, pcap_file, launch_time, host_duration, offset, procs, stop_event)
                     )
                     threads.append(t)
 
@@ -707,9 +708,11 @@ def main() -> None:
                 t.start()
 
             # Stop threads
+            sleep(att_duration + 5) # watchdog_margin
+            kill_replay_traffic(procs, stop_event)
             for t in threads:
-                t.join()
-
+                t.join(timeout=5)
+            
             info(f"*** END TRAFFIC\n")
 
         finally:
@@ -720,7 +723,9 @@ def main() -> None:
         
         sleep(20)
 
-        writer.writerow([i%len(topos), hard_timeout, idle_timeout, flow_table_size, npkts, anp, att_duration])
+        with open(csv_path, "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow([i%len(topos), hard_timeout, idle_timeout, flow_table_size, npkts, anp, att_duration])
 
 if __name__ == '__main__':
     setLogLevel('info')

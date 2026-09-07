@@ -71,6 +71,12 @@ def main():
     print("# [STAGE 0] T_idle Inference", flush=True)
     hard_timeout, attack_frequency = stage_0(args.dst_ip, args.max_iter, args.max_interval)
 
+    with open(args.out_file, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            ["npacket", "estimated_hard_timeout", "estimated_idle_timeout"],
+            [args.npacket, hard_timeout, attack_frequency]])
+
     print("# [STAGE 1] MAC Presenting", flush=True)
     macs = stage_1(args.iface, args.npacket, args.anp, attack_frequency)
 
@@ -79,10 +85,5 @@ def main():
 
     print("[+] Attacco completato.", flush=True)
     
-    with open(args.out_file, "w", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(["npacket", "estimated_hard_timeout", "estimated_idle_timeout"])
-        writer.writerow([args.npacket, hard_timeout, attack_frequency])
-
 if __name__ == '__main__':
     main()
