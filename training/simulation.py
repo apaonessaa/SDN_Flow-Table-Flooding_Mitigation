@@ -723,7 +723,7 @@ def main() -> None:
         
         sleep(20)
 
-        with open(csv_path, "w", newline="") as f:
+        with open(csv_path, "a", newline="") as f:
             writer = csv.writer(f)
             writer.writerow([i%len(topos), hard_timeout, idle_timeout, flow_table_size, npkts, anp, att_duration])
 
