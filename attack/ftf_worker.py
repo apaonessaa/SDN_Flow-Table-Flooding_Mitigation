@@ -73,10 +73,9 @@ def main():
 
     with open(args.out_file, "a", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow([
-            ["npacket", "estimated_hard_timeout", "estimated_idle_timeout"],
-            [args.npacket, hard_timeout, attack_frequency]])
-
+        writer.writerow(["npacket", "estimated_hard_timeout", "estimated_idle_timeout"])
+        writer.writerow([args.npacket, hard_timeout, attack_frequency])
+        
     print("# [STAGE 1] MAC Presenting", flush=True)
     macs = stage_1(args.iface, args.npacket, args.anp, attack_frequency)
 

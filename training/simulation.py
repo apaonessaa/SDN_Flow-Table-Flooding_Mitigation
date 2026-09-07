@@ -635,7 +635,7 @@ def main() -> None:
             stop_controller(controller)
             subprocess.run(['sudo', 'mn', '-c'], capture_output=True)
 
-        sleep(20)
+        sleep(60)
 
         info("*** CONTROLLER\n")
         controller_envs = {
@@ -721,7 +721,7 @@ def main() -> None:
             stop_controller(controller)
             subprocess.run(['sudo', 'mn', '-c'], capture_output=True)
         
-        sleep(20)
+        sleep(60)
 
         with open(csv_path, "a", newline="") as f:
             writer = csv.writer(f)
