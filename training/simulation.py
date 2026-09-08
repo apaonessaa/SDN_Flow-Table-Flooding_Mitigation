@@ -431,10 +431,18 @@ def kill_replay_traffic(procs, stop_event):
         if proc.poll() is None:
             proc.kill()
 
-def sample_attack_rate(att_npkts, min_anp=5, T_min=5, T_max=1800):
-    duration = rng.uniform(T_min, T_max)
-    anp = max(min_anp, att_npkts / duration)
-    return round(anp, 2)
+def sample_attack_rate(npkts, flow_table_size, min_anp=1):
+    stealth_profiles = {
+        "aggressive": (5, 30),
+        "moderate":   (60, 180),
+        "stealth":    (300, 600),
+    }
+    profile = rng.choice(list(stealth_profiles.keys()))
+    t_min, t_max = stealth_profiles[profile]
+    fill_time = rng.uniform(t_min, t_max)
+    anp = max(min_anp, flow_table_size / fill_time)
+    anp = round(anp, 2)
+    return anp, profile, fill_time
 
 def main() -> None:
     # Topologies
@@ -507,12 +515,12 @@ def main() -> None:
     half_size = int(full_size / 2)
     log_timestamp = int(time())
 
-    df = pd.read_csv(current + "/pcaps/scenarios/manifest.csv")
+    #df = pd.read_csv(current + "/pcaps/scenarios/manifest.csv")
     csv_path = current + "/logs/network_settings.csv"
 
     with open(csv_path, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["topo", "hard_timeout", "idle_timeout", "flow_table_size", "npkts", "anp", "duration"])
+        writer.writerow(["topo", "hard_timeout", "idle_timeout", "flow_table_size", "npkts", "profile", "anp", "att_duration", "fill_time"])
 
     for i in range(len(pcap_prefixes)):
         topo = topos[i%len(topos)]
@@ -526,12 +534,12 @@ def main() -> None:
         margin = rng.randint(0, 10*n_host)
         npkts = flow_table_size + margin
         # att_anp: 1 min - ~10 min
-        df['start'] = pd.to_datetime(df['start'])
-        df['end'] = pd.to_datetime(df['end'])
-        T_min = 60
-        T_max = int((df['end'].iloc[i] - df['start'].iloc[i]).total_seconds() - 30)
-        anp = sample_attack_rate(npkts, T_min=T_min, T_max=T_max)
-
+        #df['start'] = pd.to_datetime(df['start'])
+        #df['end'] = pd.to_datetime(df['end'])
+        #T_min = 60
+        #T_max = int((df['end'].iloc[i] - df['start'].iloc[i]).total_seconds() - 30)
+        anp, profile, fill_time = sample_attack_rate(npkts, flow_table_size)
+        
         # att_duration
         att_duration = -1
         
@@ -723,7 +731,7 @@ def main() -> None:
         
         with open(csv_path, "a", newline="") as f:
             writer = csv.writer(f)
-            writer.writerow([i%len(topos), hard_timeout, idle_timeout, flow_table_size, npkts, anp, att_duration])
+            writer.writerow([i%len(topos), hard_timeout, idle_timeout, flow_table_size, npkts, profile, anp, att_duration, fill_time])
 
         sleep(30)
 
