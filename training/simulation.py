@@ -110,7 +110,7 @@ class CustomTopo2(Topo):
 
 class CustomTopo3(Topo):
     "Custom Topology Network"
-    conn_hosts = ('h1', 'h11')
+    conn_hosts = ('h1', 'h14')
     att_hosts = ('h15', 'h14')
     def build(self):
         info("* Build Topology\n")
@@ -501,28 +501,27 @@ def main() -> None:
     ]
     
     att_wait = None
-    k_factor = 4
+    k_factor = 3
     n_host = 15
     full_size = int(math.factorial(n_host) / math.factorial(n_host-2)) + 1
     half_size = int(full_size / 2)
     log_timestamp = int(time())
 
     df = pd.read_csv(current + "/pcaps/scenarios/manifest.csv")
-    csv_path = current + "/logs/attack_config.csv"
+    csv_path = current + "/logs/network_settings.csv"
 
     with open(csv_path, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["topo", "hard_timeout", "idle_timeout", "flow_table_size", "npkts", "anp", "duration"])
 
     for i in range(len(pcap_prefixes)):
-        info("*** Parameters\n")
         topo = topos[i%len(topos)]
         # hard_timeout: 5 < hard <= 30
         hard_timeout = rng.randint(6, 30)
         # idle_timeout: idle <= hard
-        idle_timeout = rng.randint(1, hard_timeout)
+        idle_timeout = rng.randint(2, hard_timeout)
         # flow_table_size
-        flow_table_size = rng.randint(half_size, 30 * n_host)
+        flow_table_size = rng.randint(half_size, 30*n_host)
         # att_npkts: att_npkts >= flow_table_size
         margin = rng.randint(0, 10*n_host)
         npkts = flow_table_size + margin
@@ -635,7 +634,7 @@ def main() -> None:
             stop_controller(controller)
             subprocess.run(['sudo', 'mn', '-c'], capture_output=True)
 
-        sleep(60)
+        sleep(30)
 
         info("*** CONTROLLER\n")
         controller_envs = {
@@ -690,10 +689,9 @@ def main() -> None:
                     ip = h.IP()
                     pcap_file = f"{pcap_prefixes[i]}traffic_{ip.replace('.', '_')}.pcap"
                     offset = offsets.get(ip, 0.0)
-                    host_duration = max(1, att_duration-offset)
                     t = threading.Thread(
                         target=replay_worker,
-                        args=(h, pcap_file, launch_time, host_duration, offset, procs, stop_event)
+                        args=(h, pcap_file, launch_time, att_duration, offset, procs, stop_event)
                     )
                     threads.append(t)
 
@@ -708,7 +706,9 @@ def main() -> None:
                 t.start()
 
             # Stop threads
-            sleep(att_duration + 5) # watchdog_margin
+            max_offset = max(offsets.values(), default=0.0)
+            for t in threads:
+                t.join(timeout=max_offset+att_duration+10)
             kill_replay_traffic(procs, stop_event)
             for t in threads:
                 t.join(timeout=5)
@@ -721,11 +721,11 @@ def main() -> None:
             stop_controller(controller)
             subprocess.run(['sudo', 'mn', '-c'], capture_output=True)
         
-        sleep(60)
-
         with open(csv_path, "a", newline="") as f:
             writer = csv.writer(f)
             writer.writerow([i%len(topos), hard_timeout, idle_timeout, flow_table_size, npkts, anp, att_duration])
+
+        sleep(30)
 
 if __name__ == '__main__':
     setLogLevel('info')
