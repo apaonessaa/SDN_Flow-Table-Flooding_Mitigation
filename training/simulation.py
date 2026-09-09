@@ -697,7 +697,7 @@ def main() -> None:
                     offset = offsets.get(ip, 0.0)
                     pcap_file = f"{pcap_prefixes[i]}traffic_{ip.replace('.', '_')}.pcap"
                     traffic_duration = att_duration - offset
-                    if traffic_duration > 0
+                    if traffic_duration > 0:
                         t = threading.Thread(
                             target=replay_worker,
                             args=(h, pcap_file, launch_time, traffic_duration, offset, procs, stop_event)
