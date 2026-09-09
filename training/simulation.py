@@ -431,7 +431,7 @@ def kill_replay_traffic(procs, stop_event):
         if proc.poll() is None:
             proc.kill()
 
-def sample_attack_rate(npkts, flow_table_size, min_anp=1):
+def sample_attack_rate(npkts, flow_table_size, min_anp=5):
     stealth_profiles = {
         "aggressive": (5, 30),
         "moderate":   (60, 180),
@@ -440,8 +440,7 @@ def sample_attack_rate(npkts, flow_table_size, min_anp=1):
     profile = rng.choice(list(stealth_profiles.keys()))
     t_min, t_max = stealth_profiles[profile]
     fill_time = rng.uniform(t_min, t_max)
-    anp = max(min_anp, flow_table_size / fill_time)
-    anp = round(anp, 2)
+    anp = max(min_anp, math.ceil(flow_table_size / fill_time))
     return anp, profile, fill_time
 
 def main() -> None:
