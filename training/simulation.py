@@ -524,11 +524,11 @@ def main() -> None:
     for i in range(len(pcap_prefixes)):
         topo = topos[i%len(topos)]
         # hard_timeout: 5 < hard <= 30
-        hard_timeout = 5 #rng.randint(6, 30)
+        hard_timeout = rng.randint(6, 30)
         # idle_timeout: idle <= hard
-        idle_timeout = 3 #rng.randint(2, hard_timeout)
+        idle_timeout = rng.randint(2, hard_timeout)
         # flow_table_size
-        flow_table_size = 10 #rng.randint(half_size, 30*n_host)
+        flow_table_size = rng.randint(half_size, 30*n_host)
         # att_npkts: att_npkts >= flow_table_size
         margin = rng.randint(0, 10*n_host)
         npkts = flow_table_size + margin
