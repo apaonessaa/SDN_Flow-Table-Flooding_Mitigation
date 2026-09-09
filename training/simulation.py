@@ -524,11 +524,11 @@ def main() -> None:
     for i in range(len(pcap_prefixes)):
         topo = topos[i%len(topos)]
         # hard_timeout: 5 < hard <= 30
-        hard_timeout = rng.randint(6, 30)
+        hard_timeout = 5 #rng.randint(6, 30)
         # idle_timeout: idle <= hard
-        idle_timeout = rng.randint(2, hard_timeout)
+        idle_timeout = 3 #rng.randint(2, hard_timeout)
         # flow_table_size
-        flow_table_size = rng.randint(half_size, 30*n_host)
+        flow_table_size = 10 #rng.randint(half_size, 30*n_host)
         # att_npkts: att_npkts >= flow_table_size
         margin = rng.randint(0, 10*n_host)
         npkts = flow_table_size + margin
@@ -696,11 +696,12 @@ def main() -> None:
                     ip = h.IP()
                     offset = offsets.get(ip, 0.0)
                     pcap_file = f"{pcap_prefixes[i]}traffic_{ip.replace('.', '_')}.pcap"
-                    t = threading.Thread(
-                        target=replay_worker,
-                        args=(h, pcap_file, launch_time, -1, offset, procs, stop_event)
-                    )
-                    threads.append(t)
+                    if offset < att_duration:
+                        t = threading.Thread(
+                            target=replay_worker,
+                            args=(h, pcap_file, launch_time, -1, offset, procs, stop_event)
+                        )
+                        threads.append(t)
 
             (src, dst) = topo.conn_hosts
             h_src, h_dst = net.get(src, dst)
