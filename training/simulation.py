@@ -696,13 +696,11 @@ def main() -> None:
                     ip = h.IP()
                     offset = offsets.get(ip, 0.0)
                     pcap_file = f"{pcap_prefixes[i]}traffic_{ip.replace('.', '_')}.pcap"
-                    traffic_duration = att_duration - offset
-                    if traffic_duration > 0:
-                        t = threading.Thread(
-                            target=replay_worker,
-                            args=(h, pcap_file, launch_time, traffic_duration, offset, procs, stop_event)
-                        )
-                        threads.append(t)
+                    t = threading.Thread(
+                        target=replay_worker,
+                        args=(h, pcap_file, launch_time, -1, offset, procs, stop_event)
+                    )
+                    threads.append(t)
 
             (src, dst) = topo.conn_hosts
             h_src, h_dst = net.get(src, dst)
@@ -715,8 +713,10 @@ def main() -> None:
                 t.start()
 
             # Stop threads
+            sleep(att_duration+5)
+            kill_replay_traffic(procs, stop_event)
             for t in threads:
-                t.join()
+                t.join(timeout=5)
             
             info(f"*** END TRAFFIC\n")
 
