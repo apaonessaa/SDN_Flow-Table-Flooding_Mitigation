@@ -23,7 +23,7 @@ current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
 
-TRAINING_SET = current + '/logs/dataset_1788974542.csv'
+TRAINING_SET = current + '/logs/dataset_1789049581.csv'
 MODELS_DIR = parent + '/models'
 
 os.makedirs(MODELS_DIR, exist_ok=True)

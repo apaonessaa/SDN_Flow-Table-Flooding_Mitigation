@@ -90,7 +90,8 @@ class FTFMController(app_manager.RyuApp):
         """
         while True:
             for datapath in list(self.datapaths.values()):
-                self._request_stats(datapath)
+                if datapath.id == self.DPID:
+                    self._request_stats(datapath)
             hub.sleep(self.T)
 
     def _request_stats(self, datapath):
@@ -218,13 +219,14 @@ class FTFMController(app_manager.RyuApp):
         if not isinstance(payload, (bytes, bytearray)):
             payload = b""
 
-        self.feature_ext[dpid].add_pkt_in(
-            payload=payload,
-            src_ip=ip.src,
-            dst_ip=ip.dst,
-            src_mac=src,
-            dst_mac=dst
-        )
+        if dpid == self.DPID:
+            self.feature_ext[dpid].add_pkt_in(
+                payload=payload,
+                src_ip=ip.src,
+                dst_ip=ip.dst,
+                src_mac=src,
+                dst_mac=dst
+            )
 
     """
     Flow Stats Handler
@@ -236,8 +238,7 @@ class FTFMController(app_manager.RyuApp):
         stats = [stat for stat in body if stat.priority == 1]
         if not stats:
             return
-        if dpid == self.DPID:
-            hub.spawn(self._process_stats, dpid, stats) 
+        hub.spawn(self._process_stats, dpid, stats) 
 
     def _process_stats(self, dpid, stats):
         self.logger.debug(f"[GAP] DPID: {dpid:016x}")

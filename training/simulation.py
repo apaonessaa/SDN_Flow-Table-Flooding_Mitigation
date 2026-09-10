@@ -619,7 +619,7 @@ def main() -> None:
                 max_iter=10,
                 max_interval=30,
                 net=net,
-                out_file=f"{current}/logs/ftf_{i}_{log_timestamp}.csv",
+                out_file=f"{current}/logs/ftf_{log_timestamp}.csv",
             )
 
             (src, dst) = topo.conn_hosts

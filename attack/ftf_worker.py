@@ -71,9 +71,12 @@ def main():
     print("# [STAGE 0] T_idle Inference", flush=True)
     hard_timeout, attack_frequency = stage_0(args.dst_ip, args.max_iter, args.max_interval)
 
-    with open(args.out_file, "a", newline="") as f:
+    with open(args.out_file, "a+", newline="") as f:
+        f.seek(0)
+        is_empty = sum(1 for _ in f) == 0
         writer = csv.writer(f)
-        writer.writerow(["npacket", "estimated_hard_timeout", "estimated_idle_timeout"])
+        if is_empty:
+            writer.writerow(["npacket", "estimated_hard_timeout", "estimated_idle_timeout"])
         writer.writerow([args.npacket, hard_timeout, attack_frequency])
         
     print("# [STAGE 1] MAC Presenting", flush=True)
