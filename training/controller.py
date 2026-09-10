@@ -49,6 +49,7 @@ class FTFMController(app_manager.RyuApp):
     IDLE_TIMEOUT = int(os.environ.get('IDLE_TIMEOUT', '10'))
     HARD_TIMEOUT = int(os.environ.get('HARD_TIMEOUT', '20'))
     K_FACTOR = int(os.environ.get('K_FACTOR', '3'))
+    DPID = int(os.environ.get('DPID', '0000000000000001'), 16)
 
     def __init__(self, *args, **kwargs):
         super(FTFMController, self).__init__(*args, **kwargs)
@@ -235,7 +236,8 @@ class FTFMController(app_manager.RyuApp):
         stats = [stat for stat in body if stat.priority == 1]
         if not stats:
             return
-        hub.spawn(self._process_stats, dpid, stats) 
+        if dpid == self.DPID:
+            hub.spawn(self._process_stats, dpid, stats) 
 
     def _process_stats(self, dpid, stats):
         self.logger.debug(f"[GAP] DPID: {dpid:016x}")

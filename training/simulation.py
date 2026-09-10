@@ -30,6 +30,7 @@ class CustomTopo1(Topo):
     "Custom Topology Network"
     conn_hosts = ('h1', 'h11')
     att_hosts = ('h15', 'h14')
+    victim_dpid = 1
     def build(self):
         info("* Build Topology\n")
         # Switch
@@ -70,6 +71,7 @@ class CustomTopo2(Topo):
     "Custom Topology Network"
     conn_hosts = ('h1', 'h11')
     att_hosts = ('h15', 'h14')
+    victim_dpid = 2
     def build(self):
         info("* Build Topology\n")
         # Switch
@@ -112,6 +114,7 @@ class CustomTopo3(Topo):
     "Custom Topology Network"
     conn_hosts = ('h1', 'h14')
     att_hosts = ('h15', 'h14')
+    victim_dpid = 3
     def build(self):
         info("* Build Topology\n")
         # Switch
@@ -156,6 +159,7 @@ class CustomTopo4(Topo):
     "Custom Topology Network"
     conn_hosts = ('h1', 'h12')
     att_hosts = ('h15', 'h2')
+    victim_dpid = 1
     def build(self):
         info("* Build Topology\n")
         # Switch
@@ -202,6 +206,7 @@ class CustomTopo5(Topo):
     "Custom Topology Network"
     conn_hosts = ('h1', 'h13')
     att_hosts = ('h15', 'h10')
+    victim_dpid = 3
     def build(self):
         info("* Build Topology\n")
         # Switch
@@ -248,6 +253,7 @@ class CustomTopo6(Topo):
     "Custom Topology Network"
     conn_hosts = ('h1', 'h13')
     att_hosts = ('h15', 'h4')
+    victim_dpid = 2
     def build(self):
         info("* Build Topology\n")
         # Switch
@@ -296,6 +302,7 @@ class CustomTopo7(Topo):
     "Custom Topology Network"
     conn_hosts = ('h1', 'h13')
     att_hosts = ('h15', 'h4')
+    victim_dpid = 2
     def build(self):
         info("* Build Topology\n")
         # Switch
@@ -515,13 +522,13 @@ def main() -> None:
     log_timestamp = int(time())
 
     #df = pd.read_csv(current + "/pcaps/scenarios/manifest.csv")
-    csv_path = current + "/logs/network_settings.csv"
+    csv_path = current + f"/logs/network_settings_{log_timestamp}.csv"
 
     with open(csv_path, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["topo", "hard_timeout", "idle_timeout", "flow_table_size", "npkts", "profile", "anp", "att_duration", "fill_time"])
 
-    for i in range(len(pcap_prefixes)):
+    for i in range(8):
         topo = topos[i%len(topos)]
         # hard_timeout: 5 < hard <= 30
         hard_timeout = rng.randint(6, 30)
@@ -541,7 +548,7 @@ def main() -> None:
         
         # att_duration
         att_duration = -1
-        
+
         info("*** CONTROLLER\n")
         controller_envs = {
             "GROUP_ID": f"{i}",
@@ -550,7 +557,8 @@ def main() -> None:
             "FLOW_TABLE_SIZE": f"{flow_table_size}",
             "IDLE_TIMEOUT": f"{idle_timeout}",
             "HARD_TIMEOUT": f"{hard_timeout}",
-            "K_FACTOR": f"{k_factor}"
+            "K_FACTOR": f"{k_factor}",
+            "DPID": f"{topo.victim_dpid}"
         }
         controller = start_controller(controller_envs, log_path=f"{current}/logs/controller_{i}_{log_timestamp}.log")
 
@@ -560,14 +568,15 @@ def main() -> None:
         if not wait_for_controller(port=6653, timeout=20):
             controller.terminate()
             raise RuntimeError("Timeout: il controller non si è messo in ascolto sulla porta 6653")
-
+        
         info("*** NETWORK\n")
         try:
             net = Mininet(
                 topo=topo,
                 controller=lambda name: RemoteController(name, ip='127.0.0.1', port=6653),
                 switch=OVSSwitch,
-                autoStaticArp=True)
+                autoStaticArp=True
+            )
             net.start()
 
             info("*** NETWORK CONFIG\n")
@@ -651,7 +660,8 @@ def main() -> None:
             "FLOW_TABLE_SIZE": f"{flow_table_size}",
             "IDLE_TIMEOUT": f"{idle_timeout}",
             "HARD_TIMEOUT": f"{hard_timeout}",
-            "K_FACTOR": f"{k_factor}"
+            "K_FACTOR": f"{k_factor}",
+            "DPID": f"{topo.victim_dpid}"
         }
         controller = start_controller(controller_envs, log_path=f"{current}/logs/controller_{i}_{log_timestamp}.log")
 
@@ -661,14 +671,15 @@ def main() -> None:
         if not wait_for_controller(port=6653, timeout=20):
             controller.terminate()
             raise RuntimeError("Timeout: il controller non si è messo in ascolto sulla porta 6653")
-
+        
         info("*** NETWORK\n")
         try:
             net = Mininet(
                 topo=topo,
                 controller=lambda name: RemoteController(name, ip='127.0.0.1', port=6653),
                 switch=OVSSwitch,
-                autoStaticArp=True)
+                autoStaticArp=True
+            )
             net.start()
 
             info("*** NETWORK CONFIG\n")
