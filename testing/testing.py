@@ -150,7 +150,8 @@ def main() -> None:
         "FLOW_TABLE_SIZE": f"{flow_table_size}",
         "IDLE_TIMEOUT": f"{idle_timeout}",
         "HARD_TIMEOUT": f"{hard_timeout}",
-        "K_FACTOR": f"{k_factor}"
+        "K_FACTOR": f"{k_factor}",
+        "MODEL": "HFBert"
     }
     controller = start_controller(controller_envs, log_path=f"{log_path}/controller_{log_timestamp}.log")
 
@@ -226,12 +227,12 @@ def main() -> None:
         for t in threads:
             t.start()
 
-        sleep(random.randint(10, 30))
+        #sleep(random.randint(10, 30))
         attack.start()
 
         # Stop threads
         attack.join()
-        kill_replay_traffic(procs, stop_event)
+        #kill_replay_traffic(procs, stop_event)
         for t in threads:
             t.join(timeout=5)
 

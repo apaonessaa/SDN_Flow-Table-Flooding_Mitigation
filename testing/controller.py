@@ -32,10 +32,14 @@ root = os.path.dirname(current)
 sys.path.append(root)
 from mitigation.feature_ext import FeatureExt
 
+import joblib
+import numpy as np
+import torch
 from catboost import CatBoostClassifier
 from xgboost import XGBClassifier
+from transformers import BertForSequenceClassification
 
-class SimpleSwitch14(app_manager.RyuApp):
+class FTFMController(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_4.OFP_VERSION]
     REPORT_PATH = os.environ.get('REPORT_PATH', current + '/logs/report.txt')
     FLOW_TABLE_SIZE = int(os.environ.get('FLOW_TABLE_SIZE', '50'))
@@ -43,11 +47,17 @@ class SimpleSwitch14(app_manager.RyuApp):
     HARD_TIMEOUT = int(os.environ.get('HARD_TIMEOUT', '20'))
     K_FACTOR = int(os.environ.get('K_FACTOR', '3'))
     FLOW_TABLE_THRESHOLD = 0.8
-    FTF_DETECTOR = root + '/models/ftf_detector/catboost_model.cbm' #xgboost_model.json
-    MFR_DETECTOR = root + '/models/malicious_fr_detector/catboost_model.cbm'
+    MODEL = os.environ.get('MODEL', 'Catboost')
+
+    CATBOOST_FTF_DETECTOR = root + '/models/ftf_detector/catboost_model.cbm' 
+    CATBOOST_MFR_DETECTOR = root + '/models/malicious_fr_detector/catboost_model.cbm'
+    XGBOOST_FTF_DETECTOR = root + '/models/ftf_detector/xgboost_model.json' 
+    XGBOOST_MFR_DETECTOR = root + '/models/malicious_fr_detector/xgboost_model.json'
+    BERT_FTF_DETECTOR = root + '/models/ftf_detector/hf_bert_model'
+    BERT_MFR_DETECTOR = root + '/models/malicious_fr_detector/hf_bert_model'
 
     def __init__(self, *args, **kwargs):
-        super(SimpleSwitch14, self).__init__(*args, **kwargs)
+        super(FTFMController, self).__init__(*args, **kwargs)
         self.mac_to_port = {}
         self.datapaths = {}
         self.collector = hub.spawn(self._collector)
@@ -55,28 +65,64 @@ class SimpleSwitch14(app_manager.RyuApp):
         self.T = float("{:.2f}".format(min(self.IDLE_TIMEOUT, self.HARD_TIMEOUT) / self.K_FACTOR))
         self.logger.debug(f"[GAP] Intervallo di tempo per la cattura delle features: {self.T}s")
         self.collector = hub.spawn(self._collector)
-        # Catboost
-        self.ftf_detector = CatBoostClassifier()
-        self.mfr_detector = CatBoostClassifier()
-        self.ftf_detector.load_model(self.FTF_DETECTOR)
-        self.ftf_detector.load_model(self.MFR_DETECTOR)
 
-        # XGBoost
-        #self.model = XGBClassifier()
-        #self.model.load_model(self.XGBOOST_PATH)
+        if self.MODEL == "Catboost":
+            self.ftf_detector = CatBoostClassifier()
+            self.mfr_detector = CatBoostClassifier()
+            self.ftf_detector.load_model(self.CATBOOST_FTF_DETECTOR)
+            self.mfr_detector.load_model(self.CATBOOST_MFR_DETECTOR)
+        elif self.MODEL == "XGBoost":
+            self.ftf_detector = XGBClassifier()
+            self.mfr_detector = XGBClassifier()
+            self.ftf_detector.load_model(self.XGBOOST_FTF_DETECTOR)
+            self.mfr_detector.load_model(self.XGBOOST_MFR_DETECTOR)
+        elif self.MODEL == "HFBert":
+            self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            self.ftf_bert = BertForSequenceClassification.from_pretrained(self.BERT_FTF_DETECTOR)
+            self.ftf_bert.to(self.device).eval()
+            self.ftf_bert_discretizer = joblib.load(os.path.join(self.BERT_FTF_DETECTOR, 'discretizer.joblib'))
+            self.ftf_bert_n_bins = int(self.ftf_bert_discretizer.n_bins_[0])
+            self.mfr_bert = BertForSequenceClassification.from_pretrained(self.BERT_MFR_DETECTOR)
+            self.mfr_bert.to(self.device).eval()
+            self.mfr_bert_discretizer = joblib.load(os.path.join(self.BERT_MFR_DETECTOR, 'discretizer.joblib'))
+            self.mfr_bert_n_bins = int(self.mfr_bert_discretizer.n_bins_[0])
+        else:
+            self.ftf_detector = CatBoostClassifier()
+            self.mfr_detector = CatBoostClassifier()
+            self.ftf_detector.load_model(self.CATBOOST_FTF_DETECTOR)
+            self.mfr_detector.load_model(self.CATBOOST_MFR_DETECTOR)
 
         with open(self.REPORT_PATH, "w", newline="") as f:
             f.write(f"""
-            FTF DETECTOR: {self.FTF_DETECTOR}
-            MFR DETECTOR: {self.MFR_DETECTOR}
+            {self.MODEL} FTF DETECTOR & MFR DETECTOR
             
-            T: {self.T}
-            FLOW_TABLE_SIZE: {int(os.environ.get('FLOW_TABLE_SIZE', '50'))}
-            IDLE_TIMEOUT: {int(os.environ.get('IDLE_TIMEOUT', '10'))}
-            HARD_TIMEOUT: {int(os.environ.get('HARD_TIMEOUT', '20'))}
-            K_FACTOR: {int(os.environ.get('K_FACTOR', '3'))}
-            FLOW_TABLE_THRESHOLD: 0.8
+            Configurations:
+            - FLOW_TABLE_SIZE: {int(os.environ.get('FLOW_TABLE_SIZE', '50'))}
+            - FLOW_TABLE_THRESHOLD: 0.8
+            - IDLE_TIMEOUT: {int(os.environ.get('IDLE_TIMEOUT', '10'))}
+            - HARD_TIMEOUT: {int(os.environ.get('HARD_TIMEOUT', '20'))}
+            - K_FACTOR: {int(os.environ.get('K_FACTOR', '3'))}
+            - T: {self.T}
             """)
+
+    def _bert_tokenize(self, discretizer, n_bins, features):
+        """Applica lo stesso discretizer (fit in training) a un singolo
+        vettore di feature e lo trasforma in una sequenza di token id,
+        replicando esattamente _tokenize_features() dello script di training."""
+        X = np.asarray(features, dtype=np.float64).reshape(1, -1)
+        bins = discretizer.transform(X).astype(np.int64)
+        offsets = (np.arange(X.shape[1]) * n_bins).astype(np.int64)
+        return bins + offsets
+
+    def _bert_predict(self, model, discretizer, n_bins, features):
+        """Ritorna la classe predetta (0/1) dal modello BERT per un flow."""
+        input_ids = self._bert_tokenize(discretizer, n_bins, features)
+        input_ids_t = torch.tensor(input_ids, dtype=torch.long, device=self.device)
+        attention_mask = torch.ones_like(input_ids_t)
+        with torch.no_grad():
+            outputs = model(input_ids=input_ids_t, attention_mask=attention_mask)
+        pred = torch.argmax(outputs.logits, dim=-1).item()
+        return pred
 
     def _collector(self):
         """
@@ -271,26 +317,46 @@ class SimpleSwitch14(app_manager.RyuApp):
             c_used, paf, ft_psi, durations_entropy, pkts_entropy, bytes_entropy,
             mean_duration, cvd, mean_pkts, cvp, mean_bytes, cvb
         ]
-        ft_anomaly_detected = self.ftf_detector.predict([ft_features])
 
-        if ft_anomaly_detected:
+        if self.MODEL in ("Catboost", "XGBoost"):
+            ftf_pred = self.ftf_detector.predict([ft_features])
+        else:
+            ftf_pred = self._bert_predict(
+                self.ftf_bert, self.ftf_bert_discretizer, self.ftf_bert_n_bins, ft_features
+            )
+
+        self.logger.debug('[FTF] dpid=%s %s=%s', dpid, self.MODEL, ftf_pred)
+
+        if ftf_pred:
             self.logger.info('[ANOMALY] Detected FTF attack for %s', dpid)
+            with open(self.REPORT_PATH, "a", newline="") as f:
+                f.write(f"""
+                ANOMALY@{dpid}, timestamp {time()}
+                    FT FEATURES: {ft_features}
+                """)
         else:
             return
 
         # Get Flow Rule Features
+        i = 0; n = len(stats)
         for stat in stats:
             duration, packet_count, byte_count, pkt_rate, byte_rate, psi = self.feature_ext[dpid].get_flow_feature(stat)
             fr_features = [
                 duration, packet_count, byte_count, pkt_rate, byte_rate, psi
             ]
-            anomaly_fr_detected = self.ftf_detector.predict([fr_features])
-            if anomaly_fr_detected:
+
+            if self.MODEL in ("Catboost", "XGBoost"):
+                fr_pred = self.mfr_detector.predict([fr_features])
+            else:
+                fr_pred = self._bert_predict(
+                    self.mfr_bert, self.mfr_bert_discretizer, self.mfr_bert_n_bins, fr_features
+                )
+
+            if fr_pred:
                 with open(self.REPORT_PATH, "a", newline="") as f:
                     f.write(f"""
-                    ANOMALY@{dpid}, timestamp {time()}
-                        FT FEATURES: {ft_features}
                         FR FEATURES: {fr_features}
+                        FLOW RULE {i}/{n}: {stat}
                     
                     """)
-                return
+            i+=1
