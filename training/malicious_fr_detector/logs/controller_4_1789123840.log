@@ -1,0 +1,1003 @@
+loading app controller2.py
+loading app ryu.controller.ofp_handler
+instantiating app controller2.py of FTFMController
+[GAP] Intervallo di tempo per la cattura delle features: 3.33s
+instantiating app ryu.controller.ofp_handler of OFPHandler
+BRICK FTFMController
+  CONSUMES EventOFPPacketIn
+  CONSUMES EventOFPStateChange
+  CONSUMES EventOFPFlowStatsReply
+  CONSUMES EventOFPSwitchFeatures
+BRICK ofp_event
+  PROVIDES EventOFPPacketIn TO {'FTFMController': {'main'}}
+  PROVIDES EventOFPStateChange TO {'FTFMController': {'main', 'dead'}}
+  PROVIDES EventOFPFlowStatsReply TO {'FTFMController': {'main'}}
+  PROVIDES EventOFPSwitchFeatures TO {'FTFMController': {'config'}}
+  CONSUMES EventOFPEchoReply
+  CONSUMES EventOFPEchoRequest
+  CONSUMES EventOFPErrorMsg
+  CONSUMES EventOFPHello
+  CONSUMES EventOFPPortDescStatsReply
+  CONSUMES EventOFPPortStatus
+  CONSUMES EventOFPSwitchFeatures
+connected socket:<eventlet.greenio.base.GreenSocket object at 0x7f1e325267f0> address:('127.0.0.1', 56276)
+EVENT ofp_event->FTFMController EventOFPStateChange
+connected socket:<eventlet.greenio.base.GreenSocket object at 0x7f1e32526ac0> address:('127.0.0.1', 56290)
+EVENT ofp_event->FTFMController EventOFPStateChange
+connected socket:<eventlet.greenio.base.GreenSocket object at 0x7f1e32526fa0> address:('127.0.0.1', 39638)
+connected socket:<eventlet.greenio.base.GreenSocket object at 0x7f1e32526be0> address:('127.0.0.1', 39652)
+connected socket:<eventlet.greenio.base.GreenSocket object at 0x7f1e324bf670> address:('127.0.0.1', 39662)
+connected socket:<eventlet.greenio.base.GreenSocket object at 0x7f1e324bfd90> address:('127.0.0.1', 39664)
+hello ev <ryu.controller.ofp_event.EventOFPHello object at 0x7f1e324cc7f0>
+move onto config mode
+hello ev <ryu.controller.ofp_event.EventOFPHello object at 0x7f1e32526970>
+move onto config mode
+hello ev <ryu.controller.ofp_event.EventOFPHello object at 0x7f1e32526c40>
+move onto config mode
+hello ev <ryu.controller.ofp_event.EventOFPHello object at 0x7f1e324cc430>
+move onto config mode
+EVENT ofp_event->FTFMController EventOFPSwitchFeatures
+switch features ev version=0x5,msg_type=0x6,msg_len=0x20,xid=0x554e31ab,OFPSwitchFeatures(auxiliary_id=0,capabilities=591,datapath_id=1,n_buffers=0,n_tables=254)
+EVENT ofp_event->FTFMController EventOFPSwitchFeatures
+switch features ev version=0x5,msg_type=0x6,msg_len=0x20,xid=0xec4419fb,OFPSwitchFeatures(auxiliary_id=0,capabilities=591,datapath_id=4,n_buffers=0,n_tables=254)
+EVENT ofp_event->FTFMController EventOFPSwitchFeatures
+switch features ev version=0x5,msg_type=0x6,msg_len=0x20,xid=0xbd40c40b,OFPSwitchFeatures(auxiliary_id=0,capabilities=591,datapath_id=3,n_buffers=0,n_tables=254)
+move onto main mode
+EVENT ofp_event->FTFMController EventOFPStateChange
+EVENT ofp_event->FTFMController EventOFPSwitchFeatures
+switch features ev version=0x5,msg_type=0x6,msg_len=0x20,xid=0x55ab8bc1,OFPSwitchFeatures(auxiliary_id=0,capabilities=591,datapath_id=2,n_buffers=0,n_tables=254)
+Switch registrato: 0000000000000001
+move onto main mode
+EVENT ofp_event->FTFMController EventOFPStateChange
+Switch registrato: 0000000000000004
+move onto main mode
+EVENT ofp_event->FTFMController EventOFPStateChange
+Switch registrato: 0000000000000003
+move onto main mode
+EVENT ofp_event->FTFMController EventOFPStateChange
+Switch registrato: 0000000000000002
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 9e:b1:82:56:57:40 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 9e:b1:82:56:57:40 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 66:6a:65:5a:39:73 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 62:5e:63:3f:87:cd 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:06 33:33:00:00:00:16 4
+packet in 2 00:00:00:00:00:06 33:33:00:00:00:02 4
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:06 33:33:00:00:00:16 1
+packet in 1 00:00:00:00:00:06 33:33:00:00:00:16 1
+packet in 1 00:00:00:00:00:06 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:06 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:06 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:06 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 33:33:00:00:00:16 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:04 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 66:27:c4:eb:10:ba 33:33:00:00:00:16 1
+packet in 2 9e:b1:82:56:57:40 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:04 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 9e:b1:82:56:57:40 33:33:00:00:00:fb 1
+packet in 3 66:27:c4:eb:10:ba 33:33:00:00:00:16 1
+packet in 2 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:04 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+packet in 4 66:27:c4:eb:10:ba 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 62:5e:63:3f:87:cd 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:09 33:33:00:00:00:16 3
+packet in 3 00:00:00:00:00:09 33:33:00:00:00:02 3
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:09 33:33:00:00:00:16 1
+packet in 4 00:00:00:00:00:09 33:33:00:00:00:02 1
+packet in 2 00:00:00:00:00:09 33:33:00:00:00:16 2
+packet in 2 00:00:00:00:00:09 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:09 33:33:00:00:00:16 1
+packet in 1 00:00:00:00:00:09 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:12 33:33:00:00:00:16 2
+packet in 1 00:00:00:00:00:02 33:33:00:00:00:16 3
+packet in 1 00:00:00:00:00:02 33:33:00:00:00:02 3
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 ee:b2:87:d2:d1:c5 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:02 33:33:00:00:00:16 1
+packet in 2 00:00:00:00:00:02 33:33:00:00:00:02 1
+packet in 3 00:00:00:00:00:12 33:33:00:00:00:16 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 ee:b2:87:d2:d1:c5 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:02 33:33:00:00:00:16 1
+packet in 3 00:00:00:00:00:02 33:33:00:00:00:02 1
+packet in 2 00:00:00:00:00:12 33:33:00:00:00:16 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 66:6a:65:5a:39:73 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:02 33:33:00:00:00:16 1
+packet in 4 00:00:00:00:00:02 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:12 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:10 33:33:00:00:00:16 4
+packet in 3 00:00:00:00:00:11 33:33:00:00:00:02 5
+packet in 3 00:00:00:00:00:11 33:33:00:00:00:16 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:10 33:33:00:00:00:16 1
+packet in 4 00:00:00:00:00:11 33:33:00:00:00:02 1
+packet in 4 00:00:00:00:00:11 33:33:00:00:00:16 1
+packet in 2 00:00:00:00:00:10 33:33:00:00:00:16 2
+packet in 2 00:00:00:00:00:11 33:33:00:00:00:02 2
+packet in 2 00:00:00:00:00:11 33:33:00:00:00:16 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+packet in 1 00:00:00:00:00:10 33:33:00:00:00:16 1
+packet in 1 00:00:00:00:00:11 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:11 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 42:1b:5d:ba:15:d6 33:33:00:00:00:16 2
+packet in 4 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 42:1b:5d:ba:15:d6 33:33:00:00:00:16 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 42:1b:5d:ba:15:d6 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 9e:b1:82:56:57:40 33:33:00:00:00:fb 2
+packet in 4 00:00:00:00:00:14 33:33:00:00:00:16 4
+packet in 4 00:00:00:00:00:13 33:33:00:00:00:02 3
+packet in 4 00:00:00:00:00:14 33:33:00:00:00:02 4
+packet in 4 00:00:00:00:00:13 33:33:00:00:00:16 3
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:01 00:00:00:00:00:13 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 9e:b1:82:56:57:40 33:33:00:00:00:fb 1
+packet in 3 00:00:00:00:00:11 33:33:00:00:00:16 5
+packet in 3 00:00:00:00:00:14 33:33:00:00:00:16 2
+packet in 3 00:00:00:00:00:13 33:33:00:00:00:02 2
+packet in 3 00:00:00:00:00:14 33:33:00:00:00:02 2
+packet in 3 00:00:00:00:00:13 33:33:00:00:00:16 2
+packet in 3 00:00:00:00:00:09 33:33:00:00:00:16 3
+packet in 4 62:5e:63:3f:87:cd 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+packet in 2 00:00:00:00:00:05 33:33:00:00:00:16 3
+packet in 2 00:00:00:00:00:01 00:00:00:00:00:13 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:11 33:33:00:00:00:16 2
+packet in 2 00:00:00:00:00:14 33:33:00:00:00:16 2
+packet in 2 00:00:00:00:00:13 33:33:00:00:00:02 2
+packet in 2 00:00:00:00:00:14 33:33:00:00:00:02 2
+packet in 2 00:00:00:00:00:13 33:33:00:00:00:16 2
+packet in 2 00:00:00:00:00:09 33:33:00:00:00:16 2
+packet in 4 00:00:00:00:00:11 33:33:00:00:00:16 1
+packet in 4 00:00:00:00:00:09 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:05 33:33:00:00:00:16 1
+packet in 3 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 2
+packet in 3 00:00:00:00:00:05 33:33:00:00:00:16 1
+packet in 3 00:00:00:00:00:01 00:00:00:00:00:13 1
+packet in 3 ee:b2:87:d2:d1:c5 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:11 33:33:00:00:00:16 1
+packet in 1 00:00:00:00:00:14 33:33:00:00:00:16 1
+packet in 1 00:00:00:00:00:13 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:14 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:13 33:33:00:00:00:16 1
+packet in 1 00:00:00:00:00:03 33:33:00:00:00:16 4
+packet in 1 00:00:00:00:00:09 33:33:00:00:00:16 1
+packet in 2 9e:b1:82:56:57:40 33:33:00:00:00:16 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:05 33:33:00:00:00:16 1
+packet in 4 00:00:00:00:00:01 00:00:00:00:00:13 1
+packet in 4 ee:b2:87:d2:d1:c5 33:33:00:00:00:fb 1
+packet in 2 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 9e:b1:82:56:57:40 33:33:00:00:00:16 1
+packet in 4 00:00:00:00:00:14 33:33:00:00:00:16 4
+packet in 2 00:00:00:00:00:03 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:13 00:00:00:00:00:01 3
+packet in 1 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:14 33:33:00:00:00:16 2
+packet in 3 00:00:00:00:00:03 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:13 00:00:00:00:00:01 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:03 33:33:00:00:00:16 1
+packet in 2 00:00:00:00:00:14 33:33:00:00:00:16 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:13 00:00:00:00:00:01 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:14 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:13 00:00:00:00:00:01 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 62:5e:63:3f:87:cd 33:33:00:00:00:16 1
+packet in 3 42:1b:5d:ba:15:d6 33:33:00:00:00:16 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 42:1b:5d:ba:15:d6 33:33:00:00:00:16 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 42:1b:5d:ba:15:d6 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 9e:b1:82:56:57:40 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 9e:b1:82:56:57:40 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 ee:b2:87:d2:d1:c5 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 ee:b2:87:d2:d1:c5 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 62:5e:63:3f:87:cd 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:07 33:33:00:00:00:16 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:07 33:33:00:00:00:16 1
+packet in 3 00:00:00:00:00:07 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:07 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 9e:b1:82:56:57:40 33:33:00:00:00:16 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 9e:b1:82:56:57:40 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:06 33:33:00:00:00:16 4
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:06 33:33:00:00:00:16 1
+packet in 1 00:00:00:00:00:06 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:06 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 9e:b1:82:56:57:40 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 9e:b1:82:56:57:40 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 62:5e:63:3f:87:cd 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:02 33:33:00:00:00:16 3
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:02 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:02 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:02 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 9e:b1:82:56:57:40 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 9e:b1:82:56:57:40 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 62:5e:63:3f:87:cd 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:13 33:33:00:00:00:16 3
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:13 33:33:00:00:00:16 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:13 33:33:00:00:00:16 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:13 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 66:6a:65:5a:39:73 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 ee:b2:87:d2:d1:c5 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 ee:b2:87:d2:d1:c5 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 9e:b1:82:56:57:40 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 9e:b1:82:56:57:40 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 62:5e:63:3f:87:cd 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 66:6a:65:5a:39:73 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 ee:b2:87:d2:d1:c5 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 ee:b2:87:d2:d1:c5 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 66:6a:65:5a:39:73 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 9e:b1:82:56:57:40 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 9e:b1:82:56:57:40 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 62:5e:63:3f:87:cd 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 66:6a:65:5a:39:73 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:03 33:33:00:00:00:02 4
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:05 33:33:00:00:00:02 3
+packet in 3 00:00:00:00:00:10 33:33:00:00:00:02 4
+packet in 3 ee:b2:87:d2:d1:c5 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:03 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:05 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:05 33:33:00:00:00:02 1
+packet in 2 00:00:00:00:00:10 33:33:00:00:00:02 2
+packet in 2 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+packet in 4 00:00:00:00:00:10 33:33:00:00:00:02 1
+packet in 4 ee:b2:87:d2:d1:c5 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:03 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:10 33:33:00:00:00:02 1
+packet in 3 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+packet in 4 00:00:00:00:00:05 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:03 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 66:27:c4:eb:10:ba 33:33:00:00:00:02 1
+packet in 2 00:00:00:00:00:08 33:33:00:00:00:02 6
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 66:27:c4:eb:10:ba 33:33:00:00:00:02 1
+packet in 3 00:00:00:00:00:08 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+[GAP] DPID: 0000000000000003
+[GAP] >> Duration: 3.2560000000000002, Packet count: 0, Byte count: 0, Packet Rate: 0.0, Byte Rate: 0.0, PSI: 0.0
+[GAP] >> Duration: 3.211, Packet count: 0, Byte count: 0, Packet Rate: 0.0, Byte Rate: 0.0, PSI: 0.0
+[GAP] DPID: 0000000000000003
+[GAP] >> Duration: 3.2560000000000002, Packet count: 0, Byte count: 0, Packet Rate: 0.0, Byte Rate: 0.0, PSI: 0.0
+[GAP] >> Duration: 3.211, Packet count: 0, Byte count: 0, Packet Rate: 0.0, Byte Rate: 0.0, PSI: 0.0
+packet in 1 00:00:00:00:00:08 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 66:27:c4:eb:10:ba 33:33:00:00:00:02 1
+packet in 4 00:00:00:00:00:08 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 ee:b2:87:d2:d1:c5 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 ee:b2:87:d2:d1:c5 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:02 33:33:00:00:00:02 3
+packet in 1 00:00:00:00:00:01 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:09 33:33:00:00:00:02 3
+packet in 3 42:1b:5d:ba:15:d6 33:33:00:00:00:02 2
+packet in 3 00:00:00:00:00:15 33:33:00:00:00:02 6
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:02 33:33:00:00:00:02 1
+packet in 2 00:00:00:00:00:01 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:09 33:33:00:00:00:02 2
+packet in 2 42:1b:5d:ba:15:d6 33:33:00:00:00:02 2
+packet in 2 00:00:00:00:00:15 33:33:00:00:00:02 2
+packet in 4 00:00:00:00:00:09 33:33:00:00:00:02 1
+packet in 4 00:00:00:00:00:15 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:01 33:33:00:00:00:02 1
+packet in 3 00:00:00:00:00:02 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:09 33:33:00:00:00:02 1
+packet in 1 42:1b:5d:ba:15:d6 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:15 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:01 33:33:00:00:00:02 1
+packet in 4 00:00:00:00:00:02 33:33:00:00:00:02 1
+packet in 3 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 9e:b1:82:56:57:40 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 9e:b1:82:56:57:40 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 62:5e:63:3f:87:cd 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 33:33:00:00:00:02 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:12 33:33:00:00:00:02 2
+packet in 4 00:00:00:00:00:14 33:33:00:00:00:02 4
+packet in 4 00:00:00:00:00:13 33:33:00:00:00:02 3
+packet in 2 9e:b1:82:56:57:40 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:04 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 9e:b1:82:56:57:40 33:33:00:00:00:02 1
+packet in 3 00:00:00:00:00:12 33:33:00:00:00:02 2
+packet in 3 00:00:00:00:00:14 33:33:00:00:00:02 2
+packet in 3 00:00:00:00:00:13 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:04 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:12 33:33:00:00:00:02 2
+packet in 2 00:00:00:00:00:14 33:33:00:00:00:02 2
+packet in 2 00:00:00:00:00:13 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:04 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:12 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:14 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:13 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:11 33:33:00:00:00:02 5
+packet in 4 62:5e:63:3f:87:cd 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:06 33:33:00:00:00:02 4
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:11 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:06 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:06 33:33:00:00:00:02 1
+packet in 2 00:00:00:00:00:11 33:33:00:00:00:02 2
+packet in 2 00:00:00:00:00:07 33:33:00:00:00:02 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:06 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:11 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:07 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:07 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:07 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 66:6a:65:5a:39:73 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 ee:b2:87:d2:d1:c5 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 ee:b2:87:d2:d1:c5 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 9e:b1:82:56:57:40 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 9e:b1:82:56:57:40 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 62:5e:63:3f:87:cd 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000003
+[GAP] >> Duration: 6.587, Packet count: 0, Byte count: 0, Packet Rate: 0.0, Byte Rate: 0.0, PSI: 0.0
+[GAP] >> Duration: 6.542, Packet count: 0, Byte count: 0, Packet Rate: 0.0, Byte Rate: 0.0, PSI: 0.0
+[GAP] DPID: 0000000000000003
+[GAP] >> Duration: 6.587, Packet count: 0, Byte count: 0, Packet Rate: 0.0, Byte Rate: 0.0, PSI: 0.0
+[GAP] >> Duration: 6.542, Packet count: 0, Byte count: 0, Packet Rate: 0.0, Byte Rate: 0.0, PSI: 0.0
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 66:6a:65:5a:39:73 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:03 33:33:00:00:00:02 4
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:03 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:03 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:03 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000003
+[GAP] >> Duration: 9.919, Packet count: 0, Byte count: 0, Packet Rate: 0.0, Byte Rate: 0.0, PSI: 0.0
+[GAP] >> Duration: 9.874, Packet count: 0, Byte count: 0, Packet Rate: 0.0, Byte Rate: 0.0, PSI: 0.0
+[GAP] DPID: 0000000000000003
+[GAP] >> Duration: 9.919, Packet count: 0, Byte count: 0, Packet Rate: 0.0, Byte Rate: 0.0, PSI: 0.0
+[GAP] >> Duration: 9.874, Packet count: 0, Byte count: 0, Packet Rate: 0.0, Byte Rate: 0.0, PSI: 0.0
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:10 33:33:00:00:00:02 4
+packet in 3 00:00:00:00:00:09 33:33:00:00:00:02 3
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:10 33:33:00:00:00:02 2
+packet in 2 00:00:00:00:00:09 33:33:00:00:00:02 2
+packet in 4 00:00:00:00:00:10 33:33:00:00:00:02 1
+packet in 4 00:00:00:00:00:09 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:10 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:09 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 ee:b2:87:d2:d1:c5 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 ee:b2:87:d2:d1:c5 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:14 33:33:00:00:00:02 4
+packet in 1 00:00:00:00:00:02 33:33:00:00:00:02 3
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:02 33:33:00:00:00:02 1
+packet in 3 00:00:00:00:00:14 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:02 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:14 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:02 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:14 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:13 33:33:00:00:00:02 3
+packet in 2 00:00:00:00:00:05 33:33:00:00:00:02 3
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:13 33:33:00:00:00:02 2
+packet in 3 00:00:00:00:00:05 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:05 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:05 33:33:00:00:00:02 1
+packet in 2 00:00:00:00:00:13 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:13 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 33:33:00:00:00:02 5
+packet in 4 00:00:00:00:00:12 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 42:1b:5d:ba:15:d6 33:33:00:00:00:02 2
+packet in 2 66:27:c4:eb:10:ba 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:12 33:33:00:00:00:02 2
+packet in 2 00:00:00:00:00:04 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 66:27:c4:eb:10:ba 33:33:00:00:00:02 1
+packet in 2 42:1b:5d:ba:15:d6 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:04 33:33:00:00:00:02 1
+packet in 2 00:00:00:00:00:12 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 66:27:c4:eb:10:ba 33:33:00:00:00:02 1
+packet in 1 42:1b:5d:ba:15:d6 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:12 33:33:00:00:00:02 1
+packet in 4 00:00:00:00:00:04 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 9e:b1:82:56:57:40 33:33:00:00:00:02 2
+packet in 2 00:00:00:00:00:08 33:33:00:00:00:02 6
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 9e:b1:82:56:57:40 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:08 33:33:00:00:00:02 1
+packet in 3 00:00:00:00:00:08 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:08 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:15 33:33:00:00:00:02 6
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:15 33:33:00:00:00:02 2
+packet in 4 00:00:00:00:00:15 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:15 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:11 33:33:00:00:00:02 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:11 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:11 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:11 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 62:5e:63:3f:87:cd 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:01 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:07 33:33:00:00:00:02 5
+packet in 2 00:00:00:00:00:06 33:33:00:00:00:02 4
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:01 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:07 33:33:00:00:00:02 1
+packet in 3 00:00:00:00:00:06 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:07 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:06 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:01 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:07 33:33:00:00:00:02 1
+packet in 4 00:00:00:00:00:06 33:33:00:00:00:02 1
+packet in 4 00:00:00:00:00:01 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 66:6a:65:5a:39:73 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 ee:b2:87:d2:d1:c5 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 ee:b2:87:d2:d1:c5 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 9e:b1:82:56:57:40 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 9e:b1:82:56:57:40 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 62:5e:63:3f:87:cd 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 66:6a:65:5a:39:73 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:03 33:33:00:00:00:02 4
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:03 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:03 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:03 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:09 33:33:00:00:00:02 3
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:09 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:09 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:09 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:15 00:00:00:00:00:10 6
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:10 00:00:00:00:00:15 4
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:02 33:33:00:00:00:02 3
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 ee:b2:87:d2:d1:c5 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:02 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 ee:b2:87:d2:d1:c5 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:02 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:02 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:14 33:33:00:00:00:02 4
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:14 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:14 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:14 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:10 33:33:00:00:00:02 4
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:10 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:10 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:10 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000003
+[GAP] >> Duration: 1.658, Packet count: 1, Byte count: 98, Packet Rate: 0.6031363088057902, Byte Rate: 59.10735826296743, PSI: 0.0
+[GAP] >> Duration: 1.655, Packet count: 1, Byte count: 98, Packet Rate: 0.6042296072507553, Byte Rate: 59.21450151057402, PSI: 0.0
+[GAP] DPID: 0000000000000003
+[GAP] >> Duration: 1.658, Packet count: 1, Byte count: 98, Packet Rate: 0.6031363088057902, Byte Rate: 59.10735826296743, PSI: 0.0
+[GAP] >> Duration: 1.655, Packet count: 1, Byte count: 98, Packet Rate: 0.6042296072507553, Byte Rate: 59.21450151057402, PSI: 0.0
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 33:33:00:00:00:02 5
+packet in 4 00:00:00:00:00:12 33:33:00:00:00:02 2
+packet in 4 00:00:00:00:00:13 33:33:00:00:00:02 3
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:12 33:33:00:00:00:02 2
+packet in 3 00:00:00:00:00:13 33:33:00:00:00:02 2
+packet in 2 00:00:00:00:00:04 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:12 33:33:00:00:00:02 2
+packet in 2 00:00:00:00:00:13 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:04 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:12 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:13 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:04 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 42:1b:5d:ba:15:d6 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 42:1b:5d:ba:15:d6 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 42:1b:5d:ba:15:d6 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 9e:b1:82:56:57:40 33:33:00:00:00:02 2
+packet in 2 00:00:00:00:00:05 33:33:00:00:00:02 3
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:05 33:33:00:00:00:02 1
+packet in 1 9e:b1:82:56:57:40 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:05 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:05 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 66:27:c4:eb:10:ba 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 66:27:c4:eb:10:ba 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 66:27:c4:eb:10:ba 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 66:6a:65:5a:39:73 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 66:27:c4:eb:10:ba 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000003
+[GAP] >> Duration: 4.99, Packet count: 4, Byte count: 392, Packet Rate: 0.8016032064128256, Byte Rate: 78.55711422845691, PSI: 0.0
+[GAP] >> Duration: 4.987, Packet count: 4, Byte count: 392, Packet Rate: 0.8020854220974534, Byte Rate: 78.60437136555043, PSI: 0.0
+[GAP] DPID: 0000000000000003
+[GAP] >> Duration: 4.99, Packet count: 4, Byte count: 392, Packet Rate: 0.8016032064128256, Byte Rate: 78.55711422845691, PSI: 0.0
+[GAP] >> Duration: 4.987, Packet count: 4, Byte count: 392, Packet Rate: 0.8020854220974534, Byte Rate: 78.60437136555043, PSI: 0.0
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 ee:b2:87:d2:d1:c5 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 ee:b2:87:d2:d1:c5 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 42:1b:5d:ba:15:d6 33:33:00:00:00:fb 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:11 33:33:00:00:00:02 5
+packet in 3 00:00:00:00:00:15 33:33:00:00:00:02 6
+packet in 4 62:5e:63:3f:87:cd 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:08 33:33:00:00:00:02 6
+packet in 2 00:00:00:00:00:07 33:33:00:00:00:02 5
+packet in 2 00:00:00:00:00:06 33:33:00:00:00:02 4
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 00:00:00:00:00:11 33:33:00:00:00:02 2
+packet in 2 00:00:00:00:00:15 33:33:00:00:00:02 2
+packet in 4 00:00:00:00:00:11 33:33:00:00:00:02 1
+packet in 4 00:00:00:00:00:15 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 3 00:00:00:00:00:08 33:33:00:00:00:02 1
+packet in 3 00:00:00:00:00:07 33:33:00:00:00:02 1
+packet in 3 00:00:00:00:00:06 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:08 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:07 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:06 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:11 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:15 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 4 00:00:00:00:00:08 33:33:00:00:00:02 1
+packet in 4 00:00:00:00:00:07 33:33:00:00:00:02 1
+packet in 4 00:00:00:00:00:06 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 2 9e:b1:82:56:57:40 33:33:00:00:00:fb 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 9e:b1:82:56:57:40 33:33:00:00:00:fb 1
+Keyboard Interrupt received. Closing RYU application manager...

@@ -4,6 +4,7 @@ import threading
 import subprocess
 import socket
 import math
+import random
 from time import time, sleep
 from mininet.net import Mininet
 from mininet.node import RemoteController, OVSSwitch, Host
@@ -14,12 +15,13 @@ from mininet.log import setLogLevel, info
 import sys
 import os
 current = os.path.dirname(os.path.realpath(__file__))
-parent = os.path.dirname(current)
-sys.path.append(parent)
+root = os.path.dirname(current)
+sys.path.append(root)
+
 
 from attack.ftf_attack import FTFAttack
 
-SET_FT_SIZE_PATH = parent + "/config/set_ft_size.sh"
+SET_FT_SIZE_PATH = root + "/config/set_ft_size.sh"
 
 class CustomTopo(Topo):
     "Custom Topology Network"
@@ -133,20 +135,18 @@ def kill_replay_traffic(procs, stop_event):
 def main() -> None:
     pcap_prefix = current + "/pcaps/traffic"
     topo = CustomTopo()
-    flow_table_size = 10
-    idle_timeout = 10
-    hard_timeout = 20
-    k_factor = 3
-    npkts = 20
-    anp = 5
-    att_wait = None
-    att_duration = 250
+    flow_table_size = 100
+    idle_timeout = 5
+    hard_timeout = 10
+    k_factor = 4
+    npkts = 120
+    anp = 10
     log_path = current + "/logs"
     log_timestamp = int(time())
 
     info("*** CONTROLLER\n")
     controller_envs = {
-        "DATASET_PATH": f"{log_path}/dataset_{log_timestamp}.csv",
+        "REPORT_PATH": f"{log_path}/report_{log_timestamp}.txt",
         "FLOW_TABLE_SIZE": f"{flow_table_size}",
         "IDLE_TIMEOUT": f"{idle_timeout}",
         "HARD_TIMEOUT": f"{hard_timeout}",
@@ -184,6 +184,8 @@ def main() -> None:
         original_capture_duration = metadata["original_capture_duration"]
         packet_counts = metadata["packet_counts"]
 
+        info(f"Traffic packet count: {packet_counts}\n")
+
         launch_time = time() + 1.0
         procs = {}
         stop_event = threading.Event()
@@ -197,7 +199,7 @@ def main() -> None:
                 offset = offsets.get(ip, 0.0)
                 t = threading.Thread(
                     target=replay_worker,
-                    args=(h, pcap_file, launch_time, att_duration, offset, procs, stop_event)
+                    args=(h, pcap_file, launch_time, -1, offset, procs, stop_event)
                 )
                 threads.append(t)
 
@@ -221,15 +223,17 @@ def main() -> None:
         # Start threads
         t0 = time()
 
-        #attack.start()
         for t in threads:
             t.start()
 
+        sleep(random.randint(10, 30))
+        attack.start()
+
         # Stop threads
-        #attack.join()
-        #kill_replay_traffic(procs, stop_event)
+        attack.join()
+        kill_replay_traffic(procs, stop_event)
         for t in threads:
-            t.join() #t.join(timeout=5)
+            t.join(timeout=5)
 
         att_duration = math.ceil(time() - t0)
         info(f"*** END TRAFFIC: Session duration {att_duration}\n")

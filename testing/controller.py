@@ -21,15 +21,15 @@ from ryu.ofproto import ofproto_v1_4
 from ryu.lib.packet import packet, ethernet, ether_types, ipv4
 from ryu.lib import hub
 
+from time import time
 from collections import defaultdict 
-import csv
 
 # Modules loader
 import sys
 import os
 current = os.path.dirname(os.path.realpath(__file__))
-parent = os.path.dirname(current)
-sys.path.append(parent)
+root = os.path.dirname(current)
+sys.path.append(root)
 from mitigation.feature_ext import FeatureExt
 
 from catboost import CatBoostClassifier
@@ -37,22 +37,14 @@ from xgboost import XGBClassifier
 
 class SimpleSwitch14(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_4.OFP_VERSION]
-    DATASET_COLUMNS = [
-        "payload_entropy_mean", "payload_entropy_cv", "payload_size_entropy",
-        "src_ip_entropy", "dst_ip_entropy", "src_mac_entropy", "dst_mac_entropy",
-        "c_used", "paf", "ft_psi", "durations_entropy", "pkts_entropy", "bytes_entropy",
-        "mean_duration", "cvd", "mean_pkts", "cvp", "mean_bytes", "cvb", 
-        "label"
-    ]
-    DATASET_PATH = os.environ.get('DATASET_PATH', '/tmp/dataset.csv')
+    REPORT_PATH = os.environ.get('REPORT_PATH', current + '/logs/report.txt')
     FLOW_TABLE_SIZE = int(os.environ.get('FLOW_TABLE_SIZE', '50'))
     IDLE_TIMEOUT = int(os.environ.get('IDLE_TIMEOUT', '10'))
     HARD_TIMEOUT = int(os.environ.get('HARD_TIMEOUT', '20'))
     K_FACTOR = int(os.environ.get('K_FACTOR', '3'))
     FLOW_TABLE_THRESHOLD = 0.8
-    LABEL = 1
-    CATBOOST_PATH = parent + '/models/catboost_model.cbm'
-    XGBOOST_PATH = parent + '/models/xgboost_model.json'
+    FTF_DETECTOR = root + '/models/ftf_detector/catboost_model.cbm' #xgboost_model.json
+    MFR_DETECTOR = root + '/models/malicious_fr_detector/catboost_model.cbm'
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch14, self).__init__(*args, **kwargs)
@@ -60,24 +52,31 @@ class SimpleSwitch14(app_manager.RyuApp):
         self.datapaths = {}
         self.collector = hub.spawn(self._collector)
         self.feature_ext = defaultdict(FeatureExt)
-        self._init_csv()
         self.T = float("{:.2f}".format(min(self.IDLE_TIMEOUT, self.HARD_TIMEOUT) / self.K_FACTOR))
         self.logger.debug(f"[GAP] Intervallo di tempo per la cattura delle features: {self.T}s")
         self.collector = hub.spawn(self._collector)
         # Catboost
-        self.model = CatBoostClassifier()
-        self.model.load_model(self.CATBOOST_PATH)
+        self.ftf_detector = CatBoostClassifier()
+        self.mfr_detector = CatBoostClassifier()
+        self.ftf_detector.load_model(self.FTF_DETECTOR)
+        self.ftf_detector.load_model(self.MFR_DETECTOR)
+
         # XGBoost
         #self.model = XGBClassifier()
         #self.model.load_model(self.XGBOOST_PATH)
 
-    def _init_csv(self):
-        write_header = not os.path.exists(self.DATASET_PATH)
-        self._csv_file = open(self.DATASET_PATH, "w", newline="")
-        self._csv_writer = csv.writer(self._csv_file)
-        if write_header:
-            self._csv_writer.writerow(self.DATASET_COLUMNS)
-            self._csv_file.flush()
+        with open(self.REPORT_PATH, "w", newline="") as f:
+            f.write(f"""
+            FTF DETECTOR: {self.FTF_DETECTOR}
+            MFR DETECTOR: {self.MFR_DETECTOR}
+            
+            T: {self.T}
+            FLOW_TABLE_SIZE: {int(os.environ.get('FLOW_TABLE_SIZE', '50'))}
+            IDLE_TIMEOUT: {int(os.environ.get('IDLE_TIMEOUT', '10'))}
+            HARD_TIMEOUT: {int(os.environ.get('HARD_TIMEOUT', '20'))}
+            K_FACTOR: {int(os.environ.get('K_FACTOR', '3'))}
+            FLOW_TABLE_THRESHOLD: 0.8
+            """)
 
     def _collector(self):
         """
@@ -248,7 +247,7 @@ class SimpleSwitch14(app_manager.RyuApp):
         # Check occupancy
         occupancy = len(stats) / float(self.FLOW_TABLE_SIZE)
         if occupancy < self.FLOW_TABLE_THRESHOLD:
-            return
+            pass
         hub.spawn(self._process_stats, dpid, stats) 
 
     def _process_stats(self, dpid, stats):
@@ -258,12 +257,6 @@ class SimpleSwitch14(app_manager.RyuApp):
         ((payload_entropy_mean, payload_entropy_cv), payload_size_entropy,
          src_ip_entropy, dst_ip_entropy,
          src_mac_entropy, dst_mac_entropy) = self.feature_ext[dpid].get_pkt_in_features()
-        self.logger.debug(
-            f"[GAP] > Payload Entropy Mean: {payload_entropy_mean}, Payload Entropy CV: {payload_entropy_cv}, "
-            f"Payload Size Entropy: {payload_size_entropy}, "
-            f"Src IP Entropy: {src_ip_entropy}, Dst IP Entropy: {dst_ip_entropy}, "
-            f"Src MAC Entropy: {src_mac_entropy}, Dst MAC Entropy: {dst_mac_entropy}"
-        )
 
         # Get Flow Table Feature
         (c_used, paf, ft_psi,
@@ -272,45 +265,32 @@ class SimpleSwitch14(app_manager.RyuApp):
          (mean_pkts, cvp),
          (mean_bytes, cvb)) = self.feature_ext[dpid].get_ft_features(stats, self.FLOW_TABLE_SIZE)
 
-        self.logger.debug(
-            f"[GAP] > C_used: {c_used}, PAF: {paf}, PSI: {ft_psi}, Duration Entropy: {durations_entropy}, "
-            f"Duration entropy: {durations_entropy}, Packet entropy: {pkts_entropy}, Bytes_entropy: {bytes_entropy}, "
-            f"Mean Duration: {mean_duration}, CVD: {cvd}, "
-            f"Mean Packet: {mean_pkts}, CVP: {cvp}, "
-            f"Mean Bytes: {mean_bytes}, CVB: {cvb}"
-        )
-
-        # Get Features
-        for stat in stats:
-            duration, packet_count, byte_count, pkt_rate, byte_rate, psi = self.feature_ext[dpid].get_flow_feature(stat)
-            self.logger.debug(
-                f"[GAP] >> Duration: {duration}, Packet count: {packet_count}, "
-                f"Byte count: {byte_count}, Packet Rate: {pkt_rate}, "
-                f"Byte Rate: {byte_rate}, PSI: {psi}"
-            )
-
-        features = [
+        ft_features = [
             payload_entropy_mean, payload_entropy_cv, payload_size_entropy,
             src_ip_entropy, dst_ip_entropy, src_mac_entropy, dst_mac_entropy,
             c_used, paf, ft_psi, durations_entropy, pkts_entropy, bytes_entropy,
             mean_duration, cvd, mean_pkts, cvp, mean_bytes, cvb
         ]
-        anomaly_detected = self.model.predict([features])
-        
-        if anomaly_detected:
+        ft_anomaly_detected = self.ftf_detector.predict([ft_features])
+
+        if ft_anomaly_detected:
             self.logger.info('[ANOMALY] Detected FTF attack for %s', dpid)
-            self.logger.debug(
-                f"[GAP] > C_used: {c_used}, PAF: {paf}, PSI: {ft_psi}, Duration Entropy: {durations_entropy}, "
-                f"Duration entropy: {durations_entropy}, Packet entropy: {pkts_entropy}, Bytes_entropy: {bytes_entropy}, "
-                f"Mean Duration: {mean_duration}, CVD: {cvd}, "
-                f"Mean Packet: {mean_pkts}, CVP: {cvp}, "
-                f"Mean Bytes: {mean_bytes}, CVB: {cvb}"
-            )
-            row = [
-                payload_entropy_mean, payload_entropy_cv, payload_size_entropy,
-                src_ip_entropy, dst_ip_entropy, src_mac_entropy, dst_mac_entropy,
-                c_used, paf, ft_psi, durations_entropy, pkts_entropy, bytes_entropy,
-                mean_duration, cvd, mean_pkts, cvp, mean_bytes, cvb, self.LABEL
+        else:
+            return
+
+        # Get Flow Rule Features
+        for stat in stats:
+            duration, packet_count, byte_count, pkt_rate, byte_rate, psi = self.feature_ext[dpid].get_flow_feature(stat)
+            fr_features = [
+                duration, packet_count, byte_count, pkt_rate, byte_rate, psi
             ]
-            self._csv_writer.writerow(row)
-            self._csv_file.flush()
+            anomaly_fr_detected = self.ftf_detector.predict([fr_features])
+            if anomaly_fr_detected:
+                with open(self.REPORT_PATH, "a", newline="") as f:
+                    f.write(f"""
+                    ANOMALY@{dpid}, timestamp {time()}
+                        FT FEATURES: {ft_features}
+                        FR FEATURES: {fr_features}
+                    
+                    """)
+                return
