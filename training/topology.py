@@ -1,4 +1,6 @@
 from mininet.topo import Topo
+from mininet.node import OVSSwitch
+from mininet.log import info
 
 class CustomTopo1(Topo):
     "Custom Topology Network"

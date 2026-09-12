@@ -5,7 +5,7 @@ import math
 import csv
 from time import time, sleep
 from mininet.net import Mininet
-from mininet.node import RemoteController, OVSSwitch, Host
+from mininet.node import RemoteController
 from mininet.log import setLogLevel, info
 
 # Modules loader
@@ -17,7 +17,7 @@ root = os.path.dirname(parent)
 sys.path.append(parent)
 sys.path.append(root)
 
-from training.tologogy import *
+from training.topology import *
 from utils.sim_utils import *
 from attack.ftf_attack import FTFAttack
 
@@ -51,57 +51,56 @@ def main() -> None:
     ]
 
     pcap_prefixes = [
-        current + "/pcaps/traffics/scenario_000/",
-        current + "/pcaps/traffics/scenario_001/",
-        current + "/pcaps/traffics/scenario_002/",
-        current + "/pcaps/traffics/scenario_003/",
-        current + "/pcaps/traffics/scenario_004/",
-        current + "/pcaps/traffics/scenario_005/",
-        current + "/pcaps/traffics/scenario_006/",
-        current + "/pcaps/traffics/scenario_007/",
-        current + "/pcaps/traffics/scenario_008/",
-        current + "/pcaps/traffics/scenario_009/",
-        current + "/pcaps/traffics/scenario_010/",
-        current + "/pcaps/traffics/scenario_011/",
-        current + "/pcaps/traffics/scenario_012/",
-        current + "/pcaps/traffics/scenario_013/",
-        current + "/pcaps/traffics/scenario_014/",
-        current + "/pcaps/traffics/scenario_015/",
-        current + "/pcaps/traffics/scenario_016/",
-        current + "/pcaps/traffics/scenario_017/",
-        current + "/pcaps/traffics/scenario_018/",
-        current + "/pcaps/traffics/scenario_019/",
-        current + "/pcaps/traffics/scenario_020/",
-        current + "/pcaps/traffics/scenario_021/",
-        current + "/pcaps/traffics/scenario_022/",
-        current + "/pcaps/traffics/scenario_023/",
-        current + "/pcaps/traffics/scenario_024/",
-        current + "/pcaps/traffics/scenario_025/",
-        current + "/pcaps/traffics/scenario_026/",
-        current + "/pcaps/traffics/scenario_027/",
-        current + "/pcaps/traffics/scenario_028/",
-        current + "/pcaps/traffics/scenario_029/",
-        current + "/pcaps/traffics/scenario_030/",
-        current + "/pcaps/traffics/scenario_031/",
-        current + "/pcaps/traffics/scenario_032/",
-        current + "/pcaps/traffics/scenario_033/",
-        current + "/pcaps/traffics/scenario_034/",
-        current + "/pcaps/traffics/scenario_035/",
-        current + "/pcaps/traffics/scenario_036/",
-        current + "/pcaps/traffics/scenario_037/",
-        current + "/pcaps/traffics/scenario_038/",
-        current + "/pcaps/traffics/scenario_039/",
-        current + "/pcaps/traffics/scenario_040/",
-        current + "/pcaps/traffics/scenario_041/",
-        current + "/pcaps/traffics/scenario_042/",
-        current + "/pcaps/traffics/scenario_043/",
-        current + "/pcaps/traffics/scenario_044/",
-        current + "/pcaps/traffics/scenario_045/",
-        current + "/pcaps/traffics/scenario_046/",
-        current + "/pcaps/traffics/scenario_047/",
-        current + "/pcaps/traffics/scenario_048/",
+        parent + "/pcaps/traffics/scenario_000/",
+        parent + "/pcaps/traffics/scenario_001/",
+        parent + "/pcaps/traffics/scenario_002/",
+        parent + "/pcaps/traffics/scenario_003/",
+        parent + "/pcaps/traffics/scenario_004/",
+        parent + "/pcaps/traffics/scenario_005/",
+        parent + "/pcaps/traffics/scenario_006/",
+        parent + "/pcaps/traffics/scenario_007/",
+        parent + "/pcaps/traffics/scenario_008/",
+        parent + "/pcaps/traffics/scenario_009/",
+        parent + "/pcaps/traffics/scenario_010/",
+        parent + "/pcaps/traffics/scenario_011/",
+        parent + "/pcaps/traffics/scenario_012/",
+        parent + "/pcaps/traffics/scenario_013/",
+        parent + "/pcaps/traffics/scenario_014/",
+        parent + "/pcaps/traffics/scenario_015/",
+        parent + "/pcaps/traffics/scenario_016/",
+        parent + "/pcaps/traffics/scenario_017/",
+        parent + "/pcaps/traffics/scenario_018/",
+        parent + "/pcaps/traffics/scenario_019/",
+        parent + "/pcaps/traffics/scenario_020/",
+        parent + "/pcaps/traffics/scenario_021/",
+        parent + "/pcaps/traffics/scenario_022/",
+        parent + "/pcaps/traffics/scenario_023/",
+        parent + "/pcaps/traffics/scenario_024/",
+        parent + "/pcaps/traffics/scenario_025/",
+        parent + "/pcaps/traffics/scenario_026/",
+        parent + "/pcaps/traffics/scenario_027/",
+        parent + "/pcaps/traffics/scenario_028/",
+        parent + "/pcaps/traffics/scenario_029/",
+        parent + "/pcaps/traffics/scenario_030/",
+        parent + "/pcaps/traffics/scenario_031/",
+        parent + "/pcaps/traffics/scenario_032/",
+        parent + "/pcaps/traffics/scenario_033/",
+        parent + "/pcaps/traffics/scenario_034/",
+        parent + "/pcaps/traffics/scenario_035/",
+        parent + "/pcaps/traffics/scenario_036/",
+        parent + "/pcaps/traffics/scenario_037/",
+        parent + "/pcaps/traffics/scenario_038/",
+        parent + "/pcaps/traffics/scenario_039/",
+        parent + "/pcaps/traffics/scenario_040/",
+        parent + "/pcaps/traffics/scenario_041/",
+        parent + "/pcaps/traffics/scenario_042/",
+        parent + "/pcaps/traffics/scenario_043/",
+        parent + "/pcaps/traffics/scenario_044/",
+        parent + "/pcaps/traffics/scenario_045/",
+        parent + "/pcaps/traffics/scenario_046/",
+        parent + "/pcaps/traffics/scenario_047/",
+        parent + "/pcaps/traffics/scenario_048/",
     ]
-    
     att_wait = None
     k_factor = 3
     n_host = 15
