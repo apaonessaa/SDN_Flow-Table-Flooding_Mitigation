@@ -232,10 +232,9 @@ class FTFMController(app_manager.RyuApp):
                 f"Byte count: {byte_count}, Packet Rate: {pkt_rate}, "
                 f"Byte Rate: {byte_rate}, PSI: {psi}"
             )
-
-        row = [
-            duration, packet_count, byte_count, pkt_rate, byte_rate, psi,
-            self.GROUP_ID, self.LABEL
-        ]
-        self._csv_writer.writerow(row)
-        self._csv_file.flush()
+            row = [
+                duration, packet_count, byte_count, pkt_rate, byte_rate, psi,
+                self.GROUP_ID, self.LABEL
+            ]
+            self._csv_writer.writerow(row)
+            self._csv_file.flush()

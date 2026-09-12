@@ -293,7 +293,7 @@ class FTFMController(app_manager.RyuApp):
         # Check occupancy
         occupancy = len(stats) / float(self.FLOW_TABLE_SIZE)
         if occupancy < self.FLOW_TABLE_THRESHOLD:
-            pass
+            return
         hub.spawn(self._process_stats, dpid, stats) 
 
     def _process_stats(self, dpid, stats):
@@ -332,7 +332,9 @@ class FTFMController(app_manager.RyuApp):
             with open(self.REPORT_PATH, "a", newline="") as f:
                 f.write(f"""
                 ANOMALY@{dpid}, timestamp {time()}
-                    FT FEATURES: {ft_features}
+                    * FLOW TABLE FEATURES: {ft_features}
+                    * FLOW TABLE OCCUPANCY: {len(stats)}/{self.FLOW_TABLE_SIZE}
+
                 """)
         else:
             return
@@ -353,10 +355,12 @@ class FTFMController(app_manager.RyuApp):
                 )
 
             if fr_pred:
+                src_ip = stat.match.get('ipv4_src', None)
+                dst_ip = stat.match.get('ipv4_dst', None)
                 with open(self.REPORT_PATH, "a", newline="") as f:
                     f.write(f"""
-                        FR FEATURES: {fr_features}
-                        FLOW RULE {i}/{n}: {stat}
+                        * FLOW RULE FEATURES: {fr_features}
+                        * FLOW RULE {i}/{n}: {src_ip} -> {dst_ip}
                     
                     """)
             i+=1
