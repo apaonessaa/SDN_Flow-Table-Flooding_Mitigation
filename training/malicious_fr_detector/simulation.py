@@ -6,7 +6,6 @@ import csv
 from time import time, sleep
 from mininet.net import Mininet
 from mininet.node import RemoteController, OVSSwitch, Host
-from mininet.topo import Topo
 from mininet.log import setLogLevel, info
 
 # Modules loader
@@ -18,10 +17,9 @@ root = os.path.dirname(parent)
 sys.path.append(parent)
 sys.path.append(root)
 
-import training.tologogy
-import utils.sim_utils
+from training.tologogy import *
+from utils.sim_utils import *
 from attack.ftf_attack import FTFAttack
-
 import random
 rng = random.Random(42)
 

@@ -1,8 +1,6 @@
 #!/usr/bin/python
-import json
 import threading
 import subprocess
-import socket
 import math
 import random
 from time import time, sleep
