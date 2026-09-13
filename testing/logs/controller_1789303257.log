@@ -1,0 +1,2353 @@
+loading app controller.py
+/usr/local/lib/python3.8/dist-packages/xgboost/core.py:265: FutureWarning: Your system has an old version of glibc (< 2.28). We will stop supporting Linux distros with glibc older than 2.28 after **May 31, 2025**. Please upgrade to a recent Linux distro (with glibc 2.28+) to use future versions of XGBoost.
+Note: You have installed the 'manylinux2014' variant of XGBoost. Certain features such as GPU algorithms or federated learning are not available. To use these features, please upgrade to a recent Linux distro with glibc 2.28+, and install the 'manylinux_2_28' variant.
+  warnings.warn(
+loading app ryu.controller.ofp_handler
+instantiating app controller.py of FTFMController
+[GAP] Intervallo di tempo per la cattura delle features: 1.25s
+instantiating app ryu.controller.ofp_handler of OFPHandler
+BRICK FTFMController
+  CONSUMES EventOFPPacketIn
+  CONSUMES EventOFPStateChange
+  CONSUMES EventOFPFlowStatsReply
+  CONSUMES EventOFPSwitchFeatures
+BRICK ofp_event
+  PROVIDES EventOFPPacketIn TO {'FTFMController': {'main'}}
+  PROVIDES EventOFPStateChange TO {'FTFMController': {'main', 'dead'}}
+  PROVIDES EventOFPFlowStatsReply TO {'FTFMController': {'main'}}
+  PROVIDES EventOFPSwitchFeatures TO {'FTFMController': {'config'}}
+  CONSUMES EventOFPEchoReply
+  CONSUMES EventOFPEchoRequest
+  CONSUMES EventOFPErrorMsg
+  CONSUMES EventOFPHello
+  CONSUMES EventOFPPortDescStatsReply
+  CONSUMES EventOFPPortStatus
+  CONSUMES EventOFPSwitchFeatures
+connected socket:<eventlet.greenio.base.GreenSocket object at 0x7fa8cab06280> address:('127.0.0.1', 36856)
+EVENT ofp_event->FTFMController EventOFPStateChange
+connected socket:<eventlet.greenio.base.GreenSocket object at 0x7fa8cab0a9a0> address:('127.0.0.1', 36864)
+EVENT ofp_event->FTFMController EventOFPStateChange
+connected socket:<eventlet.greenio.base.GreenSocket object at 0x7fa8cab0a820> address:('127.0.0.1', 36874)
+hello ev <ryu.controller.ofp_event.EventOFPHello object at 0x7fa8c92a3700>
+move onto config mode
+EVENT ofp_event->FTFMController EventOFPSwitchFeatures
+switch features ev version=0x5,msg_type=0x6,msg_len=0x20,xid=0x4e0cf379,OFPSwitchFeatures(auxiliary_id=0,capabilities=591,datapath_id=1,n_buffers=0,n_tables=254)
+move onto main mode
+EVENT ofp_event->FTFMController EventOFPStateChange
+Switch registrato: 0000000000000001
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:01 00:00:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:02 00:00:00:00:00:01 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 33:33:00:00:00:16 4
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 33:33:ff:00:00:04 4
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:02 33:33:ff:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:02 33:33:00:00:00:16 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:05 33:33:00:00:00:16 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:03 33:33:00:00:00:16 3
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:01 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:01 33:33:00:00:00:16 1
+packet in 1 00:00:00:00:00:01 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:05 33:33:00:00:00:16 5
+packet in 1 00:00:00:00:00:05 33:33:00:00:00:02 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:03 33:33:00:00:00:16 3
+packet in 1 00:00:00:00:00:03 33:33:00:00:00:02 3
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 33:33:00:00:00:02 4
+packet in 1 00:00:00:00:00:04 33:33:00:00:00:16 4
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:02 33:33:00:00:00:16 2
+packet in 1 00:00:00:00:00:02 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:03 33:33:00:00:00:16 3
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:02 33:33:00:00:00:16 2
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:01 33:33:00:00:00:16 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:05 33:33:00:00:00:16 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 33:33:00:00:00:16 4
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:03 33:33:00:00:00:02 3
+packet in 1 00:00:00:00:00:01 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 33:33:00:00:00:02 4
+packet in 1 00:00:00:00:00:05 33:33:00:00:00:02 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:02 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:05 00:00:00:00:00:04 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 00:00:00:00:00:05 4
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:03 33:33:00:00:00:02 3
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:01 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 33:33:00:00:00:02 4
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:02 33:33:00:00:00:02 2
+packet in 1 00:00:00:00:00:05 33:33:00:00:00:02 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:05 00:00:00:00:00:04 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 00:00:00:00:00:05 4
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:03 33:33:00:00:00:02 3
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:05 00:00:00:00:00:04 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 00:00:00:00:00:05 4
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 33:33:00:00:00:02 4
+packet in 1 00:00:00:00:00:01 33:33:00:00:00:02 1
+packet in 1 00:00:00:00:00:02 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:05 33:33:00:00:00:02 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:05 00:00:00:00:00:04 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 00:00:00:00:00:05 4
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:05 00:00:00:00:00:04 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 00:00:00:00:00:05 4
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:03 33:33:00:00:00:02 3
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:05 00:00:00:00:00:04 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 00:00:00:00:00:05 4
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 33:33:00:00:00:02 4
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:02 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:01 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:05 00:00:00:00:00:04 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 00:00:00:00:00:05 4
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:05 33:33:00:00:00:02 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:05 00:00:00:00:00:04 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 00:00:00:00:00:05 4
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 cc:44:1f:aa:7e:69 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 3e:b4:b7:09:c5:1a ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 ec:b1:22:1b:fe:a1 ff:ff:ff:ff:ff:ff 5
+packet in 1 37:80:e4:40:52:26 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 ee:6c:60:e3:9c:6c ff:ff:ff:ff:ff:ff 5
+packet in 1 cf:21:8a:30:e1:3e ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 4a:b3:3b:64:fd:2b ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 5d:06:12:70:5b:41 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 99:de:8b:74:f4:0c ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 12:68:e3:08:2c:c0 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 4c:27:65:a8:c9:eb ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 bc:bb:75:a9:75:b1 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 86:5d:dd:63:b0:86 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 47:44:ab:15:91:f4 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 90:bb:d8:93:cc:b4 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 96:e5:c9:12:7e:83 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 55:dc:7e:d3:d9:4c ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 30:b4:05:11:89:e0 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 b5:5a:07:cd:e5:68 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 76:34:3b:b6:fd:7c ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 e9:31:65:7c:b3:c5 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 9a:01:bb:a5:72:bc ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 27:3b:80:eb:8a:2f ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 ba:2c:ba:88:70:c5 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 af:28:ba:cc:45:0e ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 98:c4:b5:e7:ca:82 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 f1:6b:e9:38:9b:66 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 92:b1:57:7e:08:74 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 f6:b1:ca:08:ab:ac ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 71:6e:74:05:07:fe ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 8f:22:d1:d5:56:c0 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 a0:cc:47:db:83:dd ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 5d:49:b4:d9:30:7b ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 7e:26:02:15:de:e5 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 0b:dd:cc:02:ae:aa ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 fd:1e:4f:03:57:e7 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 6b:ce:da:0c:65:88 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 11:96:3e:b8:8a:45 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 ce:b8:a4:5c:0c:dc ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 80:a5:13:0d:70:5f ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 bd:21:16:4b:c0:b3 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 30:35:25:53:aa:a8 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 a9:2c:aa:13:33:04 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 e5:9e:89:bc:c3:a5 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 9f:b6:b0:56:50:96 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 e0:79:8f:2c:27:e0 ff:ff:ff:ff:ff:ff 5
+packet in 1 9d:c7:28:6c:d9:0f ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 cb:bc:59:37:46:1b ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 85:3d:87:2e:cc:2d ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 39:27:c1:b8:88:dc ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 04:84:2a:60:2a:7b ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 0c:6e:51:43:d7:47 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 41:21:a0:09:a0:97 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 f0:35:81:49:2c:1e ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 bc:00:f1:85:05:f3 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 e1:d5:ef:f3:97:94 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 71:0c:0a:f7:34:04 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 28:10:c4:f0:6d:ca ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 bb:b5:df:e9:ab:22 ff:ff:ff:ff:ff:ff 5
+packet in 1 1e:de:b7:b7:d4:7d ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 f2:15:56:e5:71:54 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 81:d3:d2:8d:cf:9e ff:ff:ff:ff:ff:ff 5
+packet in 1 c2:53:79:e9:66:69 ff:ff:ff:ff:ff:ff 5
+packet in 1 8d:94:77:83:f3:f5 ff:ff:ff:ff:ff:ff 5
+packet in 1 14:c5:33:bf:c4:49 ff:ff:ff:ff:ff:ff 5
+packet in 1 79:d6:5c:0e:1e:c0 ff:ff:ff:ff:ff:ff 5
+packet in 1 67:81:f3:a4:be:90 ff:ff:ff:ff:ff:ff 5
+packet in 1 8b:98:d1:a9:69:29 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 37:5c:2d:df:1a:ae ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 55:cf:cd:e9:bf:a0 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 c4:aa:20:b7:a0:8b ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 b2:34:2f:f5:2d:da ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:03 33:33:00:00:00:02 3
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 22:b2:46:ca:bd:13 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 61:14:70:75:fe:6f ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 9a:ca:6b:96:9d:80 ff:ff:ff:ff:ff:ff 5
+packet in 1 ba:7e:03:e0:59:2c ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 54:ec:94:c1:7a:af ff:ff:ff:ff:ff:ff 5
+packet in 1 62:58:57:98:6c:76 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 16:7c:7c:ba:6d:96 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 62:24:55:5c:a6:75 ff:ff:ff:ff:ff:ff 5
+packet in 1 47:b8:c6:a4:9a:d2 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 84:d9:d7:f8:f6:0b ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 b3:04:3f:c7:7d:fb ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 a9:21:96:0d:4a:8c ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 bb:94:cc:e0:c2:63 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 b5:50:74:31:a9:a1 ff:ff:ff:ff:ff:ff 5
+packet in 1 8f:cd:50:8d:c1:6d ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 a5:cd:5b:8a:35:2e ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 1b:95:d4:cb:7d:f5 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 4b:0e:d4:11:bd:03 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 fb:a8:66:98:8c:ed ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 e7:09:09:95:2a:5c ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 33:33:00:00:00:02 4
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 e1:32:86:fc:15:40 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 a2:17:36:3a:ee:b7 ff:ff:ff:ff:ff:ff 5
+packet in 1 cd:18:29:d3:ce:3b ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:02 33:33:00:00:00:02 2
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 0d:55:bc:12:7a:4c ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 8d:6b:2b:0f:95:ce ff:ff:ff:ff:ff:ff 5
+packet in 1 05:58:ad:ea:bc:02 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 19:44:3a:48:c4:db ff:ff:ff:ff:ff:ff 5
+packet in 1 0c:dd:8b:b2:f2:68 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 2d:5d:f4:79:8a:f8 ff:ff:ff:ff:ff:ff 5
+packet in 1 6b:24:cd:be:89:23 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 95:4c:ba:d3:93:c7 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 27:c7:31:80:52:14 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 b9:b1:04:18:cf:0d ff:ff:ff:ff:ff:ff 5
+packet in 1 6f:91:50:9b:e8:c3 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 a4:83:12:6f:cb:77 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 cc:5d:5d:2b:bc:02 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:01 33:33:00:00:00:02 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:05 33:33:00:00:00:02 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 77:2d:08:d3:eb:00 ff:ff:ff:ff:ff:ff 5
+packet in 1 a9:69:4d:33:f1:cf ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 97:4d:95:29:3a:6f ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 d5:7a:5d:74:0d:53 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 ec:da:28:a0:47:e4 ff:ff:ff:ff:ff:ff 5
+packet in 1 d6:21:3a:3e:0a:6c ff:ff:ff:ff:ff:ff 5
+packet in 1 2c:cd:83:08:c4:15 ff:ff:ff:ff:ff:ff 5
+packet in 1 d6:74:84:89:37:6d ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 f1:d1:18:7e:6f:54 ff:ff:ff:ff:ff:ff 5
+packet in 1 a9:17:b7:e6:fc:6f ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 e2:05:d3:a6:d9:52 ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 21:0c:59:e2:3c:3c ff:ff:ff:ff:ff:ff 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 b2:ee:db:e0:b1:e4 71:6e:74:05:07:fe 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 8c:f1:bc:0a:18:2f e0:79:8f:2c:27:e0 5
+packet in 1 d2:d1:9c:44:8a:fe 4b:0e:d4:11:bd:03 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 2f:98:23:32:bb:57 21:0c:59:e2:3c:3c 5
+packet in 1 30:67:a8:3b:6f:90 37:5c:2d:df:1a:ae 5
+packet in 1 a2:cf:88:00:d0:1b 1b:95:d4:cb:7d:f5 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 6b:c1:68:3a:9c:87 05:58:ad:ea:bc:02 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 93:10:c8:81:48:a9 80:a5:13:0d:70:5f 5
+packet in 1 11:e1:b3:ac:4f:92 47:44:ab:15:91:f4 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 be:de:c1:ed:f6:40 f0:35:81:49:2c:1e 5
+packet in 1 92:67:ee:b1:c1:66 a5:cd:5b:8a:35:2e 5
+packet in 1 ea:2d:ea:61:6a:9c 5d:06:12:70:5b:41 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 97:0f:5d:a1:2c:f4 bc:00:f1:85:05:f3 5
+packet in 1 55:94:bf:33:00:e3 39:27:c1:b8:88:dc 5
+packet in 1 a7:1f:5d:c0:d0:6f 79:d6:5c:0e:1e:c0 5
+packet in 1 5f:61:da:03:31:19 d6:74:84:89:37:6d 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 01:c0:f7:88:1d:91 0c:dd:8b:b2:f2:68 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 a4:ac:2c:3b:13:39 c2:53:79:e9:66:69 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 5b:e5:cf:5e:2c:bf 86:5d:dd:63:b0:86 5
+packet in 1 2e:9d:42:34:12:e9 6b:ce:da:0c:65:88 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 ad:62:b4:6e:c2:99 b5:5a:07:cd:e5:68 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 22:16:28:fd:a8:8e 61:14:70:75:fe:6f 5
+packet in 1 81:a1:87:c9:b4:29 5d:49:b4:d9:30:7b 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 3d:4b:bc:33:1b:78 12:68:e3:08:2c:c0 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 22:2b:fb:7a:a1:29 e1:32:86:fc:15:40 5
+packet in 1 05:17:0a:2b:5f:20 e1:d5:ef:f3:97:94 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 ef:e6:94:d7:c3:1b 98:c4:b5:e7:ca:82 5
+packet in 1 f0:33:b9:7f:83:a4 ec:b1:22:1b:fe:a1 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 1b:34:b0:ef:2e:b8 bb:b5:df:e9:ab:22 5
+packet in 1 cc:3b:3f:5d:bb:9d 8f:22:d1:d5:56:c0 5
+packet in 1 db:67:39:76:ee:84 f6:b1:ca:08:ab:ac 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 d6:2a:33:44:4c:af 0d:55:bc:12:7a:4c 5
+packet in 1 80:d0:85:6f:6f:24 a9:17:b7:e6:fc:6f 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 b2:ee:db:e0:b1:e4 71:6e:74:05:07:fe 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 8c:f1:bc:0a:18:2f e0:79:8f:2c:27:e0 5
+packet in 1 d2:d1:9c:44:8a:fe 4b:0e:d4:11:bd:03 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 2f:98:23:32:bb:57 21:0c:59:e2:3c:3c 5
+packet in 1 30:67:a8:3b:6f:90 37:5c:2d:df:1a:ae 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 a2:cf:88:00:d0:1b 1b:95:d4:cb:7d:f5 5
+packet in 1 6b:c1:68:3a:9c:87 05:58:ad:ea:bc:02 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 07:45:1a:06:eb:04 67:81:f3:a4:be:90 5
+packet in 1 bf:7a:6f:66:9c:9c 7e:26:02:15:de:e5 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 3b:88:e5:55:e4:db 04:84:2a:60:2a:7b 5
+packet in 1 ad:71:bc:75:2c:b0 4a:b3:3b:64:fd:2b 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 93:10:c8:81:48:a9 80:a5:13:0d:70:5f 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 11:e1:b3:ac:4f:92 47:44:ab:15:91:f4 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 be:de:c1:ed:f6:40 f0:35:81:49:2c:1e 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 92:67:ee:b1:c1:66 a5:cd:5b:8a:35:2e 5
+packet in 1 ea:2d:ea:61:6a:9c 5d:06:12:70:5b:41 5
+packet in 1 97:0f:5d:a1:2c:f4 bc:00:f1:85:05:f3 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 55:94:bf:33:00:e3 39:27:c1:b8:88:dc 5
+packet in 1 a7:1f:5d:c0:d0:6f 79:d6:5c:0e:1e:c0 5
+packet in 1 5f:61:da:03:31:19 d6:74:84:89:37:6d 5
+packet in 1 01:c0:f7:88:1d:91 0c:dd:8b:b2:f2:68 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 bc:0f:ad:9e:b1:32 55:dc:7e:d3:d9:4c 5
+packet in 1 2c:93:2f:d3:e4:de 16:7c:7c:ba:6d:96 5
+packet in 1 eb:6a:c3:53:1a:39 71:0c:0a:f7:34:04 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 5f:f4:dd:d6:99:f2 92:b1:57:7e:08:74 5
+packet in 1 1b:70:d1:30:14:7e e2:05:d3:a6:d9:52 5
+packet in 1 e1:1e:65:8b:49:c4 cc:5d:5d:2b:bc:02 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 b2:ee:db:e0:b1:e4 71:6e:74:05:07:fe 5
+packet in 1 8c:f1:bc:0a:18:2f e0:79:8f:2c:27:e0 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 d2:d1:9c:44:8a:fe 4b:0e:d4:11:bd:03 5
+packet in 1 2f:98:23:32:bb:57 21:0c:59:e2:3c:3c 5
+packet in 1 30:67:a8:3b:6f:90 37:5c:2d:df:1a:ae 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 a2:cf:88:00:d0:1b 1b:95:d4:cb:7d:f5 5
+packet in 1 6b:c1:68:3a:9c:87 05:58:ad:ea:bc:02 5
+packet in 1 93:10:c8:81:48:a9 80:a5:13:0d:70:5f 5
+packet in 1 11:e1:b3:ac:4f:92 47:44:ab:15:91:f4 5
+packet in 1 be:de:c1:ed:f6:40 f0:35:81:49:2c:1e 5
+packet in 1 92:67:ee:b1:c1:66 a5:cd:5b:8a:35:2e 5
+packet in 1 ea:2d:ea:61:6a:9c 5d:06:12:70:5b:41 5
+packet in 1 97:0f:5d:a1:2c:f4 bc:00:f1:85:05:f3 5
+packet in 1 55:94:bf:33:00:e3 39:27:c1:b8:88:dc 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 a7:1f:5d:c0:d0:6f 79:d6:5c:0e:1e:c0 5
+packet in 1 5f:61:da:03:31:19 d6:74:84:89:37:6d 5
+packet in 1 01:c0:f7:88:1d:91 0c:dd:8b:b2:f2:68 5
+packet in 1 a4:ac:2c:3b:13:39 c2:53:79:e9:66:69 5
+packet in 1 5b:e5:cf:5e:2c:bf 86:5d:dd:63:b0:86 5
+packet in 1 2e:9d:42:34:12:e9 6b:ce:da:0c:65:88 5
+packet in 1 ad:62:b4:6e:c2:99 b5:5a:07:cd:e5:68 5
+packet in 1 22:16:28:fd:a8:8e 61:14:70:75:fe:6f 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 81:a1:87:c9:b4:29 5d:49:b4:d9:30:7b 5
+packet in 1 3d:4b:bc:33:1b:78 12:68:e3:08:2c:c0 5
+packet in 1 22:2b:fb:7a:a1:29 e1:32:86:fc:15:40 5
+packet in 1 05:17:0a:2b:5f:20 e1:d5:ef:f3:97:94 5
+packet in 1 ef:e6:94:d7:c3:1b 98:c4:b5:e7:ca:82 5
+packet in 1 f0:33:b9:7f:83:a4 ec:b1:22:1b:fe:a1 5
+packet in 1 1b:34:b0:ef:2e:b8 bb:b5:df:e9:ab:22 5
+packet in 1 cc:3b:3f:5d:bb:9d 8f:22:d1:d5:56:c0 5
+packet in 1 db:67:39:76:ee:84 f6:b1:ca:08:ab:ac 5
+packet in 1 d6:2a:33:44:4c:af 0d:55:bc:12:7a:4c 5
+packet in 1 80:d0:85:6f:6f:24 a9:17:b7:e6:fc:6f 5
+packet in 1 07:45:1a:06:eb:04 67:81:f3:a4:be:90 5
+packet in 1 bf:7a:6f:66:9c:9c 7e:26:02:15:de:e5 5
+packet in 1 3b:88:e5:55:e4:db 04:84:2a:60:2a:7b 5
+packet in 1 ad:71:bc:75:2c:b0 4a:b3:3b:64:fd:2b 5
+packet in 1 bc:0f:ad:9e:b1:32 55:dc:7e:d3:d9:4c 5
+packet in 1 2c:93:2f:d3:e4:de 16:7c:7c:ba:6d:96 5
+packet in 1 eb:6a:c3:53:1a:39 71:0c:0a:f7:34:04 5
+packet in 1 5f:f4:dd:d6:99:f2 92:b1:57:7e:08:74 5
+packet in 1 1b:70:d1:30:14:7e e2:05:d3:a6:d9:52 5
+packet in 1 e1:1e:65:8b:49:c4 cc:5d:5d:2b:bc:02 5
+packet in 1 63:e5:84:49:7c:a1 af:28:ba:cc:45:0e 5
+packet in 1 7c:18:d9:1f:85:a8 8d:6b:2b:0f:95:ce 5
+packet in 1 21:eb:7c:7f:cb:eb 41:21:a0:09:a0:97 5
+packet in 1 db:c5:94:4e:fa:32 6f:91:50:9b:e8:c3 5
+packet in 1 d3:16:bd:97:17:f2 b5:50:74:31:a9:a1 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 a2:cf:88:00:d0:1b 1b:95:d4:cb:7d:f5 5
+packet in 1 6b:c1:68:3a:9c:87 05:58:ad:ea:bc:02 5
+packet in 1 93:10:c8:81:48:a9 80:a5:13:0d:70:5f 5
+packet in 1 11:e1:b3:ac:4f:92 47:44:ab:15:91:f4 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 be:de:c1:ed:f6:40 f0:35:81:49:2c:1e 5
+packet in 1 92:67:ee:b1:c1:66 a5:cd:5b:8a:35:2e 5
+packet in 1 ea:2d:ea:61:6a:9c 5d:06:12:70:5b:41 5
+packet in 1 97:0f:5d:a1:2c:f4 bc:00:f1:85:05:f3 5
+packet in 1 55:94:bf:33:00:e3 39:27:c1:b8:88:dc 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 a7:1f:5d:c0:d0:6f 79:d6:5c:0e:1e:c0 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 5f:61:da:03:31:19 d6:74:84:89:37:6d 5
+packet in 1 01:c0:f7:88:1d:91 0c:dd:8b:b2:f2:68 5
+packet in 1 a4:ac:2c:3b:13:39 c2:53:79:e9:66:69 5
+packet in 1 5b:e5:cf:5e:2c:bf 86:5d:dd:63:b0:86 5
+packet in 1 2e:9d:42:34:12:e9 6b:ce:da:0c:65:88 5
+packet in 1 ad:62:b4:6e:c2:99 b5:5a:07:cd:e5:68 5
+packet in 1 22:16:28:fd:a8:8e 61:14:70:75:fe:6f 5
+packet in 1 81:a1:87:c9:b4:29 5d:49:b4:d9:30:7b 5
+packet in 1 3d:4b:bc:33:1b:78 12:68:e3:08:2c:c0 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 22:2b:fb:7a:a1:29 e1:32:86:fc:15:40 5
+packet in 1 05:17:0a:2b:5f:20 e1:d5:ef:f3:97:94 5
+packet in 1 ef:e6:94:d7:c3:1b 98:c4:b5:e7:ca:82 5
+packet in 1 f0:33:b9:7f:83:a4 ec:b1:22:1b:fe:a1 5
+packet in 1 1b:34:b0:ef:2e:b8 bb:b5:df:e9:ab:22 5
+packet in 1 cc:3b:3f:5d:bb:9d 8f:22:d1:d5:56:c0 5
+packet in 1 db:67:39:76:ee:84 f6:b1:ca:08:ab:ac 5
+packet in 1 d6:2a:33:44:4c:af 0d:55:bc:12:7a:4c 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 80:d0:85:6f:6f:24 a9:17:b7:e6:fc:6f 5
+packet in 1 07:45:1a:06:eb:04 67:81:f3:a4:be:90 5
+packet in 1 bf:7a:6f:66:9c:9c 7e:26:02:15:de:e5 5
+packet in 1 3b:88:e5:55:e4:db 04:84:2a:60:2a:7b 5
+packet in 1 ad:71:bc:75:2c:b0 4a:b3:3b:64:fd:2b 5
+packet in 1 bc:0f:ad:9e:b1:32 55:dc:7e:d3:d9:4c 5
+packet in 1 2c:93:2f:d3:e4:de 16:7c:7c:ba:6d:96 5
+packet in 1 eb:6a:c3:53:1a:39 71:0c:0a:f7:34:04 5
+packet in 1 5f:f4:dd:d6:99:f2 92:b1:57:7e:08:74 5
+packet in 1 1b:70:d1:30:14:7e e2:05:d3:a6:d9:52 5
+packet in 1 e1:1e:65:8b:49:c4 cc:5d:5d:2b:bc:02 5
+packet in 1 63:e5:84:49:7c:a1 af:28:ba:cc:45:0e 5
+packet in 1 7c:18:d9:1f:85:a8 8d:6b:2b:0f:95:ce 5
+packet in 1 21:eb:7c:7f:cb:eb 41:21:a0:09:a0:97 5
+packet in 1 db:c5:94:4e:fa:32 6f:91:50:9b:e8:c3 5
+packet in 1 d3:16:bd:97:17:f2 b5:50:74:31:a9:a1 5
+packet in 1 8b:09:5e:3a:e5:73 2c:cd:83:08:c4:15 5
+packet in 1 bc:e1:b3:f2:60:4e a0:cc:47:db:83:dd 5
+packet in 1 c4:41:74:9a:47:97 d6:21:3a:3e:0a:6c 5
+packet in 1 b3:b4:cc:b8:0e:8b cd:18:29:d3:ce:3b 5
+packet in 1 b8:58:9c:18:0f:f8 99:de:8b:74:f4:0c 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 b2:ee:db:e0:b1:e4 71:6e:74:05:07:fe 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 8c:f1:bc:0a:18:2f e0:79:8f:2c:27:e0 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 d2:d1:9c:44:8a:fe 4b:0e:d4:11:bd:03 5
+packet in 1 2f:98:23:32:bb:57 21:0c:59:e2:3c:3c 5
+packet in 1 30:67:a8:3b:6f:90 37:5c:2d:df:1a:ae 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 40:ac:aa:dd:7d:af e7:09:09:95:2a:5c 5
+packet in 1 4e:0f:b1:8b:f4:29 a9:69:4d:33:f1:cf 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 2c:b8:6c:b8:ae:47 e9:31:65:7c:b3:c5 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 56:f6:56:d9:9d:2f a4:83:12:6f:cb:77 5
+packet in 1 df:81:8f:47:fe:6f 19:44:3a:48:c4:db 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 26:33:52:df:ca:e1 b9:b1:04:18:cf:0d 5
+packet in 1 d9:81:e2:8d:5a:e6 f1:d1:18:7e:6f:54 5
+packet in 1 28:47:44:f2:e9:45 bb:94:cc:e0:c2:63 5
+packet in 1 71:d3:0e:5c:02:00 fb:a8:66:98:8c:ed 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 ab:26:69:6f:c5:a6 a9:21:96:0d:4a:8c 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 2d:db:0e:bf:41:85 4c:27:65:a8:c9:eb 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 df:de:3e:4d:97:63 a9:2c:aa:13:33:04 5
+packet in 1 69:1a:0d:d6:d7:03 77:2d:08:d3:eb:00 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 b1:b9:b7:df:16:b9 27:c7:31:80:52:14 5
+packet in 1 df:de:52:25:73:8f 0b:dd:cc:02:ae:aa 5
+packet in 1 5a:80:4e:82:7b:4c c4:aa:20:b7:a0:8b 5
+packet in 1 a3:a1:1f:da:1c:0f 8f:cd:50:8d:c1:6d 5
+packet in 1 9d:01:aa:c2:96:4e cf:21:8a:30:e1:3e 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 16:db:ca:58:31:e7 95:4c:ba:d3:93:c7 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 b2:ee:db:e0:b1:e4 71:6e:74:05:07:fe 5
+packet in 1 8c:f1:bc:0a:18:2f e0:79:8f:2c:27:e0 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 d2:d1:9c:44:8a:fe 4b:0e:d4:11:bd:03 5
+packet in 1 2f:98:23:32:bb:57 21:0c:59:e2:3c:3c 5
+packet in 1 30:67:a8:3b:6f:90 37:5c:2d:df:1a:ae 5
+packet in 1 a2:cf:88:00:d0:1b 1b:95:d4:cb:7d:f5 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 6b:c1:68:3a:9c:87 05:58:ad:ea:bc:02 5
+packet in 1 93:10:c8:81:48:a9 80:a5:13:0d:70:5f 5
+packet in 1 11:e1:b3:ac:4f:92 47:44:ab:15:91:f4 5
+packet in 1 be:de:c1:ed:f6:40 f0:35:81:49:2c:1e 5
+packet in 1 92:67:ee:b1:c1:66 a5:cd:5b:8a:35:2e 5
+packet in 1 ea:2d:ea:61:6a:9c 5d:06:12:70:5b:41 5
+packet in 1 97:0f:5d:a1:2c:f4 bc:00:f1:85:05:f3 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 55:94:bf:33:00:e3 39:27:c1:b8:88:dc 5
+packet in 1 a7:1f:5d:c0:d0:6f 79:d6:5c:0e:1e:c0 5
+packet in 1 5f:61:da:03:31:19 d6:74:84:89:37:6d 5
+packet in 1 01:c0:f7:88:1d:91 0c:dd:8b:b2:f2:68 5
+packet in 1 a4:ac:2c:3b:13:39 c2:53:79:e9:66:69 5
+packet in 1 5b:e5:cf:5e:2c:bf 86:5d:dd:63:b0:86 5
+packet in 1 2e:9d:42:34:12:e9 6b:ce:da:0c:65:88 5
+packet in 1 ad:62:b4:6e:c2:99 b5:5a:07:cd:e5:68 5
+packet in 1 22:16:28:fd:a8:8e 61:14:70:75:fe:6f 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 81:a1:87:c9:b4:29 5d:49:b4:d9:30:7b 5
+packet in 1 3d:4b:bc:33:1b:78 12:68:e3:08:2c:c0 5
+packet in 1 22:2b:fb:7a:a1:29 e1:32:86:fc:15:40 5
+packet in 1 05:17:0a:2b:5f:20 e1:d5:ef:f3:97:94 5
+packet in 1 ef:e6:94:d7:c3:1b 98:c4:b5:e7:ca:82 5
+packet in 1 f0:33:b9:7f:83:a4 ec:b1:22:1b:fe:a1 5
+packet in 1 1b:34:b0:ef:2e:b8 bb:b5:df:e9:ab:22 5
+packet in 1 cc:3b:3f:5d:bb:9d 8f:22:d1:d5:56:c0 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 db:67:39:76:ee:84 f6:b1:ca:08:ab:ac 5
+packet in 1 d6:2a:33:44:4c:af 0d:55:bc:12:7a:4c 5
+packet in 1 80:d0:85:6f:6f:24 a9:17:b7:e6:fc:6f 5
+packet in 1 07:45:1a:06:eb:04 67:81:f3:a4:be:90 5
+packet in 1 bf:7a:6f:66:9c:9c 7e:26:02:15:de:e5 5
+packet in 1 3b:88:e5:55:e4:db 04:84:2a:60:2a:7b 5
+packet in 1 ad:71:bc:75:2c:b0 4a:b3:3b:64:fd:2b 5
+packet in 1 bc:0f:ad:9e:b1:32 55:dc:7e:d3:d9:4c 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 2c:93:2f:d3:e4:de 16:7c:7c:ba:6d:96 5
+packet in 1 eb:6a:c3:53:1a:39 71:0c:0a:f7:34:04 5
+packet in 1 5f:f4:dd:d6:99:f2 92:b1:57:7e:08:74 5
+packet in 1 1b:70:d1:30:14:7e e2:05:d3:a6:d9:52 5
+packet in 1 e1:1e:65:8b:49:c4 cc:5d:5d:2b:bc:02 5
+packet in 1 63:e5:84:49:7c:a1 af:28:ba:cc:45:0e 5
+packet in 1 7c:18:d9:1f:85:a8 8d:6b:2b:0f:95:ce 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 21:eb:7c:7f:cb:eb 41:21:a0:09:a0:97 5
+packet in 1 db:c5:94:4e:fa:32 6f:91:50:9b:e8:c3 5
+packet in 1 d3:16:bd:97:17:f2 b5:50:74:31:a9:a1 5
+packet in 1 8b:09:5e:3a:e5:73 2c:cd:83:08:c4:15 5
+packet in 1 bc:e1:b3:f2:60:4e a0:cc:47:db:83:dd 5
+packet in 1 c4:41:74:9a:47:97 d6:21:3a:3e:0a:6c 5
+packet in 1 b3:b4:cc:b8:0e:8b cd:18:29:d3:ce:3b 5
+packet in 1 b8:58:9c:18:0f:f8 99:de:8b:74:f4:0c 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+packet in 1 40:ac:aa:dd:7d:af e7:09:09:95:2a:5c 5
+packet in 1 4e:0f:b1:8b:f4:29 a9:69:4d:33:f1:cf 5
+packet in 1 2c:b8:6c:b8:ae:47 e9:31:65:7c:b3:c5 5
+packet in 1 56:f6:56:d9:9d:2f a4:83:12:6f:cb:77 5
+packet in 1 df:81:8f:47:fe:6f 19:44:3a:48:c4:db 5
+packet in 1 26:33:52:df:ca:e1 b9:b1:04:18:cf:0d 5
+packet in 1 d9:81:e2:8d:5a:e6 f1:d1:18:7e:6f:54 5
+packet in 1 28:47:44:f2:e9:45 bb:94:cc:e0:c2:63 5
+packet in 1 71:d3:0e:5c:02:00 fb:a8:66:98:8c:ed 5
+packet in 1 ab:26:69:6f:c5:a6 a9:21:96:0d:4a:8c 5
+packet in 1 2d:db:0e:bf:41:85 4c:27:65:a8:c9:eb 5
+packet in 1 df:de:3e:4d:97:63 a9:2c:aa:13:33:04 5
+packet in 1 69:1a:0d:d6:d7:03 77:2d:08:d3:eb:00 5
+packet in 1 b1:b9:b7:df:16:b9 27:c7:31:80:52:14 5
+packet in 1 df:de:52:25:73:8f 0b:dd:cc:02:ae:aa 5
+packet in 1 5a:80:4e:82:7b:4c c4:aa:20:b7:a0:8b 5
+packet in 1 a3:a1:1f:da:1c:0f 8f:cd:50:8d:c1:6d 5
+packet in 1 9d:01:aa:c2:96:4e cf:21:8a:30:e1:3e 5
+packet in 1 16:db:ca:58:31:e7 95:4c:ba:d3:93:c7 5
+packet in 1 2c:07:83:86:bd:02 11:96:3e:b8:8a:45 5
+packet in 1 e0:26:8b:b3:2e:bd 85:3d:87:2e:cc:2d 5
+packet in 1 84:04:8a:f2:fb:b7 2d:5d:f4:79:8a:f8 5
+packet in 1 3b:fb:44:11:82:ba 81:d3:d2:8d:cf:9e 5
+packet in 1 78:57:09:78:7a:e3 f1:6b:e9:38:9b:66 5
+packet in 1 e2:6d:23:fd:e2:ef 9a:ca:6b:96:9d:80 5
+packet in 1 b9:38:17:79:ca:ed 55:cf:cd:e9:bf:a0 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 76:6e:0b:78:a4:50 ec:da:28:a0:47:e4 5
+packet in 1 73:ca:8f:35:7b:6e 54:ec:94:c1:7a:af 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 b2:ee:db:e0:b1:e4 71:6e:74:05:07:fe 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 8c:f1:bc:0a:18:2f e0:79:8f:2c:27:e0 5
+packet in 1 d2:d1:9c:44:8a:fe 4b:0e:d4:11:bd:03 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 2f:98:23:32:bb:57 21:0c:59:e2:3c:3c 5
+packet in 1 30:67:a8:3b:6f:90 37:5c:2d:df:1a:ae 5
+packet in 1 a2:cf:88:00:d0:1b 1b:95:d4:cb:7d:f5 5
+packet in 1 6b:c1:68:3a:9c:87 05:58:ad:ea:bc:02 5
+packet in 1 93:10:c8:81:48:a9 80:a5:13:0d:70:5f 5
+packet in 1 11:e1:b3:ac:4f:92 47:44:ab:15:91:f4 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 be:de:c1:ed:f6:40 f0:35:81:49:2c:1e 5
+packet in 1 92:67:ee:b1:c1:66 a5:cd:5b:8a:35:2e 5
+packet in 1 ea:2d:ea:61:6a:9c 5d:06:12:70:5b:41 5
+packet in 1 97:0f:5d:a1:2c:f4 bc:00:f1:85:05:f3 5
+packet in 1 55:94:bf:33:00:e3 39:27:c1:b8:88:dc 5
+packet in 1 a7:1f:5d:c0:d0:6f 79:d6:5c:0e:1e:c0 5
+packet in 1 5f:61:da:03:31:19 d6:74:84:89:37:6d 5
+packet in 1 01:c0:f7:88:1d:91 0c:dd:8b:b2:f2:68 5
+packet in 1 a4:ac:2c:3b:13:39 c2:53:79:e9:66:69 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 5b:e5:cf:5e:2c:bf 86:5d:dd:63:b0:86 5
+packet in 1 2e:9d:42:34:12:e9 6b:ce:da:0c:65:88 5
+packet in 1 ad:62:b4:6e:c2:99 b5:5a:07:cd:e5:68 5
+packet in 1 22:16:28:fd:a8:8e 61:14:70:75:fe:6f 5
+packet in 1 81:a1:87:c9:b4:29 5d:49:b4:d9:30:7b 5
+packet in 1 3d:4b:bc:33:1b:78 12:68:e3:08:2c:c0 5
+packet in 1 22:2b:fb:7a:a1:29 e1:32:86:fc:15:40 5
+packet in 1 05:17:0a:2b:5f:20 e1:d5:ef:f3:97:94 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 ef:e6:94:d7:c3:1b 98:c4:b5:e7:ca:82 5
+packet in 1 f0:33:b9:7f:83:a4 ec:b1:22:1b:fe:a1 5
+packet in 1 1b:34:b0:ef:2e:b8 bb:b5:df:e9:ab:22 5
+packet in 1 cc:3b:3f:5d:bb:9d 8f:22:d1:d5:56:c0 5
+packet in 1 db:67:39:76:ee:84 f6:b1:ca:08:ab:ac 5
+packet in 1 d6:2a:33:44:4c:af 0d:55:bc:12:7a:4c 5
+packet in 1 80:d0:85:6f:6f:24 a9:17:b7:e6:fc:6f 5
+packet in 1 07:45:1a:06:eb:04 67:81:f3:a4:be:90 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 bf:7a:6f:66:9c:9c 7e:26:02:15:de:e5 5
+packet in 1 3b:88:e5:55:e4:db 04:84:2a:60:2a:7b 5
+packet in 1 ad:71:bc:75:2c:b0 4a:b3:3b:64:fd:2b 5
+packet in 1 bc:0f:ad:9e:b1:32 55:dc:7e:d3:d9:4c 5
+packet in 1 2c:93:2f:d3:e4:de 16:7c:7c:ba:6d:96 5
+packet in 1 eb:6a:c3:53:1a:39 71:0c:0a:f7:34:04 5
+packet in 1 5f:f4:dd:d6:99:f2 92:b1:57:7e:08:74 5
+packet in 1 1b:70:d1:30:14:7e e2:05:d3:a6:d9:52 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 e1:1e:65:8b:49:c4 cc:5d:5d:2b:bc:02 5
+packet in 1 63:e5:84:49:7c:a1 af:28:ba:cc:45:0e 5
+packet in 1 7c:18:d9:1f:85:a8 8d:6b:2b:0f:95:ce 5
+packet in 1 21:eb:7c:7f:cb:eb 41:21:a0:09:a0:97 5
+packet in 1 db:c5:94:4e:fa:32 6f:91:50:9b:e8:c3 5
+packet in 1 d3:16:bd:97:17:f2 b5:50:74:31:a9:a1 5
+packet in 1 8b:09:5e:3a:e5:73 2c:cd:83:08:c4:15 5
+packet in 1 bc:e1:b3:f2:60:4e a0:cc:47:db:83:dd 5
+packet in 1 c4:41:74:9a:47:97 d6:21:3a:3e:0a:6c 5
+packet in 1 b3:b4:cc:b8:0e:8b cd:18:29:d3:ce:3b 5
+packet in 1 b8:58:9c:18:0f:f8 99:de:8b:74:f4:0c 5
+packet in 1 40:ac:aa:dd:7d:af e7:09:09:95:2a:5c 5
+packet in 1 4e:0f:b1:8b:f4:29 a9:69:4d:33:f1:cf 5
+packet in 1 2c:b8:6c:b8:ae:47 e9:31:65:7c:b3:c5 5
+packet in 1 56:f6:56:d9:9d:2f a4:83:12:6f:cb:77 5
+packet in 1 df:81:8f:47:fe:6f 19:44:3a:48:c4:db 5
+packet in 1 26:33:52:df:ca:e1 b9:b1:04:18:cf:0d 5
+packet in 1 d9:81:e2:8d:5a:e6 f1:d1:18:7e:6f:54 5
+packet in 1 28:47:44:f2:e9:45 bb:94:cc:e0:c2:63 5
+packet in 1 71:d3:0e:5c:02:00 fb:a8:66:98:8c:ed 5
+packet in 1 ab:26:69:6f:c5:a6 a9:21:96:0d:4a:8c 5
+packet in 1 2d:db:0e:bf:41:85 4c:27:65:a8:c9:eb 5
+packet in 1 df:de:3e:4d:97:63 a9:2c:aa:13:33:04 5
+packet in 1 69:1a:0d:d6:d7:03 77:2d:08:d3:eb:00 5
+packet in 1 b1:b9:b7:df:16:b9 27:c7:31:80:52:14 5
+packet in 1 df:de:52:25:73:8f 0b:dd:cc:02:ae:aa 5
+packet in 1 5a:80:4e:82:7b:4c c4:aa:20:b7:a0:8b 5
+packet in 1 a3:a1:1f:da:1c:0f 8f:cd:50:8d:c1:6d 5
+packet in 1 9d:01:aa:c2:96:4e cf:21:8a:30:e1:3e 5
+packet in 1 16:db:ca:58:31:e7 95:4c:ba:d3:93:c7 5
+packet in 1 2c:07:83:86:bd:02 11:96:3e:b8:8a:45 5
+packet in 1 e0:26:8b:b3:2e:bd 85:3d:87:2e:cc:2d 5
+packet in 1 84:04:8a:f2:fb:b7 2d:5d:f4:79:8a:f8 5
+packet in 1 3b:fb:44:11:82:ba 81:d3:d2:8d:cf:9e 5
+packet in 1 78:57:09:78:7a:e3 f1:6b:e9:38:9b:66 5
+packet in 1 e2:6d:23:fd:e2:ef 9a:ca:6b:96:9d:80 5
+packet in 1 b9:38:17:79:ca:ed 55:cf:cd:e9:bf:a0 5
+packet in 1 76:6e:0b:78:a4:50 ec:da:28:a0:47:e4 5
+packet in 1 73:ca:8f:35:7b:6e 54:ec:94:c1:7a:af 5
+packet in 1 f1:e1:b0:df:15:b8 8d:94:77:83:f3:f5 5
+packet in 1 f2:ed:fa:ff:d1:c0 27:3b:80:eb:8a:2f 5
+packet in 1 ab:06:29:74:e3:f2 d5:7a:5d:74:0d:53 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 d2:d1:9c:44:8a:fe 4b:0e:d4:11:bd:03 5
+packet in 1 2f:98:23:32:bb:57 21:0c:59:e2:3c:3c 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 30:67:a8:3b:6f:90 37:5c:2d:df:1a:ae 5
+packet in 1 a2:cf:88:00:d0:1b 1b:95:d4:cb:7d:f5 5
+packet in 1 6b:c1:68:3a:9c:87 05:58:ad:ea:bc:02 5
+packet in 1 93:10:c8:81:48:a9 80:a5:13:0d:70:5f 5
+packet in 1 11:e1:b3:ac:4f:92 47:44:ab:15:91:f4 5
+packet in 1 be:de:c1:ed:f6:40 f0:35:81:49:2c:1e 5
+packet in 1 92:67:ee:b1:c1:66 a5:cd:5b:8a:35:2e 5
+packet in 1 ea:2d:ea:61:6a:9c 5d:06:12:70:5b:41 5
+packet in 1 97:0f:5d:a1:2c:f4 bc:00:f1:85:05:f3 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 55:94:bf:33:00:e3 39:27:c1:b8:88:dc 5
+packet in 1 a7:1f:5d:c0:d0:6f 79:d6:5c:0e:1e:c0 5
+packet in 1 5f:61:da:03:31:19 d6:74:84:89:37:6d 5
+packet in 1 01:c0:f7:88:1d:91 0c:dd:8b:b2:f2:68 5
+packet in 1 a4:ac:2c:3b:13:39 c2:53:79:e9:66:69 5
+packet in 1 5b:e5:cf:5e:2c:bf 86:5d:dd:63:b0:86 5
+packet in 1 2e:9d:42:34:12:e9 6b:ce:da:0c:65:88 5
+packet in 1 ad:62:b4:6e:c2:99 b5:5a:07:cd:e5:68 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 22:16:28:fd:a8:8e 61:14:70:75:fe:6f 5
+packet in 1 81:a1:87:c9:b4:29 5d:49:b4:d9:30:7b 5
+packet in 1 3d:4b:bc:33:1b:78 12:68:e3:08:2c:c0 5
+packet in 1 22:2b:fb:7a:a1:29 e1:32:86:fc:15:40 5
+packet in 1 05:17:0a:2b:5f:20 e1:d5:ef:f3:97:94 5
+packet in 1 ef:e6:94:d7:c3:1b 98:c4:b5:e7:ca:82 5
+packet in 1 f0:33:b9:7f:83:a4 ec:b1:22:1b:fe:a1 5
+packet in 1 1b:34:b0:ef:2e:b8 bb:b5:df:e9:ab:22 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 cc:3b:3f:5d:bb:9d 8f:22:d1:d5:56:c0 5
+packet in 1 db:67:39:76:ee:84 f6:b1:ca:08:ab:ac 5
+packet in 1 d6:2a:33:44:4c:af 0d:55:bc:12:7a:4c 5
+packet in 1 80:d0:85:6f:6f:24 a9:17:b7:e6:fc:6f 5
+packet in 1 07:45:1a:06:eb:04 67:81:f3:a4:be:90 5
+packet in 1 bf:7a:6f:66:9c:9c 7e:26:02:15:de:e5 5
+packet in 1 3b:88:e5:55:e4:db 04:84:2a:60:2a:7b 5
+packet in 1 ad:71:bc:75:2c:b0 4a:b3:3b:64:fd:2b 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 bc:0f:ad:9e:b1:32 55:dc:7e:d3:d9:4c 5
+packet in 1 2c:93:2f:d3:e4:de 16:7c:7c:ba:6d:96 5
+packet in 1 eb:6a:c3:53:1a:39 71:0c:0a:f7:34:04 5
+packet in 1 5f:f4:dd:d6:99:f2 92:b1:57:7e:08:74 5
+packet in 1 1b:70:d1:30:14:7e e2:05:d3:a6:d9:52 5
+packet in 1 e1:1e:65:8b:49:c4 cc:5d:5d:2b:bc:02 5
+packet in 1 63:e5:84:49:7c:a1 af:28:ba:cc:45:0e 5
+packet in 1 7c:18:d9:1f:85:a8 8d:6b:2b:0f:95:ce 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 21:eb:7c:7f:cb:eb 41:21:a0:09:a0:97 5
+packet in 1 db:c5:94:4e:fa:32 6f:91:50:9b:e8:c3 5
+packet in 1 d3:16:bd:97:17:f2 b5:50:74:31:a9:a1 5
+packet in 1 8b:09:5e:3a:e5:73 2c:cd:83:08:c4:15 5
+packet in 1 bc:e1:b3:f2:60:4e a0:cc:47:db:83:dd 5
+packet in 1 c4:41:74:9a:47:97 d6:21:3a:3e:0a:6c 5
+packet in 1 b3:b4:cc:b8:0e:8b cd:18:29:d3:ce:3b 5
+packet in 1 b8:58:9c:18:0f:f8 99:de:8b:74:f4:0c 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 40:ac:aa:dd:7d:af e7:09:09:95:2a:5c 5
+packet in 1 4e:0f:b1:8b:f4:29 a9:69:4d:33:f1:cf 5
+packet in 1 2c:b8:6c:b8:ae:47 e9:31:65:7c:b3:c5 5
+packet in 1 56:f6:56:d9:9d:2f a4:83:12:6f:cb:77 5
+packet in 1 df:81:8f:47:fe:6f 19:44:3a:48:c4:db 5
+packet in 1 26:33:52:df:ca:e1 b9:b1:04:18:cf:0d 5
+packet in 1 d9:81:e2:8d:5a:e6 f1:d1:18:7e:6f:54 5
+packet in 1 28:47:44:f2:e9:45 bb:94:cc:e0:c2:63 5
+packet in 1 71:d3:0e:5c:02:00 fb:a8:66:98:8c:ed 5
+packet in 1 ab:26:69:6f:c5:a6 a9:21:96:0d:4a:8c 5
+packet in 1 2d:db:0e:bf:41:85 4c:27:65:a8:c9:eb 5
+packet in 1 df:de:3e:4d:97:63 a9:2c:aa:13:33:04 5
+packet in 1 69:1a:0d:d6:d7:03 77:2d:08:d3:eb:00 5
+packet in 1 b1:b9:b7:df:16:b9 27:c7:31:80:52:14 5
+packet in 1 df:de:52:25:73:8f 0b:dd:cc:02:ae:aa 5
+packet in 1 5a:80:4e:82:7b:4c c4:aa:20:b7:a0:8b 5
+packet in 1 a3:a1:1f:da:1c:0f 8f:cd:50:8d:c1:6d 5
+packet in 1 9d:01:aa:c2:96:4e cf:21:8a:30:e1:3e 5
+packet in 1 16:db:ca:58:31:e7 95:4c:ba:d3:93:c7 5
+packet in 1 2c:07:83:86:bd:02 11:96:3e:b8:8a:45 5
+packet in 1 e0:26:8b:b3:2e:bd 85:3d:87:2e:cc:2d 5
+packet in 1 84:04:8a:f2:fb:b7 2d:5d:f4:79:8a:f8 5
+packet in 1 3b:fb:44:11:82:ba 81:d3:d2:8d:cf:9e 5
+packet in 1 78:57:09:78:7a:e3 f1:6b:e9:38:9b:66 5
+packet in 1 e2:6d:23:fd:e2:ef 9a:ca:6b:96:9d:80 5
+packet in 1 b9:38:17:79:ca:ed 55:cf:cd:e9:bf:a0 5
+packet in 1 76:6e:0b:78:a4:50 ec:da:28:a0:47:e4 5
+packet in 1 73:ca:8f:35:7b:6e 54:ec:94:c1:7a:af 5
+packet in 1 f1:e1:b0:df:15:b8 8d:94:77:83:f3:f5 5
+packet in 1 f2:ed:fa:ff:d1:c0 27:3b:80:eb:8a:2f 5
+packet in 1 ab:06:29:74:e3:f2 d5:7a:5d:74:0d:53 5
+packet in 1 a2:f1:50:51:40:ba 97:4d:95:29:3a:6f 5
+packet in 1 92:7c:3c:d9:3e:2c a2:17:36:3a:ee:b7 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 b2:ee:db:e0:b1:e4 71:6e:74:05:07:fe 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 8c:f1:bc:0a:18:2f e0:79:8f:2c:27:e0 5
+packet in 1 d2:d1:9c:44:8a:fe 4b:0e:d4:11:bd:03 5
+packet in 1 2f:98:23:32:bb:57 21:0c:59:e2:3c:3c 5
+packet in 1 30:67:a8:3b:6f:90 37:5c:2d:df:1a:ae 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 a2:cf:88:00:d0:1b 1b:95:d4:cb:7d:f5 5
+packet in 1 6b:c1:68:3a:9c:87 05:58:ad:ea:bc:02 5
+packet in 1 93:10:c8:81:48:a9 80:a5:13:0d:70:5f 5
+packet in 1 11:e1:b3:ac:4f:92 47:44:ab:15:91:f4 5
+packet in 1 be:de:c1:ed:f6:40 f0:35:81:49:2c:1e 5
+packet in 1 92:67:ee:b1:c1:66 a5:cd:5b:8a:35:2e 5
+packet in 1 ea:2d:ea:61:6a:9c 5d:06:12:70:5b:41 5
+packet in 1 97:0f:5d:a1:2c:f4 bc:00:f1:85:05:f3 5
+packet in 1 55:94:bf:33:00:e3 39:27:c1:b8:88:dc 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 a7:1f:5d:c0:d0:6f 79:d6:5c:0e:1e:c0 5
+packet in 1 5f:61:da:03:31:19 d6:74:84:89:37:6d 5
+packet in 1 01:c0:f7:88:1d:91 0c:dd:8b:b2:f2:68 5
+packet in 1 a4:ac:2c:3b:13:39 c2:53:79:e9:66:69 5
+packet in 1 5b:e5:cf:5e:2c:bf 86:5d:dd:63:b0:86 5
+packet in 1 2e:9d:42:34:12:e9 6b:ce:da:0c:65:88 5
+packet in 1 ad:62:b4:6e:c2:99 b5:5a:07:cd:e5:68 5
+packet in 1 22:16:28:fd:a8:8e 61:14:70:75:fe:6f 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 81:a1:87:c9:b4:29 5d:49:b4:d9:30:7b 5
+packet in 1 3d:4b:bc:33:1b:78 12:68:e3:08:2c:c0 5
+packet in 1 22:2b:fb:7a:a1:29 e1:32:86:fc:15:40 5
+packet in 1 05:17:0a:2b:5f:20 e1:d5:ef:f3:97:94 5
+packet in 1 ef:e6:94:d7:c3:1b 98:c4:b5:e7:ca:82 5
+packet in 1 f0:33:b9:7f:83:a4 ec:b1:22:1b:fe:a1 5
+packet in 1 1b:34:b0:ef:2e:b8 bb:b5:df:e9:ab:22 5
+packet in 1 cc:3b:3f:5d:bb:9d 8f:22:d1:d5:56:c0 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 db:67:39:76:ee:84 f6:b1:ca:08:ab:ac 5
+packet in 1 d6:2a:33:44:4c:af 0d:55:bc:12:7a:4c 5
+packet in 1 80:d0:85:6f:6f:24 a9:17:b7:e6:fc:6f 5
+packet in 1 07:45:1a:06:eb:04 67:81:f3:a4:be:90 5
+packet in 1 bf:7a:6f:66:9c:9c 7e:26:02:15:de:e5 5
+packet in 1 3b:88:e5:55:e4:db 04:84:2a:60:2a:7b 5
+packet in 1 ad:71:bc:75:2c:b0 4a:b3:3b:64:fd:2b 5
+packet in 1 bc:0f:ad:9e:b1:32 55:dc:7e:d3:d9:4c 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 2c:93:2f:d3:e4:de 16:7c:7c:ba:6d:96 5
+packet in 1 eb:6a:c3:53:1a:39 71:0c:0a:f7:34:04 5
+packet in 1 5f:f4:dd:d6:99:f2 92:b1:57:7e:08:74 5
+packet in 1 1b:70:d1:30:14:7e e2:05:d3:a6:d9:52 5
+packet in 1 e1:1e:65:8b:49:c4 cc:5d:5d:2b:bc:02 5
+packet in 1 63:e5:84:49:7c:a1 af:28:ba:cc:45:0e 5
+packet in 1 7c:18:d9:1f:85:a8 8d:6b:2b:0f:95:ce 5
+packet in 1 21:eb:7c:7f:cb:eb 41:21:a0:09:a0:97 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 db:c5:94:4e:fa:32 6f:91:50:9b:e8:c3 5
+packet in 1 d3:16:bd:97:17:f2 b5:50:74:31:a9:a1 5
+packet in 1 8b:09:5e:3a:e5:73 2c:cd:83:08:c4:15 5
+packet in 1 bc:e1:b3:f2:60:4e a0:cc:47:db:83:dd 5
+packet in 1 c4:41:74:9a:47:97 d6:21:3a:3e:0a:6c 5
+packet in 1 b3:b4:cc:b8:0e:8b cd:18:29:d3:ce:3b 5
+packet in 1 b8:58:9c:18:0f:f8 99:de:8b:74:f4:0c 5
+packet in 1 40:ac:aa:dd:7d:af e7:09:09:95:2a:5c 5
+packet in 1 4e:0f:b1:8b:f4:29 a9:69:4d:33:f1:cf 5
+packet in 1 2c:b8:6c:b8:ae:47 e9:31:65:7c:b3:c5 5
+packet in 1 56:f6:56:d9:9d:2f a4:83:12:6f:cb:77 5
+packet in 1 df:81:8f:47:fe:6f 19:44:3a:48:c4:db 5
+packet in 1 26:33:52:df:ca:e1 b9:b1:04:18:cf:0d 5
+packet in 1 d9:81:e2:8d:5a:e6 f1:d1:18:7e:6f:54 5
+packet in 1 28:47:44:f2:e9:45 bb:94:cc:e0:c2:63 5
+packet in 1 71:d3:0e:5c:02:00 fb:a8:66:98:8c:ed 5
+packet in 1 ab:26:69:6f:c5:a6 a9:21:96:0d:4a:8c 5
+packet in 1 2d:db:0e:bf:41:85 4c:27:65:a8:c9:eb 5
+packet in 1 df:de:3e:4d:97:63 a9:2c:aa:13:33:04 5
+packet in 1 69:1a:0d:d6:d7:03 77:2d:08:d3:eb:00 5
+packet in 1 b1:b9:b7:df:16:b9 27:c7:31:80:52:14 5
+packet in 1 df:de:52:25:73:8f 0b:dd:cc:02:ae:aa 5
+packet in 1 5a:80:4e:82:7b:4c c4:aa:20:b7:a0:8b 5
+packet in 1 a3:a1:1f:da:1c:0f 8f:cd:50:8d:c1:6d 5
+packet in 1 9d:01:aa:c2:96:4e cf:21:8a:30:e1:3e 5
+packet in 1 16:db:ca:58:31:e7 95:4c:ba:d3:93:c7 5
+packet in 1 2c:07:83:86:bd:02 11:96:3e:b8:8a:45 5
+packet in 1 e0:26:8b:b3:2e:bd 85:3d:87:2e:cc:2d 5
+packet in 1 84:04:8a:f2:fb:b7 2d:5d:f4:79:8a:f8 5
+packet in 1 3b:fb:44:11:82:ba 81:d3:d2:8d:cf:9e 5
+packet in 1 78:57:09:78:7a:e3 f1:6b:e9:38:9b:66 5
+packet in 1 e2:6d:23:fd:e2:ef 9a:ca:6b:96:9d:80 5
+packet in 1 b9:38:17:79:ca:ed 55:cf:cd:e9:bf:a0 5
+packet in 1 76:6e:0b:78:a4:50 ec:da:28:a0:47:e4 5
+packet in 1 73:ca:8f:35:7b:6e 54:ec:94:c1:7a:af 5
+packet in 1 f1:e1:b0:df:15:b8 8d:94:77:83:f3:f5 5
+packet in 1 f2:ed:fa:ff:d1:c0 27:3b:80:eb:8a:2f 5
+packet in 1 ab:06:29:74:e3:f2 d5:7a:5d:74:0d:53 5
+packet in 1 a2:f1:50:51:40:ba 97:4d:95:29:3a:6f 5
+packet in 1 92:7c:3c:d9:3e:2c a2:17:36:3a:ee:b7 5
+packet in 1 5a:cf:5b:f3:e1:94 f2:15:56:e5:71:54 5
+packet in 1 97:37:fa:c0:9c:e5 b2:34:2f:f5:2d:da 5
+packet in 1 f6:d6:fa:8e:57:db ce:b8:a4:5c:0c:dc 5
+packet in 1 70:ad:29:e8:25:4f cc:44:1f:aa:7e:69 5
+packet in 1 ab:91:1f:05:0e:02 bc:bb:75:a9:75:b1 5
+packet in 1 a1:93:bb:f8:8d:61 14:c5:33:bf:c4:49 5
+packet in 1 f9:38:de:8a:fb:cb 3e:b4:b7:09:c5:1a 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 16:7b:63:61:de:54 96:e5:c9:12:7e:83 5
+packet in 1 c9:29:fa:13:d3:a1 0c:6e:51:43:d7:47 5
+packet in 1 6d:b0:16:6b:67:d8 b3:04:3f:c7:7d:fb 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 6b:08:eb:65:db:54 28:10:c4:f0:6d:ca 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 b2:ee:db:e0:b1:e4 71:6e:74:05:07:fe 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 8c:f1:bc:0a:18:2f e0:79:8f:2c:27:e0 5
+packet in 1 d2:d1:9c:44:8a:fe 4b:0e:d4:11:bd:03 5
+packet in 1 2f:98:23:32:bb:57 21:0c:59:e2:3c:3c 5
+packet in 1 30:67:a8:3b:6f:90 37:5c:2d:df:1a:ae 5
+packet in 1 a2:cf:88:00:d0:1b 1b:95:d4:cb:7d:f5 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 6b:c1:68:3a:9c:87 05:58:ad:ea:bc:02 5
+packet in 1 93:10:c8:81:48:a9 80:a5:13:0d:70:5f 5
+packet in 1 11:e1:b3:ac:4f:92 47:44:ab:15:91:f4 5
+packet in 1 be:de:c1:ed:f6:40 f0:35:81:49:2c:1e 5
+packet in 1 92:67:ee:b1:c1:66 a5:cd:5b:8a:35:2e 5
+packet in 1 ea:2d:ea:61:6a:9c 5d:06:12:70:5b:41 5
+packet in 1 97:0f:5d:a1:2c:f4 bc:00:f1:85:05:f3 5
+packet in 1 55:94:bf:33:00:e3 39:27:c1:b8:88:dc 5
+packet in 1 a7:1f:5d:c0:d0:6f 79:d6:5c:0e:1e:c0 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 5f:61:da:03:31:19 d6:74:84:89:37:6d 5
+packet in 1 01:c0:f7:88:1d:91 0c:dd:8b:b2:f2:68 5
+packet in 1 a4:ac:2c:3b:13:39 c2:53:79:e9:66:69 5
+packet in 1 5b:e5:cf:5e:2c:bf 86:5d:dd:63:b0:86 5
+packet in 1 2e:9d:42:34:12:e9 6b:ce:da:0c:65:88 5
+packet in 1 ad:62:b4:6e:c2:99 b5:5a:07:cd:e5:68 5
+packet in 1 22:16:28:fd:a8:8e 61:14:70:75:fe:6f 5
+packet in 1 81:a1:87:c9:b4:29 5d:49:b4:d9:30:7b 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 3d:4b:bc:33:1b:78 12:68:e3:08:2c:c0 5
+packet in 1 22:2b:fb:7a:a1:29 e1:32:86:fc:15:40 5
+packet in 1 05:17:0a:2b:5f:20 e1:d5:ef:f3:97:94 5
+packet in 1 ef:e6:94:d7:c3:1b 98:c4:b5:e7:ca:82 5
+packet in 1 f0:33:b9:7f:83:a4 ec:b1:22:1b:fe:a1 5
+packet in 1 1b:34:b0:ef:2e:b8 bb:b5:df:e9:ab:22 5
+packet in 1 cc:3b:3f:5d:bb:9d 8f:22:d1:d5:56:c0 5
+packet in 1 db:67:39:76:ee:84 f6:b1:ca:08:ab:ac 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 d6:2a:33:44:4c:af 0d:55:bc:12:7a:4c 5
+packet in 1 80:d0:85:6f:6f:24 a9:17:b7:e6:fc:6f 5
+packet in 1 07:45:1a:06:eb:04 67:81:f3:a4:be:90 5
+packet in 1 bf:7a:6f:66:9c:9c 7e:26:02:15:de:e5 5
+packet in 1 3b:88:e5:55:e4:db 04:84:2a:60:2a:7b 5
+packet in 1 ad:71:bc:75:2c:b0 4a:b3:3b:64:fd:2b 5
+packet in 1 bc:0f:ad:9e:b1:32 55:dc:7e:d3:d9:4c 5
+packet in 1 2c:93:2f:d3:e4:de 16:7c:7c:ba:6d:96 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 eb:6a:c3:53:1a:39 71:0c:0a:f7:34:04 5
+packet in 1 5f:f4:dd:d6:99:f2 92:b1:57:7e:08:74 5
+packet in 1 1b:70:d1:30:14:7e e2:05:d3:a6:d9:52 5
+packet in 1 e1:1e:65:8b:49:c4 cc:5d:5d:2b:bc:02 5
+packet in 1 63:e5:84:49:7c:a1 af:28:ba:cc:45:0e 5
+packet in 1 7c:18:d9:1f:85:a8 8d:6b:2b:0f:95:ce 5
+packet in 1 21:eb:7c:7f:cb:eb 41:21:a0:09:a0:97 5
+packet in 1 db:c5:94:4e:fa:32 6f:91:50:9b:e8:c3 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 d3:16:bd:97:17:f2 b5:50:74:31:a9:a1 5
+packet in 1 8b:09:5e:3a:e5:73 2c:cd:83:08:c4:15 5
+packet in 1 bc:e1:b3:f2:60:4e a0:cc:47:db:83:dd 5
+packet in 1 c4:41:74:9a:47:97 d6:21:3a:3e:0a:6c 5
+packet in 1 b3:b4:cc:b8:0e:8b cd:18:29:d3:ce:3b 5
+packet in 1 b8:58:9c:18:0f:f8 99:de:8b:74:f4:0c 5
+packet in 1 40:ac:aa:dd:7d:af e7:09:09:95:2a:5c 5
+packet in 1 4e:0f:b1:8b:f4:29 a9:69:4d:33:f1:cf 5
+packet in 1 2c:b8:6c:b8:ae:47 e9:31:65:7c:b3:c5 5
+packet in 1 56:f6:56:d9:9d:2f a4:83:12:6f:cb:77 5
+packet in 1 df:81:8f:47:fe:6f 19:44:3a:48:c4:db 5
+packet in 1 26:33:52:df:ca:e1 b9:b1:04:18:cf:0d 5
+packet in 1 d9:81:e2:8d:5a:e6 f1:d1:18:7e:6f:54 5
+packet in 1 28:47:44:f2:e9:45 bb:94:cc:e0:c2:63 5
+packet in 1 71:d3:0e:5c:02:00 fb:a8:66:98:8c:ed 5
+packet in 1 ab:26:69:6f:c5:a6 a9:21:96:0d:4a:8c 5
+packet in 1 2d:db:0e:bf:41:85 4c:27:65:a8:c9:eb 5
+packet in 1 df:de:3e:4d:97:63 a9:2c:aa:13:33:04 5
+packet in 1 69:1a:0d:d6:d7:03 77:2d:08:d3:eb:00 5
+packet in 1 b1:b9:b7:df:16:b9 27:c7:31:80:52:14 5
+packet in 1 df:de:52:25:73:8f 0b:dd:cc:02:ae:aa 5
+packet in 1 5a:80:4e:82:7b:4c c4:aa:20:b7:a0:8b 5
+packet in 1 a3:a1:1f:da:1c:0f 8f:cd:50:8d:c1:6d 5
+packet in 1 9d:01:aa:c2:96:4e cf:21:8a:30:e1:3e 5
+packet in 1 16:db:ca:58:31:e7 95:4c:ba:d3:93:c7 5
+packet in 1 2c:07:83:86:bd:02 11:96:3e:b8:8a:45 5
+packet in 1 e0:26:8b:b3:2e:bd 85:3d:87:2e:cc:2d 5
+packet in 1 84:04:8a:f2:fb:b7 2d:5d:f4:79:8a:f8 5
+packet in 1 3b:fb:44:11:82:ba 81:d3:d2:8d:cf:9e 5
+packet in 1 78:57:09:78:7a:e3 f1:6b:e9:38:9b:66 5
+packet in 1 e2:6d:23:fd:e2:ef 9a:ca:6b:96:9d:80 5
+packet in 1 b9:38:17:79:ca:ed 55:cf:cd:e9:bf:a0 5
+packet in 1 76:6e:0b:78:a4:50 ec:da:28:a0:47:e4 5
+packet in 1 73:ca:8f:35:7b:6e 54:ec:94:c1:7a:af 5
+packet in 1 f1:e1:b0:df:15:b8 8d:94:77:83:f3:f5 5
+packet in 1 f2:ed:fa:ff:d1:c0 27:3b:80:eb:8a:2f 5
+packet in 1 ab:06:29:74:e3:f2 d5:7a:5d:74:0d:53 5
+packet in 1 a2:f1:50:51:40:ba 97:4d:95:29:3a:6f 5
+packet in 1 92:7c:3c:d9:3e:2c a2:17:36:3a:ee:b7 5
+packet in 1 5a:cf:5b:f3:e1:94 f2:15:56:e5:71:54 5
+packet in 1 97:37:fa:c0:9c:e5 b2:34:2f:f5:2d:da 5
+packet in 1 f6:d6:fa:8e:57:db ce:b8:a4:5c:0c:dc 5
+packet in 1 70:ad:29:e8:25:4f cc:44:1f:aa:7e:69 5
+packet in 1 ab:91:1f:05:0e:02 bc:bb:75:a9:75:b1 5
+packet in 1 a1:93:bb:f8:8d:61 14:c5:33:bf:c4:49 5
+packet in 1 f9:38:de:8a:fb:cb 3e:b4:b7:09:c5:1a 5
+packet in 1 16:7b:63:61:de:54 96:e5:c9:12:7e:83 5
+packet in 1 c9:29:fa:13:d3:a1 0c:6e:51:43:d7:47 5
+packet in 1 6d:b0:16:6b:67:d8 b3:04:3f:c7:7d:fb 5
+packet in 1 6b:08:eb:65:db:54 28:10:c4:f0:6d:ca 5
+packet in 1 ce:a3:8a:d2:55:e1 84:d9:d7:f8:f6:0b 5
+packet in 1 d5:28:d0:c0:51:f9 62:58:57:98:6c:76 5
+packet in 1 f1:a8:dd:06:74:e9 1e:de:b7:b7:d4:7d 5
+packet in 1 b5:c9:8a:9f:63:72 30:b4:05:11:89:e0 5
+packet in 1 37:01:83:54:e6:14 bd:21:16:4b:c0:b3 5
+packet in 1 d9:77:d0:a1:35:44 62:24:55:5c:a6:75 5
+packet in 1 d9:57:89:51:7e:9b 9a:01:bb:a5:72:bc 5
+packet in 1 37:c0:71:c9:06:ec 9f:b6:b0:56:50:96 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 b2:ee:db:e0:b1:e4 71:6e:74:05:07:fe 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 d5:28:d0:c0:51:f9 62:58:57:98:6c:76 5
+packet in 1 f1:a8:dd:06:74:e9 1e:de:b7:b7:d4:7d 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 b5:c9:8a:9f:63:72 30:b4:05:11:89:e0 5
+packet in 1 37:01:83:54:e6:14 bd:21:16:4b:c0:b3 5
+packet in 1 d9:77:d0:a1:35:44 62:24:55:5c:a6:75 5
+packet in 1 d9:57:89:51:7e:9b 9a:01:bb:a5:72:bc 5
+packet in 1 bc:0d:c8:c0:9f:22 30:35:25:53:aa:a8 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 ff:07:77:63:df:9b 9d:c7:28:6c:d9:0f 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 8c:f1:bc:0a:18:2f e0:79:8f:2c:27:e0 5
+packet in 1 2f:98:23:32:bb:57 21:0c:59:e2:3c:3c 5
+packet in 1 93:10:c8:81:48:a9 80:a5:13:0d:70:5f 5
+packet in 1 5f:61:da:03:31:19 d6:74:84:89:37:6d 5
+packet in 1 d6:2a:33:44:4c:af 0d:55:bc:12:7a:4c 5
+packet in 1 2d:db:0e:bf:41:85 4c:27:65:a8:c9:eb 5
+packet in 1 df:de:3e:4d:97:63 a9:2c:aa:13:33:04 5
+packet in 1 37:c0:71:c9:06:ec 9f:b6:b0:56:50:96 5
+packet in 1 08:ff:ff:db:80:57 fd:1e:4f:03:57:e7 5
+packet in 1 95:ea:60:0d:ec:2d ba:2c:ba:88:70:c5 5
+packet in 1 02:39:b6:0c:a2:08 e5:9e:89:bc:c3:a5 5
+packet in 1 bc:26:db:1f:3d:10 22:b2:46:ca:bd:13 5
+packet in 1 c1:ec:98:b8:c8:18 76:34:3b:b6:fd:7c 5
+packet in 1 dc:7b:68:7c:11:90 8b:98:d1:a9:69:29 5
+packet in 1 14:7b:a9:6e:4a:a5 6b:24:cd:be:89:23 5
+packet in 1 9f:47:31:5a:59:3e cb:bc:59:37:46:1b 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 b2:ee:db:e0:b1:e4 71:6e:74:05:07:fe 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 01:c0:f7:88:1d:91 0c:dd:8b:b2:f2:68 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 80:d0:85:6f:6f:24 a9:17:b7:e6:fc:6f 5
+packet in 1 07:45:1a:06:eb:04 67:81:f3:a4:be:90 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 bf:7a:6f:66:9c:9c 7e:26:02:15:de:e5 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 69:1a:0d:d6:d7:03 77:2d:08:d3:eb:00 5
+packet in 1 b1:b9:b7:df:16:b9 27:c7:31:80:52:14 5
+packet in 1 df:de:52:25:73:8f 0b:dd:cc:02:ae:aa 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 5a:80:4e:82:7b:4c c4:aa:20:b7:a0:8b 5
+packet in 1 a3:a1:1f:da:1c:0f 8f:cd:50:8d:c1:6d 5
+packet in 1 9d:01:aa:c2:96:4e cf:21:8a:30:e1:3e 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 d5:28:d0:c0:51:f9 62:58:57:98:6c:76 5
+packet in 1 f1:a8:dd:06:74:e9 1e:de:b7:b7:d4:7d 5
+packet in 1 b5:c9:8a:9f:63:72 30:b4:05:11:89:e0 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 37:01:83:54:e6:14 bd:21:16:4b:c0:b3 5
+packet in 1 d9:77:d0:a1:35:44 62:24:55:5c:a6:75 5
+packet in 1 d9:57:89:51:7e:9b 9a:01:bb:a5:72:bc 5
+packet in 1 bc:0d:c8:c0:9f:22 30:35:25:53:aa:a8 5
+packet in 1 ff:07:77:63:df:9b 9d:c7:28:6c:d9:0f 5
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 dc:7b:68:7c:11:90 8b:98:d1:a9:69:29 5
+packet in 1 14:7b:a9:6e:4a:a5 6b:24:cd:be:89:23 5
+packet in 1 9f:47:31:5a:59:3e cb:bc:59:37:46:1b 5
+packet in 1 fc:3c:cb:3a:e2:d5 ee:6c:60:e3:9c:6c 5
+packet in 1 1a:cf:42:55:03:24 90:bb:d8:93:cc:b4 5
+packet in 1 61:f8:a8:18:e4:8b ba:7e:03:e0:59:2c 5
+packet in 1 79:3c:7e:54:8c:ee 37:80:e4:40:52:26 5
+packet in 1 07:fb:b8:7e:cc:24 47:b8:c6:a4:9a:d2 5
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+[GAP] DPID: 0000000000000001
+[FTF] dpid=1 XGBoost=[1]
+[ANOMALY] Detected FTF attack for 1
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:03 33:33:00:00:00:02 3
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPPacketIn
+packet in 1 00:00:00:00:00:04 33:33:00:00:00:02 4
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPFlowStatsReply
+EVENT ofp_event->FTFMController EventOFPStateChange
+Switch disconnesso: 0000000000000001

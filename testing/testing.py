@@ -105,7 +105,7 @@ def main() -> None:
         for h in net.hosts:
             if h.name != attacker:
                 ip = h.IP()
-                pcap_file = f"{pcap_prefix}_{ip.replace('.', '_')}.pcap"
+                pcap_file = f"{pcap_prefix}traffic_{ip.replace('.', '_')}.pcap"
                 offset = offsets.get(ip, 0.0)
                 t = threading.Thread(
                     target=replay_worker,
@@ -133,20 +133,19 @@ def main() -> None:
         # Start threads
         t0 = time()
 
+        attack.start()
+
+        sleep(random.randint(30, 60))
         for t in threads:
             t.start()
 
-        #sleep(random.randint(10, 30))
-        attack.start()
-
         # Stop threads
         attack.join()
-        kill_replay_traffic(procs, stop_event)
+        #kill_replay_traffic(procs, stop_event)
         for t in threads:
-            t.join(timeout=5)
+            t.join() # t.join(timeout=5)
 
-        att_duration = math.ceil(time() - t0)
-        info(f"*** END TRAFFIC: Session duration {att_duration}\n")
+        info(f"*** END TRAFFIC: Session duration {math.ceil(time() - t0)}\n")
 
     finally:
         sleep(30)

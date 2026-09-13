@@ -33,7 +33,7 @@ root = os.path.dirname(parent)
 sys.path.append(parent)
 sys.path.append(root)
 
-TRAINING_SET = current + '/logs/dataset_1789123840.csv'
+TRAINING_SET = current + '/logs/dataset_1789224481.csv'
 MODELS_DIR = root + '/models/malicious_fr_detector'
 
 os.makedirs(MODELS_DIR, exist_ok=True)
