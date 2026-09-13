@@ -11,6 +11,12 @@ class FeatureExt():
     def __init__(self):
         self.window = deque(maxlen=self.WINDOW_SIZE)
 
+    def has_enough_data(self, occupancy: float=0.8):
+        """
+        Check if pkt in window has enough data
+        """
+        return len(self.window) / float(self.WINDOW_SIZE) >= occupancy
+
     def add_pkt_in(self, payload, src_ip, dst_ip, src_mac, dst_mac):
         self.window.append(self.PktInData(payload, len(payload), src_ip, dst_ip, src_mac, dst_mac))
 

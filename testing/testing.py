@@ -141,9 +141,10 @@ def main() -> None:
 
         # Stop threads
         attack.join()
-        #kill_replay_traffic(procs, stop_event)
+        sleep(random.randint(30, 60))
+        kill_replay_traffic(procs, stop_event)
         for t in threads:
-            t.join() # t.join(timeout=5)
+            t.join(timeout=5)
 
         info(f"*** END TRAFFIC: Session duration {math.ceil(time() - t0)}\n")
 

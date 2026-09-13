@@ -198,6 +198,32 @@ class FTFMController(app_manager.RyuApp):
         
         datapath.send_msg(mod)
 
+    def delete_flow(self, datapath, match, priority=1, strict=True):
+        """
+        Send an OFPFlowMod:
+
+        - OFPFC_DELETE_STRICT (strict=True) deletes flow rules by match+priority
+        - OFPFC_DELETE (strict=False) deletes flow rules by wildcard
+        """
+        ofproto = datapath.ofproto
+        parser = datapath.ofproto_parser
+
+        command = ofproto.OFPFC_DELETE_STRICT if strict else ofproto.OFPFC_DELETE
+
+        mod = parser.OFPFlowMod(
+            datapath=datapath,
+            command=command,
+            out_port=ofproto.OFPP_ANY,
+            out_group=ofproto.OFPG_ANY,
+            priority=priority,
+            match=match
+        )
+        datapath.send_msg(mod)
+        self.logger.info(
+            '[EVICTION] dpid=%016x priority=%s match=%s',
+            datapath.id, priority, match
+        )
+
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
         msg = ev.msg
@@ -290,7 +316,8 @@ class FTFMController(app_manager.RyuApp):
         stats = [stat for stat in body if stat.priority == 1]
         if not stats:
             return
-        # Check occupancy
+        if not self.feature_ext[dpid].has_enough_data():
+            return
         occupancy = len(stats) / float(self.FLOW_TABLE_SIZE)
         if occupancy < self.FLOW_TABLE_THRESHOLD:
             return
@@ -360,7 +387,14 @@ class FTFMController(app_manager.RyuApp):
                 with open(self.REPORT_PATH, "a", newline="") as f:
                     f.write(f"""
                         * FLOW RULE FEATURES: {fr_features}
-                        * FLOW RULE {i}/{n}: {src_ip} -> {dst_ip}
+                        * FLOW RULE: {src_ip} -> {dst_ip}
                     
                     """)
-            i+=1
+                self.delete_flow(datapath, stat.match, priority=stat.priority, strict=True)
+                i+=1
+
+        with open(self.REPORT_PATH, "a", newline="") as f:
+            f.write(f"""
+                * MALICIOUS FLOW RULES: {i}/{len(stats)}/{self.FLOW_TABLE_SIZE}
+            
+            """)        

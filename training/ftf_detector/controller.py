@@ -240,6 +240,8 @@ class FTFMController(app_manager.RyuApp):
         stats = [stat for stat in body if stat.priority == 1]
         if not stats:
             return
+        if not self.feature_ext[dpid].has_enough_data(occupancy=0.2):
+            return
         hub.spawn(self._process_stats, dpid, stats) 
 
     def _process_stats(self, dpid, stats):
