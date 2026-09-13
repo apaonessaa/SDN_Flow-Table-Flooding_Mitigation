@@ -60,7 +60,7 @@ def main() -> None:
         "IDLE_TIMEOUT": f"{idle_timeout}",
         "HARD_TIMEOUT": f"{hard_timeout}",
         "K_FACTOR": f"{k_factor}",
-        "MODEL": "XGBoost"
+        "MODEL": "CatBoost"
     }
     controller = start_controller(controller_envs, log_path=f"{log_path}/controller_{log_timestamp}.log")
 
@@ -133,16 +133,17 @@ def main() -> None:
         # Start threads
         t0 = time()
 
-        attack.start()
+        #attack.start()
 
-        sleep(random.randint(30, 60))
+        #sleep(random.randint(30, 60))
         for t in threads:
             t.start()
 
         # Stop threads
-        attack.join()
-        sleep(random.randint(30, 60))
-        kill_replay_traffic(procs, stop_event)
+        #attack.join()
+        #sleep(random.randint(30, 60))
+        #kill_replay_traffic(procs, stop_event)
+        sleep(90)
         for t in threads:
             t.join(timeout=5)
 

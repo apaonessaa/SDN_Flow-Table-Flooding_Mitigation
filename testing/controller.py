@@ -66,7 +66,7 @@ class FTFMController(app_manager.RyuApp):
         self.logger.debug(f"[GAP] Intervallo di tempo per la cattura delle features: {self.T}s")
         self.collector = hub.spawn(self._collector)
 
-        if self.MODEL == "Catboost":
+        if self.MODEL == "CatBoost":
             self.ftf_detector = CatBoostClassifier()
             self.mfr_detector = CatBoostClassifier()
             self.ftf_detector.load_model(self.CATBOOST_FTF_DETECTOR)
@@ -345,12 +345,12 @@ class FTFMController(app_manager.RyuApp):
             mean_duration, cvd, mean_pkts, cvp, mean_bytes, cvb
         ]
 
-        if self.MODEL in ("Catboost", "XGBoost"):
-            ftf_pred = self.ftf_detector.predict([ft_features])
-        else:
+        if self.MODEL in ("HFBert"):
             ftf_pred = self._bert_predict(
                 self.ftf_bert, self.ftf_bert_discretizer, self.ftf_bert_n_bins, ft_features
             )
+        else:
+            ftf_pred = self.ftf_detector.predict([ft_features])
 
         self.logger.debug('[FTF] dpid=%s %s=%s', dpid, self.MODEL, ftf_pred)
 
@@ -374,12 +374,12 @@ class FTFMController(app_manager.RyuApp):
                 duration, packet_count, byte_count, pkt_rate, byte_rate, psi
             ]
 
-            if self.MODEL in ("Catboost", "XGBoost"):
-                fr_pred = self.mfr_detector.predict([fr_features])
-            else:
+            if self.MODEL in ("HFBert"):
                 fr_pred = self._bert_predict(
                     self.mfr_bert, self.mfr_bert_discretizer, self.mfr_bert_n_bins, fr_features
                 )
+            else:
+                fr_pred = self.mfr_detector.predict([fr_features])                
 
             if fr_pred:
                 src_ip = stat.match.get('ipv4_src', None)
@@ -390,7 +390,7 @@ class FTFMController(app_manager.RyuApp):
                         * FLOW RULE: {src_ip} -> {dst_ip}
                     
                     """)
-                self.delete_flow(datapath, stat.match, priority=stat.priority, strict=True)
+                #self.delete_flow(datapath, stat.match, priority=stat.priority, strict=True)
                 i+=1
 
         with open(self.REPORT_PATH, "a", newline="") as f:
