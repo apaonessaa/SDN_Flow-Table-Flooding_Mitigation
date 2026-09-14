@@ -21,6 +21,10 @@ class FTFUtils:
         return str(RandIP())
 
     @staticmethod
+    def random_local_ip() -> str:
+        return f'10.0.0.{random.randint(1,254)}'
+
+    @staticmethod
     def random_port() -> int:
         return random.randint(1024, 65535)
 

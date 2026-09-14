@@ -33,7 +33,7 @@ root = os.path.dirname(parent)
 sys.path.append(parent)
 sys.path.append(root)
 
-TRAINING_SET = current + '/logs/dataset_1789224481.csv'
+TRAINING_SET = current + '/logs/dataset_1789382298.csv'
 MODELS_DIR = root + '/models/malicious_fr_detector'
 
 os.makedirs(MODELS_DIR, exist_ok=True)
@@ -557,14 +557,14 @@ if __name__ == "__main__":
 
     results = []
 
-    print("\n\n=== Tuning HF-BERT (Optuna + GroupKFold) ===")
-    best_bert_params = tune_hf_bert(X_train, y_train, groups_train)
-
     print("\n\n=== Tuning CatBoost (Optuna + GroupKFold) ===")
     best_cb_params = tune_catboost(X_train, y_train, groups_train)
 
     print("\n\n=== Tuning XGBoost (Optuna + GroupKFold) ===")
     best_xgb_params = tune_xgboost(X_train, y_train, groups_train)
+
+    print("\n\n=== Tuning HF-BERT (Optuna + GroupKFold) ===")
+    best_bert_params = tune_hf_bert(X_train, y_train, groups_train)
 
     print("\n\n=== Training finale CatBoost ===")
     train_catboost(X_train, X_test, y_train, y_test, groups_train, results, best_cb_params)

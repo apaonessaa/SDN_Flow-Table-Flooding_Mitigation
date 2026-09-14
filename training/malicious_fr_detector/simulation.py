@@ -115,7 +115,7 @@ def main() -> None:
         writer = csv.writer(f)
         writer.writerow(["topo", "hard_timeout", "idle_timeout", "flow_table_size", "npkts", "profile", "anp", "att_duration", "fill_time"])
 
-    for i in range(8):
+    for i in range(7):
         topo = topos[i%len(topos)]
         # hard_timeout: 5 < hard <= 30
         hard_timeout = rng.randint(6, 30)
@@ -180,6 +180,7 @@ def main() -> None:
                 max_interval=30,
                 net=net,
                 out_file=f"{current}/logs/ftf_{log_timestamp}.csv",
+                local_ip=False if i%2 else True,
                 idle=idle_timeout,
                 hard=hard_timeout
             )

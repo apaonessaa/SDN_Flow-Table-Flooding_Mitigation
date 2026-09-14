@@ -121,7 +121,8 @@ def main() -> None:
             added_new_packets=anp,
             max_iter=10,
             max_interval=30,
-            net=net
+            net=net,
+            local_ip=True
         )
 
         (src, dst) = topo.conn_hosts
@@ -133,17 +134,16 @@ def main() -> None:
         # Start threads
         t0 = time()
 
-        #attack.start()
+        attack.start()
 
         #sleep(random.randint(30, 60))
         for t in threads:
             t.start()
 
         # Stop threads
-        #attack.join()
-        #sleep(random.randint(30, 60))
-        #kill_replay_traffic(procs, stop_event)
-        sleep(90)
+        attack.join()
+        sleep(30)
+        kill_replay_traffic(procs, stop_event)
         for t in threads:
             t.join(timeout=5)
 
