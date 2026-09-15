@@ -211,14 +211,12 @@ class FTFMController(app_manager.RyuApp):
         command = ofproto.OFPFC_DELETE_STRICT if strict else ofproto.OFPFC_DELETE
 
         mod = parser.OFPFlowMod(
-            datapath=datapath,
-            command=command,
-            out_port=ofproto.OFPP_ANY,
-            out_group=ofproto.OFPG_ANY,
-            priority=priority,
-            match=match
-        )
+            datapath=datapath, command=command,
+            out_port=ofproto.OFPP_ANY, out_group=ofproto.OFPG_ANY,
+            priority=priority, match=match)
+        
         datapath.send_msg(mod)
+
         self.logger.info(
             '[EVICTION] dpid=%016x priority=%s match=%s',
             datapath.id, priority, match
@@ -325,6 +323,7 @@ class FTFMController(app_manager.RyuApp):
 
     def _process_stats(self, dpid, stats):
         self.logger.debug(f"[GAP] DPID: {dpid:016x}")
+        datapath = self.datapaths.get(dpid)
 
         # Get Pkt In Feature
         ((payload_entropy_mean, payload_entropy_cv), payload_size_entropy,
