@@ -33,7 +33,7 @@ root = os.path.dirname(parent)
 sys.path.append(parent)
 sys.path.append(root)
 
-TRAINING_SET = current + '/logs/dataset_1789049581.csv'
+TRAINING_SET = '/tmp/dataset.csv' #current + '/logs/dataset_1789567026.csv'
 MODELS_DIR = root + '/models/ftf_detector'
 
 os.makedirs(MODELS_DIR, exist_ok=True)
@@ -563,7 +563,7 @@ if __name__ == "__main__":
     results = []
 
     print("\n\n=== Tuning HF-BERT (Optuna + GroupKFold) ===")
-    best_bert_params = tune_hf_bert(X_train, y_train, groups_train)
+    #best_bert_params = tune_hf_bert(X_train, y_train, groups_train)
 
     print("\n\n=== Tuning CatBoost (Optuna + GroupKFold) ===")
     best_cb_params = tune_catboost(X_train, y_train, groups_train)
@@ -578,7 +578,7 @@ if __name__ == "__main__":
     train_xgboost(X_train, X_test, y_train, y_test, results, best_xgb_params)
 
     print("\n\n=== Training finale HF-BERT ===")
-    train_hf_bert(X_train, X_test, y_train, y_test, results, best_bert_params)
+    #train_hf_bert(X_train, X_test, y_train, y_test, results, best_bert_params)
 
     comparison = pd.DataFrame(results).set_index("model")
     print("\n\n=== Confronto finale ===")

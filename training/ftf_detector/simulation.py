@@ -115,7 +115,7 @@ def main() -> None:
         writer = csv.writer(f)
         writer.writerow(["topo", "hard_timeout", "idle_timeout", "flow_table_size", "npkts", "profile", "anp", "att_duration", "fill_time"])
 
-    for i in range(8):
+    for i in range(len(pcap_prefixes)):
         topo = topos[i%len(topos)]
         # hard_timeout: 5 < hard <= 30
         hard_timeout = rng.randint(6, 30)
@@ -127,10 +127,6 @@ def main() -> None:
         margin = rng.randint(0, 10*n_host)
         npkts = flow_table_size + margin
         # att_anp: 1 min - ~10 min
-        #df['start'] = pd.to_datetime(df['start'])
-        #df['end'] = pd.to_datetime(df['end'])
-        #T_min = 60
-        #T_max = int((df['end'].iloc[i] - df['start'].iloc[i]).total_seconds() - 30)
         anp, profile, fill_time = sample_attack_rate(npkts, flow_table_size)
         
         # att_duration

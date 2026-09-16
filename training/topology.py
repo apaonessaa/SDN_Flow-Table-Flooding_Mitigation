@@ -4,7 +4,7 @@ from mininet.log import info
 
 class CustomTopo1(Topo):
     "Custom Topology Network"
-    conn_hosts = ('h1', 'h11')
+    conn_hosts = ('h1', 'h2')
     att_hosts = ('h15', 'h14')
     victim_dpid = 1
     def build(self):
@@ -45,7 +45,7 @@ class CustomTopo1(Topo):
 
 class CustomTopo2(Topo):
     "Custom Topology Network"
-    conn_hosts = ('h1', 'h11')
+    conn_hosts = ('h1', 'h10')
     att_hosts = ('h15', 'h14')
     victim_dpid = 2
     def build(self):
@@ -88,7 +88,7 @@ class CustomTopo2(Topo):
 
 class CustomTopo3(Topo):
     "Custom Topology Network"
-    conn_hosts = ('h1', 'h14')
+    conn_hosts = ('h1', 'h11')
     att_hosts = ('h15', 'h14')
     victim_dpid = 3
     def build(self):
@@ -133,9 +133,9 @@ class CustomTopo3(Topo):
 
 class CustomTopo4(Topo):
     "Custom Topology Network"
-    conn_hosts = ('h1', 'h12')
-    att_hosts = ('h15', 'h2')
-    victim_dpid = 1
+    conn_hosts = ('h1', 'h8')
+    att_hosts = ('h15', 'h7')
+    victim_dpid = 2
     def build(self):
         info("* Build Topology\n")
         # Switch
@@ -176,12 +176,12 @@ class CustomTopo4(Topo):
         self.addLink(h12, s4)
         self.addLink(h13, s4)
         self.addLink(h14, s4)
-        self.addLink(h15, s1)
+        self.addLink(h15, s2)
 
 class CustomTopo5(Topo):
     "Custom Topology Network"
-    conn_hosts = ('h1', 'h13')
-    att_hosts = ('h15', 'h10')
+    conn_hosts = ('h1', 'h12')
+    att_hosts = ('h15', 'h9')
     victim_dpid = 3
     def build(self):
         info("* Build Topology\n")
@@ -227,7 +227,7 @@ class CustomTopo5(Topo):
 
 class CustomTopo6(Topo):
     "Custom Topology Network"
-    conn_hosts = ('h1', 'h13')
+    conn_hosts = ('h1', 'h7')
     att_hosts = ('h15', 'h4')
     victim_dpid = 2
     def build(self):
@@ -276,9 +276,9 @@ class CustomTopo6(Topo):
 
 class CustomTopo7(Topo):
     "Custom Topology Network"
-    conn_hosts = ('h1', 'h13')
-    att_hosts = ('h15', 'h4')
-    victim_dpid = 2
+    conn_hosts = ('h1', 'h14')
+    att_hosts = ('h15', 'h9')
+    victim_dpid = 3
     def build(self):
         info("* Build Topology\n")
         # Switch
@@ -311,16 +311,16 @@ class CustomTopo7(Topo):
         h15 = self.addHost('h15', ip='10.0.0.15/24', mac='00:00:00:00:00:15')
         self.addLink(h1, s1)
         self.addLink(h2, s1)
-        self.addLink(h3, s6)
-        self.addLink(h4, s6)
-        self.addLink(h5, s2)
-        self.addLink(h6, s2)
+        self.addLink(h3, s1)
+        self.addLink(h4, s1)
+        self.addLink(h5, s1)
+        self.addLink(h6, s1)
         self.addLink(h7, s3)
         self.addLink(h8, s3)
         self.addLink(h9, s3)
-        self.addLink(h10, s4)
-        self.addLink(h11, s4)
-        self.addLink(h12, s4)
+        self.addLink(h10, s3)
+        self.addLink(h11, s5)
+        self.addLink(h12, s5)
         self.addLink(h13, s5)
         self.addLink(h14, s5)
-        self.addLink(h15, s2)
+        self.addLink(h15, s3)

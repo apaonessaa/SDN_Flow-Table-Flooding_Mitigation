@@ -251,12 +251,14 @@ class FTFMController(app_manager.RyuApp):
         ((payload_entropy_mean, payload_entropy_cv), payload_size_entropy,
          src_ip_entropy, dst_ip_entropy,
          src_mac_entropy, dst_mac_entropy) = self.feature_ext[dpid].get_pkt_in_features()
+        """
         self.logger.debug(
             f"[GAP] > Payload Entropy Mean: {payload_entropy_mean}, Payload Entropy CV: {payload_entropy_cv}, "
             f"Payload Size Entropy: {payload_size_entropy}, "
             f"Src IP Entropy: {src_ip_entropy}, Dst IP Entropy: {dst_ip_entropy}, "
             f"Src MAC Entropy: {src_mac_entropy}, Dst MAC Entropy: {dst_mac_entropy}"
         )
+        """
 
         # Get Flow Table Feature
         (c_used, paf, ft_psi,
@@ -264,7 +266,7 @@ class FTFMController(app_manager.RyuApp):
          (mean_duration, cvd),
          (mean_pkts, cvp),
          (mean_bytes, cvb)) = self.feature_ext[dpid].get_ft_features(stats, self.FLOW_TABLE_SIZE)
-
+        """
         self.logger.debug(
             f"[GAP] > C_used: {c_used}, PAF: {paf}, PSI: {ft_psi}, Duration Entropy: {durations_entropy}, "
             f"Duration entropy: {durations_entropy}, Packet entropy: {pkts_entropy}, Bytes_entropy: {bytes_entropy}, "
@@ -272,15 +274,18 @@ class FTFMController(app_manager.RyuApp):
             f"Mean Packet: {mean_pkts}, CVP: {cvp}, "
             f"Mean Bytes: {mean_bytes}, CVB: {cvb}"
         )
+        """
 
         # Get Features
         for stat in stats:
             duration, packet_count, byte_count, pkt_rate, byte_rate, psi = self.feature_ext[dpid].get_flow_feature(stat)
+            """
             self.logger.debug(
                 f"[GAP] >> Duration: {duration}, Packet count: {packet_count}, "
                 f"Byte count: {byte_count}, Packet Rate: {pkt_rate}, "
                 f"Byte Rate: {byte_rate}, PSI: {psi}"
             )
+            """
 
         row = [
             payload_entropy_mean, payload_entropy_cv, payload_size_entropy,
