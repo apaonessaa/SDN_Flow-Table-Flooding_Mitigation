@@ -37,21 +37,32 @@ from mitigation.feature_ext import FeatureExt
 
 class FTFMController(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_4.OFP_VERSION]
-    DATASET_COLUMNS = [
+    DATASET_FTF_COLUMNS = [
         "payload_entropy_mean", "payload_entropy_cv", "payload_size_entropy",
         "src_ip_entropy", "dst_ip_entropy", "src_mac_entropy", "dst_mac_entropy",
         "c_used", "paf", "ft_psi", "durations_entropy", "pkts_entropy", "bytes_entropy",
         "mean_duration", "cvd", "mean_pkts", "cvp", "mean_bytes", "cvb", 
         "group_id", "label"
     ]
+    DATASET_MFR_COLUMNS = [
+        "duration", "packet_count", "byte_count",
+        "packets_per_seconds", "bytes_per_seconds", "psi",
+        "group_id", "label"
+    ]
     GROUP_ID = os.environ.get('GROUP_ID', 0)
-    LABEL = os.environ.get('LABEL', 0) #0 buono, 1 cattivo
-    DATASET_PATH = os.environ.get('DATASET_PATH', '/tmp/dataset.csv')
+    FTF_LABEL = os.environ.get('FTF_LABEL', 0) #0 buono, 1 cattivo
+    DATASET_FTF_PATH = os.environ.get('DATASET_FTF_PATH', '/tmp/dataset_ftf.csv')
+    DATASET_MFR_PATH = os.environ.get('DATASET_MFR_PATH', '/tmp/dataset_mfr.csv')
     FLOW_TABLE_SIZE = int(os.environ.get('FLOW_TABLE_SIZE', '50'))
     IDLE_TIMEOUT = int(os.environ.get('IDLE_TIMEOUT', '10'))
     HARD_TIMEOUT = int(os.environ.get('HARD_TIMEOUT', '20'))
     K_FACTOR = int(os.environ.get('K_FACTOR', '3'))
     DPID = int(os.environ.get('DPID', '0000000000000001'), 16)
+    VALID_IPS = [
+        '10.0.0.1', '10.0.0.2', '10.0.0.3', '10.0.0.4', '10.0.0.5',
+        '10.0.0.6', '10.0.0.7', '10.0.0.8', '10.0.0.9', '10.0.0.10',
+        '10.0.0.11', '10.0.0.12', '10.0.0.13', '10.0.0.14', '10.0.0.15'
+    ]
 
     def __init__(self, *args, **kwargs):
         super(FTFMController, self).__init__(*args, **kwargs)
@@ -65,12 +76,19 @@ class FTFMController(app_manager.RyuApp):
         self.collector = hub.spawn(self._collector)
 
     def _init_csv(self):
-        write_header = not os.path.exists(self.DATASET_PATH)
-        self._csv_file = open(self.DATASET_PATH, "a", newline="")
-        self._csv_writer = csv.writer(self._csv_file)
-        if write_header:
-            self._csv_writer.writerow(self.DATASET_COLUMNS)
-            self._csv_file.flush()
+        write_header_ftf = not os.path.exists(self.DATASET_FTF_PATH)
+        self._csv_file_ftf = open(self.DATASET_FTF_PATH, "a", newline="")
+        self._csv_writer_ftf = csv.writer(self._csv_file_ftf)
+        if write_header_ftf:
+            self._csv_writer_ftf.writerow(self.DATASET_FTF_COLUMNS)
+            self._csv_file_ftf.flush()
+
+        write_header_mfr = not os.path.exists(self.DATASET_MFR_PATH)
+        self._csv_file_mfr = open(self.DATASET_MFR_PATH, "a", newline="")
+        self._csv_writer_mfr = csv.writer(self._csv_file_mfr)
+        if write_header_mfr:
+            self._csv_writer_mfr.writerow(self.DATASET_MFR_COLUMNS)
+            self._csv_file_mfr.flush()
 
     def _collector(self):
         """
@@ -286,13 +304,19 @@ class FTFMController(app_manager.RyuApp):
                 f"Byte Rate: {byte_rate}, PSI: {psi}"
             )
             """
-
-        row = [
+            row_mfr = [
+                duration, packet_count, byte_count, pkt_rate, byte_rate, psi,
+                self.GROUP_ID, stat.match.get('ipv4_src', None) not in self.VALID_IPS or stat.match.get('ipv4_dst', None) not in self.VALID_IPS
+            ]
+            self._csv_writer_mfr.writerow(row_mfr)
+            self._csv_file_mfr.flush()
+            
+        row_ftf = [
             payload_entropy_mean, payload_entropy_cv, payload_size_entropy,
             src_ip_entropy, dst_ip_entropy, src_mac_entropy, dst_mac_entropy,
             c_used, paf, ft_psi, durations_entropy, pkts_entropy, bytes_entropy,
             mean_duration, cvd, mean_pkts, cvp, mean_bytes, cvb, 
-            self.GROUP_ID, self.LABEL
+            self.GROUP_ID, self.FTF_LABEL
         ]
-        self._csv_writer.writerow(row)
-        self._csv_file.flush()
+        self._csv_writer_ftf.writerow(row_ftf)
+        self._csv_file_ftf.flush()

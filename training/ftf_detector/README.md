@@ -12,7 +12,7 @@ cat <<'EOF' | bash
 
 PROJECT="$(pwd)" 
 
-python3 "$PROJECT/utils/split_pcap_sessions.py" --input "$PROJECT/Monday-WorkingHours.pcap" --outdir "$PROJECT/training/pcaps/scenarios" --segment-seconds 1800
+python3 "$PROJECT/utils/split_pcap_sessions.py" --input "$PROJECT/../Monday-WorkingHours.pcap" --outdir "$PROJECT/training/pcaps/scenarios" --segment-seconds 600
 EOF
 ```
 
@@ -31,9 +31,9 @@ done
 
 for SCENARIO_DIR in "$PROJECT"/training/pcaps/traffics/*/; do
     SCENARIO=$(basename "$SCENARIO_DIR")
-    python3 "$PROJECT/utils/remap_split_pcap.py" \
+    python3 "$PROJECT/utils/remap_split_by_host_pcap.py" \
         "$PROJECT/training/pcaps/scenarios/$SCENARIO.pcap" \
-        "$PROJECT/training/pcaps/traffics/$SCENARIO/" \
+        "$PROJECT/training/pcaps/traffics/$SCENARIO/traffic" \
         -n 14 -d 7
 done
 EOF

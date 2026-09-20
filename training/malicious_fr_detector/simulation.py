@@ -22,15 +22,15 @@ from utils.sim_utils import *
 from mod_attack.ftf_attack import FTFAttack
 
 import random
-rng = random.Random(42)
+rng = random.Random(67)
 
 SET_FT_SIZE_PATH = root + "/config/set_ft_size.sh"
 
-def sample_attack_rate(npkts, flow_table_size, min_anp=5):
+def sample_attack_rate(npkts, flow_table_size, min_anp={"aggressive": 10,"moderate": 7,"stealth": 2}):
     stealth_profiles = {
-        "aggressive": (5, 20),
-        "moderate":   (60, 180),
-        "stealth":    (300, 420),
+        "aggressive": (10, 60),
+        "moderate":   (120, 300),
+        "stealth":    (350, 550),
     }
     profile = rng.choice(list(stealth_profiles.keys()))
     t_min, t_max = stealth_profiles[profile]
@@ -46,8 +46,7 @@ def main() -> None:
         CustomTopo3(),
         CustomTopo4(),
         CustomTopo5(),
-        CustomTopo6(),
-        CustomTopo7()
+        CustomTopo6()
     ]
 
     pcap_prefixes = [
@@ -99,7 +98,7 @@ def main() -> None:
         parent + "/pcaps/traffics/scenario_045/",
         parent + "/pcaps/traffics/scenario_046/",
         parent + "/pcaps/traffics/scenario_047/",
-        parent + "/pcaps/traffics/scenario_048/",
+        #parent + "/pcaps/traffics/scenario_048/",
     ]
     
     att_wait = None
@@ -115,17 +114,16 @@ def main() -> None:
         writer = csv.writer(f)
         writer.writerow(["topo", "hard_timeout", "idle_timeout", "flow_table_size", "npkts", "profile", "anp", "att_duration", "fill_time"])
 
-    for i in range(7):
+    for i in range(len(pcap_prefixes)):
         topo = topos[i%len(topos)]
         # hard_timeout: 5 < hard <= 30
-        hard_timeout = rng.randint(6, 30)
+        hard_timeout = rng.randint(6, 15)
         # idle_timeout: idle <= hard
         idle_timeout = rng.randint(2, hard_timeout)
         # flow_table_size
-        flow_table_size = rng.randint(half_size, 30*n_host)
+        flow_table_size = rng.randint(half_size, full_size+100)
         # att_npkts: att_npkts >= flow_table_size
-        margin = rng.randint(0, 10*n_host)
-        npkts = flow_table_size + margin
+        npkts = flow_table_size + rng.randint(0, half_size)
         # att_anp: 1 min - ~10 min
         anp, profile, fill_time = sample_attack_rate(npkts, flow_table_size)
         

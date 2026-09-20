@@ -22,15 +22,15 @@ from utils.sim_utils import *
 from attack.ftf_attack import FTFAttack
 
 import random
-rng = random.Random(42)
+rng = random.Random(67)
 
 SET_FT_SIZE_PATH = root + "/config/set_ft_size.sh"
 
-def sample_attack_rate(npkts, flow_table_size, min_anp=5):
+def sample_attack_rate(npkts, flow_table_size, min_anp=1):
     stealth_profiles = {
-        "aggressive": (5, 20),
-        "moderate":   (60, 180),
-        "stealth":    (300, 420),
+        "aggressive": (10, 100),
+        "moderate":   (300, 600),
+        "stealth":    (1200, 2100),
     }
     profile = rng.choice(list(stealth_profiles.keys()))
     t_min, t_max = stealth_profiles[profile]
@@ -40,14 +40,14 @@ def sample_attack_rate(npkts, flow_table_size, min_anp=5):
 
 def main() -> None:
     # Topologies
+    # Topologies
     topos = [
         CustomTopo1(),
         CustomTopo2(),
         CustomTopo3(),
         CustomTopo4(),
         CustomTopo5(),
-        CustomTopo6(),
-        CustomTopo7()
+        CustomTopo6()
     ]
 
     pcap_prefixes = [
@@ -99,8 +99,9 @@ def main() -> None:
         parent + "/pcaps/traffics/scenario_045/",
         parent + "/pcaps/traffics/scenario_046/",
         parent + "/pcaps/traffics/scenario_047/",
-        parent + "/pcaps/traffics/scenario_048/",
+        #parent + "/pcaps/traffics/scenario_048/",
     ]
+    
     att_wait = None
     k_factor = 3
     n_host = 15
@@ -108,7 +109,6 @@ def main() -> None:
     half_size = int(full_size / 2)
     log_timestamp = int(time())
 
-    #df = pd.read_csv(current + "/pcaps/scenarios/manifest.csv")
     csv_path = current + f"/logs/network_settings_{log_timestamp}.csv"
 
     with open(csv_path, "w", newline="") as f:
@@ -118,14 +118,13 @@ def main() -> None:
     for i in range(len(pcap_prefixes)):
         topo = topos[i%len(topos)]
         # hard_timeout: 5 < hard <= 30
-        hard_timeout = rng.randint(6, 30)
+        hard_timeout = rng.randint(6, 15)
         # idle_timeout: idle <= hard
         idle_timeout = rng.randint(2, hard_timeout)
         # flow_table_size
-        flow_table_size = rng.randint(half_size, 30*n_host)
+        flow_table_size = rng.randint(half_size, full_size+100)
         # att_npkts: att_npkts >= flow_table_size
-        margin = rng.randint(0, 10*n_host)
-        npkts = flow_table_size + margin
+        npkts = flow_table_size + rng.randint(0, half_size)
         # att_anp: 1 min - ~10 min
         anp, profile, fill_time = sample_attack_rate(npkts, flow_table_size)
         
@@ -136,7 +135,8 @@ def main() -> None:
         controller_envs = {
             "GROUP_ID": f"{i}",
             "LABEL": "1",
-            "DATASET_PATH": f"{current}/logs/dataset_{log_timestamp}.csv",
+            "DATASET_FTF_PATH": f"{current}/logs/dataset_ftf_{log_timestamp}.csv",
+            "DATASET_MFR_PATH": f"{current}/logs/dataset_mfr_{log_timestamp}.csv",
             "FLOW_TABLE_SIZE": f"{flow_table_size}",
             "IDLE_TIMEOUT": f"{idle_timeout}",
             "HARD_TIMEOUT": f"{hard_timeout}",
