@@ -44,11 +44,9 @@ EOF
 ```bash
 $ cat datasets/dataset.csv > /tmp/dataset.csv && tail -n 8952 logs/dataset_1788536029.csv | awk -F',' '$20 != "6"' - >> /tmp/dataset.csv
 
-$ cp logs/20/dataset_mfr_1789926155.csv dataset_mfr.csv
-$ tail -n 1903877 logs/20/dataset_mfr_1789955373.csv >> dataset_mfr.csv 
-$ tail -n 215636 logs/20/dataset_mfr_1789985514.csv >> dataset_mfr.csv 
-$ cat dataset_mfr.csv | cut -d',' -f8 | sort -u
-
+$ cat dataset.csv | cut -d',' -f20 | sort -u
+$ cat dataset.csv | awk -F',' '$20 != "25"'
+$ tail -n X dataset.csv 
 ```
 
 ---

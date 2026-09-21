@@ -258,14 +258,18 @@ class FTFMController(app_manager.RyuApp):
         body = ev.msg.body
         dpid = ev.msg.datapath.id
         stats = [stat for stat in body if stat.priority == 1]
+
         if not stats:
             return
-        if not self.feature_ext[dpid].has_enough_data(occupancy=0.2):
+        if not self.feature_ext[dpid].has_enough_data(occupancy=0.3):
             return
-        hub.spawn(self._process_stats, dpid, stats) 
+        
+        hub.spawn(self._ftf_stats, dpid, stats)
+        if self.FTF_LABEL: # attack mode
+            hub.spawn(self._mfr_stats, dpid, stats) 
 
-    def _process_stats(self, dpid, stats):
-        self.logger.debug(f"[GAP] DPID: {dpid:016x}")
+    def _ftf_stats(self, dpid, stats):
+        self.logger.debug(f"[FTF] DPID: {dpid:016x}")
 
         # Get Pkt In Feature
         ((payload_entropy_mean, payload_entropy_cv), payload_size_entropy,
@@ -289,15 +293,16 @@ class FTFMController(app_manager.RyuApp):
         self._csv_writer_ftf.writerow(row_ftf)
         self._csv_file_ftf.flush()
 
-        # Get Features
-        if self.FTF_LABEL: # attack mode
-            for stat in stats:
-                duration, packet_count, byte_count, pkt_rate, byte_rate, psi = self.feature_ext[dpid].get_flow_feature(stat)
-                row_mfr = [
-                    duration, packet_count, byte_count, pkt_rate, byte_rate, psi,
-                    self.GROUP_ID, int(stat.match.get('eth_src') not in self.VALID_MACS or 
-                                       stat.match.get('eth_dst') not in self.VALID_MACS)
-                ]
-                self._csv_writer_mfr.writerow(row_mfr)
-                self._csv_file_mfr.flush()
-            
+     def _mfr_stats(self, dpid, stats):
+        self.logger.debug(f"[MFR] DPID: {dpid:016x}")
+        # Get Flow Rules Features    
+        for stat in stats:
+            duration, packet_count, byte_count, pkt_rate, byte_rate, psi = self.feature_ext[dpid].get_flow_feature(stat)
+            row_mfr = [
+                duration, packet_count, byte_count, pkt_rate, byte_rate, psi,
+                self.GROUP_ID, int(stat.match.get('eth_src') not in self.VALID_MACS or 
+                                    stat.match.get('eth_dst') not in self.VALID_MACS)
+            ]
+            self._csv_writer_mfr.writerow(row_mfr)
+            self._csv_file_mfr.flush()
+        

@@ -103,7 +103,7 @@ def main() -> None:
     ]
     
     att_wait = None
-    k_factor = 3
+    k_factor = 2
     n_host = 15
     full_size = int(math.factorial(n_host) / math.factorial(n_host-2)) + 1
     half_size = int(full_size / 2)
@@ -115,8 +115,8 @@ def main() -> None:
         writer = csv.writer(f)
         writer.writerow(["topo", "hard_timeout", "idle_timeout", "flow_table_size", "npkts", "profile", "anp", "att_duration", "fill_time"])
 
-    
-    for i in range(0,26):
+    """
+    for i in range(0,25):
         # hard_timeout: 5 < hard <= 30
         hard_timeout = rng.randint(6, 15)
         # idle_timeout: idle <= hard
@@ -127,10 +127,11 @@ def main() -> None:
         npkts = flow_table_size + rng.randint(0, half_size)
         # att_anp: 1 min - ~10 min
         anp, profile, fill_time = sample_attack_rate(npkts, flow_table_size)
+    """
 
-    for i in range(26, 30):
+    for i in range(0, 10):
         topo = topos[i%len(topos)]
-        # hard_timeout: 5 < hard <= 30
+        # hard_timeout: 5 < hard <= 15
         hard_timeout = rng.randint(6, 15)
         # idle_timeout: idle <= hard
         idle_timeout = rng.randint(2, hard_timeout)
@@ -213,10 +214,10 @@ def main() -> None:
                 npacket=npkts,
                 added_new_packets=anp,
                 max_iter=10,
-                max_interval=30,
+                max_interval=15,
                 net=net,
                 out_file=f"{current}/logs/ftf_{log_timestamp}.csv",
-                local_ip=True,
+                local_ip=False if i%2 else True,
             )
 
             (src, dst) = topo.conn_hosts
