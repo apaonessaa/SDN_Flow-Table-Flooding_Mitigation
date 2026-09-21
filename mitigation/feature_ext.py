@@ -4,7 +4,7 @@ import numpy as np
 
 class FeatureExt():
     VALID_IP_RANGES = ['10.0.0.0/24']
-    WINDOW_SIZE = 200
+    WINDOW_SIZE = 100
     
     PktInData = namedtuple('PktInData', ['payload', 'size', 'src_ip', 'dst_ip', 'src_mac', 'dst_mac'])
 

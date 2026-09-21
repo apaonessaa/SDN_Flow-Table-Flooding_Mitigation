@@ -24,6 +24,7 @@ from ryu.lib import hub
 from netaddr import IPAddress, IPNetwork
 from collections import defaultdict 
 import csv
+import threading
 
 # Modules loader
 import sys
@@ -306,7 +307,7 @@ class FTFMController(app_manager.RyuApp):
  
     def _mfr_stats(self, dpid, stats, group_id):
         self.logger.debug(f"[MFR] DPID: {dpid:016x} group_id={group_id}")
-        
+
         # Get Flow Rules Features
         rows_mfr = []
         for stat in stats:

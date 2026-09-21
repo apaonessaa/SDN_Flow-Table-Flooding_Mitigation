@@ -227,9 +227,9 @@ def main() -> None:
             # Start threads
             t0 = time()
 
-            attack.start()
             for t in threads:
                 t.start()
+            attack.start()
 
             # Stop threads
             attack.join()
