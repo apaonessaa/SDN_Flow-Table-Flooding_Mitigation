@@ -37,5 +37,6 @@ for i in range(49):
     npkts = flow_table_size + rng.randint(0, half_size)
 
     anp, profile, fill_time = sample_attack_rate(npkts, flow_table_size)
+    print(f"> Sim {i}")
     print(f"hard timeout: {hard_timeout}, idle timeout: {idle_timeout}, flow tale size: {flow_table_size}, npkts: {npkts}")
     print(f"anp: {anp}, profile: {profile}, fill time: {fill_time}\n")

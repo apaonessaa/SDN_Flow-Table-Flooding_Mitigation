@@ -61,7 +61,7 @@ class FTFMController(app_manager.RyuApp):
     VALID_IPS = [
         '10.0.0.1', '10.0.0.2', '10.0.0.3', '10.0.0.4', '10.0.0.5',
         '10.0.0.6', '10.0.0.7', '10.0.0.8', '10.0.0.9', '10.0.0.10',
-        '10.0.0.11', '10.0.0.12', '10.0.0.13', '10.0.0.14', '10.0.0.15'
+        '10.0.0.11', '10.0.0.12', '10.0.0.13', '10.0.0.14', #'10.0.0.15'
     ]
 
     def __init__(self, *args, **kwargs):
@@ -294,23 +294,6 @@ class FTFMController(app_manager.RyuApp):
         )
         """
 
-        # Get Features
-        for stat in stats:
-            duration, packet_count, byte_count, pkt_rate, byte_rate, psi = self.feature_ext[dpid].get_flow_feature(stat)
-            """
-            self.logger.debug(
-                f"[GAP] >> Duration: {duration}, Packet count: {packet_count}, "
-                f"Byte count: {byte_count}, Packet Rate: {pkt_rate}, "
-                f"Byte Rate: {byte_rate}, PSI: {psi}"
-            )
-            """
-            row_mfr = [
-                duration, packet_count, byte_count, pkt_rate, byte_rate, psi,
-                self.GROUP_ID, stat.match.get('ipv4_src', None) not in self.VALID_IPS or stat.match.get('ipv4_dst', None) not in self.VALID_IPS
-            ]
-            self._csv_writer_mfr.writerow(row_mfr)
-            self._csv_file_mfr.flush()
-            
         row_ftf = [
             payload_entropy_mean, payload_entropy_cv, payload_size_entropy,
             src_ip_entropy, dst_ip_entropy, src_mac_entropy, dst_mac_entropy,
@@ -320,3 +303,22 @@ class FTFMController(app_manager.RyuApp):
         ]
         self._csv_writer_ftf.writerow(row_ftf)
         self._csv_file_ftf.flush()
+
+        # Get Features
+        if self.FTF_LABEL: # attack mode
+            for stat in stats:
+                duration, packet_count, byte_count, pkt_rate, byte_rate, psi = self.feature_ext[dpid].get_flow_feature(stat)
+                """
+                self.logger.debug(
+                    f"[GAP] >> Duration: {duration}, Packet count: {packet_count}, "
+                    f"Byte count: {byte_count}, Packet Rate: {pkt_rate}, "
+                    f"Byte Rate: {byte_rate}, PSI: {psi}"
+                )
+                """
+                row_mfr = [
+                    duration, packet_count, byte_count, pkt_rate, byte_rate, psi,
+                    self.GROUP_ID, int(stat.match.get('ipv4_src', None) not in self.VALID_IPS or stat.match.get('ipv4_dst', None) not in self.VALID_IPS)
+                ]
+                self._csv_writer_mfr.writerow(row_mfr)
+                self._csv_file_mfr.flush()
+            

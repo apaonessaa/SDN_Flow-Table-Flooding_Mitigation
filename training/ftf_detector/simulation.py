@@ -115,7 +115,19 @@ def main() -> None:
         writer = csv.writer(f)
         writer.writerow(["topo", "hard_timeout", "idle_timeout", "flow_table_size", "npkts", "profile", "anp", "att_duration", "fill_time"])
 
-    for i in range(len(pcap_prefixes)):
+    for i in range(0,4):
+        # hard_timeout: 5 < hard <= 30
+        hard_timeout = rng.randint(6, 15)
+        # idle_timeout: idle <= hard
+        idle_timeout = rng.randint(2, hard_timeout)
+        # flow_table_size
+        flow_table_size = rng.randint(half_size, 2*full_size)
+        # att_npkts: att_npkts >= flow_table_size
+        npkts = flow_table_size + rng.randint(0, half_size)
+        # att_anp: 1 min - ~10 min
+        anp, profile, fill_time = sample_attack_rate(npkts, flow_table_size)
+
+    for i in range(4, 5):
         topo = topos[i%len(topos)]
         # hard_timeout: 5 < hard <= 30
         hard_timeout = rng.randint(6, 15)
@@ -134,7 +146,7 @@ def main() -> None:
         info("*** CONTROLLER\n")
         controller_envs = {
             "GROUP_ID": f"{i}",
-            "LABEL": "1",
+            "FTF_LABEL": "1",
             "DATASET_FTF_PATH": f"{current}/logs/dataset_ftf_{log_timestamp}.csv",
             "DATASET_MFR_PATH": f"{current}/logs/dataset_mfr_{log_timestamp}.csv",
             "FLOW_TABLE_SIZE": f"{flow_table_size}",
@@ -238,8 +250,9 @@ def main() -> None:
         info("*** CONTROLLER\n")
         controller_envs = {
             "GROUP_ID": f"{i}",
-            "LABEL": "0",
-            "DATASET_PATH": f"{current}/logs/dataset_{log_timestamp}.csv",
+            "FTF_LABEL": "0",
+            "DATASET_FTF_PATH": f"{current}/logs/dataset_ftf_{log_timestamp}.csv",
+            "DATASET_MFR_PATH": f"{current}/logs/dataset_mfr_{log_timestamp}.csv",
             "FLOW_TABLE_SIZE": f"{flow_table_size}",
             "IDLE_TIMEOUT": f"{idle_timeout}",
             "HARD_TIMEOUT": f"{hard_timeout}",
