@@ -28,9 +28,7 @@ from transformers import (
 import sys
 import os
 current = os.path.dirname(os.path.realpath(__file__))
-parent = os.path.dirname(current)
-root = os.path.dirname(parent)
-sys.path.append(parent)
+root = os.path.dirname(current)
 sys.path.append(root)
 
 TRAINING_SET = current + '/dataset_mfr.csv'
