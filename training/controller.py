@@ -75,6 +75,8 @@ class FTFMController(app_manager.RyuApp):
         self.T = float("{:.2f}".format(min(self.IDLE_TIMEOUT, self.HARD_TIMEOUT) / self.K_FACTOR))
         self.logger.debug(f"[GAP] Intervallo di tempo per la cattura delle features: {self.T}s")
         self.collector = hub.spawn(self._collector)
+        self._group_id_lock = threading.Lock()
+        self._csv_lock = threading.Lock()
 
     def _init_csv(self):
         write_header_ftf = not os.path.exists(self.DATASET_FTF_PATH)
@@ -90,6 +92,12 @@ class FTFMController(app_manager.RyuApp):
         if write_header_mfr:
             self._csv_writer_mfr.writerow(self.DATASET_MFR_COLUMNS)
             self._csv_file_mfr.flush()
+
+    def _next_group_id(self):
+        """Atomic inc GROUP_ID"""
+        with self._group_id_lock:
+            self.GROUP_ID += 1
+            return self.GROUP_ID
 
     def _collector(self):
         """
@@ -262,46 +270,53 @@ class FTFMController(app_manager.RyuApp):
             return
         if not self.feature_ext[dpid].has_enough_data(occupancy=0.3):
             return
+
+        # Atomic Inc GROUP_ID
+        group_id = self._next_group_id()
         
-        self.GROUP_ID +=1
-        hub.spawn(self._ftf_stats, dpid, stats)
+        hub.spawn(self._ftf_stats, dpid, stats, group_id)
         if self.FTF_LABEL: # attack mode
-            hub.spawn(self._mfr_stats, dpid, stats) 
+            hub.spawn(self._mfr_stats, dpid, stats, group_id) 
 
-    def _ftf_stats(self, dpid, stats):
-        self.logger.debug(f"[FTF] DPID: {dpid:016x}")
-
+    def _ftf_stats(self, dpid, stats, group_id):
+        self.logger.debug(f"[FTF] DPID: {dpid:016x} group_id={group_id}")
+ 
         # Get Pkt In Feature
         ((payload_entropy_mean, payload_entropy_cv), payload_size_entropy,
          src_ip_entropy, dst_ip_entropy,
          src_mac_entropy, dst_mac_entropy) = self.feature_ext[dpid].get_pkt_in_features()
-
+ 
         # Get Flow Table Feature
         (c_used, paf, ft_psi,
          durations_entropy, pkts_entropy, bytes_entropy,
          (mean_duration, cvd),
          (mean_pkts, cvp),
          (mean_bytes, cvb)) = self.feature_ext[dpid].get_ft_features(stats, self.FLOW_TABLE_SIZE)
-
+ 
         row_ftf = [
             payload_entropy_mean, payload_entropy_cv, payload_size_entropy,
             src_ip_entropy, dst_ip_entropy, src_mac_entropy, dst_mac_entropy,
             c_used, paf, ft_psi, durations_entropy, pkts_entropy, bytes_entropy,
             mean_duration, cvd, mean_pkts, cvp, mean_bytes, cvb, 
-            self.GROUP_ID, self.SCENARIO_ID, self.FTF_LABEL
+            group_id, self.SCENARIO_ID, self.FTF_LABEL
         ]
-        self._csv_writer_ftf.writerow(row_ftf)
-        self._csv_file_ftf.flush()
-
-    def _mfr_stats(self, dpid, stats):
-        self.logger.debug(f"[MFR] DPID: {dpid:016x}")
+        with self._csv_lock:
+            self._csv_writer_ftf.writerow(row_ftf)
+            self._csv_file_ftf.flush()
+ 
+    def _mfr_stats(self, dpid, stats, group_id):
+        self.logger.debug(f"[MFR] DPID: {dpid:016x} group_id={group_id}")
+        
         # Get Flow Rules Features
+        rows_mfr = []
         for stat in stats:
             duration, packet_count, byte_count, pkt_rate, byte_rate, psi = self.feature_ext[dpid].get_flow_feature(stat)
-            row_mfr = [
+            rows_mfr.append([
                 duration, packet_count, byte_count, pkt_rate, byte_rate, psi,
-                self.GROUP_ID, self.SCENARIO_ID, int(stat.match.get('eth_src') not in self.VALID_MACS or 
+                group_id, self.SCENARIO_ID, int(stat.match.get('eth_src') not in self.VALID_MACS or 
                 stat.match.get('eth_dst') not in self.VALID_MACS)
-            ]
-            self._csv_writer_mfr.writerow(row_mfr)
+            ])
+        with self._csv_lock:
+            self._csv_writer_mfr.writerows(rows_mfr)
             self._csv_file_mfr.flush()
+
