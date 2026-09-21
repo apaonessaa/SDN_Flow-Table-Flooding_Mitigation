@@ -58,10 +58,12 @@ class FTFMController(app_manager.RyuApp):
     HARD_TIMEOUT = int(os.environ.get('HARD_TIMEOUT', '20'))
     K_FACTOR = int(os.environ.get('K_FACTOR', '3'))
     DPID = int(os.environ.get('DPID', '0000000000000001'), 16)
-    VALID_IPS = [
-        '10.0.0.1', '10.0.0.2', '10.0.0.3', '10.0.0.4', '10.0.0.5',
-        '10.0.0.6', '10.0.0.7', '10.0.0.8', '10.0.0.9', '10.0.0.10',
-        '10.0.0.11', '10.0.0.12', '10.0.0.13', '10.0.0.14', #'10.0.0.15'
+    VALID_MACS = [
+        '00:00:00:00:00:01', '00:00:00:00:00:02', '00:00:00:00:00:03',
+        '00:00:00:00:00:04', '00:00:00:00:00:05', '00:00:00:00:00:06',
+        '00:00:00:00:00:07', '00:00:00:00:00:08', '00:00:00:00:00:09',
+        '00:00:00:00:00:0a', '00:00:00:00:00:0b', '00:00:00:00:00:0c',
+        '00:00:00:00:00:0d', '00:00:00:00:00:0e'
     ]
 
     def __init__(self, *args, **kwargs):
@@ -269,14 +271,6 @@ class FTFMController(app_manager.RyuApp):
         ((payload_entropy_mean, payload_entropy_cv), payload_size_entropy,
          src_ip_entropy, dst_ip_entropy,
          src_mac_entropy, dst_mac_entropy) = self.feature_ext[dpid].get_pkt_in_features()
-        """
-        self.logger.debug(
-            f"[GAP] > Payload Entropy Mean: {payload_entropy_mean}, Payload Entropy CV: {payload_entropy_cv}, "
-            f"Payload Size Entropy: {payload_size_entropy}, "
-            f"Src IP Entropy: {src_ip_entropy}, Dst IP Entropy: {dst_ip_entropy}, "
-            f"Src MAC Entropy: {src_mac_entropy}, Dst MAC Entropy: {dst_mac_entropy}"
-        )
-        """
 
         # Get Flow Table Feature
         (c_used, paf, ft_psi,
@@ -284,15 +278,6 @@ class FTFMController(app_manager.RyuApp):
          (mean_duration, cvd),
          (mean_pkts, cvp),
          (mean_bytes, cvb)) = self.feature_ext[dpid].get_ft_features(stats, self.FLOW_TABLE_SIZE)
-        """
-        self.logger.debug(
-            f"[GAP] > C_used: {c_used}, PAF: {paf}, PSI: {ft_psi}, Duration Entropy: {durations_entropy}, "
-            f"Duration entropy: {durations_entropy}, Packet entropy: {pkts_entropy}, Bytes_entropy: {bytes_entropy}, "
-            f"Mean Duration: {mean_duration}, CVD: {cvd}, "
-            f"Mean Packet: {mean_pkts}, CVP: {cvp}, "
-            f"Mean Bytes: {mean_bytes}, CVB: {cvb}"
-        )
-        """
 
         row_ftf = [
             payload_entropy_mean, payload_entropy_cv, payload_size_entropy,
@@ -308,16 +293,10 @@ class FTFMController(app_manager.RyuApp):
         if self.FTF_LABEL: # attack mode
             for stat in stats:
                 duration, packet_count, byte_count, pkt_rate, byte_rate, psi = self.feature_ext[dpid].get_flow_feature(stat)
-                """
-                self.logger.debug(
-                    f"[GAP] >> Duration: {duration}, Packet count: {packet_count}, "
-                    f"Byte count: {byte_count}, Packet Rate: {pkt_rate}, "
-                    f"Byte Rate: {byte_rate}, PSI: {psi}"
-                )
-                """
                 row_mfr = [
                     duration, packet_count, byte_count, pkt_rate, byte_rate, psi,
-                    self.GROUP_ID, int(stat.match.get('ipv4_src', None) not in self.VALID_IPS or stat.match.get('ipv4_dst', None) not in self.VALID_IPS)
+                    self.GROUP_ID, int(stat.match.get('eth_src') not in self.VALID_MACS or 
+                                       stat.match.get('eth_dst') not in self.VALID_MACS)
                 ]
                 self._csv_writer_mfr.writerow(row_mfr)
                 self._csv_file_mfr.flush()

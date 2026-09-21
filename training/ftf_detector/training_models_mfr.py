@@ -33,17 +33,14 @@ root = os.path.dirname(parent)
 sys.path.append(parent)
 sys.path.append(root)
 
-TRAINING_SET = current + '/logs/dataset_ftf_10.csv'
-MODELS_DIR = root + '/models/ftf_detector'
+TRAINING_SET = current + '/dataset_mfr.csv'
+MODELS_DIR = root + '/models/malicious_fr_detector'
 
 os.makedirs(MODELS_DIR, exist_ok=True)
 
 FEATURES = [
-    "payload_entropy_mean", "payload_entropy_cv", "payload_size_entropy",
-    "src_ip_entropy", "dst_ip_entropy", "src_mac_entropy", "dst_mac_entropy",
-    "c_used", "paf", "ft_psi", "durations_entropy",
-    "pkts_entropy", "bytes_entropy", "mean_duration", "cvd",
-    "mean_pkts", "cvp", "mean_bytes", "cvb",
+    "duration", "packet_count", "byte_count",
+    "packets_per_seconds", "bytes_per_seconds", "psi"
 ]
 TARGET = "label"
 GROUP_COL = "group_id"
@@ -73,11 +70,9 @@ optuna.logging.set_verbosity(optuna.logging.WARNING)
 # Caricamento dati e split (condiviso da tutti i modelli, stesso group_id)
 # --------------------------------------------------------------------------
 def load_data():
-    df_raw = pd.read_csv(TRAINING_SET)
-    df = df_raw[(df_raw["c_used"] > 0.0)].copy()
+    df = pd.read_csv(TRAINING_SET)
 
-    print(f"Numero di entry del dataset: {len(df) - 1}\n"
-          f"Entry eliminate: {len(df_raw) - len(df)}")
+    print(f"Numero di entry del dataset: {len(df) - 1}\n")
 
     counts = df.groupby([GROUP_COL, "label"]).size().unstack(fill_value=0)
     print(counts)
@@ -569,7 +564,7 @@ if __name__ == "__main__":
     best_xgb_params = tune_xgboost(X_train, y_train, groups_train)
 
     print("\n\n=== Tuning HF-BERT (Optuna + GroupKFold) ===")
-    best_bert_params = tune_hf_bert(X_train, y_train, groups_train)
+    #best_bert_params = tune_hf_bert(X_train, y_train, groups_train)
 
     print("\n\n=== Training finale CatBoost ===")
     train_catboost(X_train, X_test, y_train, y_test, groups_train, results, best_cb_params)
@@ -578,7 +573,7 @@ if __name__ == "__main__":
     train_xgboost(X_train, X_test, y_train, y_test, results, best_xgb_params)
 
     print("\n\n=== Training finale HF-BERT ===")
-    train_hf_bert(X_train, X_test, y_train, y_test, results, best_bert_params)
+    #train_hf_bert(X_train, X_test, y_train, y_test, results, best_bert_params)
 
     comparison = pd.DataFrame(results).set_index("model")
     print("\n\n=== Confronto finale ===")
