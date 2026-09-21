@@ -293,7 +293,7 @@ class FTFMController(app_manager.RyuApp):
         self._csv_writer_ftf.writerow(row_ftf)
         self._csv_file_ftf.flush()
 
-     def _mfr_stats(self, dpid, stats):
+    def _mfr_stats(self, dpid, stats):
         self.logger.debug(f"[MFR] DPID: {dpid:016x}")
         # Get Flow Rules Features    
         for stat in stats:
