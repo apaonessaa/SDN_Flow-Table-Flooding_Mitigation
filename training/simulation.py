@@ -145,7 +145,7 @@ def main() -> None:
 
         info("*** CONTROLLER\n")
         controller_envs = {
-            "GROUP_ID": f"{i}",
+            "SCENARIO_ID": f"{i}",
             "FTF_LABEL": "1",
             "DATASET_FTF_PATH": f"{current}/logs/dataset_ftf_{log_timestamp}.csv",
             "DATASET_MFR_PATH": f"{current}/logs/dataset_mfr_{log_timestamp}.csv",
@@ -250,7 +250,7 @@ def main() -> None:
 
         info("*** CONTROLLER\n")
         controller_envs = {
-            "GROUP_ID": f"{i}",
+            "SCENARIO_ID": f"{i}",
             "FTF_LABEL": "0",
             "DATASET_FTF_PATH": f"{current}/logs/dataset_ftf_{log_timestamp}.csv",
             "DATASET_MFR_PATH": f"{current}/logs/dataset_mfr_{log_timestamp}.csv",

@@ -41,7 +41,7 @@ FEATURES = [
     "packets_per_seconds", "bytes_per_seconds", "psi"
 ]
 TARGET = "label"
-GROUP_COL = "group_id"
+GROUP_COL = "scenario_id"
 RANDOM_SEED = 42
 
 # Numero di trial Optuna e fold per la CV interna (modifica in base al tempo disponibile)
@@ -65,7 +65,7 @@ np.random.seed(RANDOM_SEED)
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
 # --------------------------------------------------------------------------
-# Caricamento dati e split (condiviso da tutti i modelli, stesso group_id)
+# Caricamento dati e split (condiviso da tutti i modelli, stesso scenario_id)
 # --------------------------------------------------------------------------
 def load_data():
     df = pd.read_csv(TRAINING_SET)
@@ -89,8 +89,8 @@ def load_data():
     groups_train = groups.iloc[train_idx].reset_index(drop=True)
 
     n_groups_train = groups_train.nunique()
-    print(f"\nScenari (group_id) nel train+tuning: {n_groups_train} -> {sorted(groups_train.unique())}")
-    print(f"Scenari (group_id) nel test finale: {groups.iloc[test_idx].nunique()} -> {sorted(groups.iloc[test_idx].unique())}")
+    print(f"\nScenari (scenario_id) nel train+tuning: {n_groups_train} -> {sorted(groups_train.unique())}")
+    print(f"Scenari (scenario_id) nel test finale: {groups.iloc[test_idx].nunique()} -> {sorted(groups.iloc[test_idx].unique())}")
 
     return X_train, X_test, y_train, y_test, groups_train
 

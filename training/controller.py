@@ -40,14 +40,15 @@ class FTFMController(app_manager.RyuApp):
         "src_ip_entropy", "dst_ip_entropy", "src_mac_entropy", "dst_mac_entropy",
         "c_used", "paf", "ft_psi", "durations_entropy", "pkts_entropy", "bytes_entropy",
         "mean_duration", "cvd", "mean_pkts", "cvp", "mean_bytes", "cvb", 
-        "group_id", "label"
+        "group_id", "scenario_id", "label"
     ]
     DATASET_MFR_COLUMNS = [
         "duration", "packet_count", "byte_count",
         "packets_per_seconds", "bytes_per_seconds", "psi",
-        "group_id", "label"
+        "group_id", "scenario_id", "label"
     ]
-    GROUP_ID = os.environ.get('GROUP_ID', 0)
+    GROUP_ID = -1
+    SCENARIO_ID = os.environ.get('SCENARIO_ID', 0)
     FTF_LABEL = os.environ.get('FTF_LABEL', 0) #0 buono, 1 cattivo
     DATASET_FTF_PATH = os.environ.get('DATASET_FTF_PATH', '/tmp/dataset_ftf.csv')
     DATASET_MFR_PATH = os.environ.get('DATASET_MFR_PATH', '/tmp/dataset_mfr.csv')
@@ -262,6 +263,7 @@ class FTFMController(app_manager.RyuApp):
         if not self.feature_ext[dpid].has_enough_data(occupancy=0.3):
             return
         
+        self.GROUP_ID +=1
         hub.spawn(self._ftf_stats, dpid, stats)
         if self.FTF_LABEL: # attack mode
             hub.spawn(self._mfr_stats, dpid, stats) 
@@ -286,21 +288,20 @@ class FTFMController(app_manager.RyuApp):
             src_ip_entropy, dst_ip_entropy, src_mac_entropy, dst_mac_entropy,
             c_used, paf, ft_psi, durations_entropy, pkts_entropy, bytes_entropy,
             mean_duration, cvd, mean_pkts, cvp, mean_bytes, cvb, 
-            self.GROUP_ID, self.FTF_LABEL
+            self.GROUP_ID, self.SCENARIO_ID, self.FTF_LABEL
         ]
         self._csv_writer_ftf.writerow(row_ftf)
         self._csv_file_ftf.flush()
 
     def _mfr_stats(self, dpid, stats):
         self.logger.debug(f"[MFR] DPID: {dpid:016x}")
-        # Get Flow Rules Features    
+        # Get Flow Rules Features
         for stat in stats:
             duration, packet_count, byte_count, pkt_rate, byte_rate, psi = self.feature_ext[dpid].get_flow_feature(stat)
             row_mfr = [
                 duration, packet_count, byte_count, pkt_rate, byte_rate, psi,
-                self.GROUP_ID, int(stat.match.get('eth_src') not in self.VALID_MACS or 
-                                    stat.match.get('eth_dst') not in self.VALID_MACS)
+                self.GROUP_ID, self.SCENARIO_ID, int(stat.match.get('eth_src') not in self.VALID_MACS or 
+                stat.match.get('eth_dst') not in self.VALID_MACS)
             ]
             self._csv_writer_mfr.writerow(row_mfr)
             self._csv_file_mfr.flush()
-        
