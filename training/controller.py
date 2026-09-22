@@ -70,14 +70,13 @@ class FTFMController(app_manager.RyuApp):
         super(FTFMController, self).__init__(*args, **kwargs)
         self.mac_to_port = {}
         self.datapaths = {}
-        self.collector = hub.spawn(self._collector)
         self.feature_ext = defaultdict(FeatureExt)
         self._init_csv()
         self.T = float("{:.2f}".format(min(self.IDLE_TIMEOUT, self.HARD_TIMEOUT) / self.K_FACTOR))
         self.logger.debug(f"[GAP] Intervallo di tempo per la cattura delle features: {self.T}s")
-        self.collector = hub.spawn(self._collector)
         self._group_id_lock = threading.Lock()
         self._csv_lock = threading.Lock()
+        self.collector = hub.spawn(self._collector)
 
     def _init_csv(self):
         write_header_ftf = not os.path.exists(self.DATASET_FTF_PATH)

@@ -15,7 +15,7 @@ from sklearn.metrics import (
     classification_report,
     f1_score,
 )
-from sklearn.preprocessing import StandardScaler, KBinsDiscretizer
+from sklearn.preprocessing import KBinsDiscretizer
 from transformers import (
     BertConfig,
     BertForSequenceClassification,
@@ -41,20 +41,28 @@ FEATURES = [
     "packets_per_seconds", "bytes_per_seconds", "psi"
 ]
 TARGET = "label"
+SCENARIO_COL = "scenario_id"
 GROUP_COL = "group_id"
+
+# Chiave di raggruppamento reale: group_id da solo NON basta, perche' e' un
+# contatore che riparte da 0 a ogni riavvio del controller (vedi GROUP_ID in
+# FTFMController). Se il dataset accumula piu' scenari, lo stesso group_id
+# puo' ricomparire in run diversi e non correlati: senza scenario_id li
+# tratteremmo come un unico gruppo, mischiando scenari indipendenti nello
+# stesso split.
+CV_GROUP_COL = "cv_group_key"
+
 RANDOM_SEED = 42
 
-# Numero di trial Optuna e fold per la CV interna (modifica in base al tempo disponibile)
+VAL_SIZE = 0.15
+
 N_TRIALS = 50
 N_SPLITS = 5
 CV_EARLY_STOPPING_ROUNDS = 50
 FINAL_EARLY_STOPPING_ROUNDS = 50
 
-# HF-BERT e' molto piu' costoso da tunare di CatBoost/XGBoost (ogni trial addestra
-# una rete neurale per ogni fold), quindi usa un budget di trial separato e piu'
-# piccolo: con N_TRIALS=50 e N_SPLITS=5 qui staresti addestrando 250 BERT.
-BERT_N_TRIALS = 5 #15
-BERT_CV_EPOCHS = 5 #15
+BERT_N_TRIALS = 5
+BERT_CV_EPOCHS = 5
 BERT_CV_PATIENCE = 3
 BERT_FINAL_EPOCHS = 30
 BERT_FINAL_PATIENCE = 5
@@ -64,35 +72,60 @@ np.random.seed(RANDOM_SEED)
 
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
+
 # --------------------------------------------------------------------------
-# Caricamento dati e split (condiviso da tutti i modelli, stesso group_id)
+# Caricamento dati e split a TRE vie: train (tuning+fit) / val (early
+# stopping) / test (valutazione finale, toccato una sola volta).
+# Il raggruppamento usa scenario_id + group_id, cosi' le righe dello stesso
+# round di stats (che condividono davvero lo stesso group_id all'interno di
+# uno scenario) restano insieme, senza pero' confondere round numericamente
+# uguali ma appartenenti a scenari diversi.
 # --------------------------------------------------------------------------
 def load_data():
     df = pd.read_csv(TRAINING_SET)
-
     print(f"Numero di entry del dataset: {len(df) - 1}\n")
 
-    counts = df.groupby([GROUP_COL, "label"]).size().unstack(fill_value=0)
+    df[CV_GROUP_COL] = (
+        df[SCENARIO_COL].astype(str) + "_" + df[GROUP_COL].astype(str)
+    )
+
+    counts = df.groupby([SCENARIO_COL, "label"]).size().unstack(fill_value=0)
     print(counts)
     print(f"\nDeviazione standard tra scenari: {counts.sum(axis=1).std()}")
 
     X = df[FEATURES]
     y = df[TARGET]
-    groups = df[GROUP_COL]
+    groups = df[CV_GROUP_COL]
 
-    # Split esterno: 80% scenari per train+tuning, 20% scenari per test finale (mai visto durante il tuning)
-    gss = GroupShuffleSplit(n_splits=1, test_size=0.2, random_state=RANDOM_SEED)
-    train_idx, test_idx = next(gss.split(X, y, groups=groups))
+    # 1) hold-out test: mai piu' toccato fino alla valutazione finale
+    gss_test = GroupShuffleSplit(n_splits=1, test_size=0.2, random_state=RANDOM_SEED)
+    trainval_idx, test_idx = next(gss_test.split(X, y, groups=groups))
 
-    X_train, X_test = X.iloc[train_idx].reset_index(drop=True), X.iloc[test_idx].reset_index(drop=True)
-    y_train, y_test = y.iloc[train_idx].reset_index(drop=True), y.iloc[test_idx].reset_index(drop=True)
-    groups_train = groups.iloc[train_idx].reset_index(drop=True)
+    X_trainval = X.iloc[trainval_idx].reset_index(drop=True)
+    y_trainval = y.iloc[trainval_idx].reset_index(drop=True)
+    groups_trainval = groups.iloc[trainval_idx].reset_index(drop=True)
 
-    n_groups_train = groups_train.nunique()
-    print(f"\nScenari (group_id) nel train+tuning: {n_groups_train} -> {sorted(groups_train.unique())}")
-    print(f"Scenari (group_id) nel test finale: {groups.iloc[test_idx].nunique()} -> {sorted(groups.iloc[test_idx].unique())}")
+    X_test = X.iloc[test_idx].reset_index(drop=True)
+    y_test = y.iloc[test_idx].reset_index(drop=True)
 
-    return X_train, X_test, y_train, y_test, groups_train
+    # 2) dentro il train+val: separiamo una validation per l'early stopping
+    #    del training finale, cosi' il test set non viene mai usato per
+    #    scegliere il numero di iterazioni/epoche.
+    gss_val = GroupShuffleSplit(n_splits=1, test_size=VAL_SIZE, random_state=RANDOM_SEED)
+    train_idx, val_idx = next(gss_val.split(X_trainval, y_trainval, groups=groups_trainval))
+
+    X_train = X_trainval.iloc[train_idx].reset_index(drop=True)
+    y_train = y_trainval.iloc[train_idx].reset_index(drop=True)
+    groups_train = groups_trainval.iloc[train_idx].reset_index(drop=True)
+
+    X_val = X_trainval.iloc[val_idx].reset_index(drop=True)
+    y_val = y_trainval.iloc[val_idx].reset_index(drop=True)
+
+    print(f"\nGruppi (scenario_id+group_id) nel train (tuning+fit): {groups_train.nunique()}")
+    print(f"Gruppi in validation (early stopping): {groups_trainval.iloc[val_idx].nunique()}")
+    print(f"Gruppi nel test finale: {groups.iloc[test_idx].nunique()}")
+
+    return X_train, X_val, X_test, y_train, y_val, y_test, groups_train
 
 
 def evaluate(name, y_true, y_pred, results, elapsed=None):
@@ -131,7 +164,8 @@ def make_group_kfold_splits(X, y, groups, n_splits):
 
 
 # --------------------------------------------------------------------------
-# 1. CatBoost - tuning Optuna con GroupKFold + training finale
+# 1. CatBoost - tuning Optuna con GroupKFold + training finale con early
+#    stopping su validation (mai sul test)
 # --------------------------------------------------------------------------
 def tune_catboost(X_train, y_train, groups_train, n_trials=N_TRIALS, n_splits=N_SPLITS):
     splits = make_group_kfold_splits(X_train, y_train, groups_train, n_splits)
@@ -173,7 +207,11 @@ def tune_catboost(X_train, y_train, groups_train, n_trials=N_TRIALS, n_splits=N_
 
         return float(np.mean(fold_scores))
 
-    study = optuna.create_study(direction='maximize', study_name='catboost_tuning')
+    study = optuna.create_study(
+        direction='maximize',
+        study_name='catboost_tuning',
+        sampler=optuna.samplers.TPESampler(seed=RANDOM_SEED),
+    )
     study.optimize(objective, n_trials=n_trials, show_progress_bar=True)
 
     print(f"\n[CatBoost] Miglior F1 medio in CV: {study.best_value:.4f}")
@@ -182,7 +220,7 @@ def tune_catboost(X_train, y_train, groups_train, n_trials=N_TRIALS, n_splits=N_
     return study.best_params
 
 
-def train_catboost(X_train, X_test, y_train, y_test, groups_train, results, best_params):
+def train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_params):
     params = {
         'silent': True,
         'iterations': 1000,
@@ -194,6 +232,7 @@ def train_catboost(X_train, X_test, y_train, y_test, groups_train, results, best
     }
 
     train_pool = Pool(data=X_train, label=y_train)
+    val_pool = Pool(data=X_val, label=y_val)
     test_pool = Pool(data=X_test, label=y_test)
 
     model = CatBoostClassifier(**params)
@@ -201,14 +240,14 @@ def train_catboost(X_train, X_test, y_train, y_test, groups_train, results, best
     t0 = time.time()
     model.fit(
         train_pool,
-        eval_set=test_pool,
+        eval_set=val_pool,          # <-- early stopping SOLO su validation
         verbose=50,
         early_stopping_rounds=FINAL_EARLY_STOPPING_ROUNDS,
         use_best_model=True,
     )
     elapsed = time.time() - t0
 
-    y_pred = model.predict(test_pool)
+    y_pred = model.predict(test_pool)   # <-- test toccato una sola volta, qui
     evaluate("CatBoost", y_test, y_pred, results, elapsed)
 
     print(model.get_feature_importance(prettified=True))
@@ -221,7 +260,8 @@ def train_catboost(X_train, X_test, y_train, y_test, groups_train, results, best
 
 
 # --------------------------------------------------------------------------
-# 2. XGBoost - tuning Optuna con GroupKFold + training finale
+# 2. XGBoost - tuning Optuna con GroupKFold + training finale con early
+#    stopping su validation (mai sul test)
 # --------------------------------------------------------------------------
 def tune_xgboost(X_train, y_train, groups_train, n_trials=N_TRIALS, n_splits=N_SPLITS):
     splits = make_group_kfold_splits(X_train, y_train, groups_train, n_splits)
@@ -262,7 +302,11 @@ def tune_xgboost(X_train, y_train, groups_train, n_trials=N_TRIALS, n_splits=N_S
 
         return float(np.mean(fold_scores))
 
-    study = optuna.create_study(direction='maximize', study_name='xgboost_tuning')
+    study = optuna.create_study(
+        direction='maximize',
+        study_name='xgboost_tuning',
+        sampler=optuna.samplers.TPESampler(seed=RANDOM_SEED),
+    )
     study.optimize(objective, n_trials=n_trials, show_progress_bar=True)
 
     print(f"\n[XGBoost] Miglior F1 medio in CV: {study.best_value:.4f}")
@@ -271,7 +315,7 @@ def tune_xgboost(X_train, y_train, groups_train, n_trials=N_TRIALS, n_splits=N_S
     return study.best_params
 
 
-def train_xgboost(X_train, X_test, y_train, y_test, results, best_params):
+def train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_params):
     n_pos = (y_train == 1).sum()
     n_neg = (y_train == 0).sum()
     scale_pos_weight = n_neg / max(n_pos, 1)
@@ -292,12 +336,12 @@ def train_xgboost(X_train, X_test, y_train, y_test, results, best_params):
     t0 = time.time()
     model.fit(
         X_train, y_train,
-        eval_set=[(X_test, y_test)],
+        eval_set=[(X_val, y_val)],   # <-- early stopping SOLO su validation
         verbose=50,
     )
     elapsed = time.time() - t0
 
-    y_pred = model.predict(X_test)
+    y_pred = model.predict(X_test)   # <-- test toccato una sola volta, qui
     evaluate("XGBoost", y_test, y_pred, results, elapsed)
 
     importances = pd.Series(model.feature_importances_, index=FEATURES)
@@ -311,32 +355,32 @@ def train_xgboost(X_train, X_test, y_train, y_test, results, best_params):
 
 
 # --------------------------------------------------------------------------
-# 3. HF-BERT su feature tokenizzate - tuning Optuna con GroupKFold + training finale
+# 3. HF-BERT su feature tokenizzate - tuning Optuna con GroupKFold +
+#    training finale con early stopping su validation
 # --------------------------------------------------------------------------
-def _tokenize_features(X_train, X_test, n_bins):
-    """Discretizza ogni feature continua in n_bins bin (quantili, fit solo
-    sul train) e assegna a ogni (indice_feature, bin) un id di vocabolario
-    univoco, cosi' ogni flow diventa una sequenza di len(FEATURES) token."""
+def _tokenize_features(X_fit, *X_others, n_bins):
+    """Discretizza ogni feature continua in n_bins bin (quantili, fit SOLO su
+    X_fit) e assegna a ogni (indice_feature, bin) un id di vocabolario
+    univoco. Ritorna gli id per X_fit seguiti da quelli per ciascun array in
+    X_others, nello stesso ordine, piu' vocab_size e il discretizzatore."""
     discretizer = KBinsDiscretizer(
         n_bins=n_bins, encode="ordinal", strategy="quantile", subsample=None
     )
-    train_bins = discretizer.fit_transform(X_train).astype(np.int64)
-    test_bins = discretizer.transform(X_test).astype(np.int64)
+    fit_bins = discretizer.fit_transform(X_fit).astype(np.int64)
 
-    n_features = X_train.shape[1]
+    n_features = X_fit.shape[1]
     offsets = (np.arange(n_features) * n_bins).astype(np.int64)
-    train_ids = train_bins + offsets
-    test_ids = test_bins + offsets
     vocab_size = n_features * n_bins
 
-    return train_ids, test_ids, vocab_size, discretizer
+    outputs = [fit_bins + offsets]
+    for X_other in X_others:
+        other_bins = discretizer.transform(X_other).astype(np.int64)
+        outputs.append(other_bins + offsets)
+
+    return (*outputs, vocab_size, discretizer)
 
 
 class FlowTokenDataset(torch.utils.data.Dataset):
-    """Dataset compatibile con transformers.Trainer: ogni flow e' una
-    sequenza di token id (uno per feature), senza padding necessario
-    perche' ogni flow ha sempre lo stesso numero di feature."""
-
     def __init__(self, input_ids, labels):
         self.input_ids = torch.tensor(input_ids, dtype=torch.long)
         self.labels = torch.tensor(labels, dtype=torch.long)
@@ -370,9 +414,6 @@ def _class_weights(y):
 
 
 class WeightedTrainer(Trainer):
-    """Trainer con CrossEntropyLoss pesata, equivalente concettualmente ad
-    auto_class_weights='Balanced' di CatBoost / scale_pos_weight di XGBoost."""
-
     def __init__(self, *args, class_weights=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.class_weights = class_weights
@@ -468,7 +509,6 @@ def tune_hf_bert(X_train, y_train, groups_train, n_trials=BERT_N_TRIALS, n_split
 
             fold_scores.append(metrics["eval_f1"])
 
-            # Pruning: se i primi fold vanno gia' male, evita di sprecare tempo sui restanti
             trial.report(float(np.mean(fold_scores)), step=fold_idx)
             if trial.should_prune():
                 raise optuna.TrialPruned()
@@ -479,6 +519,7 @@ def tune_hf_bert(X_train, y_train, groups_train, n_trials=BERT_N_TRIALS, n_split
         direction='maximize',
         study_name='hf_bert_tuning',
         pruner=optuna.pruners.MedianPruner(n_warmup_steps=1),
+        sampler=optuna.samplers.TPESampler(seed=RANDOM_SEED),
     )
     study.optimize(objective, n_trials=n_trials, show_progress_bar=True)
 
@@ -488,17 +529,18 @@ def tune_hf_bert(X_train, y_train, groups_train, n_trials=BERT_N_TRIALS, n_split
     return study.best_params
 
 
-def train_hf_bert(X_train, X_test, y_train, y_test, results, best_params):
+def train_hf_bert(X_train, X_val, X_test, y_train, y_val, y_test, results, best_params):
     n_features = X_train.shape[1]
 
-    train_ids, test_ids, vocab_size, discretizer = _tokenize_features(
-        X_train.values, X_test.values, n_bins=best_params['n_bins']
+    train_ids, val_ids, test_ids, vocab_size, discretizer = _tokenize_features(
+        X_train.values, X_val.values, X_test.values, n_bins=best_params['n_bins']
     )
 
     config = _build_bert_config(vocab_size, n_features, best_params)
     model = BertForSequenceClassification(config)
 
     train_ds = FlowTokenDataset(train_ids, y_train.values)
+    val_ds = FlowTokenDataset(val_ids, y_val.values)
     test_ds = FlowTokenDataset(test_ids, y_test.values)
     class_weights = _class_weights(y_train)
 
@@ -525,7 +567,7 @@ def train_hf_bert(X_train, X_test, y_train, y_test, results, best_params):
         model=model,
         args=training_args,
         train_dataset=train_ds,
-        eval_dataset=test_ds,
+        eval_dataset=val_ds,             # <-- early stopping SOLO su validation
         compute_metrics=_compute_hf_metrics,
         class_weights=class_weights,
         callbacks=[EarlyStoppingCallback(early_stopping_patience=BERT_FINAL_PATIENCE)],
@@ -535,7 +577,7 @@ def train_hf_bert(X_train, X_test, y_train, y_test, results, best_params):
     trainer.train()
     elapsed = time.time() - t0
 
-    pred_output = trainer.predict(test_ds)
+    pred_output = trainer.predict(test_ds)   # <-- test toccato una sola volta, qui
     y_pred = np.argmax(pred_output.predictions, axis=-1)
     evaluate("HF-BERT (tokenizzato)", y_test, y_pred, results, elapsed)
 
@@ -548,12 +590,14 @@ def train_hf_bert(X_train, X_test, y_train, y_test, results, best_params):
 
 
 # --------------------------------------------------------------------------
-# Main: tuning + training di tutti i modelli sullo stesso split + confronto finale
+# Main: tuning + training di tutti i modelli sullo stesso split + confronto
+# finale
 # --------------------------------------------------------------------------
 if __name__ == "__main__":
-    X_train, X_test, y_train, y_test, groups_train = load_data()
+    X_train, X_val, X_test, y_train, y_val, y_test, groups_train = load_data()
 
     results = []
+    RUN_BERT = False  # metti a True quando vuoi includere anche HF-BERT
 
     print("\n\n=== Tuning CatBoost (Optuna + GroupKFold) ===")
     best_cb_params = tune_catboost(X_train, y_train, groups_train)
@@ -561,17 +605,18 @@ if __name__ == "__main__":
     print("\n\n=== Tuning XGBoost (Optuna + GroupKFold) ===")
     best_xgb_params = tune_xgboost(X_train, y_train, groups_train)
 
+    best_bert_params = None
     print("\n\n=== Tuning HF-BERT (Optuna + GroupKFold) ===")
     #best_bert_params = tune_hf_bert(X_train, y_train, groups_train)
 
     print("\n\n=== Training finale CatBoost ===")
-    train_catboost(X_train, X_test, y_train, y_test, groups_train, results, best_cb_params)
+    train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params)
 
     print("\n\n=== Training finale XGBoost ===")
-    train_xgboost(X_train, X_test, y_train, y_test, results, best_xgb_params)
+    train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_xgb_params)
 
     print("\n\n=== Training finale HF-BERT ===")
-    #train_hf_bert(X_train, X_test, y_train, y_test, results, best_bert_params)
+    #train_hf_bert(X_train, X_val, X_test, y_train, y_val, y_test, results, best_bert_params)
 
     comparison = pd.DataFrame(results).set_index("model")
     print("\n\n=== Confronto finale ===")
@@ -581,7 +626,6 @@ if __name__ == "__main__":
     comparison.to_csv(comparison_path)
     print(f"\nTabella di confronto salvata in: {comparison_path}")
 
-    # Salva anche i migliori iperparametri trovati, utile per riproducibilita'
     best_params_path = os.path.join(MODELS_DIR, "best_params.joblib")
     joblib.dump(
         {"catboost": best_cb_params, "xgboost": best_xgb_params, "hf_bert": best_bert_params},
