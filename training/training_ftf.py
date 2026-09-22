@@ -31,7 +31,7 @@ current = os.path.dirname(os.path.realpath(__file__))
 root = os.path.dirname(current)
 sys.path.append(root)
 
-TRAINING_SET = current + '/dataset_ftf.csv'
+TRAINING_SET = current + '/logs/dataset_ftf_1790020222.csv'
 MODELS_DIR = root + '/models/ftf_detector'
 
 os.makedirs(MODELS_DIR, exist_ok=True)
@@ -44,7 +44,29 @@ FEATURES = [
     "mean_pkts", "cvp", "mean_bytes", "cvb",
 ]
 TARGET = "label"
+
+# GROUP_COL: usata per lo split ESTERNO train/test (conservativa, separa interi
+# scenari cosi' il test finale non ha mai visto nulla dello stesso scenario).
 GROUP_COL = "scenario_id"
+
+# CV_GROUP_COL: chiave usata per la CV INTERNA (Optuna + GroupKFold).
+#
+# In questo dataset (scenario_id, group_id) identifica lo STESSO istante di
+# cattura, replicato due volte: una in condizioni normali (label=0) e una
+# sotto attacco (label=1). Le due righe condividono quindi lo stesso
+# "sfondo" di rete (stesso contesto/timing, presumibilmente stesso traffico
+# legittimo di base) e differiscono solo per la sovrapposizione
+# dell'attacco.
+#
+# Se le due meta' di una coppia finiscono una in train e una in validation,
+# il modello puo' imparare a riconoscere la firma dello sfondo specifico di
+# quel group_id invece del pattern generico dell'attacco, e sfruttarla per
+# "indovinare" la label della riga gemella in validation: leakage per
+# accoppiamento, non per semplice vicinanza temporale. La correzione e'
+# raggruppare la CV per la chiave esatta (scenario_id, group_id), cosi' ogni
+# coppia benigna/attacco resta sempre intera nello stesso fold.
+CV_GROUP_COL = "cv_group_key"
+
 RANDOM_SEED = 42
 
 # Numero di trial Optuna e fold per la CV interna (modifica in base al tempo disponibile)
@@ -67,6 +89,21 @@ np.random.seed(RANDOM_SEED)
 
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
+def drop_unmatched_benign(df, group_col, label_col, benign_label=0, attack_label=1):
+    """Elimina le righe con label benigna (default 0) la cui coppia
+    (scenario_id, group_id) NON ha nessuna riga con label malevola
+    (default 1). Non tocca le righe malevole: se una coppia ha solo
+    label=1 senza controparte benigna, resta cosi' com'e' (l'utente ha
+    chiesto di rimuovere solo i benigni orfani, non il caso simmetrico).
+    """
+    groups_with_attack = set(df.loc[df[label_col] == attack_label, group_col])
+    mask_unmatched_benign = (
+        (df[label_col] == benign_label) & (~df[group_col].isin(groups_with_attack))
+    )
+    n_dropped = int(mask_unmatched_benign.sum())
+    df_clean = df.loc[~mask_unmatched_benign].copy()
+    return df_clean, n_dropped
+
 # --------------------------------------------------------------------------
 # Caricamento dati e split (condiviso da tutti i modelli, stesso scenario_id)
 # --------------------------------------------------------------------------
@@ -75,7 +112,36 @@ def load_data():
     df = df_raw[(df_raw["c_used"] > 0.0)].copy()
 
     print(f"Numero di entry del dataset: {len(df) - 1}\n"
-          f"Entry eliminate: {len(df_raw) - len(df)}")
+          f"Entry eliminate (c_used == 0): {len(df_raw) - len(df)}")
+
+    # Chiave di pairing: uno stesso (scenario_id, group_id) puo' comparire
+    # sia con label=0 sia con label=1 (stesso istante, catturato in una run
+    # benigna e in una run sotto attacco).
+    df[CV_GROUP_COL] = (
+        df[GROUP_COL].astype(str) + "_" + df["group_id"].astype(str)
+    )
+
+    # Sanity check PRIMA di qualsiasi pulizia: quante coppie hanno davvero
+    # entrambe le label, e quanto sono sbilanciate quelle che ce l'hanno.
+    pair_label_counts = df.groupby(CV_GROUP_COL)["label"].value_counts().unstack(fill_value=0)
+    n_pairs_total = pair_label_counts.shape[0]
+    has_both = (pair_label_counts > 0).sum(axis=1) == 2
+    n_pairs_both_labels = int(has_both.sum())
+    n_pairs_unbalanced = int((has_both & (pair_label_counts[0] != pair_label_counts.get(1, 0))).sum()) \
+        if 0 in pair_label_counts.columns and 1 in pair_label_counts.columns else 0
+    print(f"\nCoppie (scenario_id, group_id) totali: {n_pairs_total}")
+    print(f"Coppie con entrambe le label (0 e 1): {n_pairs_both_labels} "
+          f"({100 * n_pairs_both_labels / max(n_pairs_total, 1):.1f}%)")
+    print(f"Di cui con conteggio label sbilanciato (0 != 1 nella stessa coppia): {n_pairs_unbalanced}")
+
+    # 1) Elimina le righe benigne (label=0) la cui coppia non ha ALCUNA
+    #    controparte malevola: per queste non esiste un attacco corrispondente
+    #    con cui confrontarle, quindi non sono utilizzabili come meta' di un
+    #    pairing benigno/attacco.
+    n_rows_before_drop = len(df)
+    df, n_dropped_unmatched = drop_unmatched_benign(df, CV_GROUP_COL, "label")
+    print(f"\nRighe benigne senza controparte malevola eliminate: {n_dropped_unmatched} "
+          f"({100 * n_dropped_unmatched / max(n_rows_before_drop, 1):.1f}% del dataset filtrato)")
 
     counts = df.groupby([GROUP_COL, "label"]).size().unstack(fill_value=0)
     print(counts)
@@ -84,6 +150,7 @@ def load_data():
     X = df[FEATURES]
     y = df[TARGET]
     groups = df[GROUP_COL]
+    cv_groups = df[CV_GROUP_COL]
 
     # Split esterno: 80% scenari per train+tuning, 20% scenari per test finale (mai visto durante il tuning)
     gss = GroupShuffleSplit(n_splits=1, test_size=0.2, random_state=RANDOM_SEED)
@@ -92,12 +159,14 @@ def load_data():
     X_train, X_test = X.iloc[train_idx].reset_index(drop=True), X.iloc[test_idx].reset_index(drop=True)
     y_train, y_test = y.iloc[train_idx].reset_index(drop=True), y.iloc[test_idx].reset_index(drop=True)
     groups_train = groups.iloc[train_idx].reset_index(drop=True)
+    cv_groups_train = cv_groups.iloc[train_idx].reset_index(drop=True)
 
     n_groups_train = groups_train.nunique()
     print(f"\nScenari (scenario_id) nel train+tuning: {n_groups_train} -> {sorted(groups_train.unique())}")
     print(f"Scenari (scenario_id) nel test finale: {groups.iloc[test_idx].nunique()} -> {sorted(groups.iloc[test_idx].unique())}")
+    print(f"Coppie ({CV_GROUP_COL}) disponibili per la CV interna: {cv_groups_train.nunique()}")
 
-    return X_train, X_test, y_train, y_test, groups_train
+    return X_train, X_test, y_train, y_test, groups_train, cv_groups_train
 
 
 def evaluate(name, y_true, y_pred, results, elapsed=None):
@@ -136,10 +205,11 @@ def make_group_kfold_splits(X, y, groups, n_splits):
 
 
 # --------------------------------------------------------------------------
-# 1. CatBoost - tuning Optuna con GroupKFold + training finale
+# 1. CatBoost - tuning Optuna con GroupKFold (per coppia benigno/attacco) +
+#    training finale
 # --------------------------------------------------------------------------
-def tune_catboost(X_train, y_train, groups_train, n_trials=N_TRIALS, n_splits=N_SPLITS):
-    splits = make_group_kfold_splits(X_train, y_train, groups_train, n_splits)
+def tune_catboost(X_train, y_train, cv_groups_train, n_trials=N_TRIALS, n_splits=N_SPLITS):
+    splits = make_group_kfold_splits(X_train, y_train, cv_groups_train, n_splits)
 
     def objective(trial):
         params = {
@@ -226,10 +296,11 @@ def train_catboost(X_train, X_test, y_train, y_test, groups_train, results, best
 
 
 # --------------------------------------------------------------------------
-# 2. XGBoost - tuning Optuna con GroupKFold + training finale
+# 2. XGBoost - tuning Optuna con GroupKFold (per coppia benigno/attacco) +
+#    training finale
 # --------------------------------------------------------------------------
-def tune_xgboost(X_train, y_train, groups_train, n_trials=N_TRIALS, n_splits=N_SPLITS):
-    splits = make_group_kfold_splits(X_train, y_train, groups_train, n_splits)
+def tune_xgboost(X_train, y_train, cv_groups_train, n_trials=N_TRIALS, n_splits=N_SPLITS):
+    splits = make_group_kfold_splits(X_train, y_train, cv_groups_train, n_splits)
 
     def objective(trial):
         params = {
@@ -316,7 +387,8 @@ def train_xgboost(X_train, X_test, y_train, y_test, results, best_params):
 
 
 # --------------------------------------------------------------------------
-# 3. HF-BERT su feature tokenizzate - tuning Optuna con GroupKFold + training finale
+# 3. HF-BERT su feature tokenizzate - tuning Optuna con GroupKFold (per
+#    coppia benigno/attacco) + training finale
 # --------------------------------------------------------------------------
 def _tokenize_features(X_train, X_test, n_bins):
     """Discretizza ogni feature continua in n_bins bin (quantili, fit solo
@@ -406,8 +478,8 @@ def _build_bert_config(vocab_size, n_features, params):
     )
 
 
-def tune_hf_bert(X_train, y_train, groups_train, n_trials=BERT_N_TRIALS, n_splits=N_SPLITS):
-    splits = make_group_kfold_splits(X_train, y_train, groups_train, n_splits)
+def tune_hf_bert(X_train, y_train, cv_groups_train, n_trials=BERT_N_TRIALS, n_splits=N_SPLITS):
+    splits = make_group_kfold_splits(X_train, y_train, cv_groups_train, n_splits)
     n_features = X_train.shape[1]
 
     def objective(trial):
@@ -556,18 +628,18 @@ def train_hf_bert(X_train, X_test, y_train, y_test, results, best_params):
 # Main: tuning + training di tutti i modelli sullo stesso split + confronto finale
 # --------------------------------------------------------------------------
 if __name__ == "__main__":
-    X_train, X_test, y_train, y_test, groups_train = load_data()
+    X_train, X_test, y_train, y_test, groups_train, cv_groups_train = load_data()
 
     results = []
 
-    print("\n\n=== Tuning CatBoost (Optuna + GroupKFold) ===")
-    best_cb_params = tune_catboost(X_train, y_train, groups_train)
+    print("\n\n=== Tuning CatBoost (Optuna + GroupKFold per coppia benigno/attacco) ===")
+    best_cb_params = tune_catboost(X_train, y_train, cv_groups_train)
 
-    print("\n\n=== Tuning XGBoost (Optuna + GroupKFold) ===")
-    best_xgb_params = tune_xgboost(X_train, y_train, groups_train)
+    print("\n\n=== Tuning XGBoost (Optuna + GroupKFold per coppia benigno/attacco) ===")
+    best_xgb_params = tune_xgboost(X_train, y_train, cv_groups_train)
 
-    print("\n\n=== Tuning HF-BERT (Optuna + GroupKFold) ===")
-    #best_bert_params = tune_hf_bert(X_train, y_train, groups_train)
+    print("\n\n=== Tuning HF-BERT (Optuna + GroupKFold per coppia benigno/attacco) ===")
+    #best_bert_params = tune_hf_bert(X_train, y_train, cv_groups_train)
 
     print("\n\n=== Training finale CatBoost ===")
     train_catboost(X_train, X_test, y_train, y_test, groups_train, results, best_cb_params)

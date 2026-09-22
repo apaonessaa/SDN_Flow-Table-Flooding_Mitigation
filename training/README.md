@@ -42,6 +42,7 @@ EOF
 ## Exclude group_id
 
 ```bash
+#### TOMOD
 $ cat datasets/dataset.csv > /tmp/dataset.csv && tail -n 8952 logs/dataset_1788536029.csv | awk -F',' '$20 != "6"' - >> /tmp/dataset.csv
 
 $ cat dataset.csv | cut -d',' -f20 | sort -u

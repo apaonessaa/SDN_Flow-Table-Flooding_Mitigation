@@ -269,8 +269,8 @@ class FTFMController(app_manager.RyuApp):
 
         if not stats:
             return
-        if not self.feature_ext[dpid].has_enough_data(occupancy=0.3):
-            return
+        if not self.feature_ext[dpid].has_enough_data(occupancy=0.2):
+            return            
 
         # Atomic Inc GROUP_ID
         group_id = self._next_group_id()
