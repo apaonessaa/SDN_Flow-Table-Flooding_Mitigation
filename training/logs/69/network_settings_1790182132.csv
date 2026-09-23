@@ -1,0 +1,5 @@
+topo,hard_timeout,idle_timeout,flow_table_size,npkts,profile,anp,att_duration,fill_time
+0,13,13,224,307,stealth,2,5033,547.3566437866358
+1,12,2,288,308,moderate,7,247,220.95034066973176
+2,6,6,331,375,aggressive,30,277,11.300830444946
+3,15,2,189,266,aggressive,10,164,46.772265535760376

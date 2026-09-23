@@ -42,11 +42,14 @@ EOF
 ## Exclude group_id
 
 ```bash
-$ cat logs/dataset_mfr_1790077572.csv | awk -F',' '$21 != "6"' - > /tmp/dataset_mfr_1790077572.csv
+$ cat dataset_ftf_1790077572.csv | awk -F',' '$21 != "6"' - > /tmp/dataset_ftf_1790077572.csv
 
-$ cat logs/dataset_mfr_1790077572.csv | awk -F',' '$8 != "6"' - > /tmp/dataset_mfr_1790077572.csv
+$ cat dataset_mfr_1790077572.csv | awk -F',' '$8 != "6"' - > /tmp/dataset_ftf_1790077572.csv
 
-$ cat dataset.csv | cut -d',' -f20 | sort -u
+$ cat dataset.csv | cut -d',' -f21 | sort -u
+
+$ cat /tmp/dataset_mfr_1790077572.csv | cut -d',' -f8 | sort -u
+
 $ cat dataset.csv | awk -F',' '$20 != "25"'
 $ tail -n X dataset.csv 
 ```
