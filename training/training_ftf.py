@@ -31,7 +31,7 @@ current = os.path.dirname(os.path.realpath(__file__))
 root = os.path.dirname(current)
 sys.path.append(root)
 
-TRAINING_SET = '/tmp/dataset_ftf.csv'
+TRAINING_SET = current + '/logs/dataset_ftf_1790077572.csv'
 MODELS_DIR = root + '/models/ftf_detector'
 
 os.makedirs(MODELS_DIR, exist_ok=True)

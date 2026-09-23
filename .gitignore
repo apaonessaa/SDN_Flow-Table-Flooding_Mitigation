@@ -6,4 +6,4 @@
 **catboost_info
 **training/pcaps/traffics/**
 **training/pcaps/scenarios/scenario_**
-**training/ftf_detector/logs/controller_**
+**training/logs/controller_**
