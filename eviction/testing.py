@@ -8,6 +8,7 @@ from mininet.net import Mininet
 from mininet.node import RemoteController, OVSSwitch, Host
 from mininet.topo import Topo
 from mininet.log import setLogLevel, info
+from mininet.cli import CLI
 
 # Modules loader
 import sys
@@ -60,7 +61,8 @@ def main() -> None:
         "IDLE_TIMEOUT": f"{idle_timeout}",
         "HARD_TIMEOUT": f"{hard_timeout}",
         "K_FACTOR": f"{k_factor}",
-        "MODEL": "CatBoost"
+        "MODEL": "CatBoost",
+        "MAX_COLLATERAL_PORT": "1"
     }
     controller = start_controller(controller_envs, log_path=f"{log_path}/controller_{log_timestamp}.log")
 
@@ -122,7 +124,7 @@ def main() -> None:
             max_iter=10,
             max_interval=30,
             net=net,
-            local_ip=True
+            local_ip=False
         )
 
         (src, dst) = topo.conn_hosts
@@ -148,6 +150,8 @@ def main() -> None:
             t.join(timeout=5)
 
         info(f"*** END TRAFFIC: Session duration {math.ceil(time() - t0)}\n")
+
+        CLI(net)
 
     finally:
         sleep(30)

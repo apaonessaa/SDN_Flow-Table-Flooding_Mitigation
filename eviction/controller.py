@@ -21,6 +21,7 @@ from ryu.ofproto import ofproto_v1_4
 from ryu.lib.packet import packet, ethernet, ether_types, ipv4
 from ryu.lib import hub
 
+import threading
 from time import time
 from collections import defaultdict 
 
@@ -49,6 +50,9 @@ class FTFMController(app_manager.RyuApp):
     FLOW_TABLE_THRESHOLD = 0.8
     MODEL = os.environ.get('MODEL', 'Catboost')
 
+    # Numero di flow rules legittime tollerate per l'eviction
+    MAX_COLLATERAL_PORT = int(os.environ.get('MAX_COLLATERAL_PORT', '0'))
+
     CATBOOST_FTF_DETECTOR = root + '/models/ftf_detector/catboost_model.cbm' 
     CATBOOST_MFR_DETECTOR = root + '/models/malicious_fr_detector/catboost_model.cbm'
     XGBOOST_FTF_DETECTOR = root + '/models/ftf_detector/xgboost_model.json' 
@@ -60,11 +64,11 @@ class FTFMController(app_manager.RyuApp):
         super(FTFMController, self).__init__(*args, **kwargs)
         self.mac_to_port = {}
         self.datapaths = {}
-        self.collector = hub.spawn(self._collector)
         self.feature_ext = defaultdict(FeatureExt)
         self.T = float("{:.2f}".format(min(self.IDLE_TIMEOUT, self.HARD_TIMEOUT) / self.K_FACTOR))
         self.logger.debug(f"[GAP] Intervallo di tempo per la cattura delle features: {self.T}s")
         self.collector = hub.spawn(self._collector)
+        self._report_lock = threading.Lock()
 
         if self.MODEL == "CatBoost":
             self.ftf_detector = CatBoostClassifier()
@@ -92,18 +96,19 @@ class FTFMController(app_manager.RyuApp):
             self.ftf_detector.load_model(self.CATBOOST_FTF_DETECTOR)
             self.mfr_detector.load_model(self.CATBOOST_MFR_DETECTOR)
 
-        with open(self.REPORT_PATH, "w", newline="") as f:
-            f.write(f"""
-            {self.MODEL} FTF DETECTOR & MFR DETECTOR
-            
-            Configurations:
-            - FLOW_TABLE_SIZE: {int(os.environ.get('FLOW_TABLE_SIZE', '50'))}
-            - FLOW_TABLE_THRESHOLD: 0.8
-            - IDLE_TIMEOUT: {int(os.environ.get('IDLE_TIMEOUT', '10'))}
-            - HARD_TIMEOUT: {int(os.environ.get('HARD_TIMEOUT', '20'))}
-            - K_FACTOR: {int(os.environ.get('K_FACTOR', '3'))}
-            - T: {self.T}
-            """)
+        with self._report_lock:
+            with open(self.REPORT_PATH, "w", newline="") as f:
+                f.write(f"""
+                {self.MODEL} FTF DETECTOR & MFR DETECTOR
+                
+                Configurations:
+                - FLOW_TABLE_SIZE: {int(os.environ.get('FLOW_TABLE_SIZE', '50'))}
+                - FLOW_TABLE_THRESHOLD: 0.8
+                - IDLE_TIMEOUT: {int(os.environ.get('IDLE_TIMEOUT', '10'))}
+                - HARD_TIMEOUT: {int(os.environ.get('HARD_TIMEOUT', '20'))}
+                - K_FACTOR: {int(os.environ.get('K_FACTOR', '3'))}
+                - T: {self.T}
+                """)
 
     def _bert_tokenize(self, discretizer, n_bins, features):
         """Applica lo stesso discretizer (fit in training) a un singolo
@@ -366,34 +371,110 @@ class FTFMController(app_manager.RyuApp):
             return
 
         # Get Flow Rule Features
-        i = 0; n = len(stats)
+        malicious_stats = []
+        legit_stats = []
+
         for stat in stats:
-            duration, packet_count, byte_count, pkt_rate, byte_rate, psi = self.feature_ext[dpid].get_flow_feature(stat)
-            fr_features = [
-                duration, packet_count, byte_count, pkt_rate, byte_rate, psi
-            ]
+            duration, packet_count, byte_count, pkt_rate, byte_rate, psi = \
+                self.feature_ext[dpid].get_flow_feature(stat)
+            fr_features = [duration, packet_count, byte_count, pkt_rate, byte_rate, psi]
 
             if self.MODEL in ("HFBert"):
                 fr_pred = self._bert_predict(
                     self.mfr_bert, self.mfr_bert_discretizer, self.mfr_bert_n_bins, fr_features
                 )
             else:
-                fr_pred = self.mfr_detector.predict([fr_features])                
+                fr_pred = self.mfr_detector.predict([fr_features])
 
+            # Group by malicious and legit flow rules
             if fr_pred:
-                src_ip = stat.match.get('ipv4_src', None)
-                dst_ip = stat.match.get('ipv4_dst', None)
+                malicious_stats.append(stat)
+            else:
+                legit_stats.append(stat)
+
+        # ---- Eviction Tier 0: group by in_port ----
+        evicted_via_wildcard, remaining = self._evict_by_port(
+            datapath, malicious_stats, legit_stats
+        )
+
+        # ---- Fallback Tier 1: delete strict per flow rules ----
+        for stat in remaining:
+            self.delete_flow(datapath, stat.match, priority=stat.priority, strict=True)
+
+        # --- Logs ---
+        for stat in malicious_stats:
+            src_ip = stat.match.get('ipv4_src', None)
+            dst_ip = stat.match.get('ipv4_dst', None)
+            with self._report_lock:
                 with open(self.REPORT_PATH, "a", newline="") as f:
                     f.write(f"""
-                        * FLOW RULE FEATURES: {fr_features}
                         * FLOW RULE: {src_ip} -> {dst_ip}
-                    
-                    """)
-                self.delete_flow(datapath, stat.match, priority=stat.priority, strict=True)
-                i+=1
 
-        with open(self.REPORT_PATH, "a", newline="") as f:
-            f.write(f"""
-                * MALICIOUS FLOW RULES: {i}/{len(stats)}/{self.FLOW_TABLE_SIZE}
-            
-            """)        
+                    """)
+
+        i = len(evicted_via_wildcard) + len(remaining)
+        with self._report_lock:
+            with open(self.REPORT_PATH, "a", newline="") as f:
+                f.write(f"""
+                    * MALICIOUS FLOW RULES: {i}/{len(stats)}/{self.FLOW_TABLE_SIZE}
+                    * EVICTED VIA PORT-WILDCARD: {len(evicted_via_wildcard)} rules, {len(set(s.match['in_port'] for s in evicted_via_wildcard))} DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: {len(remaining)} rules, {len(remaining)} DELETE msgs
+
+                """)
+
+    # Eviction
+    def _evict_by_port(self, datapath, malicious_stats, legit_stats):
+        """
+        Livello 0 dell'eviction: raggruppa le flow rules malevole per in_port
+        e, se il collateral damage (regole legittime sulla stessa porta) e'
+        entro MAX_COLLATERAL_PORT, invia un unico OFPFlowMod non-strict
+        (command=OFPFC_DELETE) con match={in_port: X}, cancellando in blocco
+        tutte le entry su quella porta a priorita' 1.
+
+        in_port e' scelto come primo criterio di raggruppamento perche' non
+        e' falsificabile dall'attaccante (a differenza di eth_src/ipv4_src),
+        quindi il raggruppamento e' esatto e non richiede euristiche di
+        similarita': o la porta e' "pulita" (solo traffico malevolo) e il
+        wildcard e' sicuro, oppure si rimanda al fallback strict.
+
+        Ritorna:
+            evicted: lista di (stat, fr_features) coperte dal wildcard
+            remaining: lista di (stat, fr_features) da gestire con delete strict
+        """
+        by_port = defaultdict(list)
+        for stat in malicious_stats:
+            by_port[stat.match['in_port']].append(stat)
+
+        legit_by_port = defaultdict(int)
+        for stat in legit_stats:
+            legit_by_port[stat.match['in_port']] += 1
+
+        evicted, remaining = [], []
+        for in_port, group in by_port.items():
+            collateral = legit_by_port.get(in_port, 0)
+
+            if len(group) < 2:
+                # una sola regola malevola sulla porta: non conviene un
+                # wildcard, il delete strict e' gia' ottimo (1 msg, 0 collateral)
+                remaining.extend(group)
+                continue
+
+            if collateral <= self.MAX_COLLATERAL_PORT:
+                ofproto = datapath.ofproto
+                parser = datapath.ofproto_parser
+                match = parser.OFPMatch(in_port=in_port)
+                self.delete_flow(datapath, match, priority=1, strict=False)
+
+                self.logger.info(
+                    '[EVICTION-L0] dpid=%016x in_port=%s covered=%d collateral=%d',
+                    datapath.id, in_port, len(group), collateral
+                )
+                evicted.extend(group)
+            else:
+                self.logger.debug(
+                    '[EVICTION-L0] in_port=%s scartata: collateral=%d > soglia=%d, fallback',
+                    in_port, collateral, self.MAX_COLLATERAL_PORT
+                )
+                remaining.extend(group)
+
+        return evicted, remaining
