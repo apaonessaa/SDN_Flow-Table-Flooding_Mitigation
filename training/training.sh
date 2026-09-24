@@ -15,7 +15,7 @@ python3 training_ftf.py
 python3 training_mfr.py
 
 echo "FTF"
-cat "${DIR}/../models/ftf_detector/model_comparison.csv "
+cat "${DIR}/../models/ftf_detector/model_comparison.csv"
 
 echo "MFR"
 cat "${DIR}/../models/malicious_fr_detector/model_comparison.csv"
