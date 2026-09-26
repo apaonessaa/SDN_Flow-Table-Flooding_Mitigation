@@ -1,0 +1,5170 @@
+
+                XGBoost FTF DETECTOR & MFR DETECTOR
+                
+                Configurations:
+                - FLOW_TABLE_SIZE: 100
+                - FLOW_TABLE_THRESHOLD: 0.8
+                - IDLE_TIMEOUT: 2
+                - HARD_TIMEOUT: 5
+                - K_FACTOR: 2
+                - T: 1.0
+                
+                ANOMALY@1, timestamp 1790237535.972837
+                    * FLOW TABLE FEATURES: [3.027744111367246, 1.1348079815777012, 3.3553107892349847, 4.52960106123313, 2.0946638128124135, 4.62960106123313, 2.0946638128124135, 4.0, 0.8708272859216255, 0.0, 2.0, 1.5, 2.0, 1.9235, 0.8949832547150276, 4.25, 0.7692174606248248, 293.5, 0.6896459679499882]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237536.9727054
+                    * FLOW TABLE FEATURES: [3.027744111367246, 1.1348079815777012, 3.3553107892349847, 4.52960106123313, 2.0946638128124135, 4.62960106123313, 2.0946638128124135, 4.0, 0.8708272859216256, 0.0, 2.0, 1.5, 2.0, 2.9234999999999998, 0.588849081732292, 6.25, 0.5230678732248808, 469.5, 0.312004999971714]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237537.977817
+                    * FLOW TABLE FEATURES: [3.1256381449312984, 1.104136401741456, 3.484996098730652, 4.561976875613826, 2.080714984933717, 4.657214970851921, 2.080714984933717, 4.0, 1.4713094654242274, 0.0, 2.0, 1.5, 2.0, 1.18525, 0.8595235661239571, 1.75, 0.7423074889580903, 192.25, 0.7498313728101488]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                        * FLOW RULE: 10.0.0.1 -> 10.0.0.4
+
+                    
+                    * MALICIOUS FLOW RULES: 1/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 1 rules, 1 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237538.9775493
+                    * FLOW TABLE FEATURES: [3.1121137878490726, 1.103391135704716, 3.5061090647621516, 4.52653006036272, 2.1072389642034124, 4.619553316176674, 2.1072389642034124, 5.0, 1.4652014652014649, 0.0, 2.321928094887362, 0.9709505944546686, 2.321928094887362, 1.7064, 0.7321532613007745, 1.8, 0.5443310539518174, 177.8, 0.7121825853081728]
+                    * FLOW TABLE OCCUPANCY: 5/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/5/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237539.9777806
+                    * FLOW TABLE FEATURES: [3.0715664605054815, 1.1209703708425538, 3.4896404086478263, 4.687160157819054, 2.0585766316069245, 4.774116679558183, 2.0585766316069245, 4.0, 2.0533880903490758, 0.0, 2.0, 0.8112781244591328, 2.0, 1.45825, 0.3544792872985239, 1.75, 0.24743582965269675, 149.5, 0.450463309626861]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237540.984547
+                    * FLOW TABLE FEATURES: [3.2134764291460476, 1.0825033807752946, 3.631742109787314, 4.737906852909131, 2.0253981288658083, 4.875655972142607, 2.0253981288658083, 4.0, 2.053388090349076, 0.0, 2.0, 1.5, 2.0, 2.45925, 0.2101939293292965, 2.25, 0.3685138655950444, 179.5, 0.44978094621051445]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237541.9833076
+                    * FLOW TABLE FEATURES: [3.388599977362938, 1.0428367407930164, 3.7819280948873617, 4.987770219093792, 1.9036187775628304, 5.158631882365594, 1.9036187775628304, 4.0, 2.0533880903490758, 0.0, 2.0, 0.8112781244591328, 2.0, 3.4602500000000003, 0.14938788258162633, 2.75, 0.15745916432444337, 209.5, 0.2950656801759661]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237542.987347
+                    * FLOW TABLE FEATURES: [3.388599977362938, 1.0428367407930164, 3.7819280948873617, 4.987770219093792, 1.9036187775628304, 5.158631882365594, 1.9036187775628304, 2.0, 0.6844626967830252, 0.0, 1.0, 1.0, 1.0, 4.4425, 0.16443444006752958, 4.5, 0.1111111111111111, 307.0, 0.2182410423452769]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237543.9898
+                    * FLOW TABLE FEATURES: [3.54169656837361, 1.0021813018235322, 3.923074189428569, 5.08405599660711, 1.84542836473202, 5.254917659878916, 1.84542836473202, 1.0, 0.0, 0.0, -0.0, -0.0, -0.0, 4.713, 0.0, 4.0, 0.0, 240.0, 0.0]
+                    * FLOW TABLE OCCUPANCY: 1/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/1/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237544.9943454
+                    * FLOW TABLE FEATURES: [3.511654115229809, 1.0165073759916654, 3.872648366158272, 5.068188658893454, 1.8474222496610195, 5.239050322165259, 1.8474222496610195, 4.0, 32.25806451612903, 0.0, 2.0, 1.0, 1.5, 0.08675, 0.5218207751004927, 0.5, 1.0, 63.25, 1.0189582265510884]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                        * FLOW RULE: 10.0.0.1 -> 10.0.0.3
+
+                    
+                    * MALICIOUS FLOW RULES: 1/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 1 rules, 1 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237545.996255
+                    * FLOW TABLE FEATURES: [3.698695464032029, 0.9746903633304231, 4.033199429486235, 5.337285122383346, 1.6528297063887836, 5.545629790944712, 1.6528297063887836, 4.0, 3.5046728971962624, 0.0, 2.0, 1.5, 2.0, 0.87425, 0.39607378734069043, 2.25, 0.3685138655950444, 170.0, 0.40290897252159613]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237546.9980567
+                    * FLOW TABLE FEATURES: [4.625023801683532, 0.7728275773870887, 4.762683189255491, 6.036307314753091, 0.8346218756660164, 6.336307314753089, 0.8346218756660164, 4.0, 3.504672897196261, 0.0, 2.0, 2.0, 2.0, 1.8762500000000002, 0.1845529692645429, 15.25, 0.914953853270546, 6449.75, 1.5863033034165681]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237548.016435
+                    * FLOW TABLE FEATURES: [4.625023801683532, 0.7728275773870887, 4.762683189255491, 6.036307314753091, 0.8346218756660164, 6.336307314753089, 0.8346218756660164, 2.0, 1.1682242990654208, 0.0, 1.0, 1.0, 1.0, 2.708, 0.15805022156573112, 31.0, 0.25806451612903225, 12942.5, 0.8831755843152405]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237549.0003664
+                    * FLOW TABLE FEATURES: [4.62368947867179, 0.7726762415176185, 4.76268318925549, 5.934917659878913, 0.914149430330531, 6.258562939644914, 0.914149430330531, 4.0, 0.8764241893076247, 0.0, 2.0, 2.0, 2.0, 2.212, 0.6904546402245977, 15.75, 1.0329663113348537, 6487.75, 1.5943459978706644]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                        * FLOW RULE: 10.0.0.4 -> 10.0.0.1
+
+                    
+                    * MALICIOUS FLOW RULES: 1/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 1 rules, 1 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237549.9995635
+                    * FLOW TABLE FEATURES: [4.598201598425973, 0.7747800488203787, 4.76268318925549, 5.915916314580012, 0.9489281819907742, 6.2224665349005495, 0.9489281819907742, 2.0, 0.5977286312014345, 0.0, 1.0, 1.0, 1.0, 0.8805000000000001, 0.9500283929585462, 1.5, 0.3333333333333333, 111.0, 0.08108108108108109]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237551.0023491
+                    * FLOW TABLE FEATURES: [4.753449999352503, 0.7392981218555638, 4.874118823749609, 5.848018100519988, 1.0271880325640024, 6.1516633802859895, 1.0271880325640024, 4.0, 1.3309671694764864, 0.0, 2.0, 1.0, 2.0, 1.1732500000000001, 0.7864984268326771, 1.5, 0.3333333333333333, 146.5, 0.6650562773674393]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237552.0093002
+                    * FLOW TABLE FEATURES: [4.753449999352503, 0.7392981218555638, 4.874118823749609, 5.848018100519988, 1.0271880325640024, 6.1516633802859895, 1.0271880325640024, 4.0, 1.3309671694764864, 0.0, 2.0, 2.0, 2.0, 2.17325, 0.4245987710946456, 2.5, 0.447213595499958, 206.5, 0.6104144556122311]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237553.0221035
+                    * FLOW TABLE FEATURES: [4.495969383974931, 0.7908566555242854, 4.676358444492015, 5.828220961681351, 1.099483779737341, 6.067222306980254, 1.099483779737341, 2.0, 999.9999999999991, 0.0, 1.0, 1.0, 1.0, 0.7224999999999999, 0.0006920415224913502, 0.5, 1.0, 46.5, 1.0]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                        * FLOW RULE: 10.0.0.1 -> 10.0.0.4
+
+                    
+                    * MALICIOUS FLOW RULES: 1/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 1 rules, 1 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237554.0117269
+                    * FLOW TABLE FEATURES: [4.491550341575168, 0.7907582450696502, 4.696358444492015, 5.8185629396449166, 1.1378554947857973, 6.017564284943817, 1.1378554947857973, 2.0, 0.9990009990009991, 0.0, 1.0, 1.0, 1.0, 1.2225, 0.40940695296523516, 2.0, 0.5, 139.5, 0.5268817204301075]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237555.0145524
+                    * FLOW TABLE FEATURES: [4.491550341575168, 0.7907582450696502, 4.696358444492015, 5.8185629396449166, 1.1378554947857973, 6.017564284943817, 1.1378554947857973, 2.0, 0.9990009990009987, 0.0, 1.0, 1.0, 1.0, 2.2235, 0.22509557004722291, 2.0, 0.5, 139.5, 0.5268817204301075]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237556.018278
+                    * FLOW TABLE FEATURES: [4.4637704370395985, 0.8037301794707544, 4.629643734666164, 5.758562939644918, 1.0659648992966049, 6.017564284943817, 1.0659648992966049, 2.0, 499.99999999999955, 0.0, 1.0, 1.0, 1.0, 0.399, 0.002506265664160403, 0.5, 1.0, 33.0, 1.0]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                        * FLOW RULE: 10.0.0.4 -> 10.0.0.1
+
+                    
+                    * MALICIOUS FLOW RULES: 1/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 1 rules, 1 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237557.011211
+                    * FLOW TABLE FEATURES: [4.71278619270272, 0.7528426761951204, 4.828607133843986, 5.875916314580014, 0.916477057012409, 6.194917659878914, 0.916477057012409, 1.0, 0.0, 0.0, -0.0, -0.0, -0.0, 1.4020000000000001, 0.0, 2.0, 0.0, 156.0, 0.0]
+                    * FLOW TABLE OCCUPANCY: 1/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/1/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237558.016099
+                    * FLOW TABLE FEATURES: [4.685700182438476, 0.7544046281465822, 4.808607133843986, 5.854499220079251, 0.94927389111372, 6.155916314580013, 0.94927389111372, 2.0, 0.46663555762949144, 0.0, 1.0, 1.0, 1.0, 1.3315000000000001, 0.8047315058205032, 2.0, 0.5, 159.5, 0.3166144200626959]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237559.020324
+                    * FLOW TABLE FEATURES: [4.678499686367597, 0.7546577838446012, 4.788607133843989, 5.8959163145800115, 0.94927389111372, 6.155916314580013, 0.94927389111372, 2.0, 0.46663555762949144, 0.0, 1.0, 1.0, 1.0, 2.3315, 0.45957538065622994, 2.0, 0.5, 159.5, 0.3166144200626959]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237562.0164366
+                    * FLOW TABLE FEATURES: [4.667214731253825, 0.7671285418010307, 4.742683189255494, 6.088758439731454, 0.8706642748745632, 6.2287584397314575, 0.8706642748745632, 2.0, 199.99999999999983, 0.0, 1.0, 1.0, 1.0, 0.9335, 0.0026780931976432805, 0.5, 1.0, 33.0, 1.0]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                        * FLOW RULE: 10.0.0.4 -> 10.0.0.1
+
+                    
+                    * MALICIOUS FLOW RULES: 1/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 1 rules, 1 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237563.0138934
+                    * FLOW TABLE FEATURES: [4.78233705849944, 0.7460190716051439, 4.808607133843985, 6.070826500686662, 0.8529198997663899, 6.230826500686662, 0.8529198997663899, 2.0, 0.8598452278589855, 0.0, 1.0, 1.0, 1.0, 1.3545, 0.4293097083794758, 2.5, 0.6, 147.0, 0.5510204081632653]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237564.0277035
+                    * FLOW TABLE FEATURES: [4.78233705849944, 0.7460190716051439, 4.808607133843985, 6.070826500686662, 0.8529198997663899, 6.230826500686662, 0.8529198997663899, 2.0, 0.8598452278589852, 0.0, 1.0, 1.0, 1.0, 2.3555, 0.24686902992995122, 2.5, 0.6, 147.0, 0.5510204081632653]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237566.0216446
+                    * FLOW TABLE FEATURES: [4.6189652755159845, 0.7790213552060714, 4.656358444492015, 6.11082650068666, 0.8529198997663898, 6.230826500686662, 0.8529198997663898, 2.0, 499.99999999999955, 0.0, 1.0, 1.0, 1.0, 0.793, 0.001261034047919295, 3.5, 0.14285714285714285, 238.0, 0.1638655462184874]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237567.0290542
+                    * FLOW TABLE FEATURES: [4.6189652755159845, 0.7790213552060714, 4.656358444492015, 6.11082650068666, 0.8529198997663898, 6.230826500686662, 0.8529198997663898, 2.0, 500.0000000000551, 0.0, 1.0, 1.0, 1.0, 1.794, 0.0005574136008918004, 4.5, 0.1111111111111111, 298.0, 0.11073825503355705]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237568.0233195
+                    * FLOW TABLE FEATURES: [4.780980831899086, 0.7461295803185855, 4.808607133843985, 6.192243595187423, 0.8397774893133101, 6.292243595187422, 0.8397774893133101, 6.0, 2.0695364238410594, 0.0, 2.584962500721156, 1.2516291673878228, 2.584962500721156, 1.3, 0.8203175649087556, 2.5, 0.8563488385776752, 182.33333333333334, 0.7444244907926999]
+                    * FLOW TABLE OCCUPANCY: 6/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/6/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237569.063577
+                    * FLOW TABLE FEATURES: [4.8887888890071425, 0.7274964670365383, 4.89411882374961, 6.31630731475309, 0.626090653034748, 6.483856189774725, 0.626090653034748, 6.0, 2.0695364238410594, 0.0, 2.584962500721156, 1.9182958340544896, 2.584962500721156, 2.2999999999999994, 0.463657754078862, 5.5, 0.7767276132106846, 458.0, 0.7097682047295407]
+                    * FLOW TABLE OCCUPANCY: 6/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/6/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237570.0366786
+                    * FLOW TABLE FEATURES: [5.075806641221042, 0.6937754604639891, 5.003856189774726, 6.288758439731456, 0.5856666624495429, 6.5163073147530906, 0.5856666624495429, 6.0, 2.06953642384106, 0.0, 2.584962500721156, 1.9182958340544896, 2.584962500721156, 3.301, 0.32305750814340567, 9.833333333333334, 0.5674803065350239, 967.0, 0.6894238193431363]
+                    * FLOW TABLE OCCUPANCY: 6/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/6/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237571.0451272
+                    * FLOW TABLE FEATURES: [5.119644025336062, 0.6803678289829088, 5.068055333554795, 6.316307314753091, 0.5856666624495429, 6.523856189774726, 0.5856666624495429, 4.0, 0.9721322099805574, 0.0, 2.0, 1.5, 2.0, 2.1849999999999996, 0.7054923248551285, 9.25, 0.8387092242801568, 1105.25, 0.8848490297401151]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237572.048692
+                    * FLOW TABLE FEATURES: [5.041253256694341, 0.6961106861564241, 5.003856189774726, 6.272662034987087, 0.6853556861713613, 6.460210910008723, 0.6853556861713613, 6.0, 1.2846865364850975, 0.0, 2.584962500721156, 1.9182958340544893, 2.584962500721156, 2.415, 0.6899699742837676, 7.166666666666667, 0.9781274811540971, 807.8333333333334, 1.1191861164926005]
+                    * FLOW TABLE OCCUPANCY: 6/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/6/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237573.0407228
+                    * FLOW TABLE FEATURES: [5.041253256694341, 0.6961106861564241, 5.003856189774726, 6.272662034987087, 0.6853556861713613, 6.460210910008723, 0.6853556861713613, 2.0, 15.15151515151519, 0.0, 1.0, 1.0, 1.0, 1.871, 0.017637626937466552, 4.0, 0.25, 273.0, 0.31868131868131866]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237574.033069
+                    * FLOW TABLE FEATURES: [4.793901424908174, 0.7460318036217685, 4.808607133843986, 6.212243595187423, 0.939359049513646, 6.401209564709821, 0.939359049513646, 6.0, 2.1758050478677107, 0.0, 2.584962500721156, 2.2516291673878226, 2.2516291673878226, 1.4411666666666665, 0.7053501764033557, 3.8333333333333335, 0.8706514954130775, 332.1666666666667, 0.7851855270305146]
+                    * FLOW TABLE OCCUPANCY: 6/100
+
+                
+                        * FLOW RULE: 10.0.0.17 -> 10.0.0.237
+
+                    
+                        * FLOW RULE: 10.0.0.1 -> 10.0.0.150
+
+                    
+                    * MALICIOUS FLOW RULES: 2/6/100
+                    * EVICTED VIA PORT-WILDCARD: 2 rules, 1 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237575.0282502
+                    * FLOW TABLE FEATURES: [4.793901424908174, 0.7460318036217685, 4.808607133843986, 6.212243595187423, 0.939359049513646, 6.401209564709821, 0.939359049513646, 4.0, 1.3054830287206267, 0.0, 2.0, 2.0, 2.0, 2.7407500000000002, 0.41320459001822035, 10.5, 0.2896553585856295, 934.25, 0.15370143882401685]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237576.0605521
+                    * FLOW TABLE FEATURES: [4.569009256337768, 0.7953449645144934, 4.629643734666164, 6.108758439731457, 1.6895955468379098, 6.388758439731455, 1.7171444218595446, 15.0, 3.375120540019286, 0.0, 3.4565647621309536, 2.1735572622751858, 3.773557262275185, 1.5785333333333336, 0.9056672895623338, 3.6666666666666665, 1.238500826612829, 880.2666666666667, 1.0619070658921734]
+                    * FLOW TABLE OCCUPANCY: 15/100
+
+                
+                        * FLOW RULE: 10.0.0.17 -> 10.0.0.237
+
+                    
+                        * FLOW RULE: 10.0.0.1 -> 10.0.0.150
+
+                    
+                        * FLOW RULE: 10.0.0.224 -> 10.0.0.218
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.152
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.113
+
+                    
+                        * FLOW RULE: 10.0.0.76 -> 10.0.0.167
+
+                    
+                        * FLOW RULE: 10.0.0.119 -> 10.0.0.227
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.129
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.232
+
+                    
+                        * FLOW RULE: 10.0.0.222 -> 10.0.0.49
+
+                    
+                        * FLOW RULE: 10.0.0.179 -> 10.0.0.3
+
+                    
+                    * MALICIOUS FLOW RULES: 11/15/100
+                    * EVICTED VIA PORT-WILDCARD: 11 rules, 1 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237577.028156
+                    * FLOW TABLE FEATURES: [4.5454280416945325, 0.7969057512488201, 4.629643734666164, 6.035916314580014, 1.7736716672050101, 6.319792470209057, 1.8012205422266452, 2.0, 1.6778523489932886, 0.0, 1.0, 1.0, 1.0, 0.5469999999999999, 0.5447897623400366, 3.5, 0.7142857142857143, 573.5, 0.9058413251961639]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237578.0219235
+                    * FLOW TABLE FEATURES: [4.5110946584437945, 0.7986207087672715, 4.509643734666161, 5.760469225498351, 3.0804660667324204, 6.084694720165789, 3.12046606673242, 25.0, 14.431749849669272, 0.0, 3.7834651896016465, 1.106313713864835, 1.1863137138648348, 0.72992, 0.3996406882595557, 1.04, 2.9727559782984, 217.52, 3.007066593920835]
+                    * FLOW TABLE OCCUPANCY: 25/100
+
+                
+                        * FLOW RULE: 10.0.0.17 -> 10.0.0.237
+
+                    
+                        * FLOW RULE: 10.0.0.1 -> 10.0.0.150
+
+                    
+                        * FLOW RULE: 10.0.0.224 -> 10.0.0.218
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.152
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.113
+
+                    
+                        * FLOW RULE: 10.0.0.76 -> 10.0.0.167
+
+                    
+                        * FLOW RULE: 10.0.0.119 -> 10.0.0.227
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.129
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.232
+
+                    
+                        * FLOW RULE: 10.0.0.222 -> 10.0.0.49
+
+                    
+                        * FLOW RULE: 10.0.0.179 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.162 -> 10.0.0.52
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.91
+
+                    
+                        * FLOW RULE: 10.0.0.167 -> 10.0.0.236
+
+                    
+                        * FLOW RULE: 10.0.0.223 -> 10.0.0.100
+
+                    
+                        * FLOW RULE: 10.0.0.113 -> 10.0.0.13
+
+                    
+                        * FLOW RULE: 10.0.0.141 -> 10.0.0.144
+
+                    
+                        * FLOW RULE: 10.0.0.38 -> 10.0.0.247
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.226
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.251
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.206
+
+                    
+                        * FLOW RULE: 10.0.0.2 -> 10.0.0.1
+
+                    
+                    * MALICIOUS FLOW RULES: 22/25/100
+                    * EVICTED VIA PORT-WILDCARD: 21 rules, 1 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 1 rules, 1 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237579.0196946
+                    * FLOW TABLE FEATURES: [4.55834242587421, 0.7840680333552281, 4.576358444492014, 5.7712723801129115, 3.064529786298087, 6.093660689688187, 3.104529786298087, 4.0, 1.2684989429175475, 0.0, 2.0, 2.0, 2.0, 1.69075, 0.5425301043989138, 19.0, 0.8583950752789521, 2519.0, 0.9201513262562606]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237580.0308795
+                    * FLOW TABLE FEATURES: [4.373232466813998, 0.8309341954378712, 4.0973405767116065, 5.345979129983104, 4.17813585647062, 5.639819909835645, 4.210586981448985, 29.0, 8.641975308641975, 0.0, 4.1852301329094015, 1.4059983878854845, 4.720049960644813, 0.9263793103448277, 0.8465157355339201, 5.103448275862069, 2.638113355128422, 1040.5862068965516, 1.448320554937322]
+                    * FLOW TABLE OCCUPANCY: 29/100
+
+                
+                        * FLOW RULE: 10.0.0.17 -> 10.0.0.237
+
+                    
+                        * FLOW RULE: 10.0.0.1 -> 10.0.0.150
+
+                    
+                        * FLOW RULE: 10.0.0.224 -> 10.0.0.218
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.152
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.113
+
+                    
+                        * FLOW RULE: 10.0.0.76 -> 10.0.0.167
+
+                    
+                        * FLOW RULE: 10.0.0.119 -> 10.0.0.227
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.129
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.232
+
+                    
+                        * FLOW RULE: 10.0.0.222 -> 10.0.0.49
+
+                    
+                        * FLOW RULE: 10.0.0.179 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.162 -> 10.0.0.52
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.91
+
+                    
+                        * FLOW RULE: 10.0.0.167 -> 10.0.0.236
+
+                    
+                        * FLOW RULE: 10.0.0.223 -> 10.0.0.100
+
+                    
+                        * FLOW RULE: 10.0.0.113 -> 10.0.0.13
+
+                    
+                        * FLOW RULE: 10.0.0.141 -> 10.0.0.144
+
+                    
+                        * FLOW RULE: 10.0.0.38 -> 10.0.0.247
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.226
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.251
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.206
+
+                    
+                        * FLOW RULE: 10.0.0.182 -> 10.0.0.10
+
+                    
+                        * FLOW RULE: 10.0.0.135 -> 10.0.0.186
+
+                    
+                        * FLOW RULE: 10.0.0.104 -> 10.0.0.194
+
+                    
+                        * FLOW RULE: 10.0.0.71 -> 10.0.0.156
+
+                    
+                    * MALICIOUS FLOW RULES: 25/29/100
+                    * EVICTED VIA PORT-WILDCARD: 25 rules, 1 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237581.0295327
+                    * FLOW TABLE FEATURES: [4.373232466813998, 0.8309341954378712, 4.0973405767116065, 5.345979129983104, 4.17813585647062, 5.639819909835645, 4.210586981448985, 4.0, 1.2684989429175475, 0.0, 2.0, 2.0, 2.0, 3.69375, 0.24833374592554003, 36.0, 0.6891464572252932, 3992.5, 0.7179330543919814]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237582.03162
+                    * FLOW TABLE FEATURES: [4.026307151123664, 0.9148144504796648, 3.379680171274928, 4.875337750470314, 5.072271034814012, 5.093269689515111, 5.072271034814012, 39.0, 7.943143812709031, 0.0, 4.458103180234289, 0.7988961521311833, 0.8501782034132344, 0.8034102564102564, 1.2855067968363716, 3.0, 4.0333368651535, 351.1794871794872, 3.7963944912425314]
+                    * FLOW TABLE OCCUPANCY: 39/100
+
+                
+                        * FLOW RULE: 10.0.0.17 -> 10.0.0.237
+
+                    
+                        * FLOW RULE: 10.0.0.1 -> 10.0.0.150
+
+                    
+                        * FLOW RULE: 10.0.0.224 -> 10.0.0.218
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.152
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.113
+
+                    
+                        * FLOW RULE: 10.0.0.76 -> 10.0.0.167
+
+                    
+                        * FLOW RULE: 10.0.0.119 -> 10.0.0.227
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.129
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.232
+
+                    
+                        * FLOW RULE: 10.0.0.222 -> 10.0.0.49
+
+                    
+                        * FLOW RULE: 10.0.0.179 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.162 -> 10.0.0.52
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.91
+
+                    
+                        * FLOW RULE: 10.0.0.167 -> 10.0.0.236
+
+                    
+                        * FLOW RULE: 10.0.0.223 -> 10.0.0.100
+
+                    
+                        * FLOW RULE: 10.0.0.113 -> 10.0.0.13
+
+                    
+                        * FLOW RULE: 10.0.0.141 -> 10.0.0.144
+
+                    
+                        * FLOW RULE: 10.0.0.38 -> 10.0.0.247
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.226
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.251
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.206
+
+                    
+                        * FLOW RULE: 10.0.0.182 -> 10.0.0.10
+
+                    
+                        * FLOW RULE: 10.0.0.135 -> 10.0.0.186
+
+                    
+                        * FLOW RULE: 10.0.0.104 -> 10.0.0.194
+
+                    
+                        * FLOW RULE: 10.0.0.71 -> 10.0.0.156
+
+                    
+                        * FLOW RULE: 10.0.0.131 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.33 -> 10.0.0.219
+
+                    
+                        * FLOW RULE: 10.0.0.84 -> 10.0.0.36
+
+                    
+                        * FLOW RULE: 10.0.0.174 -> 10.0.0.204
+
+                    
+                        * FLOW RULE: 10.0.0.97 -> 10.0.0.180
+
+                    
+                        * FLOW RULE: 10.0.0.130 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.11
+
+                    
+                        * FLOW RULE: 10.0.0.40 -> 10.0.0.177
+
+                    
+                        * FLOW RULE: 10.0.0.67 -> 10.0.0.114
+
+                    
+                        * FLOW RULE: 10.0.0.157 -> 10.0.0.187
+
+                    
+                    * MALICIOUS FLOW RULES: 35/39/100
+                    * EVICTED VIA PORT-WILDCARD: 35 rules, 1 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237583.0507193
+                    * FLOW TABLE FEATURES: [4.819732987227185, 0.7457009565870036, 4.205960508779083, 5.323465189601649, 5.512243595187423, 5.512243595187423, 5.512243595187423, 51.0, 10.101010101010102, 0.0, 4.552436803172205, 1.0712486449399563, 1.6306471746062465, 0.47433333333333333, 1.9103754245010436, 1.5294117647058822, 3.72885226986711, 311.3921568627451, 2.2684390177916276]
+                    * FLOW TABLE OCCUPANCY: 51/100
+
+                
+                        * FLOW RULE: 10.0.0.1 -> 10.0.0.4
+
+                    
+                        * FLOW RULE: 10.0.0.84 -> 10.0.0.36
+
+                    
+                        * FLOW RULE: 10.0.0.174 -> 10.0.0.204
+
+                    
+                        * FLOW RULE: 10.0.0.97 -> 10.0.0.180
+
+                    
+                        * FLOW RULE: 10.0.0.130 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.11
+
+                    
+                        * FLOW RULE: 10.0.0.40 -> 10.0.0.177
+
+                    
+                        * FLOW RULE: 10.0.0.67 -> 10.0.0.114
+
+                    
+                        * FLOW RULE: 10.0.0.157 -> 10.0.0.187
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.169
+
+                    
+                        * FLOW RULE: 10.0.0.17 -> 10.0.0.237
+
+                    
+                        * FLOW RULE: 10.0.0.1 -> 10.0.0.150
+
+                    
+                        * FLOW RULE: 10.0.0.224 -> 10.0.0.218
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.152
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.113
+
+                    
+                        * FLOW RULE: 10.0.0.76 -> 10.0.0.167
+
+                    
+                        * FLOW RULE: 10.0.0.119 -> 10.0.0.227
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.129
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.232
+
+                    
+                        * FLOW RULE: 10.0.0.222 -> 10.0.0.49
+
+                    
+                        * FLOW RULE: 10.0.0.179 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.162 -> 10.0.0.52
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.91
+
+                    
+                        * FLOW RULE: 10.0.0.167 -> 10.0.0.236
+
+                    
+                        * FLOW RULE: 10.0.0.223 -> 10.0.0.100
+
+                    
+                        * FLOW RULE: 10.0.0.113 -> 10.0.0.13
+
+                    
+                        * FLOW RULE: 10.0.0.141 -> 10.0.0.144
+
+                    
+                        * FLOW RULE: 10.0.0.38 -> 10.0.0.247
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.226
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.251
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.206
+
+                    
+                        * FLOW RULE: 10.0.0.182 -> 10.0.0.10
+
+                    
+                        * FLOW RULE: 10.0.0.135 -> 10.0.0.186
+
+                    
+                        * FLOW RULE: 10.0.0.104 -> 10.0.0.194
+
+                    
+                        * FLOW RULE: 10.0.0.71 -> 10.0.0.156
+
+                    
+                        * FLOW RULE: 10.0.0.131 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.33 -> 10.0.0.219
+
+                    
+                        * FLOW RULE: 10.0.0.37 -> 10.0.0.175
+
+                    
+                        * FLOW RULE: 10.0.0.221 -> 10.0.0.94
+
+                    
+                        * FLOW RULE: 10.0.0.218 -> 10.0.0.193
+
+                    
+                        * FLOW RULE: 10.0.0.100 -> 10.0.0.111
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.252
+
+                    
+                        * FLOW RULE: 10.0.0.26 -> 10.0.0.128
+
+                    
+                        * FLOW RULE: 10.0.0.210 -> 10.0.0.41
+
+                    
+                        * FLOW RULE: 10.0.0.202 -> 10.0.0.46
+
+                    
+                        * FLOW RULE: 10.0.0.30 -> 10.0.0.57
+
+                    
+                        * FLOW RULE: 10.0.0.110 -> 10.0.0.40
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.158
+
+                    
+                    * MALICIOUS FLOW RULES: 48/51/100
+                    * EVICTED VIA PORT-WILDCARD: 47 rules, 1 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 1 rules, 1 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237584.1626658
+                    * FLOW TABLE FEATURES: [4.8988967815055, 0.6826850763968446, 4.719943951144462, 5.297822600433448, 5.463277625665029, 5.49082650068666, 5.49082650068666, 1.0, 0.0, 0.0, -0.0, -0.0, -0.0, 2.727, 0.0, 16.0, 0.0, 1481.0, 0.0]
+                    * FLOW TABLE OCCUPANCY: 1/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/1/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237585.1117213
+                    * FLOW TABLE FEATURES: [5.110884784987784, 0.6391421836918693, 5.014192988036405, 5.428758439731455, 5.69082650068666, 5.657822600433446, 5.71082650068666, 68.0, 18.482758620689655, 0.0, 3.853401856531316, 0.8853863611296535, 1.3049352583793714, 0.3115588235294118, 1.5987191544543344, 0.4852941176470588, 4.378237356606028, 119.61764705882354, 2.605806656298365]
+                    * FLOW TABLE OCCUPANCY: 68/100
+
+                
+                        * FLOW RULE: 10.0.0.121 -> 10.0.0.12
+
+                    
+                        * FLOW RULE: 10.0.0.242 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.144 -> 10.0.0.81
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.139 -> 10.0.0.85
+
+                    
+                        * FLOW RULE: 10.0.0.190 -> 10.0.0.29
+
+                    
+                        * FLOW RULE: 10.0.0.17 -> 10.0.0.237
+
+                    
+                        * FLOW RULE: 10.0.0.1 -> 10.0.0.150
+
+                    
+                        * FLOW RULE: 10.0.0.224 -> 10.0.0.218
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.152
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.113
+
+                    
+                        * FLOW RULE: 10.0.0.76 -> 10.0.0.167
+
+                    
+                        * FLOW RULE: 10.0.0.119 -> 10.0.0.227
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.129
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.232
+
+                    
+                        * FLOW RULE: 10.0.0.222 -> 10.0.0.49
+
+                    
+                        * FLOW RULE: 10.0.0.179 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.162 -> 10.0.0.52
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.91
+
+                    
+                        * FLOW RULE: 10.0.0.167 -> 10.0.0.236
+
+                    
+                        * FLOW RULE: 10.0.0.223 -> 10.0.0.100
+
+                    
+                        * FLOW RULE: 10.0.0.113 -> 10.0.0.13
+
+                    
+                        * FLOW RULE: 10.0.0.141 -> 10.0.0.144
+
+                    
+                        * FLOW RULE: 10.0.0.38 -> 10.0.0.247
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.226
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.251
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.206
+
+                    
+                        * FLOW RULE: 10.0.0.182 -> 10.0.0.10
+
+                    
+                        * FLOW RULE: 10.0.0.135 -> 10.0.0.186
+
+                    
+                        * FLOW RULE: 10.0.0.104 -> 10.0.0.194
+
+                    
+                        * FLOW RULE: 10.0.0.71 -> 10.0.0.156
+
+                    
+                        * FLOW RULE: 10.0.0.131 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.33 -> 10.0.0.219
+
+                    
+                        * FLOW RULE: 10.0.0.84 -> 10.0.0.36
+
+                    
+                        * FLOW RULE: 10.0.0.174 -> 10.0.0.204
+
+                    
+                        * FLOW RULE: 10.0.0.97 -> 10.0.0.180
+
+                    
+                        * FLOW RULE: 10.0.0.130 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.11
+
+                    
+                        * FLOW RULE: 10.0.0.40 -> 10.0.0.177
+
+                    
+                        * FLOW RULE: 10.0.0.67 -> 10.0.0.114
+
+                    
+                        * FLOW RULE: 10.0.0.157 -> 10.0.0.187
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.169
+
+                    
+                        * FLOW RULE: 10.0.0.37 -> 10.0.0.175
+
+                    
+                        * FLOW RULE: 10.0.0.221 -> 10.0.0.94
+
+                    
+                        * FLOW RULE: 10.0.0.218 -> 10.0.0.193
+
+                    
+                        * FLOW RULE: 10.0.0.100 -> 10.0.0.111
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.252
+
+                    
+                        * FLOW RULE: 10.0.0.26 -> 10.0.0.128
+
+                    
+                        * FLOW RULE: 10.0.0.210 -> 10.0.0.41
+
+                    
+                        * FLOW RULE: 10.0.0.202 -> 10.0.0.46
+
+                    
+                        * FLOW RULE: 10.0.0.30 -> 10.0.0.57
+
+                    
+                        * FLOW RULE: 10.0.0.110 -> 10.0.0.40
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.158
+
+                    
+                        * FLOW RULE: 10.0.0.126 -> 10.0.0.146
+
+                    
+                        * FLOW RULE: 10.0.0.239 -> 10.0.0.200
+
+                    
+                        * FLOW RULE: 10.0.0.177 -> 10.0.0.107
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.26
+
+                    
+                        * FLOW RULE: 10.0.0.92 -> 10.0.0.245
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.106
+
+                    
+                        * FLOW RULE: 10.0.0.102 -> 10.0.0.102
+
+                    
+                        * FLOW RULE: 10.0.0.195 -> 10.0.0.134
+
+                    
+                        * FLOW RULE: 10.0.0.152 -> 10.0.0.231
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.205
+
+                    
+                    * MALICIOUS FLOW RULES: 64/68/100
+                    * EVICTED VIA PORT-WILDCARD: 64 rules, 1 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237586.2854953
+                    * FLOW TABLE FEATURES: [5.110884784987784, 0.6391421836918693, 5.014192988036405, 5.428758439731455, 5.69082650068666, 5.657822600433446, 5.71082650068666, 4.0, 0.9469696969696969, 0.0, 2.0, 1.5, 2.0, 2.6867500000000004, 0.4731515112936124, 7.5, 0.824621125123532, 736.25, 0.7441713366890301]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237587.2465498
+                    * FLOW TABLE FEATURES: [5.5713932850355015, 0.6095123017557713, 4.800036564190591, 5.776307314753091, 5.93630731475309, 5.983856189774725, 5.983856189774725, 70.0, 23.08464369354299, 0.0, 3.8215430188544817, 0.5470703383426312, 0.6435687312306807, 0.2871571428571429, 1.9785344437599865, 0.3142857142857143, 4.150077167459393, 64.5, 3.325475040053439]
+                    * FLOW TABLE OCCUPANCY: 70/100
+
+                
+                        * FLOW RULE: 10.0.0.17 -> 10.0.0.237
+
+                    
+                        * FLOW RULE: 10.0.0.1 -> 10.0.0.150
+
+                    
+                        * FLOW RULE: 10.0.0.224 -> 10.0.0.218
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.152
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.113
+
+                    
+                        * FLOW RULE: 10.0.0.76 -> 10.0.0.167
+
+                    
+                        * FLOW RULE: 10.0.0.119 -> 10.0.0.227
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.129
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.232
+
+                    
+                        * FLOW RULE: 10.0.0.222 -> 10.0.0.49
+
+                    
+                        * FLOW RULE: 10.0.0.179 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.162 -> 10.0.0.52
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.91
+
+                    
+                        * FLOW RULE: 10.0.0.167 -> 10.0.0.236
+
+                    
+                        * FLOW RULE: 10.0.0.223 -> 10.0.0.100
+
+                    
+                        * FLOW RULE: 10.0.0.113 -> 10.0.0.13
+
+                    
+                        * FLOW RULE: 10.0.0.141 -> 10.0.0.144
+
+                    
+                        * FLOW RULE: 10.0.0.38 -> 10.0.0.247
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.226
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.251
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.206
+
+                    
+                        * FLOW RULE: 10.0.0.182 -> 10.0.0.10
+
+                    
+                        * FLOW RULE: 10.0.0.135 -> 10.0.0.186
+
+                    
+                        * FLOW RULE: 10.0.0.104 -> 10.0.0.194
+
+                    
+                        * FLOW RULE: 10.0.0.71 -> 10.0.0.156
+
+                    
+                        * FLOW RULE: 10.0.0.131 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.33 -> 10.0.0.219
+
+                    
+                        * FLOW RULE: 10.0.0.84 -> 10.0.0.36
+
+                    
+                        * FLOW RULE: 10.0.0.174 -> 10.0.0.204
+
+                    
+                        * FLOW RULE: 10.0.0.97 -> 10.0.0.180
+
+                    
+                        * FLOW RULE: 10.0.0.130 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.11
+
+                    
+                        * FLOW RULE: 10.0.0.40 -> 10.0.0.177
+
+                    
+                        * FLOW RULE: 10.0.0.67 -> 10.0.0.114
+
+                    
+                        * FLOW RULE: 10.0.0.157 -> 10.0.0.187
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.169
+
+                    
+                        * FLOW RULE: 10.0.0.37 -> 10.0.0.175
+
+                    
+                        * FLOW RULE: 10.0.0.221 -> 10.0.0.94
+
+                    
+                        * FLOW RULE: 10.0.0.218 -> 10.0.0.193
+
+                    
+                        * FLOW RULE: 10.0.0.100 -> 10.0.0.111
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.252
+
+                    
+                        * FLOW RULE: 10.0.0.26 -> 10.0.0.128
+
+                    
+                        * FLOW RULE: 10.0.0.210 -> 10.0.0.41
+
+                    
+                        * FLOW RULE: 10.0.0.202 -> 10.0.0.46
+
+                    
+                        * FLOW RULE: 10.0.0.30 -> 10.0.0.57
+
+                    
+                        * FLOW RULE: 10.0.0.110 -> 10.0.0.40
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.158
+
+                    
+                        * FLOW RULE: 10.0.0.121 -> 10.0.0.12
+
+                    
+                        * FLOW RULE: 10.0.0.242 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.144 -> 10.0.0.81
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.139 -> 10.0.0.85
+
+                    
+                        * FLOW RULE: 10.0.0.190 -> 10.0.0.29
+
+                    
+                        * FLOW RULE: 10.0.0.126 -> 10.0.0.146
+
+                    
+                        * FLOW RULE: 10.0.0.239 -> 10.0.0.200
+
+                    
+                        * FLOW RULE: 10.0.0.177 -> 10.0.0.107
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.26
+
+                    
+                        * FLOW RULE: 10.0.0.92 -> 10.0.0.245
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.106
+
+                    
+                        * FLOW RULE: 10.0.0.102 -> 10.0.0.102
+
+                    
+                        * FLOW RULE: 10.0.0.195 -> 10.0.0.134
+
+                    
+                        * FLOW RULE: 10.0.0.152 -> 10.0.0.231
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.205
+
+                    
+                        * FLOW RULE: 10.0.0.39 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.254 -> 10.0.0.75
+
+                    
+                        * FLOW RULE: 10.0.0.70 -> 10.0.0.51
+
+                    
+                    * MALICIOUS FLOW RULES: 67/70/100
+                    * EVICTED VIA PORT-WILDCARD: 67 rules, 1 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237588.2750216
+                    * FLOW TABLE FEATURES: [5.417722127974397, 0.6313863537976515, 4.817796811598596, 5.796307314753092, 5.920210910008721, 6.036307314753091, 6.008758439731456, 6.0, 1.2230919765166337, 0.0, 2.584962500721156, 2.2516291673878226, 2.584962500721156, 1.9843333333333335, 0.9978624070995071, 4.666666666666667, 0.8081220356417685, 516.5, 0.9078124179293856]
+                    * FLOW TABLE OCCUPANCY: 6/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/6/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237589.2884693
+                    * FLOW TABLE FEATURES: [5.405849378994467, 0.6315885499265305, 4.977796811598595, 5.941209564709821, 6.00611181466655, 6.196307314753091, 6.168758439731456, 79.0, 16.567544604927782, 0.0, 3.6492321296280763, 0.5539756835714512, 0.6805579620524638, 0.15743037974683546, 3.4849537473056738, 0.21518987341772153, 4.9418767010842855, 64.20253164556962, 3.9023209063198063]
+                    * FLOW TABLE OCCUPANCY: 79/100
+
+                
+                ANOMALY@1, timestamp 1790237591.0100749
+                    * FLOW TABLE FEATURES: [5.307656009504954, 0.6492694608017046, 4.99504170118773, 5.918562939644917, 5.992243595187422, 6.207759785030355, 6.167759785030358, 59.0, 591.8367346938784, 0.0, 2.9732958552194138, -0.0, 5.848744744277095, 1.7291355932203385, 0.017064229621334744, 1.0, 0.0, 811.728813559322, 0.4414182352969479]
+                    * FLOW TABLE OCCUPANCY: 59/100
+
+                
+                        * FLOW RULE: 10.0.0.141 -> 10.0.0.144
+
+                    
+                        * FLOW RULE: 10.0.0.38 -> 10.0.0.247
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.226
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.251
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.206
+
+                    
+                        * FLOW RULE: 10.0.0.182 -> 10.0.0.10
+
+                    
+                        * FLOW RULE: 10.0.0.135 -> 10.0.0.186
+
+                    
+                        * FLOW RULE: 10.0.0.104 -> 10.0.0.194
+
+                    
+                        * FLOW RULE: 10.0.0.71 -> 10.0.0.156
+
+                    
+                        * FLOW RULE: 10.0.0.131 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.33 -> 10.0.0.219
+
+                    
+                        * FLOW RULE: 10.0.0.84 -> 10.0.0.36
+
+                    
+                        * FLOW RULE: 10.0.0.174 -> 10.0.0.204
+
+                    
+                        * FLOW RULE: 10.0.0.97 -> 10.0.0.180
+
+                    
+                        * FLOW RULE: 10.0.0.130 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.11
+
+                    
+                        * FLOW RULE: 10.0.0.40 -> 10.0.0.177
+
+                    
+                        * FLOW RULE: 10.0.0.67 -> 10.0.0.114
+
+                    
+                        * FLOW RULE: 10.0.0.157 -> 10.0.0.187
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.169
+
+                    
+                        * FLOW RULE: 10.0.0.37 -> 10.0.0.175
+
+                    
+                        * FLOW RULE: 10.0.0.221 -> 10.0.0.94
+
+                    
+                        * FLOW RULE: 10.0.0.218 -> 10.0.0.193
+
+                    
+                        * FLOW RULE: 10.0.0.100 -> 10.0.0.111
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.252
+
+                    
+                        * FLOW RULE: 10.0.0.26 -> 10.0.0.128
+
+                    
+                        * FLOW RULE: 10.0.0.210 -> 10.0.0.41
+
+                    
+                        * FLOW RULE: 10.0.0.202 -> 10.0.0.46
+
+                    
+                        * FLOW RULE: 10.0.0.30 -> 10.0.0.57
+
+                    
+                        * FLOW RULE: 10.0.0.110 -> 10.0.0.40
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.158
+
+                    
+                        * FLOW RULE: 10.0.0.121 -> 10.0.0.12
+
+                    
+                        * FLOW RULE: 10.0.0.242 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.144 -> 10.0.0.81
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.139 -> 10.0.0.85
+
+                    
+                        * FLOW RULE: 10.0.0.190 -> 10.0.0.29
+
+                    
+                        * FLOW RULE: 10.0.0.126 -> 10.0.0.146
+
+                    
+                        * FLOW RULE: 10.0.0.239 -> 10.0.0.200
+
+                    
+                        * FLOW RULE: 10.0.0.177 -> 10.0.0.107
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.26
+
+                    
+                        * FLOW RULE: 10.0.0.92 -> 10.0.0.245
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.106
+
+                    
+                        * FLOW RULE: 10.0.0.102 -> 10.0.0.102
+
+                    
+                        * FLOW RULE: 10.0.0.195 -> 10.0.0.134
+
+                    
+                        * FLOW RULE: 10.0.0.152 -> 10.0.0.231
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.205
+
+                    
+                        * FLOW RULE: 10.0.0.39 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.254 -> 10.0.0.75
+
+                    
+                        * FLOW RULE: 10.0.0.70 -> 10.0.0.51
+
+                    
+                        * FLOW RULE: 10.0.0.187 -> 10.0.0.69
+
+                    
+                        * FLOW RULE: 10.0.0.223 -> 10.0.0.171
+
+                    
+                        * FLOW RULE: 10.0.0.67 -> 10.0.0.55
+
+                    
+                        * FLOW RULE: 10.0.0.80 -> 10.0.0.127
+
+                    
+                        * FLOW RULE: 10.0.0.205 -> 10.0.0.209
+
+                    
+                        * FLOW RULE: 10.0.0.168 -> 10.0.0.194
+
+                    
+                        * FLOW RULE: 10.0.0.217 -> 10.0.0.173
+
+                    
+                        * FLOW RULE: 10.0.0.49 -> 10.0.0.200
+
+                    
+                    * MALICIOUS FLOW RULES: 59/59/100
+                    * EVICTED VIA PORT-WILDCARD: 59 rules, 1 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                        * FLOW RULE: 10.0.0.4 -> 10.0.0.1
+
+                    
+                        * FLOW RULE: 10.0.0.17 -> 10.0.0.237
+
+                    
+                        * FLOW RULE: 10.0.0.1 -> 10.0.0.150
+
+                    
+                        * FLOW RULE: 10.0.0.224 -> 10.0.0.218
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.152
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.113
+
+                    
+                        * FLOW RULE: 10.0.0.76 -> 10.0.0.167
+
+                    
+                        * FLOW RULE: 10.0.0.119 -> 10.0.0.227
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.129
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.232
+
+                    
+                        * FLOW RULE: 10.0.0.222 -> 10.0.0.49
+
+                    
+                        * FLOW RULE: 10.0.0.179 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.162 -> 10.0.0.52
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.91
+
+                    
+                        * FLOW RULE: 10.0.0.167 -> 10.0.0.236
+
+                    
+                        * FLOW RULE: 10.0.0.223 -> 10.0.0.100
+
+                    
+                        * FLOW RULE: 10.0.0.113 -> 10.0.0.13
+
+                    
+                        * FLOW RULE: 10.0.0.141 -> 10.0.0.144
+
+                    
+                        * FLOW RULE: 10.0.0.38 -> 10.0.0.247
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.226
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.251
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.206
+
+                    
+                        * FLOW RULE: 10.0.0.182 -> 10.0.0.10
+
+                    
+                        * FLOW RULE: 10.0.0.135 -> 10.0.0.186
+
+                    
+                        * FLOW RULE: 10.0.0.104 -> 10.0.0.194
+
+                    
+                        * FLOW RULE: 10.0.0.71 -> 10.0.0.156
+
+                    
+                        * FLOW RULE: 10.0.0.131 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.33 -> 10.0.0.219
+
+                    
+                        * FLOW RULE: 10.0.0.84 -> 10.0.0.36
+
+                    
+                        * FLOW RULE: 10.0.0.174 -> 10.0.0.204
+
+                    
+                        * FLOW RULE: 10.0.0.97 -> 10.0.0.180
+
+                    
+                        * FLOW RULE: 10.0.0.130 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.11
+
+                    
+                        * FLOW RULE: 10.0.0.40 -> 10.0.0.177
+
+                    
+                        * FLOW RULE: 10.0.0.67 -> 10.0.0.114
+
+                    
+                        * FLOW RULE: 10.0.0.157 -> 10.0.0.187
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.169
+
+                    
+                        * FLOW RULE: 10.0.0.37 -> 10.0.0.175
+
+                    
+                        * FLOW RULE: 10.0.0.221 -> 10.0.0.94
+
+                    
+                        * FLOW RULE: 10.0.0.218 -> 10.0.0.193
+
+                    
+                        * FLOW RULE: 10.0.0.100 -> 10.0.0.111
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.252
+
+                    
+                        * FLOW RULE: 10.0.0.26 -> 10.0.0.128
+
+                    
+                        * FLOW RULE: 10.0.0.210 -> 10.0.0.41
+
+                    
+                        * FLOW RULE: 10.0.0.202 -> 10.0.0.46
+
+                    
+                    * MALICIOUS FLOW RULES: 45/79/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 45 rules, 45 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237592.8031554
+                    * FLOW TABLE FEATURES: [4.98261259681208, 0.7049557972792628, 4.943856189774724, 5.951014064623281, 6.1451131599654545, 6.259792470209058, 6.3002109100087225, 2.0, 24.99999999999998, 0.0, 1.0, -0.0, -0.0, 1.658, 0.012062726176115814, 1.0, 0.0, 54.0, 0.0]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237593.6310577
+                    * FLOW TABLE FEATURES: [4.767247567952587, 0.7683735598135215, 4.2986140693838415, 5.735916314580015, 5.773269689515108, 5.893269689515109, 5.893269689515109, 99.0, 261.33333333333337, 0.0, 4.064807979555057, 1.0731144575863687, 5.850986417797169, 0.5840808080808081, 0.15264470859541654, 1.8282828282828283, 0.8588272951082009, 1307.030303030303, 0.7265042603219899]
+                    * FLOW TABLE OCCUPANCY: 99/100
+
+                
+                ANOMALY@1, timestamp 1790237595.9553227
+                    * FLOW TABLE FEATURES: [4.538982925914775, 0.8192576275926758, 3.827145076625067, 5.355525314406937, 5.380427564363665, 5.440427564363666, 5.440427564363666, 80.0, 210.10638297872322, 0.0, 3.8684196581686883, 0.9311550212299645, 6.296928094887362, 2.7679750000000003, 0.0251419829118456, 3.9375, 0.6959190692674097, 2877.0, 0.5251744672612375]
+                    * FLOW TABLE OCCUPANCY: 80/100
+
+                
+                        * FLOW RULE: 10.0.0.17 -> 10.0.0.237
+
+                    
+                        * FLOW RULE: 10.0.0.1 -> 10.0.0.150
+
+                    
+                        * FLOW RULE: 10.0.0.224 -> 10.0.0.218
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.152
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.113
+
+                    
+                        * FLOW RULE: 10.0.0.76 -> 10.0.0.167
+
+                    
+                        * FLOW RULE: 10.0.0.119 -> 10.0.0.227
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.129
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.232
+
+                    
+                        * FLOW RULE: 10.0.0.222 -> 10.0.0.49
+
+                    
+                        * FLOW RULE: 10.0.0.179 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.162 -> 10.0.0.52
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.91
+
+                    
+                        * FLOW RULE: 10.0.0.167 -> 10.0.0.236
+
+                    
+                        * FLOW RULE: 10.0.0.223 -> 10.0.0.100
+
+                    
+                        * FLOW RULE: 10.0.0.113 -> 10.0.0.13
+
+                    
+                        * FLOW RULE: 10.0.0.141 -> 10.0.0.144
+
+                    
+                        * FLOW RULE: 10.0.0.38 -> 10.0.0.247
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.226
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.251
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.206
+
+                    
+                        * FLOW RULE: 10.0.0.182 -> 10.0.0.10
+
+                    
+                        * FLOW RULE: 10.0.0.135 -> 10.0.0.186
+
+                    
+                        * FLOW RULE: 10.0.0.104 -> 10.0.0.194
+
+                    
+                        * FLOW RULE: 10.0.0.71 -> 10.0.0.156
+
+                    
+                        * FLOW RULE: 10.0.0.131 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.33 -> 10.0.0.219
+
+                    
+                        * FLOW RULE: 10.0.0.84 -> 10.0.0.36
+
+                    
+                        * FLOW RULE: 10.0.0.174 -> 10.0.0.204
+
+                    
+                        * FLOW RULE: 10.0.0.97 -> 10.0.0.180
+
+                    
+                        * FLOW RULE: 10.0.0.130 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.11
+
+                    
+                        * FLOW RULE: 10.0.0.40 -> 10.0.0.177
+
+                    
+                        * FLOW RULE: 10.0.0.67 -> 10.0.0.114
+
+                    
+                        * FLOW RULE: 10.0.0.157 -> 10.0.0.187
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.169
+
+                    
+                        * FLOW RULE: 10.0.0.37 -> 10.0.0.175
+
+                    
+                        * FLOW RULE: 10.0.0.221 -> 10.0.0.94
+
+                    
+                        * FLOW RULE: 10.0.0.218 -> 10.0.0.193
+
+                    
+                        * FLOW RULE: 10.0.0.100 -> 10.0.0.111
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.252
+
+                    
+                        * FLOW RULE: 10.0.0.26 -> 10.0.0.128
+
+                    
+                        * FLOW RULE: 10.0.0.202 -> 10.0.0.46
+
+                    
+                        * FLOW RULE: 10.0.0.30 -> 10.0.0.57
+
+                    
+                        * FLOW RULE: 10.0.0.110 -> 10.0.0.40
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.158
+
+                    
+                        * FLOW RULE: 10.0.0.121 -> 10.0.0.12
+
+                    
+                        * FLOW RULE: 10.0.0.242 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.144 -> 10.0.0.81
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.139 -> 10.0.0.85
+
+                    
+                        * FLOW RULE: 10.0.0.190 -> 10.0.0.29
+
+                    
+                        * FLOW RULE: 10.0.0.126 -> 10.0.0.146
+
+                    
+                        * FLOW RULE: 10.0.0.239 -> 10.0.0.200
+
+                    
+                        * FLOW RULE: 10.0.0.177 -> 10.0.0.107
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.26
+
+                    
+                        * FLOW RULE: 10.0.0.92 -> 10.0.0.245
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.106
+
+                    
+                        * FLOW RULE: 10.0.0.102 -> 10.0.0.102
+
+                    
+                        * FLOW RULE: 10.0.0.195 -> 10.0.0.134
+
+                    
+                        * FLOW RULE: 10.0.0.152 -> 10.0.0.231
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.205
+
+                    
+                        * FLOW RULE: 10.0.0.39 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.254 -> 10.0.0.75
+
+                    
+                        * FLOW RULE: 10.0.0.70 -> 10.0.0.51
+
+                    
+                        * FLOW RULE: 10.0.0.187 -> 10.0.0.69
+
+                    
+                        * FLOW RULE: 10.0.0.223 -> 10.0.0.171
+
+                    
+                        * FLOW RULE: 10.0.0.67 -> 10.0.0.55
+
+                    
+                        * FLOW RULE: 10.0.0.205 -> 10.0.0.209
+
+                    
+                        * FLOW RULE: 10.0.0.168 -> 10.0.0.194
+
+                    
+                        * FLOW RULE: 10.0.0.217 -> 10.0.0.173
+
+                    
+                        * FLOW RULE: 10.0.0.49 -> 10.0.0.200
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.78
+
+                    
+                        * FLOW RULE: 10.0.0.203 -> 10.0.0.142
+
+                    
+                        * FLOW RULE: 10.0.0.29 -> 10.0.0.80
+
+                    
+                        * FLOW RULE: 10.0.0.55 -> 10.0.0.191
+
+                    
+                        * FLOW RULE: 10.0.0.4 -> 10.0.0.1
+
+                    
+                        * FLOW RULE: 10.0.0.152 -> 10.0.0.6
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.169
+
+                    
+                        * FLOW RULE: 10.0.0.183 -> 10.0.0.4
+
+                    
+                        * FLOW RULE: 10.0.0.90 -> 10.0.0.108
+
+                    
+                        * FLOW RULE: 10.0.0.115 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.139
+
+                    
+                        * FLOW RULE: 10.0.0.151 -> 10.0.0.251
+
+                    
+                        * FLOW RULE: 10.0.0.218 -> 10.0.0.60
+
+                    
+                        * FLOW RULE: 10.0.0.179 -> 10.0.0.136
+
+                    
+                        * FLOW RULE: 10.0.0.178 -> 10.0.0.33
+
+                    
+                        * FLOW RULE: 10.0.0.98 -> 10.0.0.126
+
+                    
+                        * FLOW RULE: 10.0.0.175 -> 10.0.0.22
+
+                    
+                        * FLOW RULE: 10.0.0.53 -> 10.0.0.218
+
+                    
+                        * FLOW RULE: 10.0.0.197 -> 10.0.0.188
+
+                    
+                        * FLOW RULE: 10.0.0.90 -> 10.0.0.103
+
+                    
+                        * FLOW RULE: 10.0.0.49 -> 10.0.0.15
+
+                    
+                    * MALICIOUS FLOW RULES: 95/99/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 95 rules, 95 DELETE msgs
+
+                
+                        * FLOW RULE: 10.0.0.38 -> 10.0.0.247
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.226
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.251
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.206
+
+                    
+                        * FLOW RULE: 10.0.0.182 -> 10.0.0.10
+
+                    
+                        * FLOW RULE: 10.0.0.135 -> 10.0.0.186
+
+                    
+                        * FLOW RULE: 10.0.0.131 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.84 -> 10.0.0.36
+
+                    
+                        * FLOW RULE: 10.0.0.174 -> 10.0.0.204
+
+                    
+                        * FLOW RULE: 10.0.0.97 -> 10.0.0.180
+
+                    
+                        * FLOW RULE: 10.0.0.130 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.11
+
+                    
+                        * FLOW RULE: 10.0.0.40 -> 10.0.0.177
+
+                    
+                        * FLOW RULE: 10.0.0.157 -> 10.0.0.187
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.169
+
+                    
+                        * FLOW RULE: 10.0.0.37 -> 10.0.0.175
+
+                    
+                        * FLOW RULE: 10.0.0.221 -> 10.0.0.94
+
+                    
+                        * FLOW RULE: 10.0.0.218 -> 10.0.0.193
+
+                    
+                        * FLOW RULE: 10.0.0.100 -> 10.0.0.111
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.252
+
+                    
+                        * FLOW RULE: 10.0.0.26 -> 10.0.0.128
+
+                    
+                        * FLOW RULE: 10.0.0.202 -> 10.0.0.46
+
+                    
+                        * FLOW RULE: 10.0.0.30 -> 10.0.0.57
+
+                    
+                        * FLOW RULE: 10.0.0.110 -> 10.0.0.40
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.158
+
+                    
+                        * FLOW RULE: 10.0.0.121 -> 10.0.0.12
+
+                    
+                        * FLOW RULE: 10.0.0.242 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.144 -> 10.0.0.81
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.139 -> 10.0.0.85
+
+                    
+                        * FLOW RULE: 10.0.0.190 -> 10.0.0.29
+
+                    
+                        * FLOW RULE: 10.0.0.126 -> 10.0.0.146
+
+                    
+                        * FLOW RULE: 10.0.0.239 -> 10.0.0.200
+
+                    
+                        * FLOW RULE: 10.0.0.177 -> 10.0.0.107
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.26
+
+                    
+                        * FLOW RULE: 10.0.0.92 -> 10.0.0.245
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.106
+
+                    
+                        * FLOW RULE: 10.0.0.102 -> 10.0.0.102
+
+                    
+                        * FLOW RULE: 10.0.0.195 -> 10.0.0.134
+
+                    
+                        * FLOW RULE: 10.0.0.152 -> 10.0.0.231
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.205
+
+                    
+                        * FLOW RULE: 10.0.0.39 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.254 -> 10.0.0.75
+
+                    
+                        * FLOW RULE: 10.0.0.70 -> 10.0.0.51
+
+                    
+                        * FLOW RULE: 10.0.0.187 -> 10.0.0.69
+
+                    
+                        * FLOW RULE: 10.0.0.223 -> 10.0.0.171
+
+                    
+                        * FLOW RULE: 10.0.0.67 -> 10.0.0.55
+
+                    
+                        * FLOW RULE: 10.0.0.205 -> 10.0.0.209
+
+                    
+                        * FLOW RULE: 10.0.0.168 -> 10.0.0.194
+
+                    
+                        * FLOW RULE: 10.0.0.217 -> 10.0.0.173
+
+                    
+                        * FLOW RULE: 10.0.0.49 -> 10.0.0.200
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.78
+
+                    
+                        * FLOW RULE: 10.0.0.203 -> 10.0.0.142
+
+                    
+                        * FLOW RULE: 10.0.0.29 -> 10.0.0.80
+
+                    
+                        * FLOW RULE: 10.0.0.55 -> 10.0.0.191
+
+                    
+                        * FLOW RULE: 10.0.0.152 -> 10.0.0.6
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.169
+
+                    
+                        * FLOW RULE: 10.0.0.183 -> 10.0.0.4
+
+                    
+                        * FLOW RULE: 10.0.0.90 -> 10.0.0.108
+
+                    
+                        * FLOW RULE: 10.0.0.115 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.139
+
+                    
+                        * FLOW RULE: 10.0.0.151 -> 10.0.0.251
+
+                    
+                        * FLOW RULE: 10.0.0.218 -> 10.0.0.60
+
+                    
+                        * FLOW RULE: 10.0.0.179 -> 10.0.0.136
+
+                    
+                        * FLOW RULE: 10.0.0.178 -> 10.0.0.33
+
+                    
+                        * FLOW RULE: 10.0.0.98 -> 10.0.0.126
+
+                    
+                        * FLOW RULE: 10.0.0.175 -> 10.0.0.22
+
+                    
+                        * FLOW RULE: 10.0.0.53 -> 10.0.0.218
+
+                    
+                        * FLOW RULE: 10.0.0.197 -> 10.0.0.188
+
+                    
+                        * FLOW RULE: 10.0.0.90 -> 10.0.0.103
+
+                    
+                        * FLOW RULE: 10.0.0.49 -> 10.0.0.15
+
+                    
+                    * MALICIOUS FLOW RULES: 73/80/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 73 rules, 73 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237598.2643726
+                    * FLOW TABLE FEATURES: [4.991797751293022, 0.6918555419642701, 5.068055333554795, 6.0712449404863245, 6.156307314753089, 6.331244940486323, 6.323856189774723, 21.0, 285.7142857142864, 0.0, 3.9754180179138334, -0.0, 4.392317422778761, 2.2151428571428573, 0.010271993780323502, 1.0, 0.0, 895.1904761904761, 0.4447248856424433]
+                    * FLOW TABLE OCCUPANCY: 21/100
+
+                
+                        * FLOW RULE: 10.0.0.210 -> 10.0.0.41
+
+                    
+                        * FLOW RULE: 10.0.0.140 -> 10.0.0.24
+
+                    
+                        * FLOW RULE: 10.0.0.250 -> 10.0.0.217
+
+                    
+                        * FLOW RULE: 10.0.0.6 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.224 -> 10.0.0.130
+
+                    
+                        * FLOW RULE: 10.0.0.225 -> 10.0.0.146
+
+                    
+                        * FLOW RULE: 10.0.0.245 -> 10.0.0.185
+
+                    
+                        * FLOW RULE: 10.0.0.248 -> 10.0.0.215
+
+                    
+                        * FLOW RULE: 10.0.0.35 -> 10.0.0.32
+
+                    
+                        * FLOW RULE: 10.0.0.213 -> 10.0.0.224
+
+                    
+                        * FLOW RULE: 10.0.0.206 -> 10.0.0.167
+
+                    
+                        * FLOW RULE: 10.0.0.105 -> 10.0.0.72
+
+                    
+                        * FLOW RULE: 10.0.0.182 -> 10.0.0.56
+
+                    
+                        * FLOW RULE: 10.0.0.65 -> 10.0.0.98
+
+                    
+                        * FLOW RULE: 10.0.0.38 -> 10.0.0.137
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.247
+
+                    
+                        * FLOW RULE: 10.0.0.17 -> 10.0.0.248
+
+                    
+                        * FLOW RULE: 10.0.0.18 -> 10.0.0.199
+
+                    
+                        * FLOW RULE: 10.0.0.84 -> 10.0.0.144
+
+                    
+                        * FLOW RULE: 10.0.0.126 -> 10.0.0.35
+
+                    
+                        * FLOW RULE: 10.0.0.127 -> 10.0.0.25
+
+                    
+                    * MALICIOUS FLOW RULES: 21/21/100
+                    * EVICTED VIA PORT-WILDCARD: 21 rules, 1 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237599.1208453
+                    * FLOW TABLE FEATURES: [4.684200691475849, 0.7559304578092737, 4.808607133843985, 5.947341345230691, 6.008367439558379, 6.187341345230693, 6.183465189601647, 4.0, 5.565862708719853, 0.0, 0.8112781244591328, 1.5, 2.0, 0.43875000000000003, 0.5319517864841167, 4.25, 0.5359078575967234, 391.75, 0.7097840080679674]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237600.1352134
+                    * FLOW TABLE FEATURES: [5.176040723526049, 0.688834067453112, 4.623856189774725, 5.846111814666553, 5.908758439731456, 6.063856189774728, 6.063856189774728, 99.0, 303.40557275541795, 0.0, 4.189702201540919, 0.38550036318014574, 6.52834651906951, 0.326989898989899, 0.20328708527959216, 1.02020202020202, 0.2404942138909133, 787.3535353535353, 0.5462981426940355]
+                    * FLOW TABLE OCCUPANCY: 99/100
+
+                
+                        * FLOW RULE: 10.0.0.17 -> 10.0.0.237
+
+                    
+                        * FLOW RULE: 10.0.0.1 -> 10.0.0.150
+
+                    
+                        * FLOW RULE: 10.0.0.224 -> 10.0.0.218
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.152
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.113
+
+                    
+                        * FLOW RULE: 10.0.0.76 -> 10.0.0.167
+
+                    
+                        * FLOW RULE: 10.0.0.119 -> 10.0.0.227
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.129
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.232
+
+                    
+                        * FLOW RULE: 10.0.0.222 -> 10.0.0.49
+
+                    
+                        * FLOW RULE: 10.0.0.179 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.162 -> 10.0.0.52
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.91
+
+                    
+                        * FLOW RULE: 10.0.0.167 -> 10.0.0.236
+
+                    
+                        * FLOW RULE: 10.0.0.223 -> 10.0.0.100
+
+                    
+                        * FLOW RULE: 10.0.0.113 -> 10.0.0.13
+
+                    
+                        * FLOW RULE: 10.0.0.141 -> 10.0.0.144
+
+                    
+                        * FLOW RULE: 10.0.0.38 -> 10.0.0.247
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.226
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.251
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.206
+
+                    
+                        * FLOW RULE: 10.0.0.182 -> 10.0.0.10
+
+                    
+                        * FLOW RULE: 10.0.0.135 -> 10.0.0.186
+
+                    
+                        * FLOW RULE: 10.0.0.104 -> 10.0.0.194
+
+                    
+                        * FLOW RULE: 10.0.0.71 -> 10.0.0.156
+
+                    
+                        * FLOW RULE: 10.0.0.131 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.33 -> 10.0.0.219
+
+                    
+                        * FLOW RULE: 10.0.0.84 -> 10.0.0.36
+
+                    
+                        * FLOW RULE: 10.0.0.174 -> 10.0.0.204
+
+                    
+                        * FLOW RULE: 10.0.0.97 -> 10.0.0.180
+
+                    
+                        * FLOW RULE: 10.0.0.130 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.11
+
+                    
+                        * FLOW RULE: 10.0.0.40 -> 10.0.0.177
+
+                    
+                        * FLOW RULE: 10.0.0.67 -> 10.0.0.114
+
+                    
+                        * FLOW RULE: 10.0.0.157 -> 10.0.0.187
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.169
+
+                    
+                        * FLOW RULE: 10.0.0.37 -> 10.0.0.175
+
+                    
+                        * FLOW RULE: 10.0.0.221 -> 10.0.0.94
+
+                    
+                        * FLOW RULE: 10.0.0.218 -> 10.0.0.193
+
+                    
+                        * FLOW RULE: 10.0.0.100 -> 10.0.0.111
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.252
+
+                    
+                        * FLOW RULE: 10.0.0.26 -> 10.0.0.128
+
+                    
+                        * FLOW RULE: 10.0.0.210 -> 10.0.0.41
+
+                    
+                        * FLOW RULE: 10.0.0.202 -> 10.0.0.46
+
+                    
+                        * FLOW RULE: 10.0.0.30 -> 10.0.0.57
+
+                    
+                        * FLOW RULE: 10.0.0.110 -> 10.0.0.40
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.158
+
+                    
+                        * FLOW RULE: 10.0.0.121 -> 10.0.0.12
+
+                    
+                        * FLOW RULE: 10.0.0.242 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.144 -> 10.0.0.81
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.139 -> 10.0.0.85
+
+                    
+                        * FLOW RULE: 10.0.0.190 -> 10.0.0.29
+
+                    
+                        * FLOW RULE: 10.0.0.126 -> 10.0.0.146
+
+                    
+                        * FLOW RULE: 10.0.0.239 -> 10.0.0.200
+
+                    
+                        * FLOW RULE: 10.0.0.177 -> 10.0.0.107
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.26
+
+                    
+                        * FLOW RULE: 10.0.0.92 -> 10.0.0.245
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.106
+
+                    
+                        * FLOW RULE: 10.0.0.102 -> 10.0.0.102
+
+                    
+                        * FLOW RULE: 10.0.0.195 -> 10.0.0.134
+
+                    
+                        * FLOW RULE: 10.0.0.152 -> 10.0.0.231
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.205
+
+                    
+                        * FLOW RULE: 10.0.0.39 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.254 -> 10.0.0.75
+
+                    
+                        * FLOW RULE: 10.0.0.70 -> 10.0.0.51
+
+                    
+                        * FLOW RULE: 10.0.0.187 -> 10.0.0.69
+
+                    
+                        * FLOW RULE: 10.0.0.223 -> 10.0.0.171
+
+                    
+                        * FLOW RULE: 10.0.0.67 -> 10.0.0.55
+
+                    
+                        * FLOW RULE: 10.0.0.80 -> 10.0.0.127
+
+                    
+                        * FLOW RULE: 10.0.0.205 -> 10.0.0.209
+
+                    
+                        * FLOW RULE: 10.0.0.168 -> 10.0.0.194
+
+                    
+                        * FLOW RULE: 10.0.0.217 -> 10.0.0.173
+
+                    
+                        * FLOW RULE: 10.0.0.49 -> 10.0.0.200
+
+                    
+                        * FLOW RULE: 10.0.0.152 -> 10.0.0.6
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.169
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.78
+
+                    
+                        * FLOW RULE: 10.0.0.203 -> 10.0.0.142
+
+                    
+                        * FLOW RULE: 10.0.0.29 -> 10.0.0.80
+
+                    
+                        * FLOW RULE: 10.0.0.55 -> 10.0.0.191
+
+                    
+                        * FLOW RULE: 10.0.0.183 -> 10.0.0.4
+
+                    
+                        * FLOW RULE: 10.0.0.90 -> 10.0.0.108
+
+                    
+                        * FLOW RULE: 10.0.0.115 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.139
+
+                    
+                        * FLOW RULE: 10.0.0.151 -> 10.0.0.251
+
+                    
+                        * FLOW RULE: 10.0.0.218 -> 10.0.0.60
+
+                    
+                        * FLOW RULE: 10.0.0.179 -> 10.0.0.136
+
+                    
+                        * FLOW RULE: 10.0.0.178 -> 10.0.0.33
+
+                    
+                        * FLOW RULE: 10.0.0.98 -> 10.0.0.126
+
+                    
+                        * FLOW RULE: 10.0.0.175 -> 10.0.0.22
+
+                    
+                        * FLOW RULE: 10.0.0.53 -> 10.0.0.218
+
+                    
+                        * FLOW RULE: 10.0.0.140 -> 10.0.0.24
+
+                    
+                        * FLOW RULE: 10.0.0.197 -> 10.0.0.188
+
+                    
+                        * FLOW RULE: 10.0.0.250 -> 10.0.0.217
+
+                    
+                        * FLOW RULE: 10.0.0.6 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.37 -> 10.0.0.185
+
+                    
+                        * FLOW RULE: 10.0.0.124 -> 10.0.0.65
+
+                    
+                    * MALICIOUS FLOW RULES: 99/99/100
+                    * EVICTED VIA PORT-WILDCARD: 99 rules, 1 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237602.9338887
+                    * FLOW TABLE FEATURES: [5.283930411770188, 0.6593929032428214, 5.064240136070534, 6.383856189774726, 6.39630731475309, 6.643856189774724, 6.643856189774724, 99.0, 115.56603773584906, 0.0, 3.982497023945188, 0.1425733302598987, 0.16277535046191888, 0.7693131313131313, 0.14299157120559464, 0.020202020202020204, 6.96419413859206, 10.646464646464647, 7.643740598742986]
+                    * FLOW TABLE OCCUPANCY: 99/100
+
+                
+                        * FLOW RULE: 10.0.0.4 -> 10.0.0.1
+
+                    
+                        * FLOW RULE: 10.0.0.17 -> 10.0.0.237
+
+                    
+                        * FLOW RULE: 10.0.0.1 -> 10.0.0.150
+
+                    
+                        * FLOW RULE: 10.0.0.224 -> 10.0.0.218
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.152
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.113
+
+                    
+                        * FLOW RULE: 10.0.0.76 -> 10.0.0.167
+
+                    
+                        * FLOW RULE: 10.0.0.119 -> 10.0.0.227
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.129
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.232
+
+                    
+                        * FLOW RULE: 10.0.0.222 -> 10.0.0.49
+
+                    
+                        * FLOW RULE: 10.0.0.179 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.162 -> 10.0.0.52
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.91
+
+                    
+                        * FLOW RULE: 10.0.0.167 -> 10.0.0.236
+
+                    
+                        * FLOW RULE: 10.0.0.223 -> 10.0.0.100
+
+                    
+                        * FLOW RULE: 10.0.0.113 -> 10.0.0.13
+
+                    
+                        * FLOW RULE: 10.0.0.141 -> 10.0.0.144
+
+                    
+                        * FLOW RULE: 10.0.0.38 -> 10.0.0.247
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.226
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.251
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.206
+
+                    
+                        * FLOW RULE: 10.0.0.182 -> 10.0.0.10
+
+                    
+                        * FLOW RULE: 10.0.0.135 -> 10.0.0.186
+
+                    
+                        * FLOW RULE: 10.0.0.104 -> 10.0.0.194
+
+                    
+                        * FLOW RULE: 10.0.0.71 -> 10.0.0.156
+
+                    
+                        * FLOW RULE: 10.0.0.131 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.33 -> 10.0.0.219
+
+                    
+                        * FLOW RULE: 10.0.0.84 -> 10.0.0.36
+
+                    
+                        * FLOW RULE: 10.0.0.174 -> 10.0.0.204
+
+                    
+                        * FLOW RULE: 10.0.0.97 -> 10.0.0.180
+
+                    
+                        * FLOW RULE: 10.0.0.130 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.11
+
+                    
+                        * FLOW RULE: 10.0.0.40 -> 10.0.0.177
+
+                    
+                        * FLOW RULE: 10.0.0.67 -> 10.0.0.114
+
+                    
+                        * FLOW RULE: 10.0.0.157 -> 10.0.0.187
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.169
+
+                    
+                        * FLOW RULE: 10.0.0.37 -> 10.0.0.175
+
+                    
+                        * FLOW RULE: 10.0.0.221 -> 10.0.0.94
+
+                    
+                        * FLOW RULE: 10.0.0.218 -> 10.0.0.193
+
+                    
+                        * FLOW RULE: 10.0.0.100 -> 10.0.0.111
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.252
+
+                    
+                        * FLOW RULE: 10.0.0.26 -> 10.0.0.128
+
+                    
+                        * FLOW RULE: 10.0.0.210 -> 10.0.0.41
+
+                    
+                        * FLOW RULE: 10.0.0.202 -> 10.0.0.46
+
+                    
+                        * FLOW RULE: 10.0.0.30 -> 10.0.0.57
+
+                    
+                        * FLOW RULE: 10.0.0.110 -> 10.0.0.40
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.158
+
+                    
+                        * FLOW RULE: 10.0.0.121 -> 10.0.0.12
+
+                    
+                        * FLOW RULE: 10.0.0.242 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.144 -> 10.0.0.81
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.139 -> 10.0.0.85
+
+                    
+                        * FLOW RULE: 10.0.0.190 -> 10.0.0.29
+
+                    
+                        * FLOW RULE: 10.0.0.126 -> 10.0.0.146
+
+                    
+                        * FLOW RULE: 10.0.0.239 -> 10.0.0.200
+
+                    
+                        * FLOW RULE: 10.0.0.177 -> 10.0.0.107
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.26
+
+                    
+                        * FLOW RULE: 10.0.0.92 -> 10.0.0.245
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.106
+
+                    
+                        * FLOW RULE: 10.0.0.102 -> 10.0.0.102
+
+                    
+                        * FLOW RULE: 10.0.0.195 -> 10.0.0.134
+
+                    
+                        * FLOW RULE: 10.0.0.152 -> 10.0.0.231
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.205
+
+                    
+                        * FLOW RULE: 10.0.0.39 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.254 -> 10.0.0.75
+
+                    
+                        * FLOW RULE: 10.0.0.70 -> 10.0.0.51
+
+                    
+                        * FLOW RULE: 10.0.0.187 -> 10.0.0.69
+
+                    
+                        * FLOW RULE: 10.0.0.223 -> 10.0.0.171
+
+                    
+                        * FLOW RULE: 10.0.0.67 -> 10.0.0.55
+
+                    
+                        * FLOW RULE: 10.0.0.80 -> 10.0.0.127
+
+                    
+                        * FLOW RULE: 10.0.0.205 -> 10.0.0.209
+
+                    
+                        * FLOW RULE: 10.0.0.168 -> 10.0.0.194
+
+                    
+                        * FLOW RULE: 10.0.0.217 -> 10.0.0.173
+
+                    
+                        * FLOW RULE: 10.0.0.49 -> 10.0.0.200
+
+                    
+                        * FLOW RULE: 10.0.0.152 -> 10.0.0.6
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.169
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.78
+
+                    
+                        * FLOW RULE: 10.0.0.203 -> 10.0.0.142
+
+                    
+                        * FLOW RULE: 10.0.0.29 -> 10.0.0.80
+
+                    
+                        * FLOW RULE: 10.0.0.55 -> 10.0.0.191
+
+                    
+                        * FLOW RULE: 10.0.0.183 -> 10.0.0.4
+
+                    
+                        * FLOW RULE: 10.0.0.90 -> 10.0.0.108
+
+                    
+                        * FLOW RULE: 10.0.0.115 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.139
+
+                    
+                        * FLOW RULE: 10.0.0.151 -> 10.0.0.251
+
+                    
+                        * FLOW RULE: 10.0.0.218 -> 10.0.0.60
+
+                    
+                        * FLOW RULE: 10.0.0.179 -> 10.0.0.136
+
+                    
+                        * FLOW RULE: 10.0.0.178 -> 10.0.0.33
+
+                    
+                        * FLOW RULE: 10.0.0.98 -> 10.0.0.126
+
+                    
+                        * FLOW RULE: 10.0.0.175 -> 10.0.0.22
+
+                    
+                        * FLOW RULE: 10.0.0.53 -> 10.0.0.218
+
+                    
+                        * FLOW RULE: 10.0.0.140 -> 10.0.0.24
+
+                    
+                        * FLOW RULE: 10.0.0.197 -> 10.0.0.188
+
+                    
+                        * FLOW RULE: 10.0.0.250 -> 10.0.0.217
+
+                    
+                        * FLOW RULE: 10.0.0.3 -> 10.0.0.1
+
+                    
+                        * FLOW RULE: 10.0.0.1 -> 10.0.0.3
+
+                    
+                    * MALICIOUS FLOW RULES: 99/99/100
+                    * EVICTED VIA PORT-WILDCARD: 96 rules, 1 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 3 rules, 3 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237606.6778653
+                    * FLOW TABLE FEATURES: [5.306033762894864, 0.656556369564496, 5.13178901109217, 6.2763073147530895, 6.45630731475309, 6.643856189774724, 6.643856189774724, 99.0, 322.36842105263156, 0.0, 4.092635126041556, 1.0582215515643947, 4.86194513924616, 0.8014747474747473, 0.08348386951048872, 0.696969696969697, 0.8272303300191498, 561.5858585858585, 0.9108279727198945]
+                    * FLOW TABLE OCCUPANCY: 99/100
+
+                
+                        * FLOW RULE: 10.0.0.6 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.224 -> 10.0.0.130
+
+                    
+                        * FLOW RULE: 10.0.0.225 -> 10.0.0.146
+
+                    
+                        * FLOW RULE: 10.0.0.245 -> 10.0.0.185
+
+                    
+                        * FLOW RULE: 10.0.0.248 -> 10.0.0.215
+
+                    
+                        * FLOW RULE: 10.0.0.35 -> 10.0.0.32
+
+                    
+                        * FLOW RULE: 10.0.0.213 -> 10.0.0.224
+
+                    
+                        * FLOW RULE: 10.0.0.90 -> 10.0.0.103
+
+                    
+                        * FLOW RULE: 10.0.0.49 -> 10.0.0.15
+
+                    
+                        * FLOW RULE: 10.0.0.206 -> 10.0.0.167
+
+                    
+                        * FLOW RULE: 10.0.0.105 -> 10.0.0.72
+
+                    
+                        * FLOW RULE: 10.0.0.182 -> 10.0.0.56
+
+                    
+                        * FLOW RULE: 10.0.0.65 -> 10.0.0.98
+
+                    
+                        * FLOW RULE: 10.0.0.38 -> 10.0.0.137
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.247
+
+                    
+                        * FLOW RULE: 10.0.0.17 -> 10.0.0.248
+
+                    
+                        * FLOW RULE: 10.0.0.18 -> 10.0.0.199
+
+                    
+                        * FLOW RULE: 10.0.0.84 -> 10.0.0.144
+
+                    
+                        * FLOW RULE: 10.0.0.126 -> 10.0.0.35
+
+                    
+                        * FLOW RULE: 10.0.0.127 -> 10.0.0.25
+
+                    
+                        * FLOW RULE: 10.0.0.27 -> 10.0.0.97
+
+                    
+                        * FLOW RULE: 10.0.0.109 -> 10.0.0.56
+
+                    
+                        * FLOW RULE: 10.0.0.102 -> 10.0.0.49
+
+                    
+                        * FLOW RULE: 10.0.0.142 -> 10.0.0.172
+
+                    
+                        * FLOW RULE: 10.0.0.231 -> 10.0.0.35
+
+                    
+                        * FLOW RULE: 10.0.0.79 -> 10.0.0.159
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.148
+
+                    
+                        * FLOW RULE: 10.0.0.225 -> 10.0.0.55
+
+                    
+                        * FLOW RULE: 10.0.0.252 -> 10.0.0.54
+
+                    
+                        * FLOW RULE: 10.0.0.21 -> 10.0.0.67
+
+                    
+                        * FLOW RULE: 10.0.0.40 -> 10.0.0.239
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.193
+
+                    
+                        * FLOW RULE: 10.0.0.37 -> 10.0.0.185
+
+                    
+                        * FLOW RULE: 10.0.0.124 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.219 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.246
+
+                    
+                        * FLOW RULE: 10.0.0.242 -> 10.0.0.82
+
+                    
+                        * FLOW RULE: 10.0.0.222 -> 10.0.0.189
+
+                    
+                        * FLOW RULE: 10.0.0.251 -> 10.0.0.133
+
+                    
+                        * FLOW RULE: 10.0.0.150 -> 10.0.0.222
+
+                    
+                        * FLOW RULE: 10.0.0.23 -> 10.0.0.177
+
+                    
+                        * FLOW RULE: 10.0.0.80 -> 10.0.0.14
+
+                    
+                        * FLOW RULE: 10.0.0.198 -> 10.0.0.98
+
+                    
+                        * FLOW RULE: 10.0.0.244 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.174 -> 10.0.0.178
+
+                    
+                        * FLOW RULE: 10.0.0.242 -> 10.0.0.188
+
+                    
+                        * FLOW RULE: 10.0.0.124 -> 10.0.0.233
+
+                    
+                        * FLOW RULE: 10.0.0.225 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.148 -> 10.0.0.108
+
+                    
+                        * FLOW RULE: 10.0.0.211 -> 10.0.0.235
+
+                    
+                        * FLOW RULE: 10.0.0.79 -> 10.0.0.5
+
+                    
+                        * FLOW RULE: 10.0.0.201 -> 10.0.0.221
+
+                    
+                        * FLOW RULE: 10.0.0.5 -> 10.0.0.254
+
+                    
+                        * FLOW RULE: 10.0.0.175 -> 10.0.0.203
+
+                    
+                        * FLOW RULE: 10.0.0.235 -> 10.0.0.248
+
+                    
+                        * FLOW RULE: 10.0.0.42 -> 10.0.0.217
+
+                    
+                        * FLOW RULE: 10.0.0.77 -> 10.0.0.254
+
+                    
+                        * FLOW RULE: 10.0.0.63 -> 10.0.0.73
+
+                    
+                        * FLOW RULE: 10.0.0.188 -> 10.0.0.229
+
+                    
+                        * FLOW RULE: 10.0.0.234 -> 10.0.0.45
+
+                    
+                        * FLOW RULE: 10.0.0.162 -> 10.0.0.26
+
+                    
+                        * FLOW RULE: 10.0.0.2 -> 10.0.0.4
+
+                    
+                        * FLOW RULE: 10.0.0.17 -> 10.0.0.237
+
+                    
+                        * FLOW RULE: 10.0.0.1 -> 10.0.0.150
+
+                    
+                        * FLOW RULE: 10.0.0.224 -> 10.0.0.218
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.152
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.113
+
+                    
+                        * FLOW RULE: 10.0.0.76 -> 10.0.0.167
+
+                    
+                        * FLOW RULE: 10.0.0.119 -> 10.0.0.227
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.129
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.232
+
+                    
+                        * FLOW RULE: 10.0.0.222 -> 10.0.0.49
+
+                    
+                        * FLOW RULE: 10.0.0.179 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.162 -> 10.0.0.52
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.91
+
+                    
+                        * FLOW RULE: 10.0.0.167 -> 10.0.0.236
+
+                    
+                        * FLOW RULE: 10.0.0.223 -> 10.0.0.100
+
+                    
+                        * FLOW RULE: 10.0.0.113 -> 10.0.0.13
+
+                    
+                        * FLOW RULE: 10.0.0.141 -> 10.0.0.144
+
+                    
+                        * FLOW RULE: 10.0.0.38 -> 10.0.0.247
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.226
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.251
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.206
+
+                    
+                        * FLOW RULE: 10.0.0.182 -> 10.0.0.10
+
+                    
+                        * FLOW RULE: 10.0.0.135 -> 10.0.0.186
+
+                    
+                        * FLOW RULE: 10.0.0.104 -> 10.0.0.194
+
+                    
+                        * FLOW RULE: 10.0.0.71 -> 10.0.0.156
+
+                    
+                        * FLOW RULE: 10.0.0.131 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.33 -> 10.0.0.219
+
+                    
+                        * FLOW RULE: 10.0.0.84 -> 10.0.0.36
+
+                    
+                        * FLOW RULE: 10.0.0.174 -> 10.0.0.204
+
+                    
+                        * FLOW RULE: 10.0.0.97 -> 10.0.0.180
+
+                    
+                        * FLOW RULE: 10.0.0.130 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.11
+
+                    
+                        * FLOW RULE: 10.0.0.40 -> 10.0.0.177
+
+                    
+                        * FLOW RULE: 10.0.0.92 -> 10.0.0.18
+
+                    
+                        * FLOW RULE: 10.0.0.243 -> 10.0.0.159
+
+                    
+                    * MALICIOUS FLOW RULES: 97/99/100
+                    * EVICTED VIA PORT-WILDCARD: 96 rules, 1 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 1 rules, 1 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237609.9994833
+                    * FLOW TABLE FEATURES: [4.349520263577882, 0.870761120616258, 4.290562345252821, 6.420210910008722, 6.152662034987088, 6.527759785030355, 6.563856189774723, 99.0, 164.1541038525963, 0.0, 4.6508283071409515, 1.0280964976593348, 2.9750639171368207, 0.23781818181818185, 0.5114370971604437, 0.3939393939393939, 1.2917581249035897, 328.14141414141415, 1.4914936925445421]
+                    * FLOW TABLE OCCUPANCY: 99/100
+
+                
+                        * FLOW RULE: 10.0.0.239 -> 10.0.0.200
+
+                    
+                        * FLOW RULE: 10.0.0.177 -> 10.0.0.107
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.26
+
+                    
+                        * FLOW RULE: 10.0.0.92 -> 10.0.0.245
+
+                    
+                        * FLOW RULE: 10.0.0.179 -> 10.0.0.136
+
+                    
+                        * FLOW RULE: 10.0.0.197 -> 10.0.0.188
+
+                    
+                        * FLOW RULE: 10.0.0.250 -> 10.0.0.217
+
+                    
+                        * FLOW RULE: 10.0.0.6 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.224 -> 10.0.0.130
+
+                    
+                        * FLOW RULE: 10.0.0.225 -> 10.0.0.146
+
+                    
+                        * FLOW RULE: 10.0.0.245 -> 10.0.0.185
+
+                    
+                        * FLOW RULE: 10.0.0.248 -> 10.0.0.215
+
+                    
+                        * FLOW RULE: 10.0.0.35 -> 10.0.0.32
+
+                    
+                        * FLOW RULE: 10.0.0.213 -> 10.0.0.224
+
+                    
+                        * FLOW RULE: 10.0.0.90 -> 10.0.0.103
+
+                    
+                        * FLOW RULE: 10.0.0.49 -> 10.0.0.15
+
+                    
+                        * FLOW RULE: 10.0.0.206 -> 10.0.0.167
+
+                    
+                        * FLOW RULE: 10.0.0.105 -> 10.0.0.72
+
+                    
+                        * FLOW RULE: 10.0.0.182 -> 10.0.0.56
+
+                    
+                        * FLOW RULE: 10.0.0.65 -> 10.0.0.98
+
+                    
+                        * FLOW RULE: 10.0.0.38 -> 10.0.0.137
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.247
+
+                    
+                        * FLOW RULE: 10.0.0.17 -> 10.0.0.248
+
+                    
+                        * FLOW RULE: 10.0.0.18 -> 10.0.0.199
+
+                    
+                        * FLOW RULE: 10.0.0.84 -> 10.0.0.144
+
+                    
+                        * FLOW RULE: 10.0.0.126 -> 10.0.0.35
+
+                    
+                        * FLOW RULE: 10.0.0.127 -> 10.0.0.25
+
+                    
+                        * FLOW RULE: 10.0.0.27 -> 10.0.0.97
+
+                    
+                        * FLOW RULE: 10.0.0.109 -> 10.0.0.56
+
+                    
+                        * FLOW RULE: 10.0.0.102 -> 10.0.0.49
+
+                    
+                        * FLOW RULE: 10.0.0.142 -> 10.0.0.172
+
+                    
+                        * FLOW RULE: 10.0.0.231 -> 10.0.0.35
+
+                    
+                        * FLOW RULE: 10.0.0.79 -> 10.0.0.159
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.148
+
+                    
+                        * FLOW RULE: 10.0.0.225 -> 10.0.0.55
+
+                    
+                        * FLOW RULE: 10.0.0.252 -> 10.0.0.54
+
+                    
+                        * FLOW RULE: 10.0.0.21 -> 10.0.0.67
+
+                    
+                        * FLOW RULE: 10.0.0.40 -> 10.0.0.239
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.193
+
+                    
+                        * FLOW RULE: 10.0.0.37 -> 10.0.0.185
+
+                    
+                        * FLOW RULE: 10.0.0.124 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.219 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.246
+
+                    
+                        * FLOW RULE: 10.0.0.242 -> 10.0.0.82
+
+                    
+                        * FLOW RULE: 10.0.0.222 -> 10.0.0.189
+
+                    
+                        * FLOW RULE: 10.0.0.251 -> 10.0.0.133
+
+                    
+                        * FLOW RULE: 10.0.0.150 -> 10.0.0.222
+
+                    
+                        * FLOW RULE: 10.0.0.23 -> 10.0.0.177
+
+                    
+                        * FLOW RULE: 10.0.0.80 -> 10.0.0.14
+
+                    
+                        * FLOW RULE: 10.0.0.198 -> 10.0.0.98
+
+                    
+                        * FLOW RULE: 10.0.0.244 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.174 -> 10.0.0.178
+
+                    
+                        * FLOW RULE: 10.0.0.124 -> 10.0.0.233
+
+                    
+                        * FLOW RULE: 10.0.0.236 -> 10.0.0.248
+
+                    
+                        * FLOW RULE: 10.0.0.225 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.148 -> 10.0.0.108
+
+                    
+                        * FLOW RULE: 10.0.0.211 -> 10.0.0.235
+
+                    
+                        * FLOW RULE: 10.0.0.79 -> 10.0.0.5
+
+                    
+                        * FLOW RULE: 10.0.0.201 -> 10.0.0.221
+
+                    
+                        * FLOW RULE: 10.0.0.5 -> 10.0.0.254
+
+                    
+                        * FLOW RULE: 10.0.0.175 -> 10.0.0.203
+
+                    
+                        * FLOW RULE: 10.0.0.235 -> 10.0.0.248
+
+                    
+                        * FLOW RULE: 10.0.0.42 -> 10.0.0.217
+
+                    
+                        * FLOW RULE: 10.0.0.77 -> 10.0.0.254
+
+                    
+                        * FLOW RULE: 10.0.0.63 -> 10.0.0.73
+
+                    
+                        * FLOW RULE: 10.0.0.188 -> 10.0.0.229
+
+                    
+                        * FLOW RULE: 10.0.0.234 -> 10.0.0.45
+
+                    
+                        * FLOW RULE: 10.0.0.162 -> 10.0.0.26
+
+                    
+                        * FLOW RULE: 10.0.0.122 -> 10.0.0.188
+
+                    
+                        * FLOW RULE: 10.0.0.117 -> 10.0.0.88
+
+                    
+                        * FLOW RULE: 10.0.0.62 -> 10.0.0.174
+
+                    
+                        * FLOW RULE: 10.0.0.221 -> 10.0.0.225
+
+                    
+                        * FLOW RULE: 10.0.0.92 -> 10.0.0.18
+
+                    
+                        * FLOW RULE: 10.0.0.243 -> 10.0.0.159
+
+                    
+                        * FLOW RULE: 10.0.0.159 -> 10.0.0.105
+
+                    
+                        * FLOW RULE: 10.0.0.235 -> 10.0.0.32
+
+                    
+                        * FLOW RULE: 10.0.0.200 -> 10.0.0.61
+
+                    
+                        * FLOW RULE: 10.0.0.193 -> 10.0.0.166
+
+                    
+                        * FLOW RULE: 10.0.0.190 -> 10.0.0.74
+
+                    
+                        * FLOW RULE: 10.0.0.223 -> 10.0.0.52
+
+                    
+                        * FLOW RULE: 10.0.0.202 -> 10.0.0.5
+
+                    
+                        * FLOW RULE: 10.0.0.10 -> 10.0.0.216
+
+                    
+                        * FLOW RULE: 10.0.0.238 -> 10.0.0.196
+
+                    
+                        * FLOW RULE: 10.0.0.81 -> 10.0.0.4
+
+                    
+                        * FLOW RULE: 10.0.0.199 -> 10.0.0.172
+
+                    
+                        * FLOW RULE: 10.0.0.113 -> 10.0.0.18
+
+                    
+                        * FLOW RULE: 10.0.0.130 -> 10.0.0.48
+
+                    
+                        * FLOW RULE: 10.0.0.96 -> 10.0.0.63
+
+                    
+                        * FLOW RULE: 10.0.0.74 -> 10.0.0.208
+
+                    
+                        * FLOW RULE: 10.0.0.30 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.15 -> 10.0.0.33
+
+                    
+                        * FLOW RULE: 10.0.0.14 -> 10.0.0.249
+
+                    
+                        * FLOW RULE: 10.0.0.207 -> 10.0.0.82
+
+                    
+                        * FLOW RULE: 10.0.0.140 -> 10.0.0.125
+
+                    
+                        * FLOW RULE: 10.0.0.240 -> 10.0.0.7
+
+                    
+                        * FLOW RULE: 10.0.0.82 -> 10.0.0.253
+
+                    
+                        * FLOW RULE: 10.0.0.39 -> 10.0.0.186
+
+                    
+                        * FLOW RULE: 10.0.0.247 -> 10.0.0.164
+
+                    
+                    * MALICIOUS FLOW RULES: 98/99/100
+                    * EVICTED VIA PORT-WILDCARD: 98 rules, 1 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237612.8291209
+                    * FLOW TABLE FEATURES: [4.669077942512021, 0.801222983649993, 4.562549324418448, 6.483856189774725, 6.26120956470982, 6.643856189774724, 6.643856189774724, 99.0, 110.1123595505618, 0.0, 5.2449258117365645, 1.012250147619321, 2.8256330323978442, 0.4181717171717172, 0.8935189462050033, 0.7575757575757576, 1.3798550648528272, 493.65656565656565, 1.5759842867526874]
+                    * FLOW TABLE OCCUPANCY: 99/100
+
+                
+                        * FLOW RULE: 10.0.0.17 -> 10.0.0.237
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.152
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.113
+
+                    
+                        * FLOW RULE: 10.0.0.222 -> 10.0.0.49
+
+                    
+                        * FLOW RULE: 10.0.0.179 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.162 -> 10.0.0.52
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.91
+
+                    
+                        * FLOW RULE: 10.0.0.182 -> 10.0.0.10
+
+                    
+                        * FLOW RULE: 10.0.0.135 -> 10.0.0.186
+
+                    
+                        * FLOW RULE: 10.0.0.104 -> 10.0.0.194
+
+                    
+                        * FLOW RULE: 10.0.0.71 -> 10.0.0.156
+
+                    
+                        * FLOW RULE: 10.0.0.131 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.33 -> 10.0.0.219
+
+                    
+                        * FLOW RULE: 10.0.0.84 -> 10.0.0.36
+
+                    
+                        * FLOW RULE: 10.0.0.174 -> 10.0.0.204
+
+                    
+                        * FLOW RULE: 10.0.0.110 -> 10.0.0.40
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.158
+
+                    
+                        * FLOW RULE: 10.0.0.121 -> 10.0.0.12
+
+                    
+                        * FLOW RULE: 10.0.0.242 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.144 -> 10.0.0.81
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.139 -> 10.0.0.85
+
+                    
+                        * FLOW RULE: 10.0.0.190 -> 10.0.0.29
+
+                    
+                        * FLOW RULE: 10.0.0.126 -> 10.0.0.146
+
+                    
+                        * FLOW RULE: 10.0.0.102 -> 10.0.0.102
+
+                    
+                        * FLOW RULE: 10.0.0.195 -> 10.0.0.134
+
+                    
+                        * FLOW RULE: 10.0.0.152 -> 10.0.0.231
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.205
+
+                    
+                        * FLOW RULE: 10.0.0.39 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.239 -> 10.0.0.200
+
+                    
+                        * FLOW RULE: 10.0.0.177 -> 10.0.0.107
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.26
+
+                    
+                        * FLOW RULE: 10.0.0.92 -> 10.0.0.245
+
+                    
+                        * FLOW RULE: 10.0.0.23 -> 10.0.0.177
+
+                    
+                        * FLOW RULE: 10.0.0.80 -> 10.0.0.14
+
+                    
+                        * FLOW RULE: 10.0.0.198 -> 10.0.0.98
+
+                    
+                        * FLOW RULE: 10.0.0.244 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.174 -> 10.0.0.178
+
+                    
+                        * FLOW RULE: 10.0.0.124 -> 10.0.0.233
+
+                    
+                        * FLOW RULE: 10.0.0.236 -> 10.0.0.248
+
+                    
+                        * FLOW RULE: 10.0.0.225 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.148 -> 10.0.0.108
+
+                    
+                        * FLOW RULE: 10.0.0.211 -> 10.0.0.235
+
+                    
+                        * FLOW RULE: 10.0.0.79 -> 10.0.0.5
+
+                    
+                        * FLOW RULE: 10.0.0.201 -> 10.0.0.221
+
+                    
+                        * FLOW RULE: 10.0.0.5 -> 10.0.0.254
+
+                    
+                        * FLOW RULE: 10.0.0.175 -> 10.0.0.203
+
+                    
+                        * FLOW RULE: 10.0.0.235 -> 10.0.0.248
+
+                    
+                        * FLOW RULE: 10.0.0.42 -> 10.0.0.217
+
+                    
+                        * FLOW RULE: 10.0.0.77 -> 10.0.0.254
+
+                    
+                        * FLOW RULE: 10.0.0.63 -> 10.0.0.73
+
+                    
+                        * FLOW RULE: 10.0.0.188 -> 10.0.0.229
+
+                    
+                        * FLOW RULE: 10.0.0.234 -> 10.0.0.45
+
+                    
+                        * FLOW RULE: 10.0.0.162 -> 10.0.0.26
+
+                    
+                        * FLOW RULE: 10.0.0.122 -> 10.0.0.188
+
+                    
+                        * FLOW RULE: 10.0.0.117 -> 10.0.0.88
+
+                    
+                        * FLOW RULE: 10.0.0.62 -> 10.0.0.174
+
+                    
+                        * FLOW RULE: 10.0.0.221 -> 10.0.0.225
+
+                    
+                        * FLOW RULE: 10.0.0.92 -> 10.0.0.18
+
+                    
+                        * FLOW RULE: 10.0.0.243 -> 10.0.0.159
+
+                    
+                        * FLOW RULE: 10.0.0.159 -> 10.0.0.105
+
+                    
+                        * FLOW RULE: 10.0.0.235 -> 10.0.0.32
+
+                    
+                        * FLOW RULE: 10.0.0.200 -> 10.0.0.61
+
+                    
+                        * FLOW RULE: 10.0.0.193 -> 10.0.0.166
+
+                    
+                        * FLOW RULE: 10.0.0.190 -> 10.0.0.74
+
+                    
+                        * FLOW RULE: 10.0.0.223 -> 10.0.0.52
+
+                    
+                        * FLOW RULE: 10.0.0.202 -> 10.0.0.5
+
+                    
+                        * FLOW RULE: 10.0.0.10 -> 10.0.0.216
+
+                    
+                        * FLOW RULE: 10.0.0.238 -> 10.0.0.196
+
+                    
+                        * FLOW RULE: 10.0.0.81 -> 10.0.0.4
+
+                    
+                        * FLOW RULE: 10.0.0.199 -> 10.0.0.172
+
+                    
+                        * FLOW RULE: 10.0.0.113 -> 10.0.0.18
+
+                    
+                        * FLOW RULE: 10.0.0.130 -> 10.0.0.48
+
+                    
+                        * FLOW RULE: 10.0.0.96 -> 10.0.0.63
+
+                    
+                        * FLOW RULE: 10.0.0.74 -> 10.0.0.208
+
+                    
+                        * FLOW RULE: 10.0.0.30 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.15 -> 10.0.0.33
+
+                    
+                        * FLOW RULE: 10.0.0.14 -> 10.0.0.249
+
+                    
+                        * FLOW RULE: 10.0.0.207 -> 10.0.0.82
+
+                    
+                        * FLOW RULE: 10.0.0.140 -> 10.0.0.125
+
+                    
+                        * FLOW RULE: 10.0.0.240 -> 10.0.0.7
+
+                    
+                        * FLOW RULE: 10.0.0.82 -> 10.0.0.253
+
+                    
+                        * FLOW RULE: 10.0.0.39 -> 10.0.0.186
+
+                    
+                        * FLOW RULE: 10.0.0.247 -> 10.0.0.164
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.237
+
+                    
+                        * FLOW RULE: 10.0.0.187 -> 10.0.0.244
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.15
+
+                    
+                        * FLOW RULE: 10.0.0.226 -> 10.0.0.242
+
+                    
+                        * FLOW RULE: 10.0.0.162 -> 10.0.0.63
+
+                    
+                        * FLOW RULE: 10.0.0.54 -> 10.0.0.111
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.204
+
+                    
+                        * FLOW RULE: 10.0.0.247 -> 10.0.0.155
+
+                    
+                        * FLOW RULE: 10.0.0.159 -> 10.0.0.212
+
+                    
+                        * FLOW RULE: 10.0.0.89 -> 10.0.0.104
+
+                    
+                        * FLOW RULE: 10.0.0.246 -> 10.0.0.35
+
+                    
+                        * FLOW RULE: 10.0.0.141 -> 10.0.0.251
+
+                    
+                    * MALICIOUS FLOW RULES: 97/99/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 97 rules, 97 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237615.0894823
+                    * FLOW TABLE FEATURES: [4.9441434964323685, 0.7362545368558038, 4.808607133843985, 6.396307314753089, 6.281209564709821, 6.623856189774724, 6.623856189774724, 18.0, 57.62711864406781, 0.0, 2.016875695766564, -0.0, 4.169925001442312, 2.837222222222222, 0.04164015046772041, 3.0, 0.0, 2333.1666666666665, 0.36910370974367024]
+                    * FLOW TABLE OCCUPANCY: 18/100
+
+                
+                        * FLOW RULE: 10.0.0.121 -> 10.0.0.12
+
+                    
+                        * FLOW RULE: 10.0.0.242 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.144 -> 10.0.0.81
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.139 -> 10.0.0.85
+
+                    
+                        * FLOW RULE: 10.0.0.190 -> 10.0.0.29
+
+                    
+                        * FLOW RULE: 10.0.0.126 -> 10.0.0.146
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.106
+
+                    
+                        * FLOW RULE: 10.0.0.102 -> 10.0.0.102
+
+                    
+                        * FLOW RULE: 10.0.0.195 -> 10.0.0.134
+
+                    
+                        * FLOW RULE: 10.0.0.152 -> 10.0.0.231
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.205
+
+                    
+                        * FLOW RULE: 10.0.0.39 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.239 -> 10.0.0.200
+
+                    
+                        * FLOW RULE: 10.0.0.177 -> 10.0.0.107
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.26
+
+                    
+                        * FLOW RULE: 10.0.0.92 -> 10.0.0.245
+
+                    
+                    * MALICIOUS FLOW RULES: 18/18/100
+                    * EVICTED VIA PORT-WILDCARD: 18 rules, 1 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237615.8026447
+                    * FLOW TABLE FEATURES: [4.570654437695826, 0.8185008621692428, 4.475084951819779, 6.383856189774726, 6.26120956470982, 6.643856189774724, 6.643856189774724, 99.0, 118.21471652593488, 0.0, 4.04786539366247, 0.08146202691506, 0.08146202691506, 0.1977676767676768, 0.5042141432914578, 0.04040404040404041, 9.899494936611667, 2.303030303030303, 9.899494936611667]
+                    * FLOW TABLE OCCUPANCY: 99/100
+
+                
+                        * FLOW RULE: 10.0.0.1 -> 10.0.0.4
+
+                    
+                        * FLOW RULE: 10.0.0.4 -> 10.0.0.1
+
+                    
+                        * FLOW RULE: 10.0.0.17 -> 10.0.0.237
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.152
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.113
+
+                    
+                        * FLOW RULE: 10.0.0.222 -> 10.0.0.49
+
+                    
+                        * FLOW RULE: 10.0.0.179 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.162 -> 10.0.0.52
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.91
+
+                    
+                        * FLOW RULE: 10.0.0.182 -> 10.0.0.10
+
+                    
+                        * FLOW RULE: 10.0.0.135 -> 10.0.0.186
+
+                    
+                        * FLOW RULE: 10.0.0.104 -> 10.0.0.194
+
+                    
+                        * FLOW RULE: 10.0.0.71 -> 10.0.0.156
+
+                    
+                        * FLOW RULE: 10.0.0.131 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.33 -> 10.0.0.219
+
+                    
+                        * FLOW RULE: 10.0.0.84 -> 10.0.0.36
+
+                    
+                        * FLOW RULE: 10.0.0.174 -> 10.0.0.204
+
+                    
+                        * FLOW RULE: 10.0.0.110 -> 10.0.0.40
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.158
+
+                    
+                        * FLOW RULE: 10.0.0.121 -> 10.0.0.12
+
+                    
+                        * FLOW RULE: 10.0.0.242 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.144 -> 10.0.0.81
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.139 -> 10.0.0.85
+
+                    
+                        * FLOW RULE: 10.0.0.190 -> 10.0.0.29
+
+                    
+                        * FLOW RULE: 10.0.0.126 -> 10.0.0.146
+
+                    
+                        * FLOW RULE: 10.0.0.239 -> 10.0.0.200
+
+                    
+                        * FLOW RULE: 10.0.0.177 -> 10.0.0.107
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.26
+
+                    
+                        * FLOW RULE: 10.0.0.92 -> 10.0.0.245
+
+                    
+                        * FLOW RULE: 10.0.0.102 -> 10.0.0.102
+
+                    
+                        * FLOW RULE: 10.0.0.195 -> 10.0.0.134
+
+                    
+                        * FLOW RULE: 10.0.0.152 -> 10.0.0.231
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.205
+
+                    
+                        * FLOW RULE: 10.0.0.39 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.245 -> 10.0.0.185
+
+                    
+                        * FLOW RULE: 10.0.0.248 -> 10.0.0.215
+
+                    
+                        * FLOW RULE: 10.0.0.35 -> 10.0.0.32
+
+                    
+                        * FLOW RULE: 10.0.0.213 -> 10.0.0.224
+
+                    
+                        * FLOW RULE: 10.0.0.90 -> 10.0.0.103
+
+                    
+                        * FLOW RULE: 10.0.0.49 -> 10.0.0.15
+
+                    
+                        * FLOW RULE: 10.0.0.206 -> 10.0.0.167
+
+                    
+                        * FLOW RULE: 10.0.0.105 -> 10.0.0.72
+
+                    
+                        * FLOW RULE: 10.0.0.182 -> 10.0.0.56
+
+                    
+                        * FLOW RULE: 10.0.0.65 -> 10.0.0.98
+
+                    
+                        * FLOW RULE: 10.0.0.38 -> 10.0.0.137
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.247
+
+                    
+                        * FLOW RULE: 10.0.0.17 -> 10.0.0.248
+
+                    
+                        * FLOW RULE: 10.0.0.18 -> 10.0.0.199
+
+                    
+                        * FLOW RULE: 10.0.0.84 -> 10.0.0.144
+
+                    
+                        * FLOW RULE: 10.0.0.117 -> 10.0.0.88
+
+                    
+                        * FLOW RULE: 10.0.0.62 -> 10.0.0.174
+
+                    
+                        * FLOW RULE: 10.0.0.221 -> 10.0.0.225
+
+                    
+                        * FLOW RULE: 10.0.0.92 -> 10.0.0.18
+
+                    
+                        * FLOW RULE: 10.0.0.243 -> 10.0.0.159
+
+                    
+                        * FLOW RULE: 10.0.0.159 -> 10.0.0.105
+
+                    
+                        * FLOW RULE: 10.0.0.235 -> 10.0.0.32
+
+                    
+                        * FLOW RULE: 10.0.0.200 -> 10.0.0.61
+
+                    
+                        * FLOW RULE: 10.0.0.193 -> 10.0.0.166
+
+                    
+                        * FLOW RULE: 10.0.0.190 -> 10.0.0.74
+
+                    
+                        * FLOW RULE: 10.0.0.223 -> 10.0.0.52
+
+                    
+                        * FLOW RULE: 10.0.0.202 -> 10.0.0.5
+
+                    
+                        * FLOW RULE: 10.0.0.10 -> 10.0.0.216
+
+                    
+                        * FLOW RULE: 10.0.0.238 -> 10.0.0.196
+
+                    
+                        * FLOW RULE: 10.0.0.81 -> 10.0.0.4
+
+                    
+                        * FLOW RULE: 10.0.0.199 -> 10.0.0.172
+
+                    
+                        * FLOW RULE: 10.0.0.113 -> 10.0.0.18
+
+                    
+                        * FLOW RULE: 10.0.0.130 -> 10.0.0.48
+
+                    
+                        * FLOW RULE: 10.0.0.96 -> 10.0.0.63
+
+                    
+                        * FLOW RULE: 10.0.0.74 -> 10.0.0.208
+
+                    
+                        * FLOW RULE: 10.0.0.30 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.15 -> 10.0.0.33
+
+                    
+                        * FLOW RULE: 10.0.0.14 -> 10.0.0.249
+
+                    
+                        * FLOW RULE: 10.0.0.207 -> 10.0.0.82
+
+                    
+                        * FLOW RULE: 10.0.0.140 -> 10.0.0.125
+
+                    
+                        * FLOW RULE: 10.0.0.240 -> 10.0.0.7
+
+                    
+                        * FLOW RULE: 10.0.0.82 -> 10.0.0.253
+
+                    
+                        * FLOW RULE: 10.0.0.39 -> 10.0.0.186
+
+                    
+                        * FLOW RULE: 10.0.0.247 -> 10.0.0.164
+
+                    
+                        * FLOW RULE: 10.0.0.39 -> 10.0.0.128
+
+                    
+                        * FLOW RULE: 10.0.0.21 -> 10.0.0.233
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.237
+
+                    
+                        * FLOW RULE: 10.0.0.187 -> 10.0.0.244
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.15
+
+                    
+                        * FLOW RULE: 10.0.0.226 -> 10.0.0.242
+
+                    
+                        * FLOW RULE: 10.0.0.162 -> 10.0.0.63
+
+                    
+                        * FLOW RULE: 10.0.0.54 -> 10.0.0.111
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.204
+
+                    
+                        * FLOW RULE: 10.0.0.247 -> 10.0.0.155
+
+                    
+                        * FLOW RULE: 10.0.0.159 -> 10.0.0.212
+
+                    
+                        * FLOW RULE: 10.0.0.89 -> 10.0.0.104
+
+                    
+                        * FLOW RULE: 10.0.0.246 -> 10.0.0.35
+
+                    
+                        * FLOW RULE: 10.0.0.141 -> 10.0.0.251
+
+                    
+                        * FLOW RULE: 10.0.0.187 -> 10.0.0.18
+
+                    
+                        * FLOW RULE: 10.0.0.104 -> 10.0.0.45
+
+                    
+                        * FLOW RULE: 10.0.0.26 -> 10.0.0.55
+
+                    
+                        * FLOW RULE: 10.0.0.3 -> 10.0.0.1
+
+                    
+                    * MALICIOUS FLOW RULES: 98/99/100
+                    * EVICTED VIA PORT-WILDCARD: 95 rules, 1 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 3 rules, 3 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237619.1322854
+                    * FLOW TABLE FEATURES: [4.517124409836153, 0.8347169056660617, 4.38725986788131, 6.396307314753089, 6.336307314753091, 6.643856189774724, 6.643856189774724, 99.0, 160.39279869067104, 0.0, 3.9533099350872183, 0.5328350630342233, 6.154411670497249, 0.8273535353535356, 0.21197077283872684, 0.8787878787878788, 0.3713906763541036, 705.4141414141415, 0.6103599422443441]
+                    * FLOW TABLE OCCUPANCY: 99/100
+
+                
+                        * FLOW RULE: 10.0.0.76 -> 10.0.0.167
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.129
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.232
+
+                    
+                        * FLOW RULE: 10.0.0.167 -> 10.0.0.236
+
+                    
+                        * FLOW RULE: 10.0.0.113 -> 10.0.0.13
+
+                    
+                        * FLOW RULE: 10.0.0.141 -> 10.0.0.144
+
+                    
+                        * FLOW RULE: 10.0.0.38 -> 10.0.0.247
+
+                    
+                        * FLOW RULE: 10.0.0.194 -> 10.0.0.226
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.251
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.206
+
+                    
+                        * FLOW RULE: 10.0.0.97 -> 10.0.0.180
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.11
+
+                    
+                        * FLOW RULE: 10.0.0.40 -> 10.0.0.177
+
+                    
+                        * FLOW RULE: 10.0.0.67 -> 10.0.0.114
+
+                    
+                        * FLOW RULE: 10.0.0.157 -> 10.0.0.187
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.169
+
+                    
+                        * FLOW RULE: 10.0.0.37 -> 10.0.0.175
+
+                    
+                        * FLOW RULE: 10.0.0.221 -> 10.0.0.94
+
+                    
+                        * FLOW RULE: 10.0.0.218 -> 10.0.0.193
+
+                    
+                        * FLOW RULE: 10.0.0.100 -> 10.0.0.111
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.252
+
+                    
+                        * FLOW RULE: 10.0.0.26 -> 10.0.0.128
+
+                    
+                        * FLOW RULE: 10.0.0.210 -> 10.0.0.41
+
+                    
+                        * FLOW RULE: 10.0.0.202 -> 10.0.0.46
+
+                    
+                        * FLOW RULE: 10.0.0.30 -> 10.0.0.57
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.106
+
+                    
+                        * FLOW RULE: 10.0.0.187 -> 10.0.0.69
+
+                    
+                        * FLOW RULE: 10.0.0.223 -> 10.0.0.171
+
+                    
+                        * FLOW RULE: 10.0.0.67 -> 10.0.0.55
+
+                    
+                        * FLOW RULE: 10.0.0.80 -> 10.0.0.127
+
+                    
+                        * FLOW RULE: 10.0.0.205 -> 10.0.0.209
+
+                    
+                        * FLOW RULE: 10.0.0.168 -> 10.0.0.194
+
+                    
+                        * FLOW RULE: 10.0.0.217 -> 10.0.0.173
+
+                    
+                        * FLOW RULE: 10.0.0.49 -> 10.0.0.200
+
+                    
+                        * FLOW RULE: 10.0.0.152 -> 10.0.0.6
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.169
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.78
+
+                    
+                        * FLOW RULE: 10.0.0.203 -> 10.0.0.142
+
+                    
+                        * FLOW RULE: 10.0.0.29 -> 10.0.0.80
+
+                    
+                        * FLOW RULE: 10.0.0.55 -> 10.0.0.191
+
+                    
+                        * FLOW RULE: 10.0.0.183 -> 10.0.0.4
+
+                    
+                        * FLOW RULE: 10.0.0.90 -> 10.0.0.108
+
+                    
+                        * FLOW RULE: 10.0.0.115 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.139
+
+                    
+                        * FLOW RULE: 10.0.0.151 -> 10.0.0.251
+
+                    
+                        * FLOW RULE: 10.0.0.218 -> 10.0.0.60
+
+                    
+                        * FLOW RULE: 10.0.0.179 -> 10.0.0.136
+
+                    
+                        * FLOW RULE: 10.0.0.178 -> 10.0.0.33
+
+                    
+                        * FLOW RULE: 10.0.0.98 -> 10.0.0.126
+
+                    
+                        * FLOW RULE: 10.0.0.175 -> 10.0.0.22
+
+                    
+                        * FLOW RULE: 10.0.0.53 -> 10.0.0.218
+
+                    
+                        * FLOW RULE: 10.0.0.140 -> 10.0.0.24
+
+                    
+                        * FLOW RULE: 10.0.0.197 -> 10.0.0.188
+
+                    
+                        * FLOW RULE: 10.0.0.250 -> 10.0.0.217
+
+                    
+                        * FLOW RULE: 10.0.0.6 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.27 -> 10.0.0.97
+
+                    
+                        * FLOW RULE: 10.0.0.109 -> 10.0.0.56
+
+                    
+                        * FLOW RULE: 10.0.0.102 -> 10.0.0.49
+
+                    
+                        * FLOW RULE: 10.0.0.142 -> 10.0.0.172
+
+                    
+                        * FLOW RULE: 10.0.0.231 -> 10.0.0.35
+
+                    
+                        * FLOW RULE: 10.0.0.79 -> 10.0.0.159
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.148
+
+                    
+                        * FLOW RULE: 10.0.0.225 -> 10.0.0.55
+
+                    
+                        * FLOW RULE: 10.0.0.252 -> 10.0.0.54
+
+                    
+                        * FLOW RULE: 10.0.0.21 -> 10.0.0.67
+
+                    
+                        * FLOW RULE: 10.0.0.40 -> 10.0.0.239
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.193
+
+                    
+                        * FLOW RULE: 10.0.0.37 -> 10.0.0.185
+
+                    
+                        * FLOW RULE: 10.0.0.124 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.219 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.246
+
+                    
+                        * FLOW RULE: 10.0.0.242 -> 10.0.0.82
+
+                    
+                        * FLOW RULE: 10.0.0.222 -> 10.0.0.189
+
+                    
+                        * FLOW RULE: 10.0.0.251 -> 10.0.0.133
+
+                    
+                        * FLOW RULE: 10.0.0.150 -> 10.0.0.222
+
+                    
+                        * FLOW RULE: 10.0.0.23 -> 10.0.0.177
+
+                    
+                        * FLOW RULE: 10.0.0.80 -> 10.0.0.14
+
+                    
+                        * FLOW RULE: 10.0.0.198 -> 10.0.0.98
+
+                    
+                        * FLOW RULE: 10.0.0.244 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.174 -> 10.0.0.178
+
+                    
+                        * FLOW RULE: 10.0.0.242 -> 10.0.0.188
+
+                    
+                        * FLOW RULE: 10.0.0.124 -> 10.0.0.233
+
+                    
+                        * FLOW RULE: 10.0.0.236 -> 10.0.0.248
+
+                    
+                        * FLOW RULE: 10.0.0.225 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.148 -> 10.0.0.108
+
+                    
+                        * FLOW RULE: 10.0.0.211 -> 10.0.0.235
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.34
+
+                    
+                        * FLOW RULE: 10.0.0.170 -> 10.0.0.169
+
+                    
+                        * FLOW RULE: 10.0.0.78 -> 10.0.0.217
+
+                    
+                        * FLOW RULE: 10.0.0.26 -> 10.0.0.55
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.223
+
+                    
+                        * FLOW RULE: 10.0.0.121 -> 10.0.0.135
+
+                    
+                        * FLOW RULE: 10.0.0.63 -> 10.0.0.55
+
+                    
+                        * FLOW RULE: 10.0.0.183 -> 10.0.0.98
+
+                    
+                        * FLOW RULE: 10.0.0.71 -> 10.0.0.183
+
+                    
+                        * FLOW RULE: 10.0.0.107 -> 10.0.0.125
+
+                    
+                        * FLOW RULE: 10.0.0.203 -> 10.0.0.124
+
+                    
+                        * FLOW RULE: 10.0.0.198 -> 10.0.0.7
+
+                    
+                    * MALICIOUS FLOW RULES: 99/99/100
+                    * EVICTED VIA PORT-WILDCARD: 99 rules, 1 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237623.5217583
+                    * FLOW TABLE FEATURES: [4.565565094682864, 0.8208873893208314, 4.51508495181978, 6.423856189774724, 6.268758439731455, 6.643856189774724, 6.643856189774724, 99.0, 96.36184857423797, 0.0, 4.482011353171016, 0.9732650674751335, 3.123539045207401, 0.3904545454545454, 1.0117648760948734, 0.40404040404040403, 1.2144957801491123, 298.57575757575756, 1.4723027695073385]
+                    * FLOW TABLE OCCUPANCY: 99/100
+
+                
+                        * FLOW RULE: 10.0.0.1 -> 10.0.0.150
+
+                    
+                        * FLOW RULE: 10.0.0.125 -> 10.0.0.113
+
+                    
+                        * FLOW RULE: 10.0.0.76 -> 10.0.0.167
+
+                    
+                        * FLOW RULE: 10.0.0.179 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.162 -> 10.0.0.52
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.91
+
+                    
+                        * FLOW RULE: 10.0.0.167 -> 10.0.0.236
+
+                    
+                        * FLOW RULE: 10.0.0.135 -> 10.0.0.186
+
+                    
+                        * FLOW RULE: 10.0.0.104 -> 10.0.0.194
+
+                    
+                        * FLOW RULE: 10.0.0.71 -> 10.0.0.156
+
+                    
+                        * FLOW RULE: 10.0.0.131 -> 10.0.0.93
+
+                    
+                        * FLOW RULE: 10.0.0.33 -> 10.0.0.219
+
+                    
+                        * FLOW RULE: 10.0.0.84 -> 10.0.0.36
+
+                    
+                        * FLOW RULE: 10.0.0.174 -> 10.0.0.204
+
+                    
+                        * FLOW RULE: 10.0.0.97 -> 10.0.0.180
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.158
+
+                    
+                        * FLOW RULE: 10.0.0.121 -> 10.0.0.12
+
+                    
+                        * FLOW RULE: 10.0.0.242 -> 10.0.0.3
+
+                    
+                        * FLOW RULE: 10.0.0.144 -> 10.0.0.81
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.132 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.139 -> 10.0.0.85
+
+                    
+                        * FLOW RULE: 10.0.0.190 -> 10.0.0.29
+
+                    
+                        * FLOW RULE: 10.0.0.126 -> 10.0.0.146
+
+                    
+                        * FLOW RULE: 10.0.0.239 -> 10.0.0.200
+
+                    
+                        * FLOW RULE: 10.0.0.177 -> 10.0.0.107
+
+                    
+                        * FLOW RULE: 10.0.0.129 -> 10.0.0.26
+
+                    
+                        * FLOW RULE: 10.0.0.92 -> 10.0.0.245
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.106
+
+                    
+                        * FLOW RULE: 10.0.0.102 -> 10.0.0.102
+
+                    
+                        * FLOW RULE: 10.0.0.195 -> 10.0.0.134
+
+                    
+                        * FLOW RULE: 10.0.0.197 -> 10.0.0.188
+
+                    
+                        * FLOW RULE: 10.0.0.250 -> 10.0.0.217
+
+                    
+                        * FLOW RULE: 10.0.0.6 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.224 -> 10.0.0.130
+
+                    
+                        * FLOW RULE: 10.0.0.225 -> 10.0.0.146
+
+                    
+                        * FLOW RULE: 10.0.0.245 -> 10.0.0.185
+
+                    
+                        * FLOW RULE: 10.0.0.248 -> 10.0.0.215
+
+                    
+                        * FLOW RULE: 10.0.0.35 -> 10.0.0.32
+
+                    
+                        * FLOW RULE: 10.0.0.213 -> 10.0.0.224
+
+                    
+                        * FLOW RULE: 10.0.0.90 -> 10.0.0.103
+
+                    
+                        * FLOW RULE: 10.0.0.49 -> 10.0.0.15
+
+                    
+                        * FLOW RULE: 10.0.0.206 -> 10.0.0.167
+
+                    
+                        * FLOW RULE: 10.0.0.105 -> 10.0.0.72
+
+                    
+                        * FLOW RULE: 10.0.0.182 -> 10.0.0.56
+
+                    
+                        * FLOW RULE: 10.0.0.65 -> 10.0.0.98
+
+                    
+                        * FLOW RULE: 10.0.0.38 -> 10.0.0.137
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.247
+
+                    
+                        * FLOW RULE: 10.0.0.17 -> 10.0.0.248
+
+                    
+                        * FLOW RULE: 10.0.0.18 -> 10.0.0.199
+
+                    
+                        * FLOW RULE: 10.0.0.84 -> 10.0.0.144
+
+                    
+                        * FLOW RULE: 10.0.0.126 -> 10.0.0.35
+
+                    
+                        * FLOW RULE: 10.0.0.127 -> 10.0.0.25
+
+                    
+                        * FLOW RULE: 10.0.0.27 -> 10.0.0.97
+
+                    
+                        * FLOW RULE: 10.0.0.109 -> 10.0.0.56
+
+                    
+                        * FLOW RULE: 10.0.0.102 -> 10.0.0.49
+
+                    
+                        * FLOW RULE: 10.0.0.142 -> 10.0.0.172
+
+                    
+                        * FLOW RULE: 10.0.0.231 -> 10.0.0.35
+
+                    
+                        * FLOW RULE: 10.0.0.79 -> 10.0.0.159
+
+                    
+                        * FLOW RULE: 10.0.0.173 -> 10.0.0.148
+
+                    
+                        * FLOW RULE: 10.0.0.225 -> 10.0.0.55
+
+                    
+                        * FLOW RULE: 10.0.0.252 -> 10.0.0.54
+
+                    
+                        * FLOW RULE: 10.0.0.21 -> 10.0.0.67
+
+                    
+                        * FLOW RULE: 10.0.0.40 -> 10.0.0.239
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.193
+
+                    
+                        * FLOW RULE: 10.0.0.37 -> 10.0.0.185
+
+                    
+                        * FLOW RULE: 10.0.0.124 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.219 -> 10.0.0.122
+
+                    
+                        * FLOW RULE: 10.0.0.91 -> 10.0.0.246
+
+                    
+                        * FLOW RULE: 10.0.0.242 -> 10.0.0.82
+
+                    
+                        * FLOW RULE: 10.0.0.222 -> 10.0.0.189
+
+                    
+                        * FLOW RULE: 10.0.0.251 -> 10.0.0.133
+
+                    
+                        * FLOW RULE: 10.0.0.150 -> 10.0.0.222
+
+                    
+                        * FLOW RULE: 10.0.0.23 -> 10.0.0.177
+
+                    
+                        * FLOW RULE: 10.0.0.80 -> 10.0.0.14
+
+                    
+                        * FLOW RULE: 10.0.0.198 -> 10.0.0.98
+
+                    
+                        * FLOW RULE: 10.0.0.244 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.174 -> 10.0.0.178
+
+                    
+                        * FLOW RULE: 10.0.0.242 -> 10.0.0.188
+
+                    
+                        * FLOW RULE: 10.0.0.124 -> 10.0.0.233
+
+                    
+                        * FLOW RULE: 10.0.0.236 -> 10.0.0.248
+
+                    
+                        * FLOW RULE: 10.0.0.225 -> 10.0.0.8
+
+                    
+                        * FLOW RULE: 10.0.0.148 -> 10.0.0.108
+
+                    
+                        * FLOW RULE: 10.0.0.211 -> 10.0.0.235
+
+                    
+                        * FLOW RULE: 10.0.0.79 -> 10.0.0.5
+
+                    
+                        * FLOW RULE: 10.0.0.201 -> 10.0.0.221
+
+                    
+                        * FLOW RULE: 10.0.0.5 -> 10.0.0.254
+
+                    
+                        * FLOW RULE: 10.0.0.175 -> 10.0.0.203
+
+                    
+                        * FLOW RULE: 10.0.0.235 -> 10.0.0.248
+
+                    
+                        * FLOW RULE: 10.0.0.42 -> 10.0.0.217
+
+                    
+                    * MALICIOUS FLOW RULES: 90/99/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 90 rules, 90 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237625.8789995
+                    * FLOW TABLE FEATURES: [4.101238566060903, 0.8629494216769152, 4.112353824331908, 5.735728750643393, 5.6351759753685435, 5.955728750643391, 5.941726195689078, 4.0, 600.0000000000002, 0.0, 2.0, -0.0, -0.0, 0.027749999999999997, 0.06919951124205952, 0.0, 0.0, 0.0, 0.0]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237626.7175832
+                    * FLOW TABLE FEATURES: [3.7620394616640116, 0.937029546854568, 3.8403668451662836, 5.530289022636558, 5.444114505264354, 5.710289022636558, 5.6985629396449164, 35.0, 117.6470588235294, 0.0, 5.014997302659252, 0.512709142030877, 0.6054266419690636, 0.9074285714285716, 0.0813541331345781, 0.11428571428571428, 2.783882181415011, 6.514285714285714, 2.7969116327550365]
+                    * FLOW TABLE OCCUPANCY: 35/100
+
+                
+                        * FLOW RULE: 10.0.0.89 -> 10.0.0.104
+
+                    
+                        * FLOW RULE: 10.0.0.246 -> 10.0.0.35
+
+                    
+                        * FLOW RULE: 10.0.0.141 -> 10.0.0.251
+
+                    
+                        * FLOW RULE: 10.0.0.187 -> 10.0.0.18
+
+                    
+                        * FLOW RULE: 10.0.0.104 -> 10.0.0.45
+
+                    
+                        * FLOW RULE: 10.0.0.9 -> 10.0.0.87
+
+                    
+                        * FLOW RULE: 10.0.0.60 -> 10.0.0.187
+
+                    
+                        * FLOW RULE: 10.0.0.241 -> 10.0.0.100
+
+                    
+                        * FLOW RULE: 10.0.0.108 -> 10.0.0.161
+
+                    
+                        * FLOW RULE: 10.0.0.214 -> 10.0.0.44
+
+                    
+                        * FLOW RULE: 10.0.0.180 -> 10.0.0.34
+
+                    
+                        * FLOW RULE: 10.0.0.170 -> 10.0.0.169
+
+                    
+                        * FLOW RULE: 10.0.0.78 -> 10.0.0.217
+
+                    
+                        * FLOW RULE: 10.0.0.26 -> 10.0.0.55
+
+                    
+                        * FLOW RULE: 10.0.0.87 -> 10.0.0.223
+
+                    
+                        * FLOW RULE: 10.0.0.121 -> 10.0.0.135
+
+                    
+                        * FLOW RULE: 10.0.0.63 -> 10.0.0.55
+
+                    
+                        * FLOW RULE: 10.0.0.183 -> 10.0.0.98
+
+                    
+                        * FLOW RULE: 10.0.0.71 -> 10.0.0.183
+
+                    
+                        * FLOW RULE: 10.0.0.107 -> 10.0.0.125
+
+                    
+                        * FLOW RULE: 10.0.0.203 -> 10.0.0.124
+
+                    
+                        * FLOW RULE: 10.0.0.198 -> 10.0.0.7
+
+                    
+                        * FLOW RULE: 10.0.0.69 -> 10.0.0.44
+
+                    
+                        * FLOW RULE: 10.0.0.116 -> 10.0.0.53
+
+                    
+                        * FLOW RULE: 10.0.0.117 -> 10.0.0.75
+
+                    
+                        * FLOW RULE: 10.0.0.56 -> 10.0.0.236
+
+                    
+                        * FLOW RULE: 10.0.0.37 -> 10.0.0.248
+
+                    
+                        * FLOW RULE: 10.0.0.74 -> 10.0.0.65
+
+                    
+                        * FLOW RULE: 10.0.0.225 -> 10.0.0.186
+
+                    
+                        * FLOW RULE: 10.0.0.238 -> 10.0.0.222
+
+                    
+                        * FLOW RULE: 10.0.0.28 -> 10.0.0.188
+
+                    
+                    * MALICIOUS FLOW RULES: 31/35/100
+                    * EVICTED VIA PORT-WILDCARD: 31 rules, 1 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237627.7017677
+                    * FLOW TABLE FEATURES: [3.7620394616640116, 0.937029546854568, 3.8403668451662836, 5.530289022636558, 5.444114505264354, 5.710289022636558, 5.6985629396449164, 4.0, 38.46153846153854, 0.0, 2.0, 1.5, 2.0, 1.74825, 0.01817565007663221, 5.0, 0.812403840463596, 1490.25, 0.9714208357621794]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                        * FLOW RULE: 10.0.0.4 -> 10.0.0.1
+
+                    
+                    * MALICIOUS FLOW RULES: 1/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 1 rules, 1 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237628.6912293
+                    * FLOW TABLE FEATURES: [3.65490799105166, 0.958204916023986, 3.7715107774877747, 5.467627100346909, 5.353528005004737, 5.607627100346908, 5.587976439385299, 6.0, 2.4390243902439024, 0.0, 2.584962500721156, 1.9182958340544893, 2.584962500721156, 1.7225000000000004, 0.5855489553079469, 6.833333333333333, 0.7140137155270462, 1227.8333333333333, 1.3894827085410775]
+                    * FLOW TABLE OCCUPANCY: 6/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/6/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237629.6960247
+                    * FLOW TABLE FEATURES: [3.65490799105166, 0.958204916023986, 3.7715107774877747, 5.467627100346909, 5.353528005004737, 5.607627100346908, 5.587976439385299, 6.0, 2.4390243902439024, 0.0, 2.584962500721156, 1.9182958340544893, 2.584962500721156, 2.7245000000000004, 0.37019933034242564, 9.166666666666666, 0.6279969468789289, 1478.0, 1.146195158698341]
+                    * FLOW TABLE OCCUPANCY: 6/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/6/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237630.690686
+                    * FLOW TABLE FEATURES: [3.65490799105166, 0.958204916023986, 3.7715107774877747, 5.467627100346909, 5.353528005004737, 5.607627100346908, 5.587976439385299, 6.0, 2.4390243902439024, 0.0, 2.584962500721156, 1.9182958340544893, 2.584962500721156, 3.7255, 0.2707309288734234, 10.166666666666666, 0.5186653121166025, 1549.5, 1.077332613942803]
+                    * FLOW TABLE OCCUPANCY: 6/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/6/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237631.693696
+                    * FLOW TABLE FEATURES: [3.5764718443812433, 0.9773006063765971, 3.702326796339832, 5.416765437075105, 5.305183336443374, 5.556765437075104, 5.541076880026371, 2.0, 0.2947244326554671, 0.0, 1.0, 1.0, 1.0, 1.9925, 0.8514429109159348, 3.0, 0.6666666666666666, 214.0, 0.7476635514018691]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237632.6847668
+                    * FLOW TABLE FEATURES: [3.5764718443812433, 0.9773006063765971, 3.702326796339832, 5.416765437075105, 5.305183336443374, 5.556765437075104, 5.541076880026371, 2.0, 0.29472443265546716, 0.0, 1.0, 1.0, 1.0, 2.9934999999999996, 0.5667279104726908, 3.0, 0.6666666666666666, 214.0, 0.7476635514018691]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237633.688053
+                    * FLOW TABLE FEATURES: [3.5467962615879953, 0.9791801993667869, 3.702326796339832, 5.283277625665027, 5.191384217725517, 5.423277625665027, 5.399728886286882, 4.0, 1.490312965722802, 0.0, 2.0, 1.5, 2.0, 0.80825, 1.0650490259821113, 2.25, 1.2322818340454909, 164.25, 0.9895503827215199]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                        * FLOW RULE: 10.0.0.3 -> 10.0.0.1
+
+                    
+                        * FLOW RULE: 10.0.0.1 -> 10.0.0.3
+
+                    
+                    * MALICIOUS FLOW RULES: 2/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 2 rules, 2 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237634.6894863
+                    * FLOW TABLE FEATURES: [3.5467962615879953, 0.9791801993667869, 3.702326796339832, 5.283277625665027, 5.191384217725517, 5.423277625665027, 5.399728886286882, 2.0, 0.49677098857426727, 0.0, 1.0, 1.0, 1.0, 2.2935, 0.43884892086330934, 6.0, 0.5, 386.5, 0.38421733505821476]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237635.68952
+                    * FLOW TABLE FEATURES: [3.5467962615879953, 0.9791801993667869, 3.702326796339832, 5.283277625665027, 5.191384217725517, 5.423277625665027, 5.399728886286882, 2.0, 0.49677098857426716, 0.0, 1.0, 1.0, 1.0, 3.2945, 0.30550918196994997, 8.0, 0.375, 527.5, 0.24170616113744076]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237636.6903005
+                    * FLOW TABLE FEATURES: [3.41350745171748, 1.0081927281568805, 3.6328221899019595, 5.141438631740534, 5.058413407438909, 5.261438631740532, 5.269275070710712, 4.0, 0.9422110552763818, 0.0, 2.0, 2.0, 2.0, 1.1585, 1.0771550359969384, 15.25, 0.769444701816481, 6408.0, 1.5631242917818542]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237637.6887434
+                    * FLOW TABLE FEATURES: [3.41350745171748, 1.0081927281568805, 3.6328221899019595, 5.141438631740534, 5.058413407438909, 5.261438631740532, 5.269275070710712, 4.0, 0.9422110552763818, 0.0, 2.0, 2.0, 2.0, 2.1605, 0.5775904231439266, 18.75, 0.47159304490206383, 6690.25, 1.4718859937873885]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237638.6982756
+                    * FLOW TABLE FEATURES: [3.3423759135232287, 1.028543556839908, 3.563003929399696, 5.086569948727976, 5.000412367632843, 5.206569948727975, 5.2112740309046455, 2.0, 0.49164208456243846, 0.0, 1.0, 1.0, 1.0, 1.091, 0.9321723189734188, 9.0, 0.8888888888888888, 677.0, 0.9202363367799113]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237639.7000282
+                    * FLOW TABLE FEATURES: [3.3423759135232287, 1.028543556839908, 3.563003929399696, 5.086569948727976, 5.000412367632843, 5.206569948727975, 5.2112740309046455, 2.0, 0.4916420845624386, 0.0, 1.0, 1.0, 1.0, 2.092, 0.48613766730401525, 10.0, 0.7, 731.0, 0.7783857729138167]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237640.7134008
+                    * FLOW TABLE FEATURES: [3.3423759135232287, 1.028543556839908, 3.563003929399696, 5.086569948727976, 5.000412367632843, 5.206569948727975, 5.2112740309046455, 2.0, 0.49164208456243846, 0.0, 1.0, 1.0, 1.0, 3.093, 0.3288069835111543, 11.0, 0.6363636363636364, 819.5, 0.736424649176327]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237641.713596
+                    * FLOW TABLE FEATURES: [3.305534970920803, 1.031818680526672, 3.583003929399696, 5.010852131480917, 4.92172407031618, 5.130852131480916, 5.13258573358798, 4.0, 0.7165034631000718, 0.0, 2.0, 1.5, 2.0, 2.5105, 0.6931102298125299, 8.5, 1.0571882797418488, 621.0, 1.1032176620743734]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237642.713306
+                    * FLOW TABLE FEATURES: [3.305534970920803, 1.0318186805266718, 3.5830039293996965, 4.954332404186251, 4.869751544586457, 5.074332404186253, 5.081724070316178, 4.0, 0.896057347670251, 0.0, 2.0, 1.5, 2.0, 2.166, 0.5575180787432611, 4.5, 1.2222222222222223, 282.5, 1.1032030342434167]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237643.6955795
+                    * FLOW TABLE FEATURES: [3.305534970920803, 1.0318186805266718, 3.5830039293996965, 4.954332404186251, 4.869751544586457, 5.074332404186253, 5.081724070316178, 2.0, 0.2986857825567503, 0.0, 1.0, 1.0, 1.0, 3.406, 0.4914856136230182, 10.0, 0.6, 606.0, 0.6435643564356436]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237644.6966538
+                    * FLOW TABLE FEATURES: [3.305534970920803, 1.0318186805266718, 3.5830039293996965, 4.954332404186251, 4.869751544586457, 5.074332404186253, 5.081724070316178, 1.0, 0.0, 0.0, -0.0, -0.0, -0.0, 2.733, 0.0, 4.0, 0.0, 216.0, 0.0]
+                    * FLOW TABLE OCCUPANCY: 1/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/1/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237646.697087
+                    * FLOW TABLE FEATURES: [3.148688600754034, 1.0730325137489825, 3.4424528660717337, 4.861335195516, 4.757403350540335, 4.961335195516002, 4.9704072507935475, 2.0, 499.99999999999955, 0.0, 1.0, 1.0, 1.0, 0.969, 0.0010319917440660485, 1.5, 0.3333333333333333, 105.0, 0.4857142857142857]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237647.7024283
+                    * FLOW TABLE FEATURES: [3.148688600754034, 1.0730325137489825, 3.4424528660717337, 4.861335195516, 4.757403350540335, 4.961335195516002, 4.9704072507935475, 2.0, 499.99999999994407, 0.0, 1.0, 1.0, 1.0, 1.97, 0.0005076142131980264, 2.5, 0.2, 165.0, 0.34545454545454546]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237648.6982133
+                    * FLOW TABLE FEATURES: [3.0350130978603174, 1.0967583214537664, 3.3717325948008234, 4.770883030731569, 4.714339095769215, 4.8708830307315685, 4.874339095769215, 4.0, 1.2024048096192386, 0.0, 2.0, 1.5, 2.0, 1.7245000000000001, 0.722818440778823, 2.25, 0.5773502691896257, 160.0, 0.5564255341013746]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237649.698412
+                    * FLOW TABLE FEATURES: [3.0350130978603174, 1.0967583214537664, 3.3717325948008234, 4.770883030731569, 4.714339095769215, 4.8708830307315685, 4.874339095769215, 4.0, 1.2024048096192386, 0.0, 2.0, 1.5, 2.0, 2.7255, 0.45734742290334995, 2.75, 0.30151134457776363, 190.0, 0.327417495052543]
+                    * FLOW TABLE OCCUPANCY: 4/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/4/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237650.7038677
+                    * FLOW TABLE FEATURES: [3.0350130978603174, 1.0967583214537664, 3.3717325948008234, 4.770883030731569, 4.714339095769215, 4.8708830307315685, 4.874339095769215, 2.0, 499.99999999994407, 0.0, 1.0, -0.0, 1.0, 2.481, 0.00040306328093515193, 2.0, 0.0, 135.0, 0.2]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237651.6971858
+                    * FLOW TABLE FEATURES: [2.9593242682106378, 1.1187439545917222, 3.300723765282723, 4.655675006120238, 4.620762148245398, 4.755675006120238, 4.760762148245397, 2.0, 499.99999999999955, 0.0, 1.0, 1.0, 1.0, 0.763, 0.0013106159895150732, 0.5, 1.0, 33.0, 1.0]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                        * FLOW RULE: 10.0.0.4 -> 10.0.0.1
+
+                    
+                    * MALICIOUS FLOW RULES: 1/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 1 rules, 1 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237652.6979034
+                    * FLOW TABLE FEATURES: [3.0024286987878277, 1.099096509768421, 3.3717325948008234, 4.598395614697046, 4.579611868972395, 4.698395614697046, 4.699611868972394, 2.0, 1.044932079414838, 0.0, 1.0, 1.0, 1.0, 1.2875, 0.37165048543689316, 2.5, 0.2, 166.5, 0.04504504504504504]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237653.7001877
+                    * FLOW TABLE FEATURES: [3.0024286987878277, 1.099096509768421, 3.3717325948008234, 4.598395614697046, 4.579611868972395, 4.698395614697046, 4.699611868972394, 2.0, 1.0449320794148382, 0.0, 1.0, 1.0, 1.0, 2.2885, 0.20908892287524578, 4.5, 0.1111111111111111, 296.5, 0.048903878583473864]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                
+                ANOMALY@1, timestamp 1790237654.7010193
+                    * FLOW TABLE FEATURES: [3.0024286987878277, 1.099096509768421, 3.3717325948008234, 4.598395614697046, 4.579611868972395, 4.698395614697046, 4.699611868972394, 2.0, 1.0449320794148382, 0.0, 1.0, 1.0, 1.0, 3.2895, 0.1454628362973096, 4.5, 0.1111111111111111, 296.5, 0.048903878583473864]
+                    * FLOW TABLE OCCUPANCY: 2/100
+
+                
+                    * MALICIOUS FLOW RULES: 0/2/100
+                    * EVICTED VIA PORT-WILDCARD: 0 rules, 0 DELETE msgs
+                    * EVICTED VIA STRICT FALLBACK: 0 rules, 0 DELETE msgs
+
+                

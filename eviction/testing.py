@@ -46,10 +46,10 @@ def main() -> None:
     pcap_prefix = current + "/pcaps/"
     topo = CustomTopo()
     flow_table_size = 100
-    idle_timeout = 5
-    hard_timeout = 10
-    k_factor = 4
-    npkts = 120
+    idle_timeout = 2
+    hard_timeout = 5
+    k_factor = 2
+    npkts = 230
     anp = 10
     log_path = current + "/logs"
     log_timestamp = int(time())
@@ -61,8 +61,8 @@ def main() -> None:
         "IDLE_TIMEOUT": f"{idle_timeout}",
         "HARD_TIMEOUT": f"{hard_timeout}",
         "K_FACTOR": f"{k_factor}",
-        "MODEL": "CatBoost",
-        "MAX_COLLATERAL_PORT": "1"
+        "MODEL": "XGBoost",
+        "MAX_COLLATERAL_PORT": "0"
     }
     controller = start_controller(controller_envs, log_path=f"{log_path}/controller_{log_timestamp}.log")
 
@@ -124,7 +124,7 @@ def main() -> None:
             max_iter=10,
             max_interval=30,
             net=net,
-            local_ip=False
+            local_ip=True
         )
 
         (src, dst) = topo.conn_hosts

@@ -323,7 +323,7 @@ class FTFMController(app_manager.RyuApp):
             return
         occupancy = len(stats) / float(self.FLOW_TABLE_SIZE)
         if occupancy < self.FLOW_TABLE_THRESHOLD:
-            return
+            pass# return
         hub.spawn(self._process_stats, dpid, stats) 
 
     def _process_stats(self, dpid, stats):
