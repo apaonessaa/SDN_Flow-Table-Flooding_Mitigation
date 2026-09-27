@@ -13,6 +13,9 @@ tail -n 215790 "${DIR}/logs/69/dataset_mfr.csv" >> /tmp/dataset_mfr.csv
 tail -n 3692 "${DIR}/logs/1015/dataset_ftf.csv" >> /tmp/dataset_ftf.csv
 tail -n 301987 "${DIR}/logs/1015/dataset_mfr.csv" >> /tmp/dataset_mfr.csv
 
+tail -n 6334 "${DIR}/logs/1623/dataset_ftf.csv" >> /tmp/dataset_ftf.csv
+tail -n 458381 "${DIR}/logs/1623/dataset_mfr.csv" >> /tmp/dataset_mfr.csv
+
 python3 training_ftf.py
 
 python3 training_mfr.py

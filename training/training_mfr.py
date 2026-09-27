@@ -8,7 +8,7 @@ import torch.nn as nn
 import optuna
 from catboost import CatBoostClassifier, Pool
 from xgboost import XGBClassifier
-from sklearn.model_selection import GroupShuffleSplit, GroupKFold
+from sklearn.model_selection import StratifiedGroupKFold, train_test_split
 from sklearn.metrics import (
     accuracy_score,
     precision_recall_fscore_support,
@@ -44,6 +44,12 @@ TARGET = "label"
 SCENARIO_COL = "scenario_id"
 GROUP_COL = "group_id"
 
+# Colonna con il profilo di attacco (aggressive / moderate / stealth), con
+# valore "benigno" per le righe di traffico non malevolo. Rinomina la
+# colonna/il valore se nel CSV si chiamano diversamente.
+ATTACK_PROFILE_COL = "attack_profile"
+BENIGN_PROFILE_LABEL = "benigni"
+
 # Chiave di raggruppamento reale: group_id da solo NON basta, perche' e' un
 # contatore che riparte da 0 a ogni riavvio del controller (vedi GROUP_ID in
 # FTFMController). Se il dataset accumula piu' scenari, lo stesso group_id
@@ -74,12 +80,70 @@ optuna.logging.set_verbosity(optuna.logging.WARNING)
 
 
 # --------------------------------------------------------------------------
+# Utility per la stratificazione per profilo di attacco a livello di gruppo
+# (cv_group_key, nidificato dentro scenario_id). Il raggruppamento (niente
+# gruppo a cavallo di due split) resta quello originale; qui aggiungiamo solo
+# il criterio di stratificazione per evitare che un profilo (es. stealth)
+# finisca per caso concentrato in un solo split.
+# --------------------------------------------------------------------------
+def _group_profiles(df, group_col, profile_col):
+    """Un profilo di attacco per ciascun gruppo. Uno scenario contiene tipicamente
+    sia righe benigne sia (se e' uno scenario di attacco) righe con un profilo
+    specifico: usare la moda su tutte le righe sarebbe fuorviante, perche' il
+    traffico benigno e' di solito molto piu' numeroso e finirebbe per
+    "mascherare" il vero profilo di attacco dello scenario. Si prende quindi
+    il valore non-benigno presente nel gruppo (se ce n'e' piu' di uno, il piu'
+    frequente); se il gruppo e' interamente benigno resta "benigno"."""
+    def pick(s):
+        non_benign = s[s != BENIGN_PROFILE_LABEL]
+        if len(non_benign) > 0:
+            return non_benign.mode().iat[0]
+        return BENIGN_PROFILE_LABEL
+
+    return df.groupby(group_col)[profile_col].agg(pick)
+
+
+def stratified_group_split(df, group_col, profile_col, test_size, random_state):
+    """Divide i GRUPPI (non le singole righe) in due insiemi, stratificando
+    per il profilo di attacco associato a ciascun gruppo. Cosi' ogni split
+    riceve scenari aggressive/moderate/stealth in proporzioni simili, invece
+    di affidarsi a un semplice GroupShuffleSplit non stratificato."""
+    group_profiles = _group_profiles(df, group_col, profile_col)
+    groups_unique = group_profiles.index.to_numpy()
+    profiles_unique = group_profiles.to_numpy()
+
+    try:
+        left, right = train_test_split(
+            groups_unique,
+            test_size=test_size,
+            random_state=random_state,
+            stratify=profiles_unique,
+        )
+    except ValueError as e:
+        print(f"[!] Stratificazione per '{profile_col}' non applicabile ({e}); "
+              f"eseguo uno split non stratificato.")
+        left, right = train_test_split(
+            groups_unique, test_size=test_size, random_state=random_state,
+        )
+    return left, right
+
+
+def print_profile_distribution(name, df_subset, group_col, profile_col):
+    group_profiles = _group_profiles(df_subset, group_col, profile_col)
+    print(f"Distribuzione profili di attacco - {name} "
+          f"({group_profiles.shape[0]} gruppi):")
+    print(group_profiles.value_counts())
+
+
+# --------------------------------------------------------------------------
 # Caricamento dati e split a TRE vie: train (tuning+fit) / val (early
 # stopping) / test (valutazione finale, toccato una sola volta).
 # Il raggruppamento usa scenario_id + group_id, cosi' le righe dello stesso
 # round di stats (che condividono davvero lo stesso group_id all'interno di
 # uno scenario) restano insieme, senza pero' confondere round numericamente
-# uguali ma appartenenti a scenari diversi.
+# uguali ma appartenenti a scenari diversi. Gli split sono inoltre
+# stratificati per profilo di attacco (aggressive/moderate/stealth), cosi'
+# che ogni split riceva una rappresentanza proporzionata di tutti e tre.
 # --------------------------------------------------------------------------
 def load_data():
     df = pd.read_csv(TRAINING_SET)
@@ -98,34 +162,51 @@ def load_data():
     groups = df[CV_GROUP_COL]
 
     # 1) hold-out test: mai piu' toccato fino alla valutazione finale
-    gss_test = GroupShuffleSplit(n_splits=1, test_size=0.2, random_state=RANDOM_SEED)
-    trainval_idx, test_idx = next(gss_test.split(X, y, groups=groups))
+    trainval_groups, test_groups = stratified_group_split(
+        df, CV_GROUP_COL, ATTACK_PROFILE_COL, test_size=0.2, random_state=RANDOM_SEED
+    )
+    trainval_mask = groups.isin(trainval_groups).to_numpy()
+    test_mask = groups.isin(test_groups).to_numpy()
 
-    X_trainval = X.iloc[trainval_idx].reset_index(drop=True)
-    y_trainval = y.iloc[trainval_idx].reset_index(drop=True)
-    groups_trainval = groups.iloc[trainval_idx].reset_index(drop=True)
+    df_trainval = df[trainval_mask].reset_index(drop=True)
+    X_trainval = X[trainval_mask].reset_index(drop=True)
+    y_trainval = y[trainval_mask].reset_index(drop=True)
+    groups_trainval = groups[trainval_mask].reset_index(drop=True)
 
-    X_test = X.iloc[test_idx].reset_index(drop=True)
-    y_test = y.iloc[test_idx].reset_index(drop=True)
+    X_test = X[test_mask].reset_index(drop=True)
+    y_test = y[test_mask].reset_index(drop=True)
 
     # 2) dentro il train+val: separiamo una validation per l'early stopping
     #    del training finale, cosi' il test set non viene mai usato per
-    #    scegliere il numero di iterazioni/epoche.
-    gss_val = GroupShuffleSplit(n_splits=1, test_size=VAL_SIZE, random_state=RANDOM_SEED)
-    train_idx, val_idx = next(gss_val.split(X_trainval, y_trainval, groups=groups_trainval))
+    #    scegliere il numero di iterazioni/epoche. Anche qui, stratificato
+    #    per profilo di attacco.
+    train_groups, val_groups = stratified_group_split(
+        df_trainval, CV_GROUP_COL, ATTACK_PROFILE_COL, test_size=VAL_SIZE, random_state=RANDOM_SEED
+    )
+    train_mask = groups_trainval.isin(train_groups).to_numpy()
+    val_mask = groups_trainval.isin(val_groups).to_numpy()
 
-    X_train = X_trainval.iloc[train_idx].reset_index(drop=True)
-    y_train = y_trainval.iloc[train_idx].reset_index(drop=True)
-    groups_train = groups_trainval.iloc[train_idx].reset_index(drop=True)
+    X_train = X_trainval[train_mask].reset_index(drop=True)
+    y_train = y_trainval[train_mask].reset_index(drop=True)
+    groups_train = groups_trainval[train_mask].reset_index(drop=True)
+    df_train = df_trainval[train_mask].reset_index(drop=True)
 
-    X_val = X_trainval.iloc[val_idx].reset_index(drop=True)
-    y_val = y_trainval.iloc[val_idx].reset_index(drop=True)
+    X_val = X_trainval[val_mask].reset_index(drop=True)
+    y_val = y_trainval[val_mask].reset_index(drop=True)
 
     print(f"\nGruppi (scenario_id+group_id) nel train (tuning+fit): {groups_train.nunique()}")
-    print(f"Gruppi in validation (early stopping): {groups_trainval.iloc[val_idx].nunique()}")
-    print(f"Gruppi nel test finale: {groups.iloc[test_idx].nunique()}")
+    print(f"Gruppi in validation (early stopping): {groups_trainval[val_mask].nunique()}")
+    print(f"Gruppi nel test finale: {groups[test_mask].nunique()}")
 
-    return X_train, X_val, X_test, y_train, y_val, y_test, groups_train
+    print_profile_distribution("train", df_train, CV_GROUP_COL, ATTACK_PROFILE_COL)
+    print_profile_distribution("validation", df_trainval[val_mask], CV_GROUP_COL, ATTACK_PROFILE_COL)
+    print_profile_distribution("test", df[test_mask], CV_GROUP_COL, ATTACK_PROFILE_COL)
+
+    # Profilo per riga, allineato a X_train/y_train: serve per stratificare
+    # anche i fold di cross-validation nel tuning (vedi make_group_kfold_splits).
+    profiles_train = df_train[ATTACK_PROFILE_COL].reset_index(drop=True)
+
+    return X_train, X_val, X_test, y_train, y_val, y_test, groups_train, profiles_train
 
 
 def evaluate(name, y_true, y_pred, results, elapsed=None):
@@ -149,26 +230,27 @@ def evaluate(name, y_true, y_pred, results, elapsed=None):
     })
 
 
-def make_group_kfold_splits(X, y, groups, n_splits):
-    """Ritorna gli split, riducendo n_splits se ci sono meno gruppi disponibili."""
+def make_group_kfold_splits(X, groups, profiles, n_splits):
+    """Ritorna gli split di CV, con vincolo di gruppo E stratificati per
+    profilo di attacco, riducendo n_splits se ci sono meno gruppi disponibili."""
     n_groups = groups.nunique()
     effective_splits = min(n_splits, n_groups)
     if effective_splits < 2:
         raise ValueError(
-            f"Servono almeno 2 gruppi distinti per la GroupKFold, trovati {n_groups}."
+            f"Servono almeno 2 gruppi distinti per la StratifiedGroupKFold, trovati {n_groups}."
         )
     if effective_splits < n_splits:
         print(f"[!] Solo {n_groups} gruppi disponibili: uso {effective_splits}-fold invece di {n_splits}-fold.")
-    gkf = GroupKFold(n_splits=effective_splits)
-    return list(gkf.split(X, y, groups=groups))
+    sgkf = StratifiedGroupKFold(n_splits=effective_splits, shuffle=True, random_state=RANDOM_SEED)
+    return list(sgkf.split(X, profiles, groups=groups))
 
 
 # --------------------------------------------------------------------------
-# 1. CatBoost - tuning Optuna con GroupKFold + training finale con early
-#    stopping su validation (mai sul test)
+# 1. CatBoost - tuning Optuna con StratifiedGroupKFold + training finale con
+#    early stopping su validation (mai sul test)
 # --------------------------------------------------------------------------
-def tune_catboost(X_train, y_train, groups_train, n_trials=N_TRIALS, n_splits=N_SPLITS):
-    splits = make_group_kfold_splits(X_train, y_train, groups_train, n_splits)
+def tune_catboost(X_train, y_train, groups_train, profiles_train, n_trials=N_TRIALS, n_splits=N_SPLITS):
+    splits = make_group_kfold_splits(X_train, groups_train, profiles_train, n_splits)
 
     def objective(trial):
         params = {
@@ -260,11 +342,11 @@ def train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best
 
 
 # --------------------------------------------------------------------------
-# 2. XGBoost - tuning Optuna con GroupKFold + training finale con early
-#    stopping su validation (mai sul test)
+# 2. XGBoost - tuning Optuna con StratifiedGroupKFold + training finale con
+#    early stopping su validation (mai sul test)
 # --------------------------------------------------------------------------
-def tune_xgboost(X_train, y_train, groups_train, n_trials=N_TRIALS, n_splits=N_SPLITS):
-    splits = make_group_kfold_splits(X_train, y_train, groups_train, n_splits)
+def tune_xgboost(X_train, y_train, groups_train, profiles_train, n_trials=N_TRIALS, n_splits=N_SPLITS):
+    splits = make_group_kfold_splits(X_train, groups_train, profiles_train, n_splits)
 
     def objective(trial):
         params = {
@@ -355,7 +437,7 @@ def train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_
 
 
 # --------------------------------------------------------------------------
-# 3. HF-BERT su feature tokenizzate - tuning Optuna con GroupKFold +
+# 3. HF-BERT su feature tokenizzate - tuning Optuna con StratifiedGroupKFold +
 #    training finale con early stopping su validation
 # --------------------------------------------------------------------------
 def _tokenize_features(X_fit, *X_others, n_bins):
@@ -442,8 +524,8 @@ def _build_bert_config(vocab_size, n_features, params):
     )
 
 
-def tune_hf_bert(X_train, y_train, groups_train, n_trials=BERT_N_TRIALS, n_splits=N_SPLITS):
-    splits = make_group_kfold_splits(X_train, y_train, groups_train, n_splits)
+def tune_hf_bert(X_train, y_train, groups_train, profiles_train, n_trials=BERT_N_TRIALS, n_splits=N_SPLITS):
+    splits = make_group_kfold_splits(X_train, groups_train, profiles_train, n_splits)
     n_features = X_train.shape[1]
 
     def objective(trial):
@@ -594,19 +676,19 @@ def train_hf_bert(X_train, X_val, X_test, y_train, y_val, y_test, results, best_
 # finale
 # --------------------------------------------------------------------------
 if __name__ == "__main__":
-    X_train, X_val, X_test, y_train, y_val, y_test, groups_train = load_data()
+    X_train, X_val, X_test, y_train, y_val, y_test, groups_train, profiles_train = load_data()
 
     results = []
 
-    print("\n\n=== Tuning CatBoost (Optuna + GroupKFold) ===")
-    best_cb_params = tune_catboost(X_train, y_train, groups_train)
+    print("\n\n=== Tuning CatBoost (Optuna + StratifiedGroupKFold) ===")
+    best_cb_params = tune_catboost(X_train, y_train, groups_train, profiles_train)
 
-    print("\n\n=== Tuning XGBoost (Optuna + GroupKFold) ===")
-    best_xgb_params = tune_xgboost(X_train, y_train, groups_train)
+    print("\n\n=== Tuning XGBoost (Optuna + StratifiedGroupKFold) ===")
+    best_xgb_params = tune_xgboost(X_train, y_train, groups_train, profiles_train)
 
     best_bert_params = None
-    print("\n\n=== Tuning HF-BERT (Optuna + GroupKFold) ===")
-    best_bert_params = tune_hf_bert(X_train, y_train, groups_train)
+    print("\n\n=== Tuning HF-BERT (Optuna + StratifiedGroupKFold) ===")
+    best_bert_params = tune_hf_bert(X_train, y_train, groups_train, profiles_train)
 
     print("\n\n=== Training finale CatBoost ===")
     train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params)

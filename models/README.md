@@ -531,3 +531,306 @@ XGBoost                  0.9508     0.9064  0.9844 0.9437       33.6551
 HF-BERT (tokenizzato)    0.9420     0.8927  0.9792 0.9339     2017.3008
 
 ```
+
+---
+
+## FTF
+
+```txt
+Numero di entry del dataset: 21015
+label           0     1
+scenario_id            
+0             237   249
+1             178   176
+2             118   111
+3             161   162
+4             824   759
+5             193   180
+6             776   776
+7             254   247
+8              96    93
+9             170   163
+10            226   223
+11            157   155
+12            180   177
+13            221   218
+14            169   167
+15            900   899
+16            704   703
+17            225   219
+18            249   247
+19           1047  1038
+20             79    78
+21            319   314
+22            511   508
+23             47    46
+24            221   209
+25            165   160
+26            296   295
+27            381   373
+28            290   289
+29             64    62
+30             91    89
+31            280   278
+32            264   261
+33            501   498
+
+Deviazione standard tra scenari: 503.52904672051005
+
+Scenari nel train (tuning+fit): 22 -> [1, 2, 3, 4, 5, 6, 7, 11, 12, 13, 16, 17, 18, 20, 22, 23, 25, 29, 30, 31, 32, 33]
+Scenari in validation (early stopping): 5 -> [0, 9, 10, 14, 28]
+Scenari nel test finale: 7 -> [8, 15, 19, 21, 24, 26, 27]
+
+
+=== Tuning CatBoost (Optuna + GroupKFold per scenario_id) ===
+Best trial: 0. Best value: 0.803339: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [03:17<00:00,  3.95s/it]
+
+[CatBoost] Miglior F1 medio in CV: 0.8033
+[CatBoost] Migliori parametri: {'depth': 6, 'learning_rate': 0.17254716573280354, 'l2_leaf_reg': 11.247915185359671, 'rsm': 0.7993292420985183, 'bagging_temperature': 0.46805592132730955, 'random_strength': 0.7799726016810132}
+
+
+=== Tuning XGBoost (Optuna + GroupKFold per scenario_id) ===
+Best trial: 21. Best value: 0.791896: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [01:28<00:00,  1.77s/it]
+
+[XGBoost] Miglior F1 medio in CV: 0.7919
+[XGBoost] Migliori parametri: {'max_depth': 4, 'learning_rate': 0.05862018033005111, 'reg_lambda': 7.1053976700119215, 'colsample_bytree': 0.9836102959232216, 'subsample': 0.8331739317709895, 'min_child_weight': 7.382788800327703}
+
+[HF-BERT] Miglior F1 medio in CV: 0.7686
+[HF-BERT] Migliori parametri: {'n_bins': 12, 'num_attention_heads': 8, 'head_dim': 24, 'num_hidden_layers': 2, 'intermediate_size': 512, 'learning_rate': 0.00017643967683381525, 'weight_decay': 9.833181933644887e-05, 'batch_size': 256}
+
+=== Training finale CatBoost ===
+0:	learn: 0.7757056	test: 0.8396954	best: 0.8396954 (0)	total: 12ms	remaining: 12s
+50:	learn: 0.8225291	test: 0.8527751	best: 0.8529315 (46)	total: 213ms	remaining: 3.95s
+100:	learn: 0.8543974	test: 0.8495669	best: 0.8559076 (56)	total: 390ms	remaining: 3.47s
+Stopped by overfitting detector  (50 iterations wait)
+
+bestTest = 0.8559076024
+bestIteration = 56
+
+Shrink model to first 57 iterations.
+
+=== CatBoost ===
+Tempo di training: 0.4s
+Accuracy: 0.8617
+              precision    recall  f1-score   support
+
+           0       0.82      0.93      0.87      3260
+           1       0.92      0.79      0.85      3221
+
+    accuracy                           0.86      6481
+   macro avg       0.87      0.86      0.86      6481
+weighted avg       0.87      0.86      0.86      6481
+
+              Feature Id  Importances
+0        src_mac_entropy    37.606763
+1         src_ip_entropy     8.230210
+2   payload_entropy_mean     7.609974
+3                 c_used     7.178525
+4                    paf     7.090008
+5           pkts_entropy     4.332268
+6   payload_size_entropy     3.619191
+7     payload_entropy_cv     3.479810
+8          mean_duration     3.228515
+9          bytes_entropy     3.031425
+10        dst_ip_entropy     2.700675
+11     durations_entropy     2.235044
+12                   cvb     2.206130
+13            mean_bytes     2.177103
+14                ft_psi     1.244392
+15                   cvp     1.139214
+16       dst_mac_entropy     1.118890
+17             mean_pkts     0.930464
+18                   cvd     0.841400
+
+=== XGBoost ===
+Tempo di training: 0.6s
+Accuracy: 0.8705
+              precision    recall  f1-score   support
+
+           0       0.83      0.94      0.88      3260
+           1       0.93      0.80      0.86      3221
+
+    accuracy                           0.87      6481
+   macro avg       0.88      0.87      0.87      6481
+weighted avg       0.88      0.87      0.87      6481
+
+src_mac_entropy         0.340375
+src_ip_entropy          0.210441
+ft_psi                  0.064621
+paf                     0.054942
+c_used                  0.048632
+payload_entropy_mean    0.030508
+dst_ip_entropy          0.027055
+pkts_entropy            0.026614
+durations_entropy       0.023022
+dst_mac_entropy         0.022469
+mean_duration           0.022056
+bytes_entropy           0.021144
+payload_entropy_cv      0.019277
+payload_size_entropy    0.017715
+cvd                     0.014856
+cvb                     0.014704
+mean_bytes              0.014096
+mean_pkts               0.013863
+cvp                     0.013609
+dtype: float32
+
+=== HF-BERT (tokenizzato) ===
+Tempo di training: 125.2s
+Accuracy: 0.8574
+              precision    recall  f1-score   support
+
+           0       0.80      0.96      0.87      3260
+           1       0.95      0.75      0.84      3221
+
+    accuracy                           0.86      6481
+   macro avg       0.87      0.86      0.86      6481
+weighted avg       0.87      0.86      0.86      6481
+
+=== Confronto finale ===
+                       accuracy  precision  recall     f1  train_time_s
+model                                                                  
+CatBoost                 0.8617     0.9204  0.7901 0.8503        0.4470
+XGBoost                  0.8705     0.9293  0.8004 0.8601        0.5825
+HF-BERT (tokenizzato)    0.8574     0.9478  0.7547 0.8403      125.2346
+
+```
+
+```txt
+Numero di entry del dataset: 1523143
+
+label             0       1
+scenario_id                
+0              4282   25717
+1             12593   17703
+2              5147    4933
+3             13990    6150
+4             28230   52279
+5             18165    9302
+6            123640   31716
+7             15529   17979
+8              5628    3536
+9             12178    5584
+10            13765   16349
+11            17641    6175
+12            16521    9151
+13            17754   16656
+14            12260   10655
+15           108130   56930
+16            69140   36692
+17            23654   17677
+18            30536   15223
+19            49385  111124
+20             4741    6157
+21            19349   23481
+22            27506   18906
+23             3111    1699
+24            10276   12045
+25             6487   13562
+26             8201   26073
+27            24937   33388
+28            28976   17659
+29             7171    6614
+30             8588    4293
+31            21226   19055
+32            15364   24851
+33            41975   17754
+
+Deviazione standard tra scenari: 41844.773205251455
+
+Gruppi (scenario_id+group_id) nel train (tuning+fit): 7216
+Gruppi in validation (early stopping): 1274
+Gruppi nel test finale: 2123
+
+
+=== Tuning CatBoost (Optuna + GroupKFold) ===
+Best trial: 20. Best value: 0.955797: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [2:08:08<00:00, 153.78s/it]
+
+[CatBoost] Miglior F1 medio in CV: 0.9558
+[CatBoost] Migliori parametri: {'depth': 10, 'learning_rate': 0.1932931411937336, 'l2_leaf_reg': 6.708345677163782, 'rsm': 0.5253041152433674, 'bagging_temperature': 2.0875443187939817, 'random_strength': 3.219106892035166}
+
+
+=== Tuning XGBoost (Optuna + GroupKFold) ===
+Best trial: 25. Best value: 0.950035: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [2:12:24<00:00, 158.89s/it]
+
+[XGBoost] Miglior F1 medio in CV: 0.9500
+[XGBoost] Migliori parametri: {'max_depth': 10, 'learning_rate': 0.013143777916642578, 'reg_lambda': 4.3718030787339455, 'colsample_bytree': 0.5449246895531666, 'subsample': 0.9076685864403331, 'min_child_weight': 1.929016411936024}
+
+[HF-BERT] Miglior F1 medio in CV: 0.9421
+[HF-BERT] Migliori parametri: {'n_bins': 12, 'num_attention_heads': 8, 'head_dim': 24, 'num_hidden_layers': 2, 'intermediate_size': 512, 'learning_rate': 0.00017643967683381525, 'weight_decay': 9.833181933644887e-05, 'batch_size': 256}
+
+=== Training finale CatBoost ===
+0:	learn: 0.9336636	test: 0.9250561	best: 0.9250561 (0)	total: 114ms	remaining: 1m 53s
+50:	learn: 0.9555112	test: 0.9488644	best: 0.9488644 (50)	total: 4.8s	remaining: 1m 29s
+100:	learn: 0.9560458	test: 0.9494552	best: 0.9494552 (100)	total: 9.84s	remaining: 1m 27s
+150:	learn: 0.9566984	test: 0.9496090	best: 0.9496223 (149)	total: 15.2s	remaining: 1m 25s
+200:	learn: 0.9570781	test: 0.9499626	best: 0.9499885 (197)	total: 20.8s	remaining: 1m 22s
+250:	learn: 0.9574484	test: 0.9500544	best: 0.9500905 (246)	total: 26.5s	remaining: 1m 19s
+300:	learn: 0.9576893	test: 0.9500063	best: 0.9501569 (259)	total: 31.9s	remaining: 1m 14s
+Stopped by overfitting detector  (50 iterations wait)
+
+bestTest = 0.9501568601
+bestIteration = 259
+
+Shrink model to first 260 iterations.
+
+=== CatBoost ===
+Tempo di training: 33.2s
+Accuracy: 0.9516
+              precision    recall  f1-score   support
+
+           0       0.98      0.92      0.95    162385
+           1       0.92      0.98      0.95    137713
+
+    accuracy                           0.95    300098
+   macro avg       0.95      0.95      0.95    300098
+weighted avg       0.95      0.95      0.95    300098
+
+            Feature Id  Importances
+0                  psi    33.418811
+1         packet_count    18.673356
+2           byte_count    18.622895
+3  packets_per_seconds    15.070131
+4    bytes_per_seconds    11.330938
+5             duration     2.883870
+
+=== XGBoost ===
+Tempo di training: 50.1s
+Accuracy: 0.9520
+              precision    recall  f1-score   support
+
+           0       0.99      0.93      0.95    162385
+           1       0.92      0.98      0.95    137713
+
+    accuracy                           0.95    300098
+   macro avg       0.95      0.95      0.95    300098
+weighted avg       0.95      0.95      0.95    300098
+
+psi                    0.957991
+packet_count           0.015336
+packets_per_seconds    0.014149
+byte_count             0.007052
+bytes_per_seconds      0.004119
+duration               0.001353
+dtype: float32
+
+=== HF-BERT (tokenizzato) ===
+Tempo di training: 3432.8s
+Accuracy: 0.9434
+              precision    recall  f1-score   support
+
+           0       0.98      0.91      0.95    162385
+           1       0.91      0.98      0.94    137713
+
+    accuracy                           0.94    300098
+   macro avg       0.94      0.95      0.94    300098
+weighted avg       0.95      0.94      0.94    300098
+
+=== Confronto finale ===
+                       accuracy  precision  recall     f1  train_time_s
+model                                                                  
+CatBoost                 0.9516     0.9171  0.9833 0.9491       33.2289
+XGBoost                  0.9520     0.9176  0.9838 0.9495       50.0582
+HF-BERT (tokenizzato)    0.9434     0.9067  0.9771 0.9406     3432.8281
+
+```
