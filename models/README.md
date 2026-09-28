@@ -834,3 +834,399 @@ XGBoost                  0.9520     0.9176  0.9838 0.9495       50.0582
 HF-BERT (tokenizzato)    0.9434     0.9067  0.9771 0.9406     3432.8281
 
 ```
+
+---
+
+```txt
+Caricati 34 scenari da /tmp/network_settings.csv (scenario_id da 0 a 33)
+profile
+aggressive    15
+moderate      11
+stealth        8
+Name: count, dtype: int64
+
+--- /tmp/dataset_ftf.csv ---
+Distribuzione 'attack_profile' in dataset_ftf.csv:
+attack_profile
+benigni       10594
+stealth        5259
+moderate       2585
+aggressive     2578
+Name: count, dtype: int64
+Backup salvato in /tmp/dataset_ftf.csv.bak
+Colonna 'attack_profile' scritta in /tmp/dataset_ftf.csv
+
+--- /tmp/dataset_mfr.csv ---
+Distribuzione 'attack_profile' in dataset_mfr.csv:
+attack_profile
+benigni       826076
+stealth       331558
+moderate      196995
+aggressive    168515
+Name: count, dtype: int64
+Backup salvato in /tmp/dataset_mfr.csv.bak
+Colonna 'attack_profile' scritta in /tmp/dataset_mfr.csv
+```
+
+## FTF
+
+```txt
+Numero di entry del dataset: 21015
+label           0     1
+scenario_id            
+0             237   249
+1             178   176
+2             118   111
+3             161   162
+4             824   759
+5             193   180
+6             776   776
+7             254   247
+8              96    93
+9             170   163
+10            226   223
+11            157   155
+12            180   177
+13            221   218
+14            169   167
+15            900   899
+16            704   703
+17            225   219
+18            249   247
+19           1047  1038
+20             79    78
+21            319   314
+22            511   508
+23             47    46
+24            221   209
+25            165   160
+26            296   295
+27            381   373
+28            290   289
+29             64    62
+30             91    89
+31            280   278
+32            264   261
+33            501   498
+
+Deviazione standard tra scenari: 503.52904672051005
+
+Scenari nel train (tuning+fit): 22 -> [0, 1, 2, 3, 4, 5, 7, 8, 10, 12, 14, 15, 18, 19, 20, 21, 22, 23, 24, 25, 30, 32]
+Scenari in validation (early stopping): 5 -> [6, 11, 17, 27, 28]
+Scenari nel test finale: 7 -> [9, 13, 16, 26, 29, 31, 33]
+Distribuzione profili di attacco - train (22 scenari):
+attack_profile
+aggressive    10
+moderate       7
+stealth        5
+Name: count, dtype: int64
+Distribuzione profili di attacco - validation (5 scenari):
+attack_profile
+aggressive    2
+moderate      2
+stealth       1
+Name: count, dtype: int64
+Distribuzione profili di attacco - test (7 scenari):
+attack_profile
+aggressive    3
+stealth       2
+moderate      2
+Name: count, dtype: int64
+
+
+=== Tuning CatBoost (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===
+Best trial: 20. Best value: 0.863981: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [04:52<00:00,  5.85s/it]
+
+[CatBoost] Miglior F1 medio in CV: 0.8640
+[CatBoost] Migliori parametri: {'depth': 8, 'learning_rate': 0.0831919356723532, 'l2_leaf_reg': 7.908065976913343, 'rsm': 0.9880991745323111, 'bagging_temperature': 2.210517326931326, 'random_strength': 3.8972162088778584}
+
+
+=== Tuning XGBoost (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===
+Best trial: 20. Best value: 0.861123: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [02:35<00:00,  3.11s/it]
+
+[XGBoost] Miglior F1 medio in CV: 0.8611
+[XGBoost] Migliori parametri: {'max_depth': 9, 'learning_rate': 0.03372339040117175, 'reg_lambda': 3.6177606061205068, 'colsample_bytree': 0.6292847509286348, 'subsample': 0.7181030855185175, 'min_child_weight': 3.4351316494229747}
+
+[HF-BERT] Miglior F1 medio in CV: 0.8279
+[HF-BERT] Migliori parametri: {'n_bins': 12, 'num_attention_heads': 8, 'head_dim': 24, 'num_hidden_layers': 2, 'intermediate_size': 512, 'learning_rate': 0.00017643967683381525, 'weight_decay': 9.833181933644887e-05, 'batch_size': 256}
+
+
+=== Training finale CatBoost ===
+0:	learn: 0.8217806	test: 0.7212596	best: 0.7212596 (0)	total: 21.3ms	remaining: 21.3s
+50:	learn: 0.8600814	test: 0.7381130	best: 0.7429627 (30)	total: 472ms	remaining: 8.79s
+Stopped by overfitting detector  (50 iterations wait)
+
+bestTest = 0.742962731
+bestIteration = 30
+
+Shrink model to first 31 iterations.
+
+=== CatBoost ===
+Tempo di training: 0.8s
+Accuracy: 0.8168
+              precision    recall  f1-score   support
+
+           0       0.74      0.98      0.84      2236
+           1       0.97      0.65      0.78      2217
+
+    accuracy                           0.82      4453
+   macro avg       0.86      0.82      0.81      4453
+weighted avg       0.86      0.82      0.81      4453
+
+              Feature Id  Importances
+0         src_ip_entropy    29.679435
+1        src_mac_entropy    20.354762
+2                 c_used     8.559636
+3   payload_size_entropy     6.368570
+4           pkts_entropy     5.327937
+5   payload_entropy_mean     5.121276
+6          bytes_entropy     4.314730
+7                    paf     3.166978
+8          mean_duration     2.578116
+9                 ft_psi     2.537722
+10                   cvp     2.122712
+11       dst_mac_entropy     1.978676
+12        dst_ip_entropy     1.435275
+13             mean_pkts     1.316273
+14    payload_entropy_cv     1.117696
+15            mean_bytes     1.106450
+16     durations_entropy     1.082553
+17                   cvb     0.974337
+18                   cvd     0.856866
+
+=== Training finale XGBoost ===
+[0]	validation_0-logloss:0.68330
+[50]	validation_0-logloss:0.47530
+[100]	validation_0-logloss:0.47034
+[119]	validation_0-logloss:0.47332
+
+=== XGBoost ===
+Tempo di training: 0.5s
+Accuracy: 0.8159
+              precision    recall  f1-score   support
+
+           0       0.75      0.95      0.84      2236
+           1       0.93      0.68      0.79      2217
+
+    accuracy                           0.82      4453
+   macro avg       0.84      0.82      0.81      4453
+weighted avg       0.84      0.82      0.81      4453
+
+src_mac_entropy         0.274614
+src_ip_entropy          0.168116
+ft_psi                  0.160767
+payload_size_entropy    0.053764
+c_used                  0.053404
+dst_mac_entropy         0.053170
+dst_ip_entropy          0.038408
+paf                     0.023178
+bytes_entropy           0.022796
+payload_entropy_mean    0.022040
+payload_entropy_cv      0.019276
+durations_entropy       0.018988
+cvp                     0.014312
+pkts_entropy            0.014033
+mean_bytes              0.013907
+mean_duration           0.013511
+mean_pkts               0.012657
+cvd                     0.012060
+cvb                     0.010999
+dtype: float32
+
+=== HF-BERT (tokenizzato) ===
+Tempo di training: 81.7s
+Accuracy: 0.8022
+              precision    recall  f1-score   support
+
+           0       0.74      0.93      0.83      2236
+           1       0.91      0.67      0.77      2217
+
+    accuracy                           0.80      4453
+   macro avg       0.82      0.80      0.80      4453
+weighted avg       0.82      0.80      0.80      4453
+
+Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/ftf_detector/hf_bert_model
+
+
+=== Confronto finale ===
+                       accuracy  precision  recall     f1  train_time_s
+model                                                                  
+CatBoost                 0.8168     0.9749  0.6486 0.7790        0.7887
+XGBoost                  0.8159     0.9330  0.6788 0.7859        0.4860
+HF-BERT (tokenizzato)    0.8022     0.9093  0.6694 0.7711       81.7139
+
+```
+
+## MFR
+
+```txt
+Numero di entry del dataset: 1523143
+
+label             0       1
+scenario_id                
+0              4282   25717
+1             12593   17703
+2              5147    4933
+3             13990    6150
+4             28230   52279
+5             18165    9302
+6            123640   31716
+7             15529   17979
+8              5628    3536
+9             12178    5584
+10            13765   16349
+11            17641    6175
+12            16521    9151
+13            17754   16656
+14            12260   10655
+15           108130   56930
+16            69140   36692
+17            23654   17677
+18            30536   15223
+19            49385  111124
+20             4741    6157
+21            19349   23481
+22            27506   18906
+23             3111    1699
+24            10276   12045
+25             6487   13562
+26             8201   26073
+27            24937   33388
+28            28976   17659
+29             7171    6614
+30             8588    4293
+31            21226   19055
+32            15364   24851
+33            41975   17754
+
+Deviazione standard tra scenari: 41844.773205251455
+
+Gruppi (scenario_id+group_id) nel train (tuning+fit): 7216
+Gruppi in validation (early stopping): 1274
+Gruppi nel test finale: 2123
+Distribuzione profili di attacco - train (7216 gruppi):
+attack_profile
+benigni       3235
+stealth       1984
+moderate      1015
+aggressive     982
+Name: count, dtype: int64
+Distribuzione profili di attacco - validation (1274 gruppi):
+attack_profile
+benigni       571
+stealth       350
+moderate      179
+aggressive    174
+Name: count, dtype: int64
+Distribuzione profili di attacco - test (2123 gruppi):
+attack_profile
+benigni       951
+stealth       584
+moderate      299
+aggressive    289
+Name: count, dtype: int64
+
+
+=== Tuning CatBoost (Optuna + StratifiedGroupKFold) ===
+Best trial: 41. Best value: 0.955591: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [2:36:50<00:00, 188.20s/it]
+
+[CatBoost] Miglior F1 medio in CV: 0.9556
+[CatBoost] Migliori parametri: {'depth': 8, 'learning_rate': 0.08208595788128062, 'l2_leaf_reg': 7.3686301839618, 'rsm': 0.9911052983971619, 'bagging_temperature': 2.1551994285652336, 'random_strength': 0.3440755833986735}
+
+
+=== Tuning XGBoost (Optuna + StratifiedGroupKFold) ===
+Best trial: 48. Best value: 0.949394: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [1:31:23<00:00, 109.66s/it]
+
+[XGBoost] Miglior F1 medio in CV: 0.9494
+[XGBoost] Migliori parametri: {'max_depth': 10, 'learning_rate': 0.08042102562814936, 'reg_lambda': 5.4844558056012, 'colsample_bytree': 0.5264301934303104, 'subsample': 0.8699377112611573, 'min_child_weight': 3.4706542525171384}
+
+[HF-BERT] Miglior F1 medio in CV: 0.9414
+[HF-BERT] Migliori parametri: {'n_bins': 12, 'num_attention_heads': 8, 'head_dim': 24, 'num_hidden_layers': 2, 'intermediate_size': 512, 'learning_rate': 0.00017643967683381525, 'weight_decay': 9.833181933644887e-05, 'batch_size': 256}
+
+
+=== Training finale CatBoost ===
+0:	learn: 0.9302613	test: 0.9312195	best: 0.9312195 (0)	total: 112ms	remaining: 1m 52s
+50:	learn: 0.9546450	test: 0.9550841	best: 0.9550841 (50)	total: 5.29s	remaining: 1m 38s
+100:	learn: 0.9551095	test: 0.9554983	best: 0.9555159 (97)	total: 10.7s	remaining: 1m 35s
+150:	learn: 0.9554056	test: 0.9556997	best: 0.9557134 (148)	total: 16.1s	remaining: 1m 30s
+200:	learn: 0.9557482	test: 0.9561225	best: 0.9561299 (190)	total: 21.6s	remaining: 1m 25s
+250:	learn: 0.9558707	test: 0.9561517	best: 0.9561633 (227)	total: 26.7s	remaining: 1m 19s
+300:	learn: 0.9560788	test: 0.9562454	best: 0.9562454 (300)	total: 32s	remaining: 1m 14s
+350:	learn: 0.9561887	test: 0.9562495	best: 0.9562794 (303)	total: 37.1s	remaining: 1m 8s
+Stopped by overfitting detector  (50 iterations wait)
+
+bestTest = 0.9562793963
+bestIteration = 303
+
+Shrink model to first 304 iterations.
+
+=== CatBoost ===
+Tempo di training: 37.8s
+Accuracy: 0.9518
+              precision    recall  f1-score   support
+
+           0       0.99      0.92      0.95    164372
+           1       0.91      0.99      0.95    135705
+
+    accuracy                           0.95    300077
+   macro avg       0.95      0.95      0.95    300077
+weighted avg       0.95      0.95      0.95    300077
+
+            Feature Id  Importances
+0                  psi    37.240179
+1         packet_count    18.179484
+2           byte_count    15.987110
+3  packets_per_seconds    14.020065
+4    bytes_per_seconds    12.494262
+5             duration     2.078899
+
+=== Training finale XGBoost ===
+[0]	validation_0-logloss:0.64014
+[50]	validation_0-logloss:0.11796
+[100]	validation_0-logloss:0.10126
+[150]	validation_0-logloss:0.10001
+[200]	validation_0-logloss:0.09975
+[250]	validation_0-logloss:0.09970
+[300]	validation_0-logloss:0.09963
+[350]	validation_0-logloss:0.09968
+
+=== XGBoost ===
+Tempo di training: 18.0s
+Accuracy: 0.9521
+              precision    recall  f1-score   support
+
+           0       0.99      0.93      0.95    164372
+           1       0.92      0.98      0.95    135705
+
+    accuracy                           0.95    300077
+   macro avg       0.95      0.95      0.95    300077
+weighted avg       0.95      0.95      0.95    300077
+
+psi                    0.950271
+packet_count           0.022248
+packets_per_seconds    0.013562
+byte_count             0.008653
+bytes_per_seconds      0.003991
+duration               0.001274
+dtype: float32
+
+=== HF-BERT (tokenizzato) ===
+Tempo di training: 2867.8s
+Accuracy: 0.9432
+              precision    recall  f1-score   support
+
+           0       0.98      0.91      0.95    164372
+           1       0.90      0.98      0.94    135705
+
+    accuracy                           0.94    300077
+   macro avg       0.94      0.95      0.94    300077
+weighted avg       0.95      0.94      0.94    300077
+
+=== Confronto finale ===
+                       accuracy  precision  recall     f1  train_time_s
+model                                                                  
+CatBoost                 0.9518     0.9148  0.9852 0.9487       37.8014
+XGBoost                  0.9521     0.9157  0.9847 0.9490       18.0406
+HF-BERT (tokenizzato)    0.9432     0.9034  0.9791 0.9397     2867.8178
+
+```

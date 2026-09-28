@@ -28,5 +28,5 @@ python3 add_attack_profile_column.py
 
 # Training 
 python3 training_ftf.py
-python3 training_mfr.py
+#python3 training_mfr.py
 

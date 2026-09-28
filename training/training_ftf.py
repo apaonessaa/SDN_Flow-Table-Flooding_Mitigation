@@ -1,3 +1,4 @@
+import random
 import tempfile
 import time
 import joblib
@@ -53,7 +54,12 @@ GROUP_COL = "group_id"
 ATTACK_PROFILE_COL = "attack_profile"
 BENIGN_PROFILE_LABEL = "benigni"
 
-RANDOM_SEED = 42
+def random_seed():
+    val = random.randint(42, 1000000)
+    print(f"RANDOM SEED: {val}")
+    return val
+
+RANDOM_SEED = 812564 #random_seed()
 
 # Frazione dello scenario-set di train riservata a validation per l'early
 # stopping del training finale (mai vista durante tuning/CV, mai usata come
@@ -686,7 +692,7 @@ if __name__ == "__main__":
 
     best_bert_params = None
     print("\n\n=== Tuning HF-BERT (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===")
-    best_bert_params = tune_hf_bert(X_train, y_train, groups_train, profiles_train)
+    #best_bert_params = tune_hf_bert(X_train, y_train, groups_train, profiles_train)
 
     print("\n\n=== Training finale CatBoost ===")
     train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params)
@@ -695,7 +701,7 @@ if __name__ == "__main__":
     train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_xgb_params)
 
     print("\n\n=== Training finale HF-BERT ===")
-    train_hf_bert(X_train, X_val, X_test, y_train, y_val, y_test, results, best_bert_params)
+    #train_hf_bert(X_train, X_val, X_test, y_train, y_val, y_test, results, best_bert_params)
 
     comparison = pd.DataFrame(results).set_index("model")
     print("\n\n=== Confronto finale ===")
