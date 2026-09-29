@@ -13,7 +13,7 @@ class FeatureExt():
 
     def has_enough_data(self, occupancy: float=0.8):
         """
-        Check if pkt in window has enough data
+        Check if pkt-in window has enough data
         """
         return len(self.window) / float(self.WINDOW_SIZE) >= occupancy
 
@@ -22,6 +22,7 @@ class FeatureExt():
 
     """
     - Mean and CV payloads entropy
+    - Packet size entropy
     - Source and Destination IP entropy
     - Source and Destination MAC entropy
     """
@@ -43,8 +44,8 @@ class FeatureExt():
         - Packet Count entropy
         - Byte Count entropy
         - Mean Duration and CVD
-        - Mean Packets and CVP
-        - Mean Bytes and CVB
+        - Mean Packet Counts and CVP
+        - Mean Byte Counts and CVB
     """
     def get_ft_features(self, flows, flow_table_size: int):
         durations = [FeatureExt.effective_duration(flow) for flow in flows]
@@ -82,12 +83,12 @@ class FeatureExt():
 
     @staticmethod
     def calculate_paf(flows):
-        if len(flows) < 2:
+        n = len(flows)
+        if n < 2:
             return 0.0
-        t = [FeatureExt.effective_duration(flow) for flow in flows]
-        delta_t = np.diff(sorted(t))
-        mean_delta_t = np.mean(delta_t)
-        return 1.0 / mean_delta_t if mean_delta_t != 0 else 0.0
+        d = [FeatureExt.effective_duration(flow) for flow in flows]
+        mean_delta_d = max(d)-min(d)
+        return n-1.0 / mean_delta_d if mean_delta_d > 0.0 else 0.0
 
     @staticmethod
     def calculate_ft_psi(flows):

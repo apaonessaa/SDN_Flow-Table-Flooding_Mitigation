@@ -59,7 +59,7 @@ def random_seed():
     print(f"RANDOM SEED: {val}")
     return val
 
-RANDOM_SEED = 812564 #random_seed()
+RANDOM_SEED = random_seed() #812564
 
 # Frazione dello scenario-set di train riservata a validation per l'early
 # stopping del training finale (mai vista durante tuning/CV, mai usata come
