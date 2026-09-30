@@ -81,6 +81,7 @@ class FTFMController(app_manager.RyuApp):
             self.ftf_detector.load_model(self.XGBOOST_FTF_DETECTOR)
             self.mfr_detector.load_model(self.XGBOOST_MFR_DETECTOR)
         elif self.MODEL == "HFBert":
+            # TODO: add token CLS
             self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
             self.ftf_bert = BertForSequenceClassification.from_pretrained(self.BERT_FTF_DETECTOR)
             self.ftf_bert.to(self.device).eval()
