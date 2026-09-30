@@ -21,12 +21,19 @@ import shutil
 import numpy as np
 import pandas as pd
 
-NETWORK_SETTINGS_PATH = '/tmp/network_settings.csv'
+# Modules loader
+import sys
+import os
+current = os.path.dirname(os.path.realpath(__file__))
+root = os.path.dirname(current)
+sys.path.append(root)
+
+NETWORK_SETTINGS_PATH = current+'/data/network_settings.csv'
 
 # Un dataset per riga: (percorso, colonna scenario, colonna label)
 DATASETS = [
-    ('/tmp/dataset_ftf.csv', 'scenario_id', 'label'),
-    ('/tmp/dataset_mfr.csv', 'scenario_id', 'label'),
+    (current+'/data/dataset_ftf.csv', 'scenario_id', 'label'),
+    (current+'/data/dataset_mfr.csv', 'scenario_id', 'label'),
 ]
 
 PROFILE_COL_IN_SETTINGS = 'profile'

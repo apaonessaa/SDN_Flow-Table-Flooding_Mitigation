@@ -31,7 +31,7 @@ current = os.path.dirname(os.path.realpath(__file__))
 root = os.path.dirname(current)
 sys.path.append(root)
 
-TRAINING_SET = '/tmp/dataset_mfr.csv'
+TRAINING_SET = current + '/data/dataset_mfr.csv'
 MODELS_DIR = root + '/models/malicious_fr_detector'
 
 os.makedirs(MODELS_DIR, exist_ok=True)
@@ -443,8 +443,10 @@ def train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_
 def _tokenize_features(X_fit, *X_others, n_bins):
     """Discretizza ogni feature continua in n_bins bin (quantili, fit SOLO su
     X_fit) e assegna a ogni (indice_feature, bin) un id di vocabolario
-    univoco. Ritorna gli id per X_fit seguiti da quelli per ciascun array in
-    X_others, nello stesso ordine, piu' vocab_size e il discretizzatore."""
+    univoco. Antepone a ogni riga un token [CLS] dedicato (id riservato,
+    l'ultimo del vocabolario). Ritorna gli id per X_fit seguiti da quelli per
+    ciascun array in X_others, nello stesso ordine, piu' vocab_size (incluso
+    [CLS]) e il discretizzatore."""
     discretizer = KBinsDiscretizer(
         n_bins=n_bins, encode="ordinal", strategy="quantile", subsample=None
     )
@@ -452,12 +454,19 @@ def _tokenize_features(X_fit, *X_others, n_bins):
 
     n_features = X_fit.shape[1]
     offsets = (np.arange(n_features) * n_bins).astype(np.int64)
-    vocab_size = n_features * n_bins
 
-    outputs = [fit_bins + offsets]
+    cls_id = n_features * n_bins          # primo id libero dopo i token (feature, bin)
+    vocab_size = n_features * n_bins + 1  # +1 per [CLS]
+
+    def _with_cls(bins):
+        ids = bins + offsets
+        cls_col = np.full((ids.shape[0], 1), cls_id, dtype=np.int64)
+        return np.concatenate([cls_col, ids], axis=1)   # shape: (n, n_features + 1)
+
+    outputs = [_with_cls(fit_bins)]
     for X_other in X_others:
         other_bins = discretizer.transform(X_other).astype(np.int64)
-        outputs.append(other_bins + offsets)
+        outputs.append(_with_cls(other_bins))
 
     return (*outputs, vocab_size, discretizer)
 

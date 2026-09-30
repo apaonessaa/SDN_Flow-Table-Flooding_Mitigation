@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
+from torch.utils.data import DataLoader, TensorDataset
 import optuna
 from catboost import CatBoostClassifier, Pool
 from xgboost import XGBClassifier
@@ -16,7 +17,7 @@ from sklearn.metrics import (
     classification_report,
     f1_score,
 )
-from sklearn.preprocessing import KBinsDiscretizer
+from sklearn.preprocessing import KBinsDiscretizer, StandardScaler
 from transformers import (
     BertConfig,
     BertForSequenceClassification,
@@ -32,7 +33,7 @@ current = os.path.dirname(os.path.realpath(__file__))
 root = os.path.dirname(current)
 sys.path.append(root)
 
-TRAINING_SET = '/tmp/dataset_ftf.csv'
+TRAINING_SET = current + '/data/dataset_ftf.csv'
 MODELS_DIR = root + '/models/ftf_detector'
 
 os.makedirs(MODELS_DIR, exist_ok=True)
@@ -59,7 +60,7 @@ def random_seed():
     print(f"RANDOM SEED: {val}")
     return val
 
-RANDOM_SEED = random_seed() #812564
+RANDOM_SEED = 42
 
 # Frazione dello scenario-set di train riservata a validation per l'early
 # stopping del training finale (mai vista durante tuning/CV, mai usata come
@@ -204,7 +205,10 @@ def load_data():
     # anche i fold di cross-validation nel tuning (vedi make_group_kfold_splits).
     profiles_train = df_train[ATTACK_PROFILE_COL].reset_index(drop=True)
 
-    return X_train, X_val, X_test, y_train, y_val, y_test, groups_train, profiles_train
+    groups_val = groups_trainval[val_mask].reset_index(drop=True)
+    groups_test = groups[test_mask].reset_index(drop=True)
+
+    return X_train, X_val, X_test, y_train, y_val, y_test, groups_train, profiles_train, groups_val, groups_test
 
 
 def evaluate(name, y_true, y_pred, results, elapsed=None):
@@ -447,8 +451,10 @@ def train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_
 def _tokenize_features(X_fit, *X_others, n_bins):
     """Discretizza ogni feature continua in n_bins bin (quantili, fit SOLO su
     X_fit) e assegna a ogni (indice_feature, bin) un id di vocabolario
-    univoco. Ritorna gli id per X_fit seguiti da quelli per ciascun array in
-    X_others, nello stesso ordine, piu' vocab_size e il discretizzatore."""
+    univoco. Antepone a ogni riga un token [CLS] dedicato (id riservato,
+    l'ultimo del vocabolario). Ritorna gli id per X_fit seguiti da quelli per
+    ciascun array in X_others, nello stesso ordine, piu' vocab_size (incluso
+    [CLS]) e il discretizzatore."""
     discretizer = KBinsDiscretizer(
         n_bins=n_bins, encode="ordinal", strategy="quantile", subsample=None
     )
@@ -456,15 +462,21 @@ def _tokenize_features(X_fit, *X_others, n_bins):
 
     n_features = X_fit.shape[1]
     offsets = (np.arange(n_features) * n_bins).astype(np.int64)
-    vocab_size = n_features * n_bins
 
-    outputs = [fit_bins + offsets]
+    cls_id = n_features * n_bins          # primo id libero dopo i token (feature, bin)
+    vocab_size = n_features * n_bins + 1  # +1 per [CLS]
+
+    def _with_cls(bins):
+        ids = bins + offsets
+        cls_col = np.full((ids.shape[0], 1), cls_id, dtype=np.int64)
+        return np.concatenate([cls_col, ids], axis=1)   # shape: (n, n_features + 1)
+
+    outputs = [_with_cls(fit_bins)]
     for X_other in X_others:
         other_bins = discretizer.transform(X_other).astype(np.int64)
-        outputs.append(other_bins + offsets)
+        outputs.append(_with_cls(other_bins))
 
     return (*outputs, vocab_size, discretizer)
-
 
 class FlowTokenDataset(torch.utils.data.Dataset):
     def __init__(self, input_ids, labels):
@@ -674,15 +686,232 @@ def train_hf_bert(X_train, X_val, X_test, y_train, y_val, y_test, results, best_
 
     return model
 
+# --------------------------------------------------------------------------
+# 4. BERT sequenziale su finestre di W round
+#    Ogni round della finestra e' un token: le F feature continue del round
+#    sono proiettate linearmente nello spazio hidden di BERT (inputs_embeds),
+#    si antepone un token [CLS] appreso, e la classificazione avviene sul
+#    [CLS] (pooler + head di BertForSequenceClassification).
+#    Le finestre sono causali con padding a sinistra: il padding e' escluso
+#    tramite attention_mask, e il round corrente e' sempre l'ultimo token.
+# --------------------------------------------------------------------------
+SEQ_N_TRIALS = 5 #20
+SEQ_CV_EPOCHS = 30
+SEQ_CV_PATIENCE = 5
+SEQ_FINAL_EPOCHS = 100
+SEQ_FINAL_PATIENCE = 10
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
+def build_windows(X, scen, w):
+    """X: (n, F) ordinato per (scenario, round). Ritorna seq (n, w, F) e
+    valid (n, w). Finestra causale con padding a sinistra, mai a cavallo
+    di due scenari."""
+    X = np.asarray(X, dtype=np.float32)
+    scen = np.asarray(scen)
+    n, f = X.shape
+    seq = np.zeros((n, w, f), dtype=np.float32)
+    valid = np.zeros((n, w), dtype=bool)
+
+    starts = np.r_[0, np.flatnonzero(scen[1:] != scen[:-1]) + 1]
+    ends = np.r_[starts[1:], n]
+    assert len(set(scen[starts])) == len(starts), "scenario_id non contiguo: ordina il dataframe"
+
+    for s, e in zip(starts, ends):
+        for t in range(s, e):
+            lo = max(s, t - w + 1)
+            k = t - lo + 1
+            seq[t, w - k:] = X[lo:t + 1]
+            valid[t, w - k:] = True
+    return seq, valid
+
+
+def scale_windows(scaler, seq, valid):
+    n, w, f = seq.shape
+    out = scaler.transform(seq.reshape(-1, f)).reshape(n, w, f)
+    out = np.clip(out, -10, 10).astype(np.float32)
+    out[~valid] = 0.0                      # il padding resta 0 dopo la scalatura
+    return out
+
+
+def _build_seq_bert_config(window, params):
+    """BertConfig per la sequenza di round. vocab_size=1 perche' non si usano
+    input_ids (si passa inputs_embeds): la word-embedding e' presente ma mai
+    interrogata. max_position_embeddings = window + 1 ([CLS] + W round)."""
+    hidden_size = params['num_attention_heads'] * params['head_dim']
+    return BertConfig(
+        vocab_size=1,
+        hidden_size=hidden_size,
+        num_hidden_layers=params['num_hidden_layers'],
+        num_attention_heads=params['num_attention_heads'],
+        intermediate_size=params['intermediate_size'],
+        hidden_dropout_prob=params['dropout'],
+        attention_probs_dropout_prob=params['dropout'],
+        max_position_embeddings=window + 1,
+        type_vocab_size=1,
+        num_labels=2,
+    )
+
+
+class RoundBert(nn.Module):
+    def __init__(self, n_feat, window, params):
+        super().__init__()
+        config = _build_seq_bert_config(window, params)
+        self.proj = nn.Linear(n_feat, config.hidden_size)
+        self.cls = nn.Parameter(torch.zeros(1, 1, config.hidden_size))
+        nn.init.normal_(self.cls, std=config.initializer_range)
+        self.bert = BertForSequenceClassification(config)
+
+    def forward(self, x, valid):
+        # x: (B, W, F) scalato; valid: (B, W) bool (True = round reale)
+        h = self.proj(x)                                        # (B, W, d)
+        cls = self.cls.expand(h.size(0), -1, -1)                # (B, 1, d)
+        h = torch.cat([cls, h], dim=1)                          # (B, W+1, d)
+        mask = torch.cat(
+            [torch.ones_like(valid[:, :1]), valid], dim=1
+        ).long()                                                # (B, W+1), 0 = padding
+        return self.bert(inputs_embeds=h, attention_mask=mask).logits
+
+
+def _seq_loader(seq, valid, y, batch_size, shuffle):
+    ds = TensorDataset(torch.from_numpy(seq), torch.from_numpy(valid),
+                       torch.as_tensor(np.asarray(y), dtype=torch.long))
+    return DataLoader(ds, batch_size=batch_size, shuffle=shuffle)
+
+
+@torch.no_grad()
+def predict_seq(model, seq, valid, batch_size=512):
+    model.eval()
+    preds = []
+    for xb, mb, _ in _seq_loader(seq, valid, np.zeros(len(seq)), batch_size, False):
+        preds.append(model(xb.to(DEVICE), mb.to(DEVICE)).argmax(-1).cpu().numpy())
+    return np.concatenate(preds)
+
+
+def fit_seq(params, seq_tr, m_tr, y_tr, seq_va, m_va, y_va, epochs, patience):
+    torch.manual_seed(RANDOM_SEED)
+    model = RoundBert(seq_tr.shape[2], params['window'], params).to(DEVICE)
+    opt = torch.optim.AdamW(model.parameters(), lr=params['learning_rate'],
+                            weight_decay=params['weight_decay'])
+    loss_fn = nn.CrossEntropyLoss(weight=_class_weights(y_tr).to(DEVICE))
+    loader = _seq_loader(seq_tr, m_tr, y_tr, params['batch_size'], shuffle=True)
+
+    best_f1, best_state, bad = -1.0, None, 0
+    for _ in range(epochs):
+        model.train()
+        for xb, mb, yb in loader:
+            opt.zero_grad()
+            loss = loss_fn(model(xb.to(DEVICE), mb.to(DEVICE)), yb.to(DEVICE))
+            loss.backward()
+            nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+            opt.step()
+
+        f1 = f1_score(y_va, predict_seq(model, seq_va, m_va), zero_division=0)
+        if f1 > best_f1:
+            best_f1, bad = f1, 0
+            best_state = {k: v.detach().clone() for k, v in model.state_dict().items()}
+        else:
+            bad += 1
+            if bad >= patience:
+                break
+
+    model.load_state_dict(best_state)
+    return model, best_f1
+
+
+def _prepare_seq(X_fit, g_fit, others, w):
+    """Scaler fit SOLO sul train; finestre costruite per split.
+    others: lista di (X, groups). Ritorna [(seq, valid)] per fit + others."""
+    scaler = StandardScaler().fit(np.asarray(X_fit, dtype=np.float32))
+    out = []
+    for X, g in [(X_fit, g_fit)] + list(others):
+        seq, valid = build_windows(X, g, w)
+        out.append((scale_windows(scaler, seq, valid), valid))
+    return scaler, out
+
+
+def tune_seq(X_train, y_train, groups_train, profiles_train,
+             n_trials=SEQ_N_TRIALS, n_splits=N_SPLITS):
+    splits = make_group_kfold_splits(X_train, groups_train, profiles_train, n_splits)
+
+    def objective(trial):
+        params = {
+            'window': trial.suggest_categorical('window', [3, 5, 8]),
+            'num_attention_heads': trial.suggest_categorical('num_attention_heads', [2, 4]),
+            'head_dim': trial.suggest_categorical('head_dim', [8, 16, 32]),
+            'num_hidden_layers': trial.suggest_int('num_hidden_layers', 1, 3),
+            'intermediate_size': trial.suggest_categorical('intermediate_size', [64, 128, 256]),
+            'dropout': trial.suggest_float('dropout', 0.0, 0.3),
+            'learning_rate': trial.suggest_float('learning_rate', 1e-4, 3e-3, log=True),
+            'weight_decay': trial.suggest_float('weight_decay', 1e-5, 1e-2, log=True),
+            'batch_size': trial.suggest_categorical('batch_size', [128, 256]),
+        }
+        scores = []
+        for fold_idx, (tr_idx, va_idx) in enumerate(splits):
+            X_tr, X_va = X_train.iloc[tr_idx].values, X_train.iloc[va_idx].values
+            g_tr, g_va = groups_train.iloc[tr_idx].values, groups_train.iloc[va_idx].values
+            y_tr, y_va = y_train.iloc[tr_idx].values, y_train.iloc[va_idx].values
+
+            _, ((s_tr, m_tr), (s_va, m_va)) = _prepare_seq(
+                X_tr, g_tr, [(X_va, g_va)], params['window'])
+            _, f1 = fit_seq(params, s_tr, m_tr, y_tr, s_va, m_va, y_va,
+                            SEQ_CV_EPOCHS, SEQ_CV_PATIENCE)
+            scores.append(f1)
+
+            trial.report(float(np.mean(scores)), step=fold_idx)
+            if trial.should_prune():
+                raise optuna.TrialPruned()
+        return float(np.mean(scores))
+
+    study = optuna.create_study(
+        direction='maximize', study_name='seq_bert_tuning',
+        pruner=optuna.pruners.MedianPruner(n_warmup_steps=1),
+        sampler=optuna.samplers.TPESampler(seed=RANDOM_SEED),
+    )
+    study.optimize(objective, n_trials=n_trials, show_progress_bar=True)
+    print(f"\n[SeqBERT] Miglior F1 medio in CV: {study.best_value:.4f}")
+    print(f"[SeqBERT] Migliori parametri: {study.best_params}")
+    return study.best_params
+
+
+def train_seq(X_train, X_val, X_test, y_train, y_val, y_test,
+              groups_train, groups_val, groups_test, results, best_params):
+    scaler, ((s_tr, m_tr), (s_va, m_va), (s_te, m_te)) = _prepare_seq(
+        X_train.values, groups_train.values,
+        [(X_val.values, groups_val.values), (X_test.values, groups_test.values)],
+        best_params['window'],
+    )
+
+    t0 = time.time()
+    model, _ = fit_seq(best_params, s_tr, m_tr, y_train.values, s_va, m_va, y_val.values,
+                       SEQ_FINAL_EPOCHS, SEQ_FINAL_PATIENCE)   # early stopping SOLO su validation
+    elapsed = time.time() - t0
+
+    y_pred = predict_seq(model, s_te, m_te)                    # test toccato una sola volta
+    evaluate(f"SeqBERT (W={best_params['window']})", y_test, y_pred, results, elapsed)
+
+    out_dir = os.path.join(MODELS_DIR, "seq_bert")
+    os.makedirs(out_dir, exist_ok=True)
+    # state_dict del wrapper (proj + [CLS] + BERT); per ricaricarlo si ricostruisce
+    # RoundBert(len(FEATURES), params['window'], params) e si fa load_state_dict.
+    torch.save(model.state_dict(), os.path.join(out_dir, "model.pt"))
+    joblib.dump({"scaler": scaler, "params": best_params, "features": FEATURES},
+                os.path.join(out_dir, "meta.joblib"))
+    print(f"Model path: {out_dir}")
+    return model
 
 # --------------------------------------------------------------------------
 # Main: tuning + training di tutti i modelli sullo stesso split + confronto
 # finale
 # --------------------------------------------------------------------------
 if __name__ == "__main__":
-    X_train, X_val, X_test, y_train, y_val, y_test, groups_train, profiles_train = load_data()
+    X_train, X_val, X_test, y_train, y_val, y_test, groups_train, profiles_train, groups_val, groups_test = load_data()
 
     results = []
+
+    # I modelli commentati restano a None cosi' il salvataggio finale non fallisce
+    best_cb_params = None
+    best_xgb_params = None
+    best_bert_params = None
 
     print("\n\n=== Tuning CatBoost (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===")
     best_cb_params = tune_catboost(X_train, y_train, groups_train, profiles_train)
@@ -690,9 +919,11 @@ if __name__ == "__main__":
     print("\n\n=== Tuning XGBoost (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===")
     best_xgb_params = tune_xgboost(X_train, y_train, groups_train, profiles_train)
 
-    best_bert_params = None
     print("\n\n=== Tuning HF-BERT (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===")
     #best_bert_params = tune_hf_bert(X_train, y_train, groups_train, profiles_train)
+
+    print("\n\n=== Tuning SeqBERT ===")
+    best_seq_params = tune_seq(X_train, y_train, groups_train, profiles_train)
 
     print("\n\n=== Training finale CatBoost ===")
     train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params)
@@ -702,6 +933,10 @@ if __name__ == "__main__":
 
     print("\n\n=== Training finale HF-BERT ===")
     #train_hf_bert(X_train, X_val, X_test, y_train, y_val, y_test, results, best_bert_params)
+
+    print("\n\n=== Training finale SeqBERT ===")
+    train_seq(X_train, X_val, X_test, y_train, y_val, y_test,
+            groups_train, groups_val, groups_test, results, best_seq_params)
 
     comparison = pd.DataFrame(results).set_index("model")
     print("\n\n=== Confronto finale ===")
@@ -713,7 +948,7 @@ if __name__ == "__main__":
 
     best_params_path = os.path.join(MODELS_DIR, "best_params.joblib")
     joblib.dump(
-        {"catboost": best_cb_params, "xgboost": best_xgb_params, "hf_bert": best_bert_params},
+        {"catboost": best_cb_params, "xgboost": best_xgb_params, "hf_bert": best_bert_params, "seq": best_seq_params},
         best_params_path,
     )
     print(f"Migliori iperparametri salvati in: {best_params_path}")
