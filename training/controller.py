@@ -72,7 +72,7 @@ class FTFMController(app_manager.RyuApp):
         self.datapaths = {}
         self.feature_ext = defaultdict(FeatureExt)
         self._init_csv()
-        self.T = float("{:.2f}".format(self.IDLE_TIMEOUT, self.HARD_TIMEOUT / self.K_FACTOR)
+        self.T = float("{:.2f}".format(self.IDLE_TIMEOUT, self.HARD_TIMEOUT / self.K_FACTOR))
         self.logger.debug(f"[GAP] Intervallo di tempo per la cattura delle features: {self.T}s")
         self._round_lock = threading.Lock()
         self._csv_lock = threading.Lock()
