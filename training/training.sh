@@ -32,15 +32,15 @@ tail -n +2 "${DIR}/logs/1015/dataset_ftf.csv" >> "${DATASET_FTF}"
 tail -n +2 "${DIR}/logs/1015/dataset_mfr.csv" >> "${DATASET_MFR}"
 
 ## Scenarios 16-31
-#tail -n +2 "${DIR}/logs/1623/dataset_ftf.csv" >> "${DATASET_FTF}"
-#tail -n +2 "${DIR}/logs/1623/dataset_mfr.csv" >> "${DATASET_MFR}"
-#tail -n +2 "${DIR}/logs/2431/dataset_ftf.csv" >> "${DATASET_FTF}"
-#tail -n +2 "${DIR}/logs/2431/dataset_mfr.csv" >> "${DATASET_MFR}"
+tail -n +2 "${DIR}/logs/1623/dataset_ftf.csv" >> "${DATASET_FTF}"
+tail -n +2 "${DIR}/logs/1623/dataset_mfr.csv" >> "${DATASET_MFR}"
+tail -n +2 "${DIR}/logs/2431/dataset_ftf.csv" >> "${DATASET_FTF}"
+tail -n +2 "${DIR}/logs/2431/dataset_mfr.csv" >> "${DATASET_MFR}"
 
 # Merge dataset + attack profile
 python3 add_attack_profile_column.py
 
 # Training 
-#python3 training_ftf.py
-python3 training_mfr.py
+python3 training_ftf.py
+#python3 training_mfr.py
 

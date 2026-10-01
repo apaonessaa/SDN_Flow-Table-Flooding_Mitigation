@@ -1,4 +1,3 @@
-import random
 import tempfile
 import time
 import joblib
@@ -47,18 +46,13 @@ FEATURES = [
 ]
 TARGET = "label"
 SCENARIO_COL = "scenario_id"
-GROUP_COL = "group_id"
+GROUP_COL = "round"
 
 # Colonna con il profilo di attacco (aggressive / moderate / stealth), con
 # valore "benigno" per le righe di traffico non malevolo. Rinomina la
 # colonna/il valore se nel CSV si chiamano diversamente.
 ATTACK_PROFILE_COL = "attack_profile"
 BENIGN_PROFILE_LABEL = "benigni"
-
-def random_seed():
-    val = random.randint(42, 1000000)
-    print(f"RANDOM SEED: {val}")
-    return val
 
 RANDOM_SEED = 42
 
@@ -150,12 +144,12 @@ def print_profile_distribution(name, df_subset, group_col, profile_col):
 # --------------------------------------------------------------------------
 def load_data():
     df = pd.read_csv(TRAINING_SET)
-    print(f"Numero di entry del dataset: {len(df) - 1}")
+    print(f"Numero di entry del dataset: {len(df)}")
 
-    counts = df.groupby([SCENARIO_COL, "label"]).size().unstack(fill_value=0)
+    counts = df.groupby([SCENARIO_COL, TARGET]).size().unstack(fill_value=0)
     print(counts)
     print(f"\nDeviazione standard tra scenari: {counts.sum(axis=1).std()}")
-
+    
     X = df[FEATURES]
     y = df[TARGET]
     groups = df[SCENARIO_COL]
@@ -208,28 +202,74 @@ def load_data():
     groups_val = groups_trainval[val_mask].reset_index(drop=True)
     groups_test = groups[test_mask].reset_index(drop=True)
 
-    return X_train, X_val, X_test, y_train, y_val, y_test, groups_train, profiles_train, groups_val, groups_test
+    meta_test = df[test_mask][[SCENARIO_COL, GROUP_COL, ATTACK_PROFILE_COL]].reset_index(drop=True)
+
+    return X_train, X_val, X_test, y_train, y_val, y_test, groups_train, profiles_train, groups_val, groups_test, meta_test
+
+def report_by_profile(y_true, y_pred, meta):
+    """Recall per profilo sulle righe positive + FPR sulle righe benigne."""
+    y_true, y_pred = np.asarray(y_true), np.asarray(y_pred)
+    prof = meta[ATTACK_PROFILE_COL].astype(str).to_numpy()
+    out = {}
+    print("Recall per profilo di attacco (righe con label=1):")
+    for p in sorted(set(prof[y_true == 1])):
+        m = (y_true == 1) & (prof == p)
+        rec = float((y_pred[m] == 1).mean())
+        out[f"recall{p}"] = rec
+        print(f"  {p:<12} n={m.sum():>6}  recall={rec:.4f}")
+    neg = y_true == 0
+    out["fpr"] = float((y_pred[neg] == 1).mean())
+    print(f"  FPR (righe benigne): {out['fpr']:.4f}")
+    return out
 
 
-def evaluate(name, y_true, y_pred, results, elapsed=None):
+def detection_latency(y_true, y_pred, meta):
+    """Per ogni scenario di attacco: round (group_id) tra l'inizio dell'attacco
+    (primo label=1) e il primo allarme a partire da quel punto."""
+    df = meta.assign(y=np.asarray(y_true), p=np.asarray(y_pred))
+    rows = []
+    for scen, g in df.groupby(SCENARIO_COL, sort=False):
+        g = g.sort_values(GROUP_COL)
+        pos = g[g.y == 1]
+        if pos.empty:
+            continue
+        onset = pos[GROUP_COL].iloc[0]
+        hits = g[(g[GROUP_COL] >= onset) & (g.p == 1)]
+        rows.append({
+            "scenario": scen,
+            "profile": str(pos[ATTACK_PROFILE_COL].mode().iat[0]),
+            "latency": (hits[GROUP_COL].iloc[0] - onset) if len(hits) else np.nan,
+        })
+    lat = pd.DataFrame(rows)
+    out = {}
+    print("Latenza di rilevamento (round dall'inizio dell'attacco):")
+    for p, sub in lat.groupby("profile"):
+        missed = int(sub.latency.isna().sum())
+        det = sub.latency.dropna()
+        mean_l = float(det.mean()) if len(det) else np.nan
+        med_l = float(det.median()) if len(det) else np.nan
+        out[f"latmean{p}"] = mean_l
+        out[f"missed{p}"] = missed
+        print(f"  {p:<12} scenari={len(sub)}  mancati={missed}  "
+              f"media={mean_l:.2f}  mediana={med_l:.2f}")
+    return out
+
+def evaluate(name, y_true, y_pred, results, elapsed=None, meta=None):
     acc = accuracy_score(y_true, y_pred)
     prec, rec, f1, _ = precision_recall_fscore_support(
-        y_true, y_pred, average="binary", zero_division=0
-    )
+        y_true, y_pred, average="binary", zero_division=0)
     print(f"\n=== {name} ===")
     if elapsed is not None:
         print(f"Tempo di training: {elapsed:.1f}s")
     print(f"Accuracy: {acc:.4f}")
     print(classification_report(y_true, y_pred))
 
-    results.append({
-        "model": name,
-        "accuracy": acc,
-        "precision": prec,
-        "recall": rec,
-        "f1": f1,
-        "train_time_s": elapsed,
-    })
+    row = {"model": name, "accuracy": acc, "precision": prec,
+           "recall": rec, "f1": f1, "train_time_s": elapsed}
+    if meta is not None:
+        row.update(report_by_profile(y_true, y_pred, meta))
+        row.update(detection_latency(y_true, y_pred, meta))
+    results.append(row)
 
 
 def make_group_kfold_splits(X, groups, profiles, n_splits):
@@ -262,7 +302,6 @@ def tune_catboost(X_train, y_train, groups_train, profiles_train, n_trials=N_TRI
 
     def objective(trial):
         params = {
-            'silent': True,
             'depth': trial.suggest_int('depth', 4, 10),
             'learning_rate': trial.suggest_float('learning_rate', 0.01, 0.2, log=True),
             'l2_leaf_reg': trial.suggest_float('l2_leaf_reg', 1.0, 15.0),
@@ -310,9 +349,8 @@ def tune_catboost(X_train, y_train, groups_train, profiles_train, n_trials=N_TRI
     return study.best_params
 
 
-def train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_params):
+def train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_params, meta_test=None):
     params = {
-        'silent': True,
         'iterations': 1000,
         'loss_function': 'Logloss',
         'eval_metric': 'F1',
@@ -338,7 +376,7 @@ def train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best
     elapsed = time.time() - t0
 
     y_pred = model.predict(test_pool)   # <-- test toccato una sola volta, qui
-    evaluate("CatBoost", y_test, y_pred, results, elapsed)
+    evaluate("CatBoost", y_test, y_pred, results, elapsed, meta=meta_test)
 
     print(model.get_feature_importance(prettified=True))
 
@@ -405,7 +443,7 @@ def tune_xgboost(X_train, y_train, groups_train, profiles_train, n_trials=N_TRIA
     return study.best_params
 
 
-def train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_params):
+def train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_params, meta_test=None):
     n_pos = (y_train == 1).sum()
     n_neg = (y_train == 0).sum()
     scale_pos_weight = n_neg / max(n_pos, 1)
@@ -432,7 +470,7 @@ def train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_
     elapsed = time.time() - t0
 
     y_pred = model.predict(X_test)   # <-- test toccato una sola volta, qui
-    evaluate("XGBoost", y_test, y_pred, results, elapsed)
+    evaluate("XGBoost", y_test, y_pred, results, elapsed, meta=meta_test)
 
     importances = pd.Series(model.feature_importances_, index=FEATURES)
     print(importances.sort_values(ascending=False))
@@ -627,7 +665,7 @@ def tune_hf_bert(X_train, y_train, groups_train, profiles_train, n_trials=BERT_N
     return study.best_params
 
 
-def train_hf_bert(X_train, X_val, X_test, y_train, y_val, y_test, results, best_params):
+def train_hf_bert(X_train, X_val, X_test, y_train, y_val, y_test, results, best_params, meta_test=None):
     n_features = X_train.shape[1]
 
     train_ids, val_ids, test_ids, vocab_size, discretizer = _tokenize_features(
@@ -677,7 +715,7 @@ def train_hf_bert(X_train, X_val, X_test, y_train, y_val, y_test, results, best_
 
     pred_output = trainer.predict(test_ds)   # <-- test toccato una sola volta, qui
     y_pred = np.argmax(pred_output.predictions, axis=-1)
-    evaluate("HF-BERT (tokenizzato)", y_test, y_pred, results, elapsed)
+    evaluate("HF-BERT (tokenizzato)", y_test, y_pred, results, elapsed, meta=meta_test)
 
     out_dir = os.path.join(MODELS_DIR, "hf_bert_model")
     model.save_pretrained(out_dir)
@@ -874,7 +912,7 @@ def tune_seq(X_train, y_train, groups_train, profiles_train,
 
 
 def train_seq(X_train, X_val, X_test, y_train, y_val, y_test,
-              groups_train, groups_val, groups_test, results, best_params):
+              groups_train, groups_val, groups_test, results, best_params, meta_test=None):
     scaler, ((s_tr, m_tr), (s_va, m_va), (s_te, m_te)) = _prepare_seq(
         X_train.values, groups_train.values,
         [(X_val.values, groups_val.values), (X_test.values, groups_test.values)],
@@ -887,7 +925,7 @@ def train_seq(X_train, X_val, X_test, y_train, y_val, y_test,
     elapsed = time.time() - t0
 
     y_pred = predict_seq(model, s_te, m_te)                    # test toccato una sola volta
-    evaluate(f"SeqBERT (W={best_params['window']})", y_test, y_pred, results, elapsed)
+    evaluate(f"SeqBERT (W={best_params['window']})", y_test, y_pred, results, elapsed, meta=meta_test)
 
     out_dir = os.path.join(MODELS_DIR, "seq_bert")
     os.makedirs(out_dir, exist_ok=True)
@@ -904,7 +942,7 @@ def train_seq(X_train, X_val, X_test, y_train, y_val, y_test,
 # finale
 # --------------------------------------------------------------------------
 if __name__ == "__main__":
-    X_train, X_val, X_test, y_train, y_val, y_test, groups_train, profiles_train, groups_val, groups_test = load_data()
+    X_train, X_val, X_test, y_train, y_val, y_test, groups_train, profiles_train, groups_val, groups_test, meta_test = load_data()
 
     results = []
 
@@ -926,17 +964,17 @@ if __name__ == "__main__":
     best_seq_params = tune_seq(X_train, y_train, groups_train, profiles_train)
 
     print("\n\n=== Training finale CatBoost ===")
-    train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params)
+    train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params, meta_test)
 
     print("\n\n=== Training finale XGBoost ===")
-    train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_xgb_params)
+    train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_xgb_params, meta_test)
 
     print("\n\n=== Training finale HF-BERT ===")
-    #train_hf_bert(X_train, X_val, X_test, y_train, y_val, y_test, results, best_bert_params)
+    #train_hf_bert(X_train, X_val, X_test, y_train, y_val, y_test, results, best_bert_params, meta_test)
 
     print("\n\n=== Training finale SeqBERT ===")
     train_seq(X_train, X_val, X_test, y_train, y_val, y_test,
-            groups_train, groups_val, groups_test, results, best_seq_params)
+            groups_train, groups_val, groups_test, results, best_seq_params, meta_test)
 
     comparison = pd.DataFrame(results).set_index("model")
     print("\n\n=== Confronto finale ===")

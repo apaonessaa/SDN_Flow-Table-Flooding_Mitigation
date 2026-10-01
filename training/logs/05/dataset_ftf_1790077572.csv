@@ -1,4 +1,4 @@
-payload_entropy_mean,payload_entropy_cv,payload_size_entropy,src_ip_entropy,dst_ip_entropy,src_mac_entropy,dst_mac_entropy,c_used,paf,ft_psi,durations_entropy,pkts_entropy,bytes_entropy,mean_duration,cvd,mean_pkts,cvp,mean_bytes,cvb,group_id,scenario_id,label
+payload_entropy_mean,payload_entropy_cv,payload_size_entropy,src_ip_entropy,dst_ip_entropy,src_mac_entropy,dst_mac_entropy,c_used,paf,ft_psi,durations_entropy,pkts_entropy,bytes_entropy,mean_duration,cvd,mean_pkts,cvp,mean_bytes,cvb,round,scenario_id,label
 0.0,0.0,-0.0,1.9219280948873623,1.9219280948873623,1.9219280948873623,1.9219280948873623,1.2738853503184713,2.1428571428571423,0.0,2.0,-0.0,-0.0,0.9819999999999999,0.7072706473307846,0.0,0.0,0.0,0.0,0,0,1
 0.0,0.0,-0.0,1.9219280948873623,1.9219280948873623,1.9219280948873623,1.9219280948873623,0.6369426751592356,999.9999999998881,0.0,1.0,-0.0,-0.0,1.2894999999999999,0.00038774718883292437,1.0,0.0,98.0,0.0,1,0,1
 0.0,0.0,-0.0,1.9219280948873623,1.9219280948873623,1.9219280948873623,1.9219280948873623,0.6369426751592356,1000.0000000001102,0.0,1.0,-0.0,-0.0,2.2904999999999998,0.00021829294913771884,1.0,0.0,98.0,0.0,2,0,1

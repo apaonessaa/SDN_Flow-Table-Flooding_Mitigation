@@ -28,7 +28,7 @@ print(half_size)
 
 for i in range(49):
     # hard_timeout: 5 < hard <= 30
-    hard_timeout = rng.randint(6, 15)
+    hard_timeout = rng.randint(6, 30)
     # idle_timeout: idle <= hard
     idle_timeout = rng.randint(2, hard_timeout)
     # flow_table_size

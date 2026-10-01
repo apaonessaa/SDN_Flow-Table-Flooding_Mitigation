@@ -54,4 +54,19 @@ $ cat dataset.csv | awk -F',' '$20 != "25"'
 $ tail -n X dataset.csv 
 ```
 
+## Feature importance
+
+```bash
+# to CSV format
+$ cat <<EOF > /tmp/importance.txt
+...
+EOF
+
+# Catboost
+$ awk 'BEGIN{print "index,feature,importance"} NF==3{print $1","$2","$3}' /tmp/importance.txt
+
+# XGBBoost
+$ awk 'BEGIN{print "feature,importance"} NF==2{print $1","$2}' /tmp/importance.txt
+```
+
 ---

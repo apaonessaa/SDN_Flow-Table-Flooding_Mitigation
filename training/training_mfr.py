@@ -254,7 +254,6 @@ def tune_catboost(X_train, y_train, groups_train, profiles_train, n_trials=N_TRI
 
     def objective(trial):
         params = {
-            'silent': True,
             'depth': trial.suggest_int('depth', 4, 10),
             'learning_rate': trial.suggest_float('learning_rate', 0.01, 0.2, log=True),
             'l2_leaf_reg': trial.suggest_float('l2_leaf_reg', 1.0, 15.0),
@@ -304,7 +303,6 @@ def tune_catboost(X_train, y_train, groups_train, profiles_train, n_trials=N_TRI
 
 def train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_params):
     params = {
-        'silent': True,
         'iterations': 1000,
         'loss_function': 'Logloss',
         'eval_metric': 'F1',
