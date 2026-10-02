@@ -25,6 +25,7 @@ from netaddr import IPAddress, IPNetwork
 from collections import defaultdict 
 import csv
 import threading
+from hashlib import sha256
 
 # Modules loader
 import sys
@@ -44,7 +45,7 @@ class FTFMController(app_manager.RyuApp):
         "round", "scenario_id", "label"
     ]
     DATASET_MFR_COLUMNS = [
-        "duration", "packet_count", "byte_count",
+        "match_hash", "duration", "packet_count", "byte_count",
         "packets_per_seconds", "bytes_per_seconds", "psi",
         "round", "scenario_id", "label"
     ]
@@ -310,9 +311,10 @@ class FTFMController(app_manager.RyuApp):
         # Get Flow Rules Features
         rows_mfr = []
         for stat in stats:
+            match_hash = sha256(str(stat.match).encode()).hexdigest()
             duration, packet_count, byte_count, pkt_rate, byte_rate, psi = self.feature_ext[dpid].get_flow_feature(stat)
             rows_mfr.append([
-                duration, packet_count, byte_count, pkt_rate, byte_rate, psi,
+                match_hash, duration, packet_count, byte_count, pkt_rate, byte_rate, psi,
                 round, self.SCENARIO_ID, int(stat.match.get('eth_src') not in self.VALID_MACS or 
                 stat.match.get('eth_dst') not in self.VALID_MACS)
             ])

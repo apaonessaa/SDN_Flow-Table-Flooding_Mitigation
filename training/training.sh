@@ -14,6 +14,8 @@ tail -n +2 "${DIR}/logs/69/network_settings_1790182132.csv" >> "${NETWORK_SETTIN
 tail -n +2 "${DIR}/logs/1015/network_settings_1790208259.csv" >> "${NETWORK_SETTINGS}"
 tail -n +2 "${DIR}/logs/1623/network_settings_1790383866.csv" >> "${NETWORK_SETTINGS}"
 tail -n +2 "${DIR}/logs/2431/network_settings_1790466105.csv" >> "${NETWORK_SETTINGS}"
+tail -n +2 "${DIR}/logs/3233/network_settings_1790940658.csv" >> "${NETWORK_SETTINGS}"
+tail -n +2 "${DIR}/logs/3443/network_settings_1790891715.csv" >> "${NETWORK_SETTINGS}"
 
 # FTF attacks settings
 echo "FTF settings @ ${FTF_SETTINGS}"
@@ -22,6 +24,8 @@ tail -n +2 "${DIR}/logs/69/ftf_1790182132.csv" >> "${FTF_SETTINGS}"
 tail -n +2 "${DIR}/logs/1015/ftf_1790208259.csv" >> "${FTF_SETTINGS}"
 tail -n +2 "${DIR}/logs/1623/ftf_1790383866.csv" >> "${FTF_SETTINGS}"
 tail -n +2 "${DIR}/logs/2431/ftf_1790466105.csv" >> "${FTF_SETTINGS}"
+tail -n +2 "${DIR}/logs/3233/ftf_1790940658.csv" >> "${FTF_SETTINGS}"
+tail -n +2 "${DIR}/logs/3443/ftf_1790891715.csv" >> "${FTF_SETTINGS}"
 
 ## Scenarios 0-15
 cp "${DIR}/logs/05/dataset_ftf_1790077572.csv" "${DATASET_FTF}"
@@ -36,6 +40,12 @@ tail -n +2 "${DIR}/logs/1623/dataset_ftf.csv" >> "${DATASET_FTF}"
 tail -n +2 "${DIR}/logs/1623/dataset_mfr.csv" >> "${DATASET_MFR}"
 tail -n +2 "${DIR}/logs/2431/dataset_ftf.csv" >> "${DATASET_FTF}"
 tail -n +2 "${DIR}/logs/2431/dataset_mfr.csv" >> "${DATASET_MFR}"
+
+## Scenario 32-43
+tail -n +2 "${DIR}/logs/3233/dataset_ftf.csv" >> "${DATASET_FTF}"
+tail -n +2 "${DIR}/logs/3233/dataset_mfr.csv" >> "${DATASET_MFR}"
+tail -n +2 "${DIR}/logs/3443/dataset_ftf.csv" >> "${DATASET_FTF}"
+tail -n +2 "${DIR}/logs/3443/dataset_mfr.csv" >> "${DATASET_MFR}"
 
 # Merge dataset + attack profile
 python3 add_attack_profile_column.py

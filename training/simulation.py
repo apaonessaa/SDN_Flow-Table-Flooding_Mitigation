@@ -24,13 +24,13 @@ rng = random.Random(67)
 
 SET_FT_SIZE_PATH = root + "/config/set_ft_size.sh"
 
-def sample_attack_rate(npkts, flow_table_size, profile, min_anp={"aggressive": 10,"moderate": 7,"stealth": 2}):
+def sample_attack_rate(npkts, flow_table_size, min_anp={"aggressive": 10,"moderate": 7,"stealth": 2}):
     stealth_profiles = {
         "aggressive": (10, 60),
         "moderate":   (120, 300),
         "stealth":    (350, 550),
     }
-    #profile = rng.choice(list(stealth_profiles.keys()))
+    profile = rng.choice(list(stealth_profiles.keys()))
     t_min, t_max = stealth_profiles[profile]
     fill_time = rng.uniform(t_min, t_max)
     anp = max(min_anp[profile], math.ceil(flow_table_size / fill_time))
@@ -113,7 +113,8 @@ def main() -> None:
         writer = csv.writer(f)
         writer.writerow(["topo", "hard_timeout", "idle_timeout", "flow_table_size", "npkts", "profile", "anp", "att_duration", "fill_time"])
 
-    for i in range(0, 34):
+    """
+    for i in range(0, 32):
         # hard_timeout: 5 < hard <= 30
         hard_timeout = rng.randint(6, 30)
         # idle_timeout: idle <= hard
@@ -125,10 +126,11 @@ def main() -> None:
         # att_anp: 1 min - ~10 min
         anp, profile, fill_time = sample_attack_rate(npkts, flow_table_size, "aggressive")
 
-    profiles = sorted(["aggressive"] * 2 + ["moderate"] + ["stealth"] * 13)
-    j=0
+    #profiles = sorted(["aggressive"] * 2 + ["moderate"] + ["stealth"] * 13)
+    #j=0
+    """
 
-    for i in range(34, 48):
+    for i in range(0, 10):
         topo = topos[i%len(topos)]
         # hard_timeout: 5 < hard <= 30
         hard_timeout = rng.randint(6, 30)
@@ -139,7 +141,7 @@ def main() -> None:
         # att_npkts: att_npkts >= flow_table_size
         npkts = flow_table_size + rng.randint(0, half_size)
         # att_anp: 1 min - ~10 min
-        anp, profile, fill_time = sample_attack_rate(npkts, flow_table_size, profiles[j])
+        anp, profile, fill_time = sample_attack_rate(npkts, flow_table_size)#, "aggressive")
         j+=1
         
         # att_duration
