@@ -1,0 +1,11 @@
+*.DS_Store
+**old/**
+**venv/**
+**rules/**
+**__pycache__**
+**catboost_info
+**training/pcaps/traffics/**
+**training/pcaps/scenarios/scenario_**
+**training/data/**/**.bak
+**training/logs/**
+**training/logs/**/controller_**
