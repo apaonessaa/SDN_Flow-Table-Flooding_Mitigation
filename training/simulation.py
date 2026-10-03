@@ -105,7 +105,7 @@ def main() -> None:
     n_host = 15
     full_size = int(math.factorial(n_host) / math.factorial(n_host-2)) + 1
     half_size = int(full_size / 2)
-    log_timestamp = int(time())
+    log_timestamp = "1015" #int(time())
 
     csv_path = current + f"/logs/network_settings_{log_timestamp}.csv"
 
@@ -137,7 +137,7 @@ def main() -> None:
         # att_npkts: att_npkts >= flow_table_size
         npkts = flow_table_size + rng.randint(0, half_size)
         # att_anp: 1 min - ~10 min
-        anp, profile, fill_time = sample_attack_rate(npkts, flow_table_size)#, "aggressive")
+        anp, profile, fill_time = sample_attack_rate(npkts, flow_table_size)
         
         # att_duration
         att_duration = -1
@@ -146,8 +146,8 @@ def main() -> None:
         controller_envs = {
             "SCENARIO_ID": f"{i}",
             "FTF_LABEL": "1",
-            "DATASET_FTF_PATH": f"{current}/logs/dataset_ftf.csv",
-            "DATASET_MFR_PATH": f"{current}/logs/dataset_mfr.csv",
+            "DATASET_FTF_PATH": f"{current}/logs/dataset_ftf_{log_timestamp}.csv",
+            "DATASET_MFR_PATH": f"{current}/logs/dataset_mfr_{log_timestamp}.csv",
             "FLOW_TABLE_SIZE": f"{flow_table_size}",
             "IDLE_TIMEOUT": f"{idle_timeout}",
             "HARD_TIMEOUT": f"{hard_timeout}",
@@ -251,8 +251,8 @@ def main() -> None:
         controller_envs = {
             "SCENARIO_ID": f"{i}",
             "FTF_LABEL": "0",
-            "DATASET_FTF_PATH": f"{current}/logs/dataset_ftf.csv",
-            "DATASET_MFR_PATH": f"{current}/logs/dataset_mfr.csv",
+            "DATASET_FTF_PATH": f"{current}/logs/dataset_{log_timestamp}.csv",
+            "DATASET_MFR_PATH": f"{current}/logs/dataset_{log_timestamp}.csv",
             "FLOW_TABLE_SIZE": f"{flow_table_size}",
             "IDLE_TIMEOUT": f"{idle_timeout}",
             "HARD_TIMEOUT": f"{hard_timeout}",

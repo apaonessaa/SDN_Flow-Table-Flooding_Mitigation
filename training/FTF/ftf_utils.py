@@ -5,6 +5,7 @@ from sklearn.metrics import (
     precision_recall_fscore_support,
     classification_report,
 )
+import numpy as np
 
 # Modules loader
 import sys
@@ -28,13 +29,16 @@ ATTACK_PROFILE_COL = "attack_profile"
 BENIGN_PROFILE_LABEL = "benigni"
 
 # Tuning + Training
-N_TRIALS=10
-N_SPLITS=2
+N_TRIALS=3
+N_SPLITS=5
 RANDOM_SEED=42
-TEST_SIZE=0.3
-VAL_SIZE=0.2
-CV_EARLY_STOPPING_ROUNDS=50
-FINAL_EARLY_STOPPING_ROUNDS=50
+TEST_SIZE=0.2
+VAL_SIZE=0.15
+CV_EARLY_STOPPING_ROUNDS=20
+FINAL_EARLY_STOPPING_ROUNDS=20
+
+# Numpy SEED
+np.random.seed(RANDOM_SEED)
 
 def load_data(dataset_path: str):
     df = pd.read_csv(dataset_path)
@@ -99,13 +103,14 @@ def load_data(dataset_path: str):
     # Profilo per riga, allineato a X_train/y_train: serve per stratificare
     # anche i fold di cross-validation nel tuning (vedi make_group_kfold_splits).
     """
-    """
-    groups_val = groups_trainval[val_mask].reset_index(drop=True)
-    groups_test = groups[test_mask].reset_index(drop=True)
+    
+    scenarios_val = scenarios_trainval[val_mask].reset_index(drop=True)
+    scenarios_test = scenarios[test_mask].reset_index(drop=True)
 
+    """
     meta_test = df[test_mask][[SCENARIO_COL, GROUP_COL, ATTACK_PROFILE_COL]].reset_index(drop=True)
     """
-    return X_train, X_val, X_test, y_train, y_val, y_test, scenarios_train, profiles_train #, groups_val, groups_test, meta_test
+    return X_train, X_val, X_test, y_train, y_val, y_test, scenarios_train, profiles_train, scenarios_val, scenarios_test #, meta_test
 
 """Stratified utility"""
 def stratified_group_split(df, scenario_col, profile_col, test_size, random_state=RANDOM_SEED):
@@ -119,7 +124,6 @@ def stratified_group_split(df, scenario_col, profile_col, test_size, random_stat
             if len(non_benign) > 0:
                 return non_benign.mode().iat[0]
             return BENIGN_PROFILE_LABEL
-
         return df.groupby(group_col)[profile_col].agg(pick)
 
     scenario_profiles = _group_profiles(df, scenario_col, profile_col)

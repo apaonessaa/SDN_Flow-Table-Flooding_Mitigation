@@ -4,7 +4,6 @@ CATBOOST tuning + training
 import time
 from catboost import CatBoostClassifier, Pool
 import optuna
-import numpy as np
 
 # Modules loader
 import sys

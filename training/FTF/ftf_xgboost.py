@@ -4,7 +4,6 @@ XGBOOOST tuning + training
 import time
 from xgboost import XGBClassifier
 import optuna
-import numpy as np
 from sklearn.metrics import f1_score
 
 # Modules loader

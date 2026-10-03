@@ -12,6 +12,7 @@ sys.path.append(root)
 from ftf_utils import *
 from ftf_catboost import *
 from ftf_xgboost import *
+from ftf_seqbert import *
 
 MODELS_DIR = root + '/models/ftf_detector'
 os.makedirs(MODELS_DIR, exist_ok=True)
@@ -19,13 +20,12 @@ os.makedirs(MODELS_DIR, exist_ok=True)
 TRAINING_SET = parent + '/data/dataset_ftf.csv'
 
 if __name__ == "__main__":
-    X_train, X_val, X_test, y_train, y_val, y_test, groups_train, profiles_train = load_data(TRAINING_SET)
+    X_train, X_val, X_test, y_train, y_val, y_test, groups_train, profiles_train, groups_val, groups_test = load_data(TRAINING_SET)
 
     results = []
 
     best_cb_params = None
     best_xgb_params = None
-    best_bert_params = None
     best_seq_params = None
 
     print("\n\n=== Tuning CatBoost (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===")
@@ -34,11 +34,8 @@ if __name__ == "__main__":
     print("\n\n=== Tuning XGBoost (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===")
     best_xgb_params = tune_xgboost(X_train, y_train, groups_train, profiles_train)
 
-    print("\n\n=== Tuning HF-BERT (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===")
-    #best_bert_params = tune_hf_bert(X_train, y_train, groups_train, profiles_train)
-
     print("\n\n=== Tuning SeqBERT ===")
-    #best_seq_params = tune_seq(X_train, y_train, groups_train, profiles_train)
+    best_seq_params = tune_seq(X_train, y_train, groups_train, profiles_train)
 
     print("\n\n=== Training finale CatBoost ===")
     train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params, model_dir=MODELS_DIR)
@@ -46,12 +43,9 @@ if __name__ == "__main__":
     print("\n\n=== Training finale XGBoost ===")
     train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_xgb_params, model_dir=MODELS_DIR)
 
-    print("\n\n=== Training finale HF-BERT ===")
-    #train_hf_bert(X_train, X_val, X_test, y_train, y_val, y_test, results, best_bert_params, meta_test)
-
     print("\n\n=== Training finale SeqBERT ===")
-    #train_seq(X_train, X_val, X_test, y_train, y_val, y_test,
-    #        groups_train, groups_val, groups_test, results, best_seq_params, meta_test)
+    train_seq(X_train, X_val, X_test, y_train, y_val, y_test,
+            groups_train, groups_val, groups_test, results, best_seq_params, model_dir=MODELS_DIR)
 
     comparison = pd.DataFrame(results).set_index("model")
     print("\n\n=== Confronto finale ===")
@@ -66,7 +60,6 @@ if __name__ == "__main__":
         {
             "catboost": best_cb_params, 
             "xgboost": best_xgb_params, 
-            "hf_bert": best_bert_params, 
             "seq": best_seq_params
         },
         best_params_path,
