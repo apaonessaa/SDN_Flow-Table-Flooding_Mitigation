@@ -101,8 +101,8 @@ def train_seq(X_train, X_val, X_test, y_train, y_val, y_test,
     evaluate(f"SeqBERT (W={best_params['window']})", y_test, y_pred, results, elapsed)
 
     importances = permutation_importance_seq(model, s_te, m_te, y_test.values, features)
-    importances_pct = importances.apply(to_percent)
-    print(importances_pct.sort_values("test", ascending=False))
+    importances_pct = to_percent(importances)
+    print(importances_pct.sort_values(ascending=False))
 
     out_dir = os.path.join(model_dir, "seq_bert")
     os.makedirs(out_dir, exist_ok=True)
