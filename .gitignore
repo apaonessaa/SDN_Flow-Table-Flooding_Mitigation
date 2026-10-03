@@ -4,8 +4,8 @@
 **rules/**
 **__pycache__**
 **catboost_info
-**training/pcaps/traffics/**
-**training/pcaps/scenarios/scenario_**
-**training/data/**/**.bak
-**training/logs/**
-**training/logs/**/controller_**
+**feature_collector/pcaps/traffics/**
+**feature_collector/pcaps/scenarios/scenario_**
+**feature_collector/data/**/**.bak
+**feature_collector/logs/**
+**feature_collector/logs/**/controller_**
