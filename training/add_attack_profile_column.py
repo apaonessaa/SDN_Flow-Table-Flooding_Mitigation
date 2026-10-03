@@ -48,7 +48,6 @@ SCENARIO_ID_BASE = 0
 
 DRY_RUN = False  # se True, calcola e stampa tutto ma non scrive i file
 
-
 def build_profile_map(settings_path, profile_col, scenario_id_base):
     df_settings = pd.read_csv(settings_path)
     scenario_ids = df_settings.index + scenario_id_base
@@ -57,7 +56,6 @@ def build_profile_map(settings_path, profile_col, scenario_id_base):
           f"(scenario_id da {min(profile_map)} a {max(profile_map)})")
     print(df_settings[profile_col].value_counts())
     return profile_map
-
 
 def add_attack_profile_column(dataset_path, scenario_col, label_col, profile_map):
     print(f"\n--- {dataset_path} ---")

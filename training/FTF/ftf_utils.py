@@ -14,10 +14,6 @@ parent = os.path.dirname(current)
 root = os.path.dirname(parent)
 sys.path.append(root)
 
-MODELS_DIR = root + '/models/ftf_detector'
-os.makedirs(MODELS_DIR, exist_ok=True)
-
-TRAINING_SET = parent + '/data/dataset_ftf.csv'
 FEATURES = [
     "payload_entropy_mean", "payload_entropy_cv", "payload_size_entropy",
     "src_ip_entropy", "dst_ip_entropy", "src_mac_entropy", "dst_mac_entropy",
@@ -32,16 +28,16 @@ ATTACK_PROFILE_COL = "attack_profile"
 BENIGN_PROFILE_LABEL = "benigni"
 
 # Tuning + Training
-N_TRIALS=5
-N_SPLITS=5
+N_TRIALS=10
+N_SPLITS=2
 RANDOM_SEED=42
-TEST_SIZE=0.2
-VAL_SIZE=0.1
+TEST_SIZE=0.3
+VAL_SIZE=0.2
 CV_EARLY_STOPPING_ROUNDS=50
 FINAL_EARLY_STOPPING_ROUNDS=50
 
-def load_data():
-    df = pd.read_csv(TRAINING_SET)
+def load_data(dataset_path: str):
+    df = pd.read_csv(dataset_path)
     print(f"Numero di entry del dataset: {len(df)}")
 
     counts = df.groupby([SCENARIO_COL, TARGET]).size().unstack(fill_value=0)

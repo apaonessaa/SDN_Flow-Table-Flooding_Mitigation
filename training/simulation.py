@@ -113,10 +113,10 @@ def main() -> None:
         writer = csv.writer(f)
         writer.writerow(["topo", "hard_timeout", "idle_timeout", "flow_table_size", "npkts", "profile", "anp", "att_duration", "fill_time"])
 
-    """
-    for i in range(0, 32):
+    
+    for i in range(0, 10):
         # hard_timeout: 5 < hard <= 30
-        hard_timeout = rng.randint(6, 30)
+        hard_timeout = rng.randint(6, 20)
         # idle_timeout: idle <= hard
         idle_timeout = rng.randint(2, hard_timeout)
         # flow_table_size
@@ -124,16 +124,12 @@ def main() -> None:
         # att_npkts: att_npkts >= flow_table_size
         npkts = flow_table_size + rng.randint(0, half_size)
         # att_anp: 1 min - ~10 min
-        anp, profile, fill_time = sample_attack_rate(npkts, flow_table_size, "aggressive")
+        anp, profile, fill_time = sample_attack_rate(npkts, flow_table_size)
 
-    #profiles = sorted(["aggressive"] * 2 + ["moderate"] + ["stealth"] * 13)
-    #j=0
-    """
-
-    for i in range(0, 10):
+    for i in range(10, 16):
         topo = topos[i%len(topos)]
         # hard_timeout: 5 < hard <= 30
-        hard_timeout = rng.randint(6, 30)
+        hard_timeout = rng.randint(6, 20)
         # idle_timeout: idle <= hard
         idle_timeout = rng.randint(2, hard_timeout)
         # flow_table_size
@@ -142,7 +138,6 @@ def main() -> None:
         npkts = flow_table_size + rng.randint(0, half_size)
         # att_anp: 1 min - ~10 min
         anp, profile, fill_time = sample_attack_rate(npkts, flow_table_size)#, "aggressive")
-        j+=1
         
         # att_duration
         att_duration = -1

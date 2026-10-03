@@ -70,7 +70,7 @@ def tune_xgboost(X_train, y_train, groups_train, profiles_train):
 
     return study.best_params
 
-def train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_params):
+def train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_params, model_dir:str):
     n_pos = (y_train == 1).sum()
     n_neg = (y_train == 0).sum()
     scale_pos_weight = n_neg / max(n_pos, 1)
@@ -102,7 +102,7 @@ def train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_
     importances = pd.Series(model.feature_importances_, index=FEATURES)
     print(importances.sort_values(ascending=False))
 
-    out_path = os.path.join(MODELS_DIR, "xgboost_model.json")
+    out_path = os.path.join(model_dir, "xgboost_model.json")
     model.save_model(out_path)
     print(f"Model path: {out_path}")
 

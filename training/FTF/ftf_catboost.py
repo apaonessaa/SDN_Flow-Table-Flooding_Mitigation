@@ -69,7 +69,7 @@ def tune_catboost(X_train, y_train, groups_train, profiles_train):
 
     return study.best_params
 
-def train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_params):
+def train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_params, model_dir:str):
     params = {
         'iterations': 1000,
         'loss_function': 'Logloss',
@@ -100,7 +100,7 @@ def train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best
 
     print(model.get_feature_importance(prettified=True))
 
-    out_path = os.path.join(MODELS_DIR, "catboost_model.cbm")
+    out_path = os.path.join(model_dir, "catboost_model.cbm")
     model.save_model(out_path)
     print(f"Model path: {out_path}")
 

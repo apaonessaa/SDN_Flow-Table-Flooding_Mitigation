@@ -13,8 +13,13 @@ from ftf_utils import *
 from ftf_catboost import *
 from ftf_xgboost import *
 
+MODELS_DIR = root + '/models/ftf_detector'
+os.makedirs(MODELS_DIR, exist_ok=True)
+
+TRAINING_SET = parent + '/data/dataset_ftf.csv'
+
 if __name__ == "__main__":
-    X_train, X_val, X_test, y_train, y_val, y_test, groups_train, profiles_train = load_data()
+    X_train, X_val, X_test, y_train, y_val, y_test, groups_train, profiles_train = load_data(TRAINING_SET)
 
     results = []
 
@@ -36,10 +41,10 @@ if __name__ == "__main__":
     #best_seq_params = tune_seq(X_train, y_train, groups_train, profiles_train)
 
     print("\n\n=== Training finale CatBoost ===")
-    train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params)
+    train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params, model_dir=MODELS_DIR)
 
     print("\n\n=== Training finale XGBoost ===")
-    train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_xgb_params)
+    train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_xgb_params, model_dir=MODELS_DIR)
 
     print("\n\n=== Training finale HF-BERT ===")
     #train_hf_bert(X_train, X_val, X_test, y_train, y_val, y_test, results, best_bert_params, meta_test)
