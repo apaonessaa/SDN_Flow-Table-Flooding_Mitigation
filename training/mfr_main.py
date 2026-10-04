@@ -13,7 +13,7 @@ from m_catboost import *
 from m_xgboost import *
 from m_seqbert import *
 
-MODELS_DIR = root + '/models/ftf_detector'
+MODELS_DIR = root + '/models/mfr_detector'
 os.makedirs(MODELS_DIR, exist_ok=True)
 
 TRAINING_SET = root + '/feature_collector/datasets/dataset_mfr.csv'
