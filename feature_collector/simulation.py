@@ -105,7 +105,7 @@ def main() -> None:
     n_host = 15
     full_size = int(math.factorial(n_host) / math.factorial(n_host-2)) + 1
     half_size = int(full_size / 2)
-    log_timestamp = "1632" #int(time())
+    log_timestamp = "1631" #int(time())
 
     csv_path = current + f"/logs/network_settings_{log_timestamp}.csv"
 
