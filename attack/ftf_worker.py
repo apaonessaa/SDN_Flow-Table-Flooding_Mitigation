@@ -33,7 +33,7 @@ def stage_1(iface, npacket, added_new_packets, attack_frequency, local_ip: bool=
     n_pkts = len(packets)
     while i < n_pkts:
         #j = FTFUtils.random_anp(added_new_packets)
-        j = 50
+        j = FTFUtils.random_anp(50)
         sendp(packets[i:i + j], iface=iface, verbose=False)
         sleep(FTFUtils.random_af(attack_frequency))
         i += j
