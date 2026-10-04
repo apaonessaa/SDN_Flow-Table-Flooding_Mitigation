@@ -12,6 +12,7 @@ from utils import *
 from m_catboost import *
 from m_xgboost import *
 from m_seqbert import *
+from m_bert import *
 
 MODELS_DIR = root + '/models/ftf_detector'
 os.makedirs(MODELS_DIR, exist_ok=True)
@@ -26,6 +27,7 @@ if __name__ == "__main__":
     best_cb_params = None
     best_xgb_params = None
     best_seq_params = None
+    best_bert_params = None
 
     print("\n\n=== Tuning CatBoost (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===")
     best_cb_params = tune_catboost(X_train, y_train, groups_train, profiles_train)
@@ -36,6 +38,9 @@ if __name__ == "__main__":
     print("\n\n=== Tuning SeqBERT ===")
     best_seq_params = tune_seq(X_train, y_train, groups_train, profiles_train)
 
+    print("\n\n=== Tuning BERT ===")
+    best_bert_params = tune_bert(X_train, y_train, groups_train, profiles_train, model_dir=MODELS_DIR)
+
     print("\n\n=== Training finale CatBoost ===")
     train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params, model_dir=MODELS_DIR)
 
@@ -45,6 +50,9 @@ if __name__ == "__main__":
     print("\n\n=== Training finale SeqBERT ===")
     train_seq(X_train, X_val, X_test, y_train, y_val, y_test,
             groups_train, groups_val, groups_test, results, best_seq_params, features=FTF_FEATURES, model_dir=MODELS_DIR)
+
+    print("\n\n=== Training finale BERT ===")
+    train_bert(X_train, X_val, X_test, y_train, y_val, y_test, results, best_bert_params, model_dir=MODELS_DIR)
 
     comparison = pd.DataFrame(results).set_index("model")
     print("\n\n=== Confronto finale ===")

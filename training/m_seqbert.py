@@ -37,7 +37,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 SEQ_CV_EPOCHS = 30
 SEQ_CV_PATIENCE = 5
 # Training+Validation
-SEQ_FINAL_EPOCHS = 100
+SEQ_FINAL_EPOCHS = 50
 SEQ_FINAL_PATIENCE = 10
 
 WINDOWS = [3, 5, 8]

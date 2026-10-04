@@ -15,7 +15,7 @@ current = os.path.dirname(os.path.realpath(__file__))
 root = os.path.dirname(current)
 sys.path.append(root)
 
-from training.topology import *
+from topology import *
 from utils.sim_utils import *
 from attack.ftf_attack import FTFAttack
 
@@ -105,7 +105,7 @@ def main() -> None:
     n_host = 15
     full_size = int(math.factorial(n_host) / math.factorial(n_host-2)) + 1
     half_size = int(full_size / 2)
-    log_timestamp = "1015" #int(time())
+    log_timestamp = "1632" #int(time())
 
     csv_path = current + f"/logs/network_settings_{log_timestamp}.csv"
 
@@ -114,7 +114,7 @@ def main() -> None:
         writer.writerow(["topo", "hard_timeout", "idle_timeout", "flow_table_size", "npkts", "profile", "anp", "att_duration", "fill_time"])
 
     
-    for i in range(0, 10):
+    for i in range(0, 16):
         # hard_timeout: 5 < hard <= 30
         hard_timeout = rng.randint(6, 20)
         # idle_timeout: idle <= hard
@@ -126,7 +126,7 @@ def main() -> None:
         # att_anp: 1 min - ~10 min
         anp, profile, fill_time = sample_attack_rate(npkts, flow_table_size)
 
-    for i in range(10, 16):
+    for i in range(16, 32):
         topo = topos[i%len(topos)]
         # hard_timeout: 5 < hard <= 30
         hard_timeout = rng.randint(6, 20)

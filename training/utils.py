@@ -36,7 +36,7 @@ RULE_KEY_COL = "match_hash"
 FLOW_KEY_COL = "flow_key"
 
 # Tuning + Training
-N_TRIALS = 100
+N_TRIALS = 1
 N_SPLITS = 5
 TEST_SIZE = 0.2
 VAL_SIZE = 0.15
