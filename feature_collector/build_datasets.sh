@@ -36,7 +36,7 @@ current = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(current)
 
 MFR_DATASET=f"{current}/datasets/dataset_mfr.csv"
-WINDOWS=[3,5,8]
+WINDOWS=[3,5,8,12,16]
 
 RULE_KEY_COL = "match_hash"
 FLOW_KEY_COL = "flow_key"
