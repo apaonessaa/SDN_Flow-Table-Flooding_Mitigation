@@ -251,8 +251,8 @@ def main() -> None:
         controller_envs = {
             "SCENARIO_ID": f"{i}",
             "FTF_LABEL": "0",
-            "DATASET_FTF_PATH": f"{current}/logs/dataset_{log_timestamp}.csv",
-            "DATASET_MFR_PATH": f"{current}/logs/dataset_{log_timestamp}.csv",
+            "DATASET_FTF_PATH": f"{current}/logs/dataset_ftf_{log_timestamp}.csv",
+            "DATASET_MFR_PATH": f"{current}/logs/dataset_mfr_{log_timestamp}.csv",
             "FLOW_TABLE_SIZE": f"{flow_table_size}",
             "IDLE_TIMEOUT": f"{idle_timeout}",
             "HARD_TIMEOUT": f"{hard_timeout}",

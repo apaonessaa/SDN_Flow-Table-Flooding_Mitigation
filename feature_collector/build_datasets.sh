@@ -9,19 +9,14 @@ DATASET_MFR="${DIR}/datasets/dataset_mfr.csv"
 
 # Network Settings
 echo "Network settings @ ${NETWORK_SETTINGS}"
-cp "${DIR}/logs/network_settings_015.csv" "${NETWORK_SETTINGS}"
-tail -n +2 "${DIR}/logs/network_settings_1632.csv" >> "${NETWORK_SETTINGS}"
+cp "${DIR}/logs/network_settings_g.csv" "${NETWORK_SETTINGS}"
 
 # FTF attacks settings
 echo "FTF settings @ ${FTF_SETTINGS}"
-cp "${DIR}/logs/ftf_settings_015.csv" "${FTF_SETTINGS}"
-tail -n +2 "${DIR}/logs/ftf_1632.csv" >> "${FTF_SETTINGS}"
+#cp "${DIR}/logs/dataset_ftf_1790077572.csv" "${FTF_SETTINGS}"
 
 ## Scenarios 0-15
-cp "${DIR}/logs/dataset_ftf_015.csv" "${DATASET_FTF}"
-cp "${DIR}/logs/dataset_mfr_015.csv" "${DATASET_MFR}"
-tail -n +2 "${DIR}/logs/dataset_ftf_1632.csv" >> "${DATASET_FTF}"
-tail -n +2 "${DIR}/logs/dataset_mfr_1632.csv" >> "${DATASET_MFR}"
+cp "${DIR}/logs/dataset_ftf_g.csv" "${DATASET_FTF}"
 
 # Merge dataset + attack profile
 python3 add_attack_profile_column.py

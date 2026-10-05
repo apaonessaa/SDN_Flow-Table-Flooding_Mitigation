@@ -209,7 +209,7 @@ def make_group_kfold_splits(X, scenarios, profiles):
             f"Servono almeno 2 scenari distinti per la StratifiedGroupKFold, trovati {n_scenarios}."
         )
     if effective_splits < N_SPLITS:
-        print(f"[!] Solo {n_scenarios} gruppi disponibili: uso {effective_splits}-fold invece di {n_splits}-fold.")
+        print(f"[!] Solo {n_scenarios} gruppi disponibili: uso {effective_splits}-fold invece di {N_SPLITS}-fold.")
     sgkf = StratifiedGroupKFold(n_splits=effective_splits, shuffle=True, random_state=RANDOM_SEED)
     return list(sgkf.split(X, profiles, groups=scenarios))
 

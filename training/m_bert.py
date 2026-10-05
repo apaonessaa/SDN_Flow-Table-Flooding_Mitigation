@@ -41,7 +41,7 @@ BERT_CV_PATIENCE = 5
 BERT_FINAL_EPOCHS = 50
 BERT_FINAL_PATIENCE = 10
 
-N_BINS = [4, 6, 8]
+N_BINS = [2, 4, 6, 8]
 
 def _tokenize_features(X_fit, *X_others, n_bins):
     discretizer = KBinsDiscretizer(

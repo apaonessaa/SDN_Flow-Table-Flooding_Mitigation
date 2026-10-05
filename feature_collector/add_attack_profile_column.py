@@ -33,7 +33,7 @@ NETWORK_SETTINGS_PATH = current+'/datasets/network_settings.csv'
 # Un dataset per riga: (percorso, colonna scenario, colonna label)
 DATASETS = [
     (current+'/datasets/dataset_ftf.csv', 'scenario_id', 'label'),
-    (current+'/datasets/dataset_mfr.csv', 'scenario_id', 'label'),
+    #(current+'/datasets/dataset_mfr.csv', 'scenario_id', 'label'),
 ]
 
 PROFILE_COL_IN_SETTINGS = 'profile'

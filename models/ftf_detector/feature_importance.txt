@@ -1,0 +1,128 @@
+=== Training finale CatBoost ===
+0:	learn: 0.7819907	test: 0.8698644	best: 0.8698644 (0)	total: 5.98ms	remaining: 5.97s
+50:	learn: 0.8661178	test: 0.8602826	best: 0.8748379 (4)	total: 328ms	remaining: 6.11s
+Stopped by overfitting detector  (50 iterations wait)
+
+bestTest = 0.874837887
+bestIteration = 4
+
+Shrink model to first 5 iterations.
+
+=== CatBoost ===
+Tempo di training: 0.4s
+Accuracy: 0.7850
+              precision    recall  f1-score   support
+
+           0       0.76      0.83      0.79      1469
+           1       0.81      0.74      0.77      1456
+
+    accuracy                           0.78      2925
+   macro avg       0.79      0.78      0.78      2925
+weighted avg       0.79      0.78      0.78      2925
+
+              Feature Id  Importances
+0         src_ip_entropy    25.086947
+1        src_mac_entropy    13.383625
+2                 c_used    12.205431
+3                    paf     9.998039
+4   payload_entropy_mean     8.169806
+5          bytes_entropy     7.224180
+6         dst_ip_entropy     5.843313
+7   payload_size_entropy     4.618241
+8        dst_mac_entropy     4.040947
+9           pkts_entropy     3.013259
+10                   cvp     2.437835
+11         mean_duration     1.403813
+12                   cvd     1.137957
+13             mean_pkts     0.915738
+14            mean_bytes     0.520869
+15    payload_entropy_cv     0.000000
+16                ft_psi     0.000000
+17     durations_entropy     0.000000
+18                   cvb     0.000000
+
+=== Training finale XGBoost ===
+[0]	validation_0-logloss:0.64400
+[50]	validation_0-logloss:0.32395
+[100]	validation_0-logloss:0.32479
+[150]	validation_0-logloss:0.32266
+[200]	validation_0-logloss:0.32090
+[250]	validation_0-logloss:0.32274
+
+=== XGBoost ===
+Tempo di training: 0.4s
+Accuracy: 0.7696
+              precision    recall  f1-score   support
+
+           0       0.77      0.78      0.77      1469
+           1       0.77      0.76      0.77      1456
+
+    accuracy                           0.77      2925
+   macro avg       0.77      0.77      0.77      2925
+weighted avg       0.77      0.77      0.77      2925
+
+src_mac_entropy         0.218620
+src_ip_entropy          0.170782
+dst_ip_entropy          0.075042
+c_used                  0.069885
+paf                     0.059500
+payload_entropy_mean    0.037874
+bytes_entropy           0.036901
+durations_entropy       0.035964
+pkts_entropy            0.035721
+payload_size_entropy    0.032564
+mean_duration           0.032206
+payload_entropy_cv      0.031512
+mean_pkts               0.029501
+dst_mac_entropy         0.029495
+cvp                     0.029291
+mean_bytes              0.026144
+cvb                     0.024713
+cvd                     0.024284
+ft_psi                  0.000000
+dtype: float32
+
+=== SeqBERT (W=8) ===
+Tempo di training: 6.1s
+Accuracy: 0.8308
+              precision    recall  f1-score   support
+
+           0       0.86      0.79      0.82      1469
+           1       0.80      0.87      0.84      1456
+
+    accuracy                           0.83      2925
+   macro avg       0.83      0.83      0.83      2925
+weighted avg       0.83      0.83      0.83      2925
+
+src_ip_entropy          17.299632
+src_mac_entropy         15.844731
+payload_entropy_mean    12.921058
+payload_size_entropy     8.363797
+pkts_entropy             8.063502
+ft_psi                   7.036232
+dst_mac_entropy          6.403881
+c_used                   5.689786
+cvd                      3.879119
+dst_ip_entropy           3.763785
+mean_duration            3.382067
+bytes_entropy            2.954349
+cvp                      2.567125
+payload_entropy_cv       0.668970
+cvb                      0.598757
+mean_bytes               0.496497
+paf                      0.036984
+mean_pkts                0.029729
+durations_entropy        0.000000
+dtype: float64
+
+=== BERT ===
+Tempo di training: 71.1s
+Accuracy: 0.8099
+              precision    recall  f1-score   support
+
+           0       0.74      0.95      0.83      1469
+           1       0.93      0.67      0.78      1456
+
+    accuracy                           0.81      2925
+   macro avg       0.84      0.81      0.81      2925
+weighted avg       0.83      0.81      0.81      2925
