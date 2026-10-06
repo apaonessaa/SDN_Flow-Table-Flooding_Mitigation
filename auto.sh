@@ -7,6 +7,5 @@ sudo python3 simulation.py
 cd ..
 cd training
 python3 mfr_main.py
-python3 ftf_main.py
 cd ..
 

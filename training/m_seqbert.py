@@ -40,7 +40,7 @@ SEQ_CV_PATIENCE = 5
 SEQ_FINAL_EPOCHS = 50
 SEQ_FINAL_PATIENCE = 10
 
-WINDOWS = [3, 5, 8]
+WINDOWS = [3, 5, 8, 12]
 
 def tune_seq(X_train, y_train, groups_train, profiles_train):
     splits = make_group_kfold_splits(X_train, groups_train, profiles_train)

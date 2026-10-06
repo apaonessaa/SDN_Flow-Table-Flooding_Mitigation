@@ -6,6 +6,6 @@
 **catboost_info
 **feature_collector/pcaps/traffics/**
 **feature_collector/pcaps/scenarios/scenario_**
-**feature_collector/data/**/**.bak
+**feature_collector/datasets/**/**.bak
 **feature_collector/logs/**
 **feature_collector/logs/**/controller_**

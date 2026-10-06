@@ -26,7 +26,7 @@ full_size = int(math.factorial(n_host) / math.factorial(n_host-2)) + 1
 half_size = int(full_size / 2)
 print(half_size)
 
-for i in range(49):
+for i in range(16):
     # hard_timeout: 5 < hard <= 30
     hard_timeout = rng.randint(6, 30)
     # idle_timeout: idle <= hard

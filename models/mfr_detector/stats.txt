@@ -1,0 +1,102 @@
+=== Tuning CatBoost (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===
+Best trial: 9. Best value: 0.954538: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [07:26<00:00, 44.67s/it]
+
+[CatBoost] Miglior F1 medio in CV: 0.9545
+[CatBoost] Migliori parametri: {'depth': 8, 'learning_rate': 0.15826541904647565, 'l2_leaf_reg': 2.2388950287268727, 'rsm': 0.5979914312095727, 'bagging_temperature': 0.1356818667316142, 'random_strength': 1.6266516538163218}
+
+
+=== Tuning XGBoost (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===
+Best trial: 9. Best value: 0.977165: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [05:54<00:00, 35.41s/it]
+
+[XGBoost] Miglior F1 medio in CV: 0.9772
+[XGBoost] Migliori parametri: {'max_depth': 8, 'learning_rate': 0.15826541904647565, 'reg_lambda': 2.2388950287268727, 'colsample_bytree': 0.5979914312095727, 'subsample': 0.522613644455269, 'min_child_weight': 3.927972976869379}
+
+
+=== Tuning SeqBERT ===
+Best trial: 1. Best value: 0.994241: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [7:18:22<00:00, 2630.26s/it]
+
+[SeqBERT] Miglior F1 medio in CV: 0.9942
+[SeqBERT] Migliori parametri: {'window': 8, 'num_attention_heads': 4, 'head_dim': 16, 'num_hidden_layers': 2, 'intermediate_size': 256, 'dropout': 0.051157237106187456, 'learning_rate': 0.00012476394272569445, 'weight_decay': 0.007025166339242158, 'batch_size': 128}
+
+=== Tuning BERT ===
+Best trial: 6. Best value: 0.969595: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [7:27:05<00:00, 2682.55s/it]
+
+[HF-BERT] Miglior F1 medio in CV: 0.9696
+[HF-BERT] Migliori parametri: {'n_bins': 6, 'num_attention_heads': 2, 'head_dim': 8, 'num_hidden_layers': 6, 'intermediate_size': 512, 'learning_rate': 4.325207525386527e-05, 'weight_decay': 2.1387290754148914e-05, 'batch_size': 256}
+
+=== Training finale CatBoost ===
+0:	learn: 0.9384872	test: 0.9520734	best: 0.9520734 (0)	total: 65.1ms	remaining: 1m 5s
+50:	learn: 0.9542748	test: 0.9654380	best: 0.9655635 (38)	total: 2.14s	remaining: 39.8s
+Stopped by overfitting detector  (50 iterations wait)
+
+bestTest = 0.9655635166
+bestIteration = 38
+
+Shrink model to first 39 iterations.
+
+=== CatBoost ===
+Tempo di training: 3.7s
+Accuracy: 0.8697
+              precision    recall  f1-score   support
+
+           0       0.79      0.96      0.87     48274
+           1       0.97      0.80      0.87     62684
+
+    accuracy                           0.87    110958
+   macro avg       0.88      0.88      0.87    110958
+weighted avg       0.89      0.87      0.87    110958
+
+            Feature Id  Importances
+0                  psi    39.016045
+1  packets_per_seconds    18.168642
+2         packet_count    13.729335
+3           byte_count    12.817081
+4             duration     8.272477
+5    bytes_per_seconds     7.996420
+
+=== Training finale XGBoost ===
+[0]	validation_0-logloss:0.58368
+[50]	validation_0-logloss:0.07597
+[100]	validation_0-logloss:0.07393
+[150]	validation_0-logloss:0.07381
+[188]	validation_0-logloss:0.07406
+
+=== XGBoost ===
+Tempo di training: 2.3s
+Accuracy: 0.8764
+              precision    recall  f1-score   support
+
+           0       0.80      0.96      0.87     48274
+           1       0.97      0.81      0.88     62684
+
+    accuracy                           0.88    110958
+   macro avg       0.88      0.89      0.88    110958
+weighted avg       0.89      0.88      0.88    110958
+
+psi                    0.801618
+packet_count           0.124712
+packets_per_seconds    0.036017
+byte_count             0.021893
+bytes_per_seconds      0.012537
+duration               0.003224
+dtype: float32
+
+=== BERT ===
+Tempo di training: 965.0s
+Accuracy: 0.9631
+              precision    recall  f1-score   support
+
+           0       0.97      0.94      0.96     48274
+           1       0.96      0.98      0.97     62684
+
+    accuracy                           0.96    110958
+   macro avg       0.96      0.96      0.96    110958
+weighted avg       0.96      0.96      0.96    110958
+
+=== Confronto finale ===
+               accuracy  precision  recall     f1  train_time_s
+model                                                          
+CatBoost         0.8697     0.9657  0.7977 0.8737        3.6915
+XGBoost          0.8764     0.9656  0.8101 0.8810        2.3357
+SeqBERT (W=8)    0.8497     0.9963  0.7366 0.8470     2288.8710
+BERT             0.9631     0.9574  0.9781 0.9677      965.0479
