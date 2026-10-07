@@ -35,10 +35,10 @@ optuna.logging.set_verbosity(optuna.logging.WARNING)
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # Tuning
-BERT_CV_EPOCHS = 30
+BERT_CV_EPOCHS = 10
 BERT_CV_PATIENCE = 5
 # Training+Validation
-BERT_FINAL_EPOCHS = 50
+BERT_FINAL_EPOCHS = 20
 BERT_FINAL_PATIENCE = 10
 
 N_BINS = [2, 4, 6, 8]
@@ -112,7 +112,7 @@ def _build_bert_config(vocab_size, n_features, params):
         num_hidden_layers=params['num_hidden_layers'],
         num_attention_heads=params['num_attention_heads'],
         intermediate_size=params['intermediate_size'],
-        max_position_embeddings=n_features + 2,
+        max_position_embeddings=n_features+1,
         type_vocab_size=1,
         num_labels=2,
     )

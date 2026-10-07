@@ -11,7 +11,7 @@ sys.path.append(root)
 from utils import *
 from m_catboost import *
 from m_xgboost import *
-from m_seqbert import *
+from mfr_seqbert import *
 from m_bert import *
 
 MODELS_DIR = root + '/models/mfr_detector'
@@ -20,7 +20,7 @@ os.makedirs(MODELS_DIR, exist_ok=True)
 TRAINING_SET = root + '/feature_collector/datasets/dataset_mfr.csv'
 
 if __name__ == "__main__":
-    X_train, X_val, X_test, y_train, y_val, y_test, profiles_train, groups_train, groups_val, groups_test = load_data_mfr(TRAINING_SET)
+    X_train, X_val, X_test, y_train, y_val, y_test, scenarios_train, profiles_train, keys_train, keys_val, keys_test = load_data_mfr(TRAINING_SET)
 
     results = []
 
@@ -30,16 +30,16 @@ if __name__ == "__main__":
     best_bert_params = None
 
     print("\n\n=== Tuning CatBoost (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===")
-    best_cb_params = tune_catboost(X_train, y_train, groups_train, profiles_train)
+    best_cb_params = tune_catboost(X_train, y_train, scenarios_train, profiles_train)
 
     print("\n\n=== Tuning XGBoost (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===")
-    best_xgb_params = tune_xgboost(X_train, y_train, groups_train, profiles_train)
+    best_xgb_params = tune_xgboost(X_train, y_train, scenarios_train, profiles_train)
 
     print("\n\n=== Tuning SeqBERT ===")
-    best_seq_params = tune_seq(X_train, y_train, groups_train, profiles_train)
+    best_seq_params = tune_seq(X_train, y_train, scenarios_train, profiles_train, keys_train)
 
     print("\n\n=== Tuning BERT ===")
-    best_bert_params = tune_bert(X_train, y_train, groups_train, profiles_train, model_dir=MODELS_DIR)
+    best_bert_params = tune_bert(X_train, y_train, scenarios_train, profiles_train, model_dir=MODELS_DIR)
 
     print("\n\n=== Training finale CatBoost ===")
     train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params, model_dir=MODELS_DIR)
@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     print("\n\n=== Training finale SeqBERT ===")
     train_seq(X_train, X_val, X_test, y_train, y_val, y_test,
-            groups_train, groups_val, groups_test, results, best_seq_params, features=MFR_FEATURES, model_dir=MODELS_DIR)
+            keys_train, keys_val, keys_test, results, best_seq_params, features=MFR_FEATURES, model_dir=MODELS_DIR)
 
     print("\n\n=== Training finale BERT ===")
     train_bert(X_train, X_val, X_test, y_train, y_val, y_test, results, best_bert_params, model_dir=MODELS_DIR)

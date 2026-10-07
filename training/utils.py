@@ -36,12 +36,12 @@ RULE_KEY_COL = "match_hash"
 FLOW_KEY_COL = "flow_key"
 
 # Tuning + Training
-N_TRIALS = 10
+N_TRIALS = 3
 N_SPLITS = 5
 TEST_SIZE = 0.2
 VAL_SIZE = 0.15
-CV_EARLY_STOPPING_ROUNDS = 50
-FINAL_EARLY_STOPPING_ROUNDS = 50
+CV_EARLY_STOPPING_ROUNDS = 10
+FINAL_EARLY_STOPPING_ROUNDS = 10
 RANDOM_SEED = 42
 
 # Numpy SEED
@@ -163,7 +163,7 @@ def load_data_mfr(dataset_path: str):
 
     profiles_train = df_train[ATTACK_PROFILE_COL].reset_index(drop=True)
 
-    return X_train, X_val, X_test, y_train, y_val, y_test, profiles_train, keys_train, keys_val, keys_test
+    return X_train, X_val, X_test, y_train, y_val, y_test, scenarios_train, profiles_train, keys_train, keys_val, keys_test
 
 """Stratified utility"""
 def stratified_group_split(df, scenario_col, profile_col, test_size, random_state=RANDOM_SEED):
@@ -214,7 +214,7 @@ def make_group_kfold_splits(X, scenarios, profiles):
     return list(sgkf.split(X, profiles, groups=scenarios))
 
 """Evaluate the model"""
-def evaluate(name, y_true, y_pred, results, elapsed=None):#, meta=None):
+def evaluate(name, y_true, y_pred, results, elapsed=None):
     acc = accuracy_score(y_true, y_pred)
     prec, rec, f1, _ = precision_recall_fscore_support(
         y_true, y_pred, average="binary", zero_division=0)

@@ -1,69 +1,103 @@
-=== Tuning CatBoost (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===
-Best trial: 9. Best value: 0.954538: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [07:26<00:00, 44.67s/it]
+Numero di entry del dataset: 486794
+label            0      1
+scenario_id              
+0             1444  26077
+1             6155  19361
+2             8138   2896
+3             9839  13020
+4            21055  94231
+5             9234   4407
+6            38565  41190
+7             4893  14520
+8             2373   3457
+9             4833   7969
+10            4609  11562
+11            3098   2890
+12            4716   8421
+13            6624  15514
+14            2002   7042
+15           32046  54613
 
-[CatBoost] Miglior F1 medio in CV: 0.9545
-[CatBoost] Migliori parametri: {'depth': 8, 'learning_rate': 0.15826541904647565, 'l2_leaf_reg': 2.2388950287268727, 'rsm': 0.5979914312095727, 'bagging_temperature': 0.1356818667316142, 'random_strength': 1.6266516538163218}
+Deviazione standard tra scenari: 32869.82265619941
+[!] Stratificazione per 'attack_profile' non applicabile (The test_size = 2 should be greater or equal to the number of classes = 3); eseguo uno split non stratificato.
+
+
+=== Tuning CatBoost (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===
+Best trial: 1. Best value: 0.945575: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [00:10<00:00,  3.52s/it]
+
+[CatBoost] Miglior F1 medio in CV: 0.9456
+[CatBoost] Migliori parametri: {'depth': 4, 'learning_rate': 0.13394334706750485, 'l2_leaf_reg': 9.415610164404923, 'rsm': 0.8540362888980227, 'bagging_temperature': 0.06175348288740734, 'random_strength': 4.8495492608099715}
 
 
 === Tuning XGBoost (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===
-Best trial: 9. Best value: 0.977165: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [05:54<00:00, 35.41s/it]
+Best trial: 2. Best value: 0.971887: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [00:35<00:00, 11.78s/it]
 
-[XGBoost] Miglior F1 medio in CV: 0.9772
-[XGBoost] Migliori parametri: {'max_depth': 8, 'learning_rate': 0.15826541904647565, 'reg_lambda': 2.2388950287268727, 'colsample_bytree': 0.5979914312095727, 'subsample': 0.522613644455269, 'min_child_weight': 3.927972976869379}
+[XGBoost] Miglior F1 medio in CV: 0.9719
+[XGBoost] Migliori parametri: {'max_depth': 9, 'learning_rate': 0.018891200276189388, 'reg_lambda': 3.5455495408994087, 'colsample_bytree': 0.5917022549267169, 'subsample': 0.6521211214797689, 'min_child_weight': 5.72280788469014}
 
 
 === Tuning SeqBERT ===
-Best trial: 1. Best value: 0.994241: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [7:18:22<00:00, 2630.26s/it]
+Best trial: 2. Best value: 0.969055: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [50:04<00:00, 1001.52s/it]
 
-[SeqBERT] Miglior F1 medio in CV: 0.9942
-[SeqBERT] Migliori parametri: {'window': 8, 'num_attention_heads': 4, 'head_dim': 16, 'num_hidden_layers': 2, 'intermediate_size': 256, 'dropout': 0.051157237106187456, 'learning_rate': 0.00012476394272569445, 'weight_decay': 0.007025166339242158, 'batch_size': 128}
+[SeqBERT] Miglior F1 medio in CV: 0.9691
+[SeqBERT] Migliori parametri: {'window': 3, 'num_attention_heads': 4, 'head_dim': 32, 'num_hidden_layers': 1, 'intermediate_size': 64, 'dropout': 0.09351332282682329, 'learning_rate': 0.000586412916969653, 'weight_decay': 0.00043664735929796326, 'batch_size': 256}
 
 === Tuning BERT ===
-Best trial: 6. Best value: 0.969595: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [7:27:05<00:00, 2682.55s/it]
+Best trial: 2. Best value: 0.952752: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [1:31:32<00:00, 1831.00s/it]
 
-[HF-BERT] Miglior F1 medio in CV: 0.9696
-[HF-BERT] Migliori parametri: {'n_bins': 6, 'num_attention_heads': 2, 'head_dim': 8, 'num_hidden_layers': 6, 'intermediate_size': 512, 'learning_rate': 4.325207525386527e-05, 'weight_decay': 2.1387290754148914e-05, 'batch_size': 256}
+[HF-BERT] Miglior F1 medio in CV: 0.9528
+[HF-BERT] Migliori parametri: {'n_bins': 6, 'num_attention_heads': 4, 'head_dim': 8, 'num_hidden_layers': 3, 'intermediate_size': 256, 'learning_rate': 0.0008692991511139548, 'weight_decay': 0.002115429079726122, 'batch_size': 128}
 
 === Training finale CatBoost ===
-0:	learn: 0.9384872	test: 0.9520734	best: 0.9520734 (0)	total: 65.1ms	remaining: 1m 5s
-50:	learn: 0.9542748	test: 0.9654380	best: 0.9655635 (38)	total: 2.14s	remaining: 39.8s
-Stopped by overfitting detector  (50 iterations wait)
+0:	learn: 0.9152837	test: 0.9295269	best: 0.9295269 (0)	total: 25.8ms	remaining: 25.8s
+Stopped by overfitting detector  (10 iterations wait)
 
-bestTest = 0.9655635166
-bestIteration = 38
+bestTest = 0.9604121989
+bestIteration = 4
 
-Shrink model to first 39 iterations.
+Shrink model to first 5 iterations.
 
 === CatBoost ===
-Tempo di training: 3.7s
-Accuracy: 0.8697
+Tempo di training: 0.5s
+Accuracy: 0.9503
               precision    recall  f1-score   support
 
-           0       0.79      0.96      0.87     48274
-           1       0.97      0.80      0.87     62684
+           0       0.93      0.95      0.94     48274
+           1       0.96      0.95      0.96     62684
 
-    accuracy                           0.87    110958
-   macro avg       0.88      0.88      0.87    110958
-weighted avg       0.89      0.87      0.87    110958
+    accuracy                           0.95    110958
+   macro avg       0.95      0.95      0.95    110958
+weighted avg       0.95      0.95      0.95    110958
 
             Feature Id  Importances
-0                  psi    39.016045
-1  packets_per_seconds    18.168642
-2         packet_count    13.729335
-3           byte_count    12.817081
-4             duration     8.272477
-5    bytes_per_seconds     7.996420
+0                  psi    37.964875
+1         packet_count    27.834088
+2           byte_count    17.797660
+3  packets_per_seconds    11.689346
+4    bytes_per_seconds     4.714031
+5             duration     0.000000
+Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/mfr_detector/catboost_model.cbm
+
 
 === Training finale XGBoost ===
-[0]	validation_0-logloss:0.58368
-[50]	validation_0-logloss:0.07597
-[100]	validation_0-logloss:0.07393
-[150]	validation_0-logloss:0.07381
-[188]	validation_0-logloss:0.07406
+[0]	validation_0-logloss:0.67912
+[50]	validation_0-logloss:0.29233
+[100]	validation_0-logloss:0.17088
+[150]	validation_0-logloss:0.12174
+[200]	validation_0-logloss:0.09841
+[250]	validation_0-logloss:0.08681
+[300]	validation_0-logloss:0.08088
+[350]	validation_0-logloss:0.07802
+[400]	validation_0-logloss:0.07644
+[450]	validation_0-logloss:0.07547
+[500]	validation_0-logloss:0.07492
+[550]	validation_0-logloss:0.07458
+[600]	validation_0-logloss:0.07429
+[631]	validation_0-logloss:0.07417
 
 === XGBoost ===
-Tempo di training: 2.3s
-Accuracy: 0.8764
+Tempo di training: 7.1s
+Accuracy: 0.8785
               precision    recall  f1-score   support
 
            0       0.80      0.96      0.87     48274
@@ -73,30 +107,57 @@ Accuracy: 0.8764
    macro avg       0.88      0.89      0.88    110958
 weighted avg       0.89      0.88      0.88    110958
 
-psi                    0.801618
-packet_count           0.124712
-packets_per_seconds    0.036017
-byte_count             0.021893
-bytes_per_seconds      0.012537
-duration               0.003224
+psi                    0.719180
+packet_count           0.155268
+packets_per_seconds    0.067521
+byte_count             0.031218
+bytes_per_seconds      0.019837
+duration               0.006975
 dtype: float32
+Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/mfr_detector/xgboost_model.json
 
-=== BERT ===
-Tempo di training: 965.0s
-Accuracy: 0.9631
+
+=== Training finale SeqBERT ===
+
+=== SeqBERT (W=3) ===
+Tempo di training: 430.4s
+Accuracy: 0.8892
               precision    recall  f1-score   support
 
-           0       0.97      0.94      0.96     48274
-           1       0.96      0.98      0.97     62684
+           0       0.80      0.99      0.89     48274
+           1       0.99      0.81      0.89     62684
+
+    accuracy                           0.89    110958
+   macro avg       0.90      0.90      0.89    110958
+weighted avg       0.91      0.89      0.89    110958
+
+packet_count           66.512391
+byte_count             14.248218
+packets_per_seconds    11.586948
+duration                7.226440
+psi                     0.426003
+bytes_per_seconds       0.000000
+dtype: float64
+
+=== BERT ===
+Tempo di training: 661.4s
+Accuracy: 0.9585
+              precision    recall  f1-score   support
+
+           0       0.96      0.94      0.95     48274
+           1       0.96      0.97      0.96     62684
 
     accuracy                           0.96    110958
    macro avg       0.96      0.96      0.96    110958
 weighted avg       0.96      0.96      0.96    110958
 
+Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/mfr_detector/bert_model
+
+
 === Confronto finale ===
                accuracy  precision  recall     f1  train_time_s
 model                                                          
-CatBoost         0.8697     0.9657  0.7977 0.8737        3.6915
-XGBoost          0.8764     0.9656  0.8101 0.8810        2.3357
-SeqBERT (W=8)    0.8497     0.9963  0.7366 0.8470     2288.8710
-BERT             0.9631     0.9574  0.9781 0.9677      965.0479
+CatBoost         0.9503     0.9646  0.9467 0.9556        0.4999
+XGBoost          0.8785     0.9659  0.8136 0.8832        7.1423
+SeqBERT (W=3)    0.8892     0.9924  0.8101 0.8920      430.3574
+BERT             0.9585     0.9578  0.9693 0.9635      661.3857

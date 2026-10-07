@@ -144,7 +144,7 @@ class RoundBert(nn.Module):
             intermediate_size=params['intermediate_size'],
             hidden_dropout_prob=params['dropout'],
             attention_probs_dropout_prob=params['dropout'],
-            max_position_embeddings=window + 1,
+            max_position_embeddings=window+1,
             type_vocab_size=1,
             num_labels=2,
         )
