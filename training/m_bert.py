@@ -43,20 +43,27 @@ BERT_FINAL_PATIENCE = 10
 
 N_BINS = [2, 4, 6, 8]
 
-def _tokenize_features(X_fit, *X_others, n_bins):
+def _tokenize_features(X_fit, X_others, n_bins):
     discretizer = KBinsDiscretizer(
         n_bins=n_bins, encode="ordinal", strategy="quantile", subsample=None
     )
     fit_bins = discretizer.fit_transform(X_fit).astype(np.int64)
 
     n_features = X_fit.shape[1]
-    offsets = (np.arange(n_features) * n_bins).astype(np.int64)
-    vocab_size = n_features * n_bins
+    offsets = (np.arange(n_features) n_bins).astype(np.int64)
 
-    outputs = [fit_bins + offsets]
+    cls_id = n_features * n_bins
+    vocab_size = cls_id + 1
+
+    def _with_cls(bins):
+        ids = bins + offsets                                        # (N, F)
+        cls_col = np.full((ids.shape[0], 1), cls_id, dtype=np.int64)
+        return np.concatenate([cls_col, ids], axis=1)               # (N, F+1)
+
+    outputs = [_with_cls(fit_bins)]
     for X_other in X_others:
         other_bins = discretizer.transform(X_other).astype(np.int64)
-        outputs.append(other_bins + offsets)
+        outputs.append(_with_cls(other_bins))
 
     return (*outputs, vocab_size, discretizer)
 
