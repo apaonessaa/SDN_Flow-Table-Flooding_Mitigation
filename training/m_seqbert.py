@@ -52,7 +52,7 @@ def tune_seq(X_train, y_train, groups_train, profiles_train):
             'head_dim': trial.suggest_categorical('head_dim', [8, 16, 32]),
             'num_hidden_layers': trial.suggest_int('num_hidden_layers', 1, 3),
             'intermediate_size': trial.suggest_categorical('intermediate_size', [64, 128, 256]),
-            'dropout': trial.suggest_float('dropout', 0.0, 0.3),
+            'dropout': trial.suggest_float('dropout', 0.0, 0.5),
             'learning_rate': trial.suggest_float('learning_rate', 1e-4, 3e-3, log=True),
             'weight_decay': trial.suggest_float('weight_decay', 1e-5, 1e-2, log=True),
             'batch_size': trial.suggest_categorical('batch_size', [128, 256]),

@@ -45,12 +45,15 @@ N_BINS = [2, 4, 6, 8]
 
 def _tokenize_features(X_fit, X_others, n_bins):
     discretizer = KBinsDiscretizer(
-        n_bins=n_bins, encode="ordinal", strategy="quantile", subsample=None
+        n_bins=n_bins, 
+        encode="ordinal", 
+        strategy="quantile", 
+        subsample=None
     )
     fit_bins = discretizer.fit_transform(X_fit).astype(np.int64)
 
     n_features = X_fit.shape[1]
-    offsets = (np.arange(n_features) n_bins).astype(np.int64)
+    offsets = (np.arange(n_features) * n_bins).astype(np.int64)
 
     cls_id = n_features * n_bins
     vocab_size = cls_id + 1

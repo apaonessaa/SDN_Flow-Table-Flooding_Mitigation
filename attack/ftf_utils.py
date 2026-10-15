@@ -1,4 +1,5 @@
 import os
+import math
 import random
 import time
 import re
@@ -62,13 +63,18 @@ class FTFUtils:
 
     @staticmethod
     def random_af(attack_frequency: int) -> int:
-        start = int(attack_frequency * 0.2)
-        return random.randint(start, attack_frequency - 1) if attack_frequency != 0 else 0
+        start = math.ceil(attack_frequency * 0.2)
+        return random.randint(start, attack_frequency - 1) if attack_frequency != 0 else 1
 
     @staticmethod
     def random_anp(added_new_packet: int) -> int:
-        start = int(added_new_packet * 0.2)
-        return random.randint(start, added_new_packet) if added_new_packet != 0 else 0
+        start = math.ceil(added_new_packet * 0.2)
+        return random.randint(start, added_new_packet) if added_new_packet != 0 else 1
+
+    @staticmethod
+    def random_anm(added_new_mac: int) -> int:
+        start = math.ceil(added_new_mac * 0.5)
+        return random.randint(start, added_new_mac) if added_new_mac != 0 else 1
 
     @staticmethod
     def measure_rtt(dst_ip: str, timeout: int = 10) -> float:

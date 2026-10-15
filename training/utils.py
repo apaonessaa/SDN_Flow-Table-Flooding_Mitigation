@@ -51,6 +51,11 @@ def load_data_ftf(dataset_path: str):
     df = pd.read_csv(dataset_path)
     print(f"Numero di entry del dataset: {len(df)}")
 
+    """
+    Order by scenario_id, label, round
+    """
+    df = df.sort_values([SCENARIO_COL, TARGET, ROUND_COL]).reset_index(drop=True)
+
     counts = df.groupby([SCENARIO_COL, TARGET]).size().unstack(fill_value=0)
     print(counts)
     print(f"\nDeviazione standard tra scenari: {counts.sum(axis=1).std()}")
@@ -101,6 +106,7 @@ def load_data_ftf(dataset_path: str):
     scenarios_test = scenarios[test_mask].reset_index(drop=True)
 
     return X_train, X_val, X_test, y_train, y_val, y_test, profiles_train, scenarios_train, scenarios_val, scenarios_test
+
 
 def load_data_mfr(dataset_path: str):
     df = pd.read_csv(dataset_path)

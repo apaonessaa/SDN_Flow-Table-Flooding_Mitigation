@@ -12,7 +12,7 @@ from utils import *
 from m_catboost import *
 from m_xgboost import *
 from m_seqbert import *
-from m_bert import *
+from feat_bert import *
 
 MODELS_DIR = root + '/models/ftf_detector'
 os.makedirs(MODELS_DIR, exist_ok=True)
@@ -22,6 +22,10 @@ TRAINING_SET = root + '/feature_collector/datasets/dataset_ftf.csv'
 if __name__ == "__main__":
     X_train, X_val, X_test, y_train, y_val, y_test, profiles_train, groups_train, groups_val, groups_test = load_data_ftf(TRAINING_SET)
 
+    #d = X_train.describe(percentiles=[.01, .5, .99]).T
+    #d["skew"] = X_train.skew()
+    #print(d[["std","1%","50%","99%","min","max","skew"]])
+
     results = []
 
     best_cb_params = None
@@ -30,26 +34,26 @@ if __name__ == "__main__":
     best_bert_params = None
 
     print("\n\n=== Tuning CatBoost (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===")
-    best_cb_params = tune_catboost(X_train, y_train, groups_train, profiles_train)
+    #best_cb_params = tune_catboost(X_train, y_train, groups_train, profiles_train)
 
     print("\n\n=== Tuning XGBoost (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===")
     best_xgb_params = tune_xgboost(X_train, y_train, groups_train, profiles_train)
 
     print("\n\n=== Tuning SeqBERT ===")
-    best_seq_params = tune_seq(X_train, y_train, groups_train, profiles_train)
+    #best_seq_params = tune_seq(X_train, y_train, groups_train, profiles_train)
 
     print("\n\n=== Tuning BERT ===")
     best_bert_params = tune_bert(X_train, y_train, groups_train, profiles_train, model_dir=MODELS_DIR)
 
     print("\n\n=== Training finale CatBoost ===")
-    train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params, model_dir=MODELS_DIR)
+    #train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params, model_dir=MODELS_DIR)
 
     print("\n\n=== Training finale XGBoost ===")
     train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_xgb_params, features=FTF_FEATURES, model_dir=MODELS_DIR)
 
     print("\n\n=== Training finale SeqBERT ===")
-    train_seq(X_train, X_val, X_test, y_train, y_val, y_test,
-            groups_train, groups_val, groups_test, results, best_seq_params, features=FTF_FEATURES, model_dir=MODELS_DIR)
+    #train_seq(X_train, X_val, X_test, y_train, y_val, y_test,
+    #        groups_train, groups_val, groups_test, results, best_seq_params, features=FTF_FEATURES, model_dir=MODELS_DIR)
 
     print("\n\n=== Training finale BERT ===")
     train_bert(X_train, X_val, X_test, y_train, y_val, y_test, results, best_bert_params, model_dir=MODELS_DIR)
