@@ -2,11 +2,11 @@
   "architectures": [
     "FTBertForSequenceClassification"
   ],
-  "attention_probs_dropout_prob": 0.010292247147901223,
+  "attention_probs_dropout_prob": 0.16259166101337352,
   "classifier_dropout": null,
   "hidden_act": "gelu",
-  "hidden_dropout_prob": 0.010292247147901223,
-  "hidden_size": 32,
+  "hidden_dropout_prob": 0.16259166101337352,
+  "hidden_size": 96,
   "initializer_range": 0.02,
   "intermediate_size": 128,
   "layer_norm_eps": 1e-12,
@@ -14,7 +14,7 @@
   "model_type": "bert",
   "n_features": 19,
   "num_attention_heads": 4,
-  "num_hidden_layers": 2,
+  "num_hidden_layers": 5,
   "pad_token_id": 0,
   "position_embedding_type": "absolute",
   "torch_dtype": "float32",

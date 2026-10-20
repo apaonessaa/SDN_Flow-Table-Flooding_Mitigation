@@ -36,7 +36,7 @@ RULE_KEY_COL = "match_hash"
 FLOW_KEY_COL = "flow_key"
 
 # Tuning + Training
-N_TRIALS = 3
+N_TRIALS = 1
 N_SPLITS = 5
 TEST_SIZE = 0.2
 VAL_SIZE = 0.15
@@ -55,6 +55,8 @@ def load_data_ftf(dataset_path: str):
     Order by scenario_id, label, round
     """
     df = df.sort_values([SCENARIO_COL, TARGET, ROUND_COL]).reset_index(drop=True)
+
+    
 
     counts = df.groupby([SCENARIO_COL, TARGET]).size().unstack(fill_value=0)
     print(counts)

@@ -11,11 +11,11 @@ from scapy.all import sendp
 
 from ftf_utils import FTFUtils
 
-def stage_0(dst_ip, max_iter, max_interval):
-    hard_timeout = FTFUtils.estimate_hard_timeout(dst_ip, max_iter, max_interval)
+def stage_0(dst_ip, n, t_max):
+    hard_timeout = FTFUtils.estimate_hard_timeout(dst_ip, n, t_max)
     print(f"[*] T_hard={hard_timeout}", flush=True)
     sleep(hard_timeout)
-    af = FTFUtils.estimate_idle_timeout(dst_ip, max_iter, hard_timeout)
+    af = FTFUtils.estimate_idle_timeout(dst_ip, n, hard_timeout)
     print(f"[*] T_idle={af}", flush=True)
     return hard_timeout, af
 
@@ -66,14 +66,14 @@ def main():
     parser.add_argument('--npacket', type=int, required=True)
     parser.add_argument('--anp', type=int, required=True)
     parser.add_argument('--anm', type=int, required=True)
-    parser.add_argument('--max-iter', type=int, default=100)
-    parser.add_argument('--max-interval', type=int, default=10)
+    parser.add_argument('--n', type=int)
+    parser.add_argument('--t-max', type=int)
     parser.add_argument('--local-ip', type=bool, default=False, help="Spoofed IP address in range 10.0.0.X")
     parser.add_argument('--out-file', type=str, default="/tmp/ftf.csv")
     args = parser.parse_args()
 
     print(f"# [STAGE 0] T_idle Inference, timestamp {int(time())}", flush=True)
-    hard_timeout, attack_frequency = stage_0(args.dst_ip, args.max_iter, args.max_interval)
+    hard_timeout, attack_frequency = stage_0(args.dst_ip, args.n, args.t_max)
 
     not_exists = not os.path.exists(args.out_file)
     with open(args.out_file, "a+", newline="") as f:

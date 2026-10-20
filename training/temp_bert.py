@@ -1,5 +1,10 @@
 """
-SeqBERT tuning + training
+TempBERT tuning + training
+
+Un token per round: Linear(F, d) sul vettore di feature del round (Zerveas et al., 2021, §3.1),
+più un [CLS] in prima posizione. Finestra causale di W round dentro lo scenario, con padding mask.
+Encoder BERT (HuggingFace).
+Preprocessing, inizializzazione e ciclo di training sono condivisi con FeatBERT (nn_training.py).
 """
 import time
 import joblib
@@ -7,15 +12,7 @@ import optuna
 import torch
 import torch.nn as nn
 from sklearn.metrics import f1_score
-from torch.utils.data import DataLoader, TensorDataset
-from sklearn.preprocessing import KBinsDiscretizer, StandardScaler
-from transformers import (
-    BertConfig,
-    BertForSequenceClassification,
-    Trainer,
-    TrainingArguments,
-    EarlyStoppingCallback,
-)
+from transformers import BertConfig, BertForSequenceClassification
 
 # Modules loader
 import sys
@@ -24,14 +21,13 @@ current = os.path.dirname(os.path.realpath(__file__))
 root = os.path.dirname(current)
 sys.path.append(root)
 
-from utils import * 
+from utils import *
+from nn_training import scale_features, init_uniform_, fit_model, predict_model
 
 # Torch Numpy
 torch.manual_seed(RANDOM_SEED)
 
 optuna.logging.set_verbosity(optuna.logging.WARNING)
-
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # Tuning
 SEQ_CV_EPOCHS = 30
@@ -40,9 +36,9 @@ SEQ_CV_PATIENCE = 5
 SEQ_FINAL_EPOCHS = 50
 SEQ_FINAL_PATIENCE = 10
 
-WINDOWS = [3, 5, 8, 12]
+WINDOWS = [3, 5, 8]
 
-def tune_seq(X_train, y_train, groups_train, profiles_train):
+def tune_tempBERT(X_train, y_train, groups_train, profiles_train):
     splits = make_group_kfold_splits(X_train, groups_train, profiles_train)
 
     def objective(trial):
@@ -75,16 +71,16 @@ def tune_seq(X_train, y_train, groups_train, profiles_train):
         return float(np.mean(scores))
 
     study = optuna.create_study(
-        direction='maximize', study_name='seq_bert_tuning',
+        direction='maximize', study_name='temp_bert_tuning',
         pruner=optuna.pruners.MedianPruner(n_warmup_steps=1),
         sampler=optuna.samplers.TPESampler(seed=RANDOM_SEED),
     )
     study.optimize(objective, n_trials=N_TRIALS, show_progress_bar=True)
-    print(f"\n[SeqBERT] Miglior F1 medio in CV: {study.best_value:.4f}")
-    print(f"[SeqBERT] Migliori parametri: {study.best_params}")
+    print(f"\n[TempBERT] Miglior F1 medio in CV: {study.best_value:.4f}")
+    print(f"[TempBERT] Migliori parametri: {study.best_params}")
     return study.best_params
 
-def train_seq(X_train, X_val, X_test, y_train, y_val, y_test,
+def train_tempBERT(X_train, X_val, X_test, y_train, y_val, y_test,
               groups_train, groups_val, groups_test, results, best_params, features, model_dir:str):
     scaler, ((s_tr, m_tr), (s_va, m_va), (s_te, m_te)) = _prepare_seq(
         X_train.values, groups_train.values,
@@ -97,14 +93,14 @@ def train_seq(X_train, X_val, X_test, y_train, y_val, y_test,
                        SEQ_FINAL_EPOCHS, SEQ_FINAL_PATIENCE)
     elapsed = time.time() - t0
 
-    y_pred = predict_seq(model, s_te, m_te) 
-    evaluate(f"SeqBERT (W={best_params['window']})", y_test, y_pred, results, elapsed)
+    y_pred = predict_seq(model, s_te, m_te)
+    evaluate(f"TempBERT (W={best_params['window']})", y_test, y_pred, results, elapsed)
 
     importances = permutation_importance_seq(model, s_te, m_te, y_test.values, features)
     importances_pct = to_percent(importances)
     print(importances_pct.sort_values(ascending=False))
 
-    out_dir = os.path.join(model_dir, "seq_bert")
+    out_dir = os.path.join(model_dir, "temp_bert")
     os.makedirs(out_dir, exist_ok=True)
 
     torch.save(model.state_dict(), os.path.join(out_dir, "model.pt"))
@@ -120,9 +116,11 @@ class RoundBert(nn.Module):
     def __init__(self, n_feat, window, params):
         super().__init__()
         config = self._build_seq_bert_config(window, params)
-        self.proj = nn.Linear(n_feat, config.hidden_size)
-        self.cls = nn.Parameter(torch.zeros(1, 1, config.hidden_size))
-        nn.init.normal_(self.cls, std=config.initializer_range)
+        d = config.hidden_size
+        self.proj = nn.Linear(n_feat, d)
+        self.cls = nn.Parameter(torch.empty(1, 1, d))
+        init_uniform_(self.proj.weight, self.proj.bias, fan_in=n_feat)   # = default di nn.Linear
+        init_uniform_(self.cls, fan_in=d)                                # stessa regola di FeatBERT
         self.bert = BertForSequenceClassification(config)
 
     def forward(self, x, valid):
@@ -134,7 +132,7 @@ class RoundBert(nn.Module):
             [torch.ones_like(valid[:, :1]), valid], dim=1
         ).long()                                                # (B, W+1), 0 = padding
         return self.bert(inputs_embeds=h, attention_mask=mask).logits
-    
+
     def _build_seq_bert_config(self, window, params):
         return BertConfig(
             vocab_size=1,
@@ -149,60 +147,19 @@ class RoundBert(nn.Module):
             num_labels=2,
         )
 
-def _class_weights(y):
-    values = y.values if hasattr(y, "values") else np.asarray(y)
-    counts = np.bincount(values, minlength=2)
-    return torch.tensor(counts.sum() / (len(counts) * counts), dtype=torch.float32)
-
 def fit_seq(params, seq_tr, m_tr, y_tr, seq_va, m_va, y_va, epochs, patience):
-    torch.manual_seed(RANDOM_SEED)
-    model = RoundBert(seq_tr.shape[2], params['window'], params).to(DEVICE)
-    opt = torch.optim.AdamW(model.parameters(), lr=params['learning_rate'],
-                            weight_decay=params['weight_decay'])
-    loss_fn = nn.CrossEntropyLoss(weight=_class_weights(y_tr).to(DEVICE))
-    loader = _seq_loader(seq_tr, m_tr, y_tr, params['batch_size'], shuffle=True)
+    return fit_model(lambda: RoundBert(seq_tr.shape[2], params['window'], params),
+                     (seq_tr, m_tr), y_tr, (seq_va, m_va), y_va, params, epochs, patience)
 
-    best_f1, best_state, bad = -1.0, None, 0
-    for _ in range(epochs):
-        model.train()
-        for xb, mb, yb in loader:
-            opt.zero_grad()
-            loss = loss_fn(model(xb.to(DEVICE), mb.to(DEVICE)), yb.to(DEVICE))
-            loss.backward()
-            nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            opt.step()
-
-        f1 = f1_score(y_va, predict_seq(model, seq_va, m_va), zero_division=0)
-        if f1 > best_f1:
-            best_f1, bad = f1, 0
-            best_state = {k: v.detach().clone() for k, v in model.state_dict().items()}
-        else:
-            bad += 1
-            if bad >= patience:
-                break
-
-    model.load_state_dict(best_state)
-    return model, best_f1
-
-def _seq_loader(seq, valid, y, batch_size, shuffle):
-    ds = TensorDataset(torch.from_numpy(seq), torch.from_numpy(valid),
-                    torch.as_tensor(np.asarray(y), dtype=torch.long))
-    return DataLoader(ds, batch_size=batch_size, shuffle=shuffle)
-
-@torch.no_grad()
-def predict_seq(model, seq, valid, batch_size=512):
-    model.eval()
-    preds = []
-    for xb, mb, _ in _seq_loader(seq, valid, np.zeros(len(seq)), batch_size, False):
-        preds.append(model(xb.to(DEVICE), mb.to(DEVICE)).argmax(-1).cpu().numpy())
-    return np.concatenate(preds)
+def predict_seq(model, seq, valid):
+    return predict_model(model, (seq, valid))
 
 def _prepare_seq(X_fit, g_fit, others, w):
-    scaler = StandardScaler().fit(np.asarray(X_fit, dtype=np.float32))
-    out = []
-    for X, g in [(X_fit, g_fit)] + list(others):
-        seq, valid = build_windows(X, g, w)
-        out.append((scale_windows(scaler, seq, valid), valid))
+    # Il preprocessing agisce sulle righe (round) prima del windowing: è equivalente a scalare
+    # le finestre dopo, perché ogni trasformazione è per-feature e non dipende dalle altre righe.
+    *xs, scaler = scale_features(X_fit, *[X for X, _ in others])
+    groups = [g_fit] + [g for _, g in others]
+    out = [build_windows(x, g, w) for x, g in zip(xs, groups)]
     return scaler, out
 
 def build_windows(X, scen, w):
@@ -224,13 +181,6 @@ def build_windows(X, scen, w):
             valid[t, w - k:] = True
     return seq, valid
 
-def scale_windows(scaler, seq, valid):
-    n, w, f = seq.shape
-    out = scaler.transform(seq.reshape(-1, f)).reshape(n, w, f)
-    out = np.clip(out, -10, 10).astype(np.float32)
-    out[~valid] = 0.0
-    return out
-
 def permutation_importance_seq(model, seq, valid, y, features, n_repeats=5):
     rng = np.random.default_rng(RANDOM_SEED)
     y = np.asarray(y)
@@ -242,11 +192,11 @@ def permutation_importance_seq(model, seq, valid, y, features, n_repeats=5):
         for r in range(n_repeats):
             perm = rng.permutation(len(seq))
             col = orig[perm].copy()
-            col[~valid] = 0.0 
+            col[~valid] = 0.0
             seq_p[:, :, j] = col
             f1 = f1_score(y, predict_seq(model, seq_p, valid), zero_division=0)
             drops[j, r] = base - f1
-        seq_p[:, :, j] = orig 
+        seq_p[:, :, j] = orig
     return pd.Series(drops.mean(axis=1), index=list(features))
 
 def to_percent(importances: pd.Series) -> pd.Series:

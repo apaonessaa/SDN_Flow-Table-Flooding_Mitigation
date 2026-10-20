@@ -91,23 +91,24 @@ class FTFUtils:
         return rtt
 
     @staticmethod
-    def estimate_hard_timeout(dst_ip: str, max_int: int, max_interval: int) -> int:
-        for i in range(1, max_int+1):
+    def estimate_hard_timeout(dst_ip: str, n: int=10, t_max: int=30) -> int:
+        threashold = 0.5
+        for i in range(1, n+1):
             rtt0 = FTFUtils.measure_rtt(dst_ip)
             time.sleep(1)
             rtt1 = FTFUtils.measure_rtt(dst_ip)
 
             if rtt0 is None or rtt1 is None:
                 print(f"[!] Not reachable host {dst_ip}")
-                time.sleep(10)
+                time.sleep(t_max)
                 continue
 
-            if abs(rtt1 - rtt0) / rtt1 <= 0.5:
-                print("[!] No Packet In")
-                time.sleep(10)
+            if abs(rtt1 - rtt0) / rtt1 <= threashold:
+                print("[!] No Flow Rule installed")
+                time.sleep(t_max)
                 continue
             
-            for interval in range(2, i*max_interval+1):
+            for t in range(2, i*t_max+1):
                 time.sleep(1)
                 rtti = FTFUtils.measure_rtt(dst_ip)
 
@@ -115,44 +116,44 @@ class FTFUtils:
                     print("[!] Failed Probe")
                     break
                 
-                if rtti > rtt0 or abs(rtti - rtt0) / rtti <= 0.5:
-                    return interval
+                if rtti > rtt0 or abs(rtti - rtt0) / rtti <= threashold:
+                    return t
 
-                print(f"[.] Interval={interval}", flush=True)
+                print(f"[.] t={t} sec", flush=True)
             
-            time.sleep(max_interval)
+            time.sleep(t_max)
         
-        return max_interval
+        return t_max
 
     @staticmethod
-    def estimate_idle_timeout(dst_ip: str, max_int: int, hard_timeout: int) -> int:
-        for _ in range(max_int):
+    def estimate_idle_timeout(dst_ip: str, n: int=10, hard_timeout: int=30) -> int:
+        threashold = 0.5
+        for _ in range(n):
             rtt0 = FTFUtils.measure_rtt(dst_ip) 
             time.sleep(1)
             rtt1 = FTFUtils.measure_rtt(dst_ip)
 
             if rtt0 is None or rtt1 is None:
                 print(f"[!] Not reachable host {dst_ip}")
-                time.sleep(10)
+                time.sleep(hard_timeout)
                 continue
 
-            if abs(rtt1 - rtt0) / rtt1 <= 0.5:
-                print("[!] No Packet In")
-                time.sleep(10)
+            if abs(rtt1 - rtt0) / rtt1 <= threashold:
+                print("[!] No Flow Rule installed")
+                time.sleep(hard_timeout)
                 continue
 
-            inter_sum = 1
-            for interval in range(2, hard_timeout):
+            t_sum = 1
+            for t in range(2, hard_timeout):
 
-                time.sleep(interval)
+                time.sleep(t)
+                t_sum += t
 
-                inter_sum += interval
-
-                if inter_sum >= hard_timeout:
+                if t_sum >= hard_timeout:
                     rtt0 = FTFUtils.measure_rtt(dst_ip)
                     print(f"[+] rtt0={rtt0}")
-                    inter_sum = interval
-                    time.sleep(interval)
+                    t_sum = t
+                    time.sleep(t)
 
                 rtti = FTFUtils.measure_rtt(dst_ip)
 
@@ -160,10 +161,10 @@ class FTFUtils:
                     print("[!] Failed Probe")
                     break
 
-                if rtti > rtt0 or abs(rtti - rtt0) / rtti <= 0.5:
-                    return interval
+                if rtti > rtt0 or abs(rtti - rtt0) / rtti <= threashold:
+                    return t
                     
-                print(f"[.] Interval={interval}", flush=True)
+                print(f"[.] t={t} sec", flush=True)
                             
             time.sleep(hard_timeout)
         
