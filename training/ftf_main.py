@@ -41,7 +41,6 @@ if __name__ == "__main__":
     print("\n\n=== Tuning TempBERT ===")
     best_tempBERT_params = tune_tempBERT(X_train, y_train, groups_train, profiles_train)
 
-
     print("\n\n=== Training finale CatBoost ===")
     train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params, model_dir=MODELS_DIR)
 
@@ -49,7 +48,7 @@ if __name__ == "__main__":
     train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_xgb_params, features=FTF_FEATURES, model_dir=MODELS_DIR)
 
     print("\n\n=== Training finale FeatBERT ===")
-    train_featBERT(X_train, X_val, X_test, y_train, y_val, y_test, results, best_featBERT_params, model_dir=MODELS_DIR)
+    train_featBERT(X_train, X_val, X_test, y_train, y_val, y_test, results, best_featBERT_params, features=FTF_FEATURES, model_dir=MODELS_DIR)
 
     print("\n\n=== Training finale TempBERT ===")
     train_tempBERT(X_train, X_val, X_test, y_train, y_val, y_test,

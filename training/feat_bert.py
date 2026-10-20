@@ -11,6 +11,7 @@ import optuna
 import torch
 import torch.nn as nn
 from transformers import BertConfig, BertForSequenceClassification
+from sklearn.metrics import f1_score
 
 # Modules loader
 import sys
@@ -125,7 +126,7 @@ def tune_featBERT(X_train, y_train, groups_train, profiles_train):
     return study.best_params
 
 
-def train_featBERT(X_train, X_val, X_test, y_train, y_val, y_test, results, best_params, model_dir: str):
+def train_featBERT(X_train, X_val, X_test, y_train, y_val, y_test, results, best_params, features, model_dir: str):
     n_features = X_train.shape[1]
 
     x_tr, x_va, x_te, scaler = scale_features(X_train.values, X_val.values, X_test.values)
@@ -138,12 +139,38 @@ def train_featBERT(X_train, X_val, X_test, y_train, y_val, y_test, results, best
     y_pred = predict_feat(model, x_te)
     evaluate("FeatBERT", y_test, y_pred, results, elapsed)
 
+    importances = permutation_importance_feat(model, x_te, y_test.values, features)
+    importances_pct = to_percent(importances)
+    print(importances_pct.sort_values(ascending=False))
+
     out_dir = os.path.join(model_dir, "feat_bert")
     os.makedirs(out_dir, exist_ok=True)
 
     torch.save(model.state_dict(), os.path.join(out_dir, "model.pt"))
-    joblib.dump({"scaler": scaler, "params": best_params, "n_features": n_features},
+    joblib.dump({"scaler": scaler, "params": best_params, "n_features": n_features, "features": features},
                 os.path.join(out_dir, "meta.joblib"))
     print(f"Model path: {out_dir}")
 
     return model
+
+def permutation_importance_feat(model, x, y, features, n_repeats=5):
+    rng = np.random.default_rng(RANDOM_SEED)
+    y = np.asarray(y)
+    base = f1_score(y, predict_feat(model, x), zero_division=0)
+    x_p = x.copy()
+    drops = np.zeros((len(features), n_repeats))
+    for j in range(len(features)):
+        orig = x[:, j].copy()
+        for r in range(n_repeats):
+            x_p[:, j] = orig[rng.permutation(len(x))]
+            f1 = f1_score(y, predict_feat(model, x_p), zero_division=0)
+            drops[j, r] = base - f1
+        x_p[:, j] = orig
+    return pd.Series(drops.mean(axis=1), index=list(features))
+
+def to_percent(importances: pd.Series) -> pd.Series:
+    clipped = importances.clip(lower=0)
+    total = clipped.sum()
+    if total == 0:
+        return clipped
+    return clipped / total * 100
