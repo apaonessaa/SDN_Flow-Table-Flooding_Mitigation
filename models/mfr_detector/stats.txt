@@ -1,3 +1,6 @@
+/home/ubuntu/.local/lib/python3.8/site-packages/xgboost/core.py:265: FutureWarning: Your system has an old version of glibc (< 2.28). We will stop supporting Linux distros with glibc older than 2.28 after **May 31, 2025**. Please upgrade to a recent Linux distro (with glibc 2.28+) to use future versions of XGBoost.
+Note: You have installed the 'manylinux2014' variant of XGBoost. Certain features such as GPU algorithms or federated learning are not available. To use these features, please upgrade to a recent Linux distro with glibc 2.28+, and install the 'manylinux_2_28' variant.
+  warnings.warn(
 Numero di entry del dataset: 486794
 label            0      1
 scenario_id              
@@ -22,142 +25,148 @@ Deviazione standard tra scenari: 32869.82265619941
 [!] Stratificazione per 'attack_profile' non applicabile (The test_size = 2 should be greater or equal to the number of classes = 3); eseguo uno split non stratificato.
 
 
-=== Tuning CatBoost (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===
-Best trial: 1. Best value: 0.945575: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [00:10<00:00,  3.52s/it]
+=== Tuning CatBoost ===
+Best trial: 0. Best value: 0.941411: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:04<00:00,  4.99s/it]
 
-[CatBoost] Miglior F1 medio in CV: 0.9456
-[CatBoost] Migliori parametri: {'depth': 4, 'learning_rate': 0.13394334706750485, 'l2_leaf_reg': 9.415610164404923, 'rsm': 0.8540362888980227, 'bagging_temperature': 0.06175348288740734, 'random_strength': 4.8495492608099715}
-
-
-=== Tuning XGBoost (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===
-Best trial: 2. Best value: 0.971887: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [00:35<00:00, 11.78s/it]
-
-[XGBoost] Miglior F1 medio in CV: 0.9719
-[XGBoost] Migliori parametri: {'max_depth': 9, 'learning_rate': 0.018891200276189388, 'reg_lambda': 3.5455495408994087, 'colsample_bytree': 0.5917022549267169, 'subsample': 0.6521211214797689, 'min_child_weight': 5.72280788469014}
+[CatBoost] Miglior F1 medio in CV: 0.9414
+[CatBoost] Migliori parametri: {'depth': 6, 'learning_rate': 0.17254716573280354, 'l2_leaf_reg': 11.247915185359671, 'rsm': 0.7993292420985183, 'bagging_temperature': 0.46805592132730955, 'random_strength': 0.7799726016810132}
 
 
-=== Tuning SeqBERT ===
-Best trial: 2. Best value: 0.969055: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [50:04<00:00, 1001.52s/it]
+=== Tuning XGBoost ===
+Best trial: 0. Best value: 0.971344: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:04<00:00,  4.89s/it]
 
-[SeqBERT] Miglior F1 medio in CV: 0.9691
-[SeqBERT] Migliori parametri: {'window': 3, 'num_attention_heads': 4, 'head_dim': 32, 'num_hidden_layers': 1, 'intermediate_size': 64, 'dropout': 0.09351332282682329, 'learning_rate': 0.000586412916969653, 'weight_decay': 0.00043664735929796326, 'batch_size': 256}
+[XGBoost] Miglior F1 medio in CV: 0.9713
+[XGBoost] Migliori parametri: {'max_depth': 6, 'learning_rate': 0.17254716573280354, 'reg_lambda': 11.247915185359671, 'colsample_bytree': 0.7993292420985183, 'subsample': 0.5780093202212182, 'min_child_weight': 2.403950683025824}
 
-=== Tuning BERT ===
-Best trial: 2. Best value: 0.952752: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [1:31:32<00:00, 1831.00s/it]
 
-[HF-BERT] Miglior F1 medio in CV: 0.9528
-[HF-BERT] Migliori parametri: {'n_bins': 6, 'num_attention_heads': 4, 'head_dim': 8, 'num_hidden_layers': 3, 'intermediate_size': 256, 'learning_rate': 0.0008692991511139548, 'weight_decay': 0.002115429079726122, 'batch_size': 128}
+=== Tuning FeatBERT ===
+Best trial: 0. Best value: 0.975315: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [32:39<00:00, 1959.26s/it]
+
+[FeatBERT] Miglior F1 medio in CV: 0.9753
+[FeatBERT] Migliori parametri: {'num_attention_heads': 4, 'head_dim': 8, 'num_hidden_layers': 2, 'intermediate_size': 128, 'dropout': 0.010292247147901223, 'learning_rate': 0.0008706020878304854, 'weight_decay': 0.00314288089084011, 'batch_size': 128}
+
+
+=== Tuning TempBERT ===
+Best trial: 0. Best value: 0.946656: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [26:40<00:00, 1600.38s/it]
+
+[TempBERT] Miglior F1 medio in CV: 0.9467
+[TempBERT] Migliori parametri: {'window': 5, 'num_attention_heads': 2, 'head_dim': 32, 'num_hidden_layers': 2, 'intermediate_size': 256, 'dropout': 0.2497327922401265, 'learning_rate': 0.00020589728197687926, 'weight_decay': 3.511356313970405e-05, 'batch_size': 256}
+
 
 === Training finale CatBoost ===
-0:	learn: 0.9152837	test: 0.9295269	best: 0.9295269 (0)	total: 25.8ms	remaining: 25.8s
+0:	learn: 0.9390000	test: 0.9513669	best: 0.9513669 (0)	total: 31.8ms	remaining: 31.8s
 Stopped by overfitting detector  (10 iterations wait)
 
-bestTest = 0.9604121989
-bestIteration = 4
+bestTest = 0.9655061174
+bestIteration = 24
 
-Shrink model to first 5 iterations.
+Shrink model to first 25 iterations.
 
 === CatBoost ===
-Tempo di training: 0.5s
-Accuracy: 0.9503
+Tempo di training: 1.2s
+Accuracy: 0.8623
               precision    recall  f1-score   support
 
-           0       0.93      0.95      0.94     48274
-           1       0.96      0.95      0.96     62684
+           0       0.77      0.96      0.86     48274
+           1       0.97      0.78      0.87     62684
 
-    accuracy                           0.95    110958
-   macro avg       0.95      0.95      0.95    110958
-weighted avg       0.95      0.95      0.95    110958
+    accuracy                           0.86    110958
+   macro avg       0.87      0.87      0.86    110958
+weighted avg       0.88      0.86      0.86    110958
 
             Feature Id  Importances
-0                  psi    37.964875
-1         packet_count    27.834088
-2           byte_count    17.797660
-3  packets_per_seconds    11.689346
-4    bytes_per_seconds     4.714031
-5             duration     0.000000
+0                  psi    39.132385
+1  packets_per_seconds    16.679645
+2         packet_count    16.603548
+3    bytes_per_seconds    14.083825
+4           byte_count    11.027891
+5             duration     2.472706
 Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/mfr_detector/catboost_model.cbm
 
 
 === Training finale XGBoost ===
-[0]	validation_0-logloss:0.67912
-[50]	validation_0-logloss:0.29233
-[100]	validation_0-logloss:0.17088
-[150]	validation_0-logloss:0.12174
-[200]	validation_0-logloss:0.09841
-[250]	validation_0-logloss:0.08681
-[300]	validation_0-logloss:0.08088
-[350]	validation_0-logloss:0.07802
-[400]	validation_0-logloss:0.07644
-[450]	validation_0-logloss:0.07547
-[500]	validation_0-logloss:0.07492
-[550]	validation_0-logloss:0.07458
-[600]	validation_0-logloss:0.07429
-[631]	validation_0-logloss:0.07417
+[0]	validation_0-logloss:0.55937
+[50]	validation_0-logloss:0.07844
+[100]	validation_0-logloss:0.07480
+[123]	validation_0-logloss:0.07455
 
 === XGBoost ===
-Tempo di training: 7.1s
-Accuracy: 0.8785
+Tempo di training: 1.4s
+Accuracy: 0.8616
               precision    recall  f1-score   support
 
-           0       0.80      0.96      0.87     48274
-           1       0.97      0.81      0.88     62684
+           0       0.77      0.96      0.86     48274
+           1       0.97      0.78      0.86     62684
 
-    accuracy                           0.88    110958
-   macro avg       0.88      0.89      0.88    110958
-weighted avg       0.89      0.88      0.88    110958
+    accuracy                           0.86    110958
+   macro avg       0.87      0.87      0.86    110958
+weighted avg       0.88      0.86      0.86    110958
 
-psi                    0.719180
-packet_count           0.155268
-packets_per_seconds    0.067521
-byte_count             0.031218
-bytes_per_seconds      0.019837
-duration               0.006975
+psi                    0.521668
+packet_count           0.270891
+packets_per_seconds    0.111353
+byte_count             0.057190
+bytes_per_seconds      0.027927
+duration               0.010971
 dtype: float32
 Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/mfr_detector/xgboost_model.json
 
 
-=== Training finale SeqBERT ===
+=== Training finale FeatBERT ===
 
-=== SeqBERT (W=3) ===
-Tempo di training: 430.4s
-Accuracy: 0.8892
+=== FeatBERT ===
+Tempo di training: 1223.1s
+Accuracy: 0.9002
               precision    recall  f1-score   support
 
-           0       0.80      0.99      0.89     48274
-           1       0.99      0.81      0.89     62684
+           0       0.83      0.96      0.89     48274
+           1       0.97      0.85      0.91     62684
 
-    accuracy                           0.89    110958
-   macro avg       0.90      0.90      0.89    110958
-weighted avg       0.91      0.89      0.89    110958
+    accuracy                           0.90    110958
+   macro avg       0.90      0.91      0.90    110958
+weighted avg       0.91      0.90      0.90    110958
 
-packet_count           66.512391
-byte_count             14.248218
-packets_per_seconds    11.586948
-duration                7.226440
-psi                     0.426003
+packet_count           65.775389
+byte_count             19.960387
+duration               12.617170
+psi                     1.386597
+packets_per_seconds     0.259931
+bytes_per_seconds       0.000526
+dtype: float64
+Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/mfr_detector/feat_bert
+
+
+=== Training finale TempBERT ===
+
+=== TempBERT (W=5) ===
+Tempo di training: 952.8s
+Accuracy: 0.7832
+              precision    recall  f1-score   support
+
+           0       0.67      0.99      0.80     48274
+           1       0.99      0.62      0.76     62684
+
+    accuracy                           0.78    110958
+   macro avg       0.83      0.81      0.78    110958
+weighted avg       0.85      0.78      0.78    110958
+
+packet_count           60.721897
+packets_per_seconds    18.229858
+duration               11.134428
+byte_count              9.365811
+psi                     0.548006
 bytes_per_seconds       0.000000
 dtype: float64
-
-=== BERT ===
-Tempo di training: 661.4s
-Accuracy: 0.9585
-              precision    recall  f1-score   support
-
-           0       0.96      0.94      0.95     48274
-           1       0.96      0.97      0.96     62684
-
-    accuracy                           0.96    110958
-   macro avg       0.96      0.96      0.96    110958
-weighted avg       0.96      0.96      0.96    110958
-
-Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/mfr_detector/bert_model
+Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/mfr_detector/temp_bert
 
 
 === Confronto finale ===
-               accuracy  precision  recall     f1  train_time_s
-model                                                          
-CatBoost         0.9503     0.9646  0.9467 0.9556        0.4999
-XGBoost          0.8785     0.9659  0.8136 0.8832        7.1423
-SeqBERT (W=3)    0.8892     0.9924  0.8101 0.8920      430.3574
-BERT             0.9585     0.9578  0.9693 0.9635      661.3857
+                accuracy  precision  recall     f1  train_time_s
+model                                                           
+XGBoost           0.8616     0.9651  0.7833 0.8648        1.4150
+CatBoost          0.8623     0.9653  0.7845 0.8656        1.1542
+FeatBERT          0.9002     0.9667  0.8527 0.9061     1223.1156
+TempBERT (W=5)    0.7832     0.9917  0.6215 0.7641      952.7686
+
+Tabella di confronto salvata in: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/mfr_detector/model_comparison.csv
+Migliori iperparametri salvati in: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/mfr_detector/best_params.joblib

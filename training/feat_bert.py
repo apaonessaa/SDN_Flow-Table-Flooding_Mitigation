@@ -125,7 +125,6 @@ def tune_featBERT(X_train, y_train, groups_train, profiles_train):
 
     return study.best_params
 
-
 def train_featBERT(X_train, X_val, X_test, y_train, y_val, y_test, results, best_params, features, model_dir: str):
     n_features = X_train.shape[1]
 

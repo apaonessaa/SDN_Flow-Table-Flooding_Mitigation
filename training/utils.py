@@ -109,7 +109,6 @@ def load_data_ftf(dataset_path: str):
 
     return X_train, X_val, X_test, y_train, y_val, y_test, profiles_train, scenarios_train, scenarios_val, scenarios_test
 
-
 def load_data_mfr(dataset_path: str):
     df = pd.read_csv(dataset_path)
     print(f"Numero di entry del dataset: {len(df)}")

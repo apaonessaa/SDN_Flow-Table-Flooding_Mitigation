@@ -29,7 +29,7 @@ if __name__ == "__main__":
     best_featBERT_params = None
     best_tempBERT_params = None
 
-    print("\n\n=== Tuning CatBoost ===")
+    print("\n\n=== Tuning CatBoost (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===")
     best_cb_params = tune_catboost(X_train, y_train, groups_train, profiles_train)
 
     print("\n\n=== Tuning XGBoost ===")

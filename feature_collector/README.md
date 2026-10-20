@@ -44,7 +44,7 @@ EOF
 ```bash
 $ cat dataset_ftf_1790077572.csv | awk -F',' '$21 != "6"' - > /tmp/dataset_ftf_1790077572.csv
 
-$ cat dataset_mfr_1790077572.csv | awk -F',' '$8 != "6"' - > /tmp/dataset_ftf_1790077572.csv
+$ cat dataset_mfr_1790077572.csv | awk -F',' '$8 != "6"' - > /tmp/dataset_mfr_1790077572.csv
 
 $ cat dataset.csv | cut -d',' -f21 | sort -u
 

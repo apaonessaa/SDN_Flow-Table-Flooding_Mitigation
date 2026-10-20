@@ -6,7 +6,6 @@ Componenti condivisi da FeatBERT e TempBERT
   - fit_model      : ciclo di training (AdamW, lr costante, early stopping su F1)
   - predict_model  : inferenza a batch
 
-Va salvato nella root del progetto, accanto a utils.py.
 """
 import numpy as np
 import torch
@@ -23,7 +22,6 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 # Parametri esclusi dal weight decay (oltre a bias e LayerNorm, cioè i tensori con ndim < 2).
 # Come in FT-Transformer (Gorishniy et al., 2021, App. E.3): tokenizer/proiezione di input e [CLS] non decadono.
 NO_DECAY_PREFIXES = ("tokenizer.", "proj.", "cls")
-
 
 # --------------------------------------------------------------------------- #
 # Preprocessing
