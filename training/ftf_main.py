@@ -65,8 +65,8 @@ if __name__ == "__main__":
     best_params_path = os.path.join(MODELS_DIR, "best_params.joblib")
     joblib.dump(
         {
-            "catboost": best_cb_params, 
             "xgboost": best_xgb_params, 
+            "catboost": best_cb_params, 
             "featBERT": best_featBERT_params,
             "tempBERT": best_tempBERT_params,
         },
