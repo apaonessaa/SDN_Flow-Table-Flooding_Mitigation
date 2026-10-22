@@ -30,14 +30,19 @@ def sample_attack_rate(npkts, flow_table_size, min_anp={"aggressive": 10,"modera
         "moderate":   (120, 300),
         "stealth":    (350, 550),
     }
+    anms = {
+        "aggressive": (100, 200),
+        "moderate":   (30, 70),
+        "stealth":    (5, 20),
+    }
     profile = rng.choice(list(stealth_profiles.keys()))
     t_min, t_max = stealth_profiles[profile]
     fill_time = rng.uniform(t_min, t_max)
     anp = max(min_anp[profile], math.ceil(flow_table_size / fill_time))
-    return anp, profile, fill_time
+    anm = rng.uniform(anms[profile][0], anms[profile][1])
+    return anp, anm, profile, fill_time
 
 def main() -> None:
-    # Topologies
     # Topologies
     topos = [
         CustomTopo1(),
@@ -105,7 +110,7 @@ def main() -> None:
     n_host = 15
     full_size = int(math.factorial(n_host) / math.factorial(n_host-2)) + 1
     half_size = int(full_size / 2)
-    log_timestamp = "015"#int(time())
+    log_timestamp = int(time())
 
     csv_path = current + f"/logs/network_settings_{log_timestamp}.csv"
 
@@ -124,7 +129,7 @@ def main() -> None:
         # att_npkts: att_npkts >= flow_table_size
         npkts = flow_table_size + rng.randint(0, half_size)
         # att_anp: 1 min - ~10 min
-        anp, profile, fill_time = sample_attack_rate(npkts, flow_table_size)
+        anp, anm, profile, fill_time = sample_attack_rate(npkts, flow_table_size)
         
         # att_duration
         att_duration = -1
@@ -197,8 +202,9 @@ def main() -> None:
                 probe_dst=dst,
                 npacket=npkts,
                 added_new_packets=anp,
-                max_iter=10,
-                max_interval=31,
+                added_new_macs=anm,
+                n=10,
+                t_max=30,
                 net=net,
                 out_file=f"{current}/logs/ftf_{log_timestamp}.csv",
                 local_ip=False if i%2 else True,

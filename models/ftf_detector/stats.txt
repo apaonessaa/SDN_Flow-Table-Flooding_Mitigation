@@ -1,160 +1,223 @@
+/home/ubuntu/.local/lib/python3.8/site-packages/xgboost/core.py:265: FutureWarning: Your system has an old version of glibc (< 2.28). We will stop supporting Linux distros with glibc older than 2.28 after **May 31, 2025**. Please upgrade to a recent Linux distro (with glibc 2.28+) to use future versions of XGBoost.
+Note: You have installed the 'manylinux2014' variant of XGBoost. Certain features such as GPU algorithms or federated learning are not available. To use these features, please upgrade to a recent Linux distro with glibc 2.28+, and install the 'manylinux_2_28' variant.
+  warnings.warn(
+Numero di entry del dataset: 9615
+label          0    1
+scenario_id          
+0            237  249
+1            178  176
+2            118  111
+3            161  162
+4            824  759
+5            193  180
+6            776  776
+7            254  247
+8             96   93
+9            170  163
+10           226  223
+11           157  155
+12           180  177
+13           221  218
+14           169  167
+15           900  899
+
+Deviazione standard tra scenari: 526.6252897775926
+[!] Stratificazione per 'attack_profile' non applicabile (The test_size = 2 should be greater or equal to the number of classes = 3); eseguo uno split non stratificato.
+
+
 === Tuning CatBoost (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===
-Best trial: 9. Best value: 0.818012: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [00:27<00:00,  2.76s/it]
+Best trial: 0. Best value: 0.833817: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  2.15it/s]
 
-[CatBoost] Miglior F1 medio in CV: 0.8180
-[CatBoost] Migliori parametri: {'depth': 8, 'learning_rate': 0.15826541904647565, 'l2_leaf_reg': 2.2388950287268727, 'rsm': 0.5979914312095727, 'bagging_temperature': 0.1356818667316142, 'random_strength': 1.6266516538163218}
+[CatBoost] Miglior F1 medio in CV: 0.8338
+[CatBoost] Migliori parametri: {'depth': 6, 'learning_rate': 0.17254716573280354, 'l2_leaf_reg': 11.247915185359671, 'rsm': 0.7993292420985183, 'bagging_temperature': 0.46805592132730955, 'random_strength': 0.7799726016810132}
 
-=== Tuning XGBoost (Optuna + StratifiedGroupKFold per scenario_id/profilo) ===
-Best trial: 7. Best value: 0.813294: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [00:20<00:00,  2.01s/it]
 
-[XGBoost] Miglior F1 medio in CV: 0.8133
-[XGBoost] Migliori parametri: {'max_depth': 4, 'learning_rate': 0.15242391728466367, 'reg_lambda': 4.622919742400237, 'colsample_bytree': 0.831261142176991, 'subsample': 0.6558555380447055, 'min_child_weight': 5.680612190600297}
+=== Tuning XGBoost ===
+Best trial: 0. Best value: 0.828828: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  1.94it/s]
 
-=== Tuning SeqBERT ===
-Best trial: 6. Best value: 0.844992: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [05:10<00:00, 31.05s/it]
+[XGBoost] Miglior F1 medio in CV: 0.8288
+[XGBoost] Migliori parametri: {'max_depth': 6, 'learning_rate': 0.17254716573280354, 'reg_lambda': 11.247915185359671, 'colsample_bytree': 0.7993292420985183, 'subsample': 0.5780093202212182, 'min_child_weight': 2.403950683025824}
 
-[SeqBERT] Miglior F1 medio in CV: 0.8450
-[SeqBERT] Migliori parametri: {'window': 8, 'num_attention_heads': 4, 'head_dim': 8, 'num_hidden_layers': 1, 'intermediate_size': 128, 'dropout': 0.19002112695312703, 'learning_rate': 0.0019375501864120402, 'weight_decay': 0.0025764174425233167, 'batch_size': 256}
 
-=== Tuning BERT ===
-Best trial: 7. Best value: 0.805296: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [30:47<00:00, 184.79s/it]
+=== Tuning FeatBERT ===
+Best trial: 0. Best value: 0.830792: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:45<00:00, 45.08s/it]
 
-[HF-BERT] Miglior F1 medio in CV: 0.8053
-[HF-BERT] Migliori parametri: {'n_bins': 4, 'num_attention_heads': 2, 'head_dim': 16, 'num_hidden_layers': 4, 'intermediate_size': 512, 'learning_rate': 0.0008411909465645721, 'weight_decay': 5.69307476764461e-05, 'batch_size': 128}
+[FeatBERT] Miglior F1 medio in CV: 0.8308
+[FeatBERT] Migliori parametri: {'num_attention_heads': 4, 'head_dim': 8, 'num_hidden_layers': 2, 'intermediate_size': 128, 'dropout': 0.010292247147901223, 'learning_rate': 0.0008706020878304854, 'weight_decay': 0.00314288089084011, 'batch_size': 128}
+
+
+=== Tuning TempBERT ===
+Best trial: 0. Best value: 0.841964: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:44<00:00, 44.46s/it]
+
+[TempBERT] Miglior F1 medio in CV: 0.8420
+[TempBERT] Migliori parametri: {'window': 5, 'num_attention_heads': 2, 'head_dim': 32, 'num_hidden_layers': 2, 'intermediate_size': 256, 'dropout': 0.41622132040021087, 'learning_rate': 0.00020589728197687926, 'weight_decay': 3.511356313970405e-05, 'batch_size': 256}
+
 
 === Training finale CatBoost ===
-0:	learn: 0.7819907	test: 0.8698644	best: 0.8698644 (0)	total: 5.98ms	remaining: 5.97s
-50:	learn: 0.8661178	test: 0.8602826	best: 0.8748379 (4)	total: 328ms	remaining: 6.11s
-Stopped by overfitting detector  (50 iterations wait)
+0:	learn: 0.8030064	test: 0.8534107	best: 0.8534107 (0)	total: 3.86ms	remaining: 3.85s
+Stopped by overfitting detector  (10 iterations wait)
 
-bestTest = 0.874837887
-bestIteration = 4
+bestTest = 0.8930163004
+bestIteration = 14
 
-Shrink model to first 5 iterations.
+Shrink model to first 15 iterations.
 
 === CatBoost ===
-Tempo di training: 0.4s
-Accuracy: 0.7850
+Tempo di training: 0.1s
+Accuracy: 0.7599
               precision    recall  f1-score   support
 
-           0       0.76      0.83      0.79      1469
-           1       0.81      0.74      0.77      1456
+           0       0.69      0.93      0.80      1328
+           1       0.89      0.59      0.71      1321
 
-    accuracy                           0.78      2925
-   macro avg       0.79      0.78      0.78      2925
-weighted avg       0.79      0.78      0.78      2925
+    accuracy                           0.76      2649
+   macro avg       0.79      0.76      0.75      2649
+weighted avg       0.79      0.76      0.75      2649
 
               Feature Id  Importances
-0         src_ip_entropy    25.086947
-1        src_mac_entropy    13.383625
-2                 c_used    12.205431
-3                    paf     9.998039
-4   payload_entropy_mean     8.169806
-5          bytes_entropy     7.224180
-6         dst_ip_entropy     5.843313
-7   payload_size_entropy     4.618241
-8        dst_mac_entropy     4.040947
-9           pkts_entropy     3.013259
-10                   cvp     2.437835
-11         mean_duration     1.403813
-12                   cvd     1.137957
-13             mean_pkts     0.915738
-14            mean_bytes     0.520869
-15    payload_entropy_cv     0.000000
-16                ft_psi     0.000000
-17     durations_entropy     0.000000
-18                   cvb     0.000000
+0        src_mac_entropy    47.264582
+1         src_ip_entropy    10.041891
+2                 c_used     6.496304
+3          bytes_entropy     5.509025
+4                 ft_psi     4.779453
+5                    paf     4.264090
+6   payload_entropy_mean     4.079475
+7   payload_size_entropy     3.681203
+8           pkts_entropy     2.898882
+9      durations_entropy     2.675638
+10       dst_mac_entropy     1.685178
+11             mean_pkts     1.371145
+12        dst_ip_entropy     1.223998
+13    payload_entropy_cv     1.031278
+14                   cvb     0.887464
+15            mean_bytes     0.866610
+16         mean_duration     0.460311
+17                   cvp     0.431751
+18                   cvd     0.351724
+Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/ftf_detector/catboost_model.cbm
+
 
 === Training finale XGBoost ===
-[0]	validation_0-logloss:0.64400
-[50]	validation_0-logloss:0.32395
-[100]	validation_0-logloss:0.32479
-[150]	validation_0-logloss:0.32266
-[200]	validation_0-logloss:0.32090
-[250]	validation_0-logloss:0.32274
+[0]	validation_0-logloss:0.63449
+[50]	validation_0-logloss:0.28092
+[54]	validation_0-logloss:0.28152
 
 === XGBoost ===
-Tempo di training: 0.4s
-Accuracy: 0.7696
+Tempo di training: 0.2s
+Accuracy: 0.7531
               precision    recall  f1-score   support
 
-           0       0.77      0.78      0.77      1469
-           1       0.77      0.76      0.77      1456
+           0       0.70      0.90      0.79      1328
+           1       0.86      0.60      0.71      1321
 
-    accuracy                           0.77      2925
-   macro avg       0.77      0.77      0.77      2925
-weighted avg       0.77      0.77      0.77      2925
+    accuracy                           0.75      2649
+   macro avg       0.78      0.75      0.75      2649
+weighted avg       0.78      0.75      0.75      2649
 
-src_mac_entropy         0.218620
-src_ip_entropy          0.170782
-dst_ip_entropy          0.075042
-c_used                  0.069885
-paf                     0.059500
-payload_entropy_mean    0.037874
-bytes_entropy           0.036901
-durations_entropy       0.035964
-pkts_entropy            0.035721
-payload_size_entropy    0.032564
-mean_duration           0.032206
-payload_entropy_cv      0.031512
-mean_pkts               0.029501
-dst_mac_entropy         0.029495
-cvp                     0.029291
-mean_bytes              0.026144
-cvb                     0.024713
-cvd                     0.024284
-ft_psi                  0.000000
+dst_mac_entropy         0.170594
+src_mac_entropy         0.162530
+ft_psi                  0.158558
+src_ip_entropy          0.157118
+c_used                  0.065535
+payload_size_entropy    0.028374
+bytes_entropy           0.027040
+payload_entropy_mean    0.026680
+dst_ip_entropy          0.025508
+paf                     0.023019
+payload_entropy_cv      0.023013
+pkts_entropy            0.022306
+mean_bytes              0.018553
+cvp                     0.017678
+mean_pkts               0.016223
+cvb                     0.015257
+cvd                     0.015038
+durations_entropy       0.014019
+mean_duration           0.012958
 dtype: float32
+Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/ftf_detector/xgboost_model.json
 
-=== SeqBERT (W=8) ===
-Tempo di training: 6.1s
-Accuracy: 0.8308
+
+=== Training finale FeatBERT ===
+
+=== FeatBERT ===
+Tempo di training: 16.4s
+Accuracy: 0.7497
               precision    recall  f1-score   support
 
-           0       0.86      0.79      0.82      1469
-           1       0.80      0.87      0.84      1456
+           0       0.70      0.87      0.78      1328
+           1       0.83      0.63      0.71      1321
 
-    accuracy                           0.83      2925
-   macro avg       0.83      0.83      0.83      2925
-weighted avg       0.83      0.83      0.83      2925
+    accuracy                           0.75      2649
+   macro avg       0.77      0.75      0.75      2649
+weighted avg       0.76      0.75      0.75      2649
 
-src_ip_entropy          17.299632
-src_mac_entropy         15.844731
-payload_entropy_mean    12.921058
-payload_size_entropy     8.363797
-pkts_entropy             8.063502
-ft_psi                   7.036232
-dst_mac_entropy          6.403881
-c_used                   5.689786
-cvd                      3.879119
-dst_ip_entropy           3.763785
-mean_duration            3.382067
-bytes_entropy            2.954349
-cvp                      2.567125
-payload_entropy_cv       0.668970
-cvb                      0.598757
-mean_bytes               0.496497
-paf                      0.036984
-mean_pkts                0.029729
-durations_entropy        0.000000
+src_ip_entropy          52.768294
+c_used                  30.059410
+bytes_entropy            3.952768
+payload_size_entropy     2.375828
+durations_entropy        2.327089
+src_mac_entropy          2.179537
+mean_duration            1.673657
+ft_psi                   1.240335
+payload_entropy_mean     1.110338
+cvb                      1.077489
+mean_bytes               0.636739
+dst_ip_entropy           0.441686
+mean_pkts                0.067667
+dst_mac_entropy          0.046720
+paf                      0.042442
+payload_entropy_cv       0.000000
+pkts_entropy             0.000000
+cvd                      0.000000
+cvp                      0.000000
 dtype: float64
+Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/ftf_detector/feat_bert
 
-=== BERT ===
-Tempo di training: 71.1s
-Accuracy: 0.8099
+
+=== Training finale TempBERT ===
+
+=== TempBERT (W=5) ===
+Tempo di training: 20.6s
+Accuracy: 0.7878
               precision    recall  f1-score   support
 
-           0       0.74      0.95      0.83      1469
-           1       0.93      0.67      0.78      1456
+           0       0.74      0.90      0.81      1328
+           1       0.87      0.68      0.76      1321
 
-    accuracy                           0.81      2925
-   macro avg       0.84      0.81      0.81      2925
-weighted avg       0.83      0.81      0.81      2925
+    accuracy                           0.79      2649
+   macro avg       0.80      0.79      0.79      2649
+weighted avg       0.80      0.79      0.79      2649
+
+src_ip_entropy          24.528611
+src_mac_entropy         20.381789
+pkts_entropy            14.521301
+c_used                  13.329086
+payload_size_entropy     5.457543
+payload_entropy_mean     5.268350
+mean_duration            4.950648
+durations_entropy        3.411180
+dst_mac_entropy          2.731130
+cvp                      2.199329
+dst_ip_entropy           1.573747
+ft_psi                   1.077546
+mean_pkts                0.393747
+bytes_entropy            0.175995
+payload_entropy_cv       0.000000
+cvd                      0.000000
+paf                      0.000000
+mean_bytes               0.000000
+cvb                      0.000000
+dtype: float64
+Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/ftf_detector/temp_bert
+
 
 === Confronto finale ===
-               accuracy  precision  recall     f1  train_time_s
-model                                                          
-CatBoost         0.7850     0.8116  0.7397 0.7740        0.4435
-XGBoost          0.7696     0.7730  0.7603 0.7666        0.3920
-SeqBERT (W=8)    0.8308     0.8039  0.8729 0.8370        6.0778
-BERT             0.8099     0.9261  0.6717 0.7787       71.1219
+                accuracy  precision  recall     f1  train_time_s
+model                                                           
+CatBoost          0.7599     0.8923  0.5897 0.7101        0.1086
+XGBoost           0.7531     0.8613  0.6018 0.7086        0.1572
+FeatBERT          0.7497     0.8283  0.6283 0.7146       16.3534
+TempBERT (W=5)    0.7878     0.8660  0.6798 0.7617       20.5895
+
+Tabella di confronto salvata in: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/ftf_detector/model_comparison.csv
+Migliori iperparametri salvati in: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/ftf_detector/best_params.joblib

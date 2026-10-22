@@ -12,7 +12,7 @@ import torch
 import torch.nn as nn
 from sklearn.metrics import f1_score
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, FunctionTransformer
+from sklearn.preprocessing import QuantileTransformer
 from torch.utils.data import DataLoader, TensorDataset
 
 from utils import RANDOM_SEED
@@ -26,27 +26,12 @@ NO_DECAY_PREFIXES = ("tokenizer.", "proj.", "cls")
 # --------------------------------------------------------------------------- #
 # Preprocessing
 # --------------------------------------------------------------------------- #
-def _clip_std(X):
-    return np.clip(X, -10, 10)
-
-
-def _clip_unit(X):
-    return np.clip(X, 0.0, 1.0)
-
-
 def scale_features(X_fit, *X_others):
     """
-    Preprocessing:
-      1. Z-score (standardization)
-      2. Clip in [-10, 10]
-      3. Min-max in [0, 1] (normalization)
-      4. Clip in [0, 1]
+    Data pre-processing: Gorishniy et al. 2021
     """
     pipeline = Pipeline([
-        ("standard", StandardScaler()),
-        ("clip_std", FunctionTransformer(_clip_std, validate=False)),
-        ("minmax", MinMaxScaler(feature_range=(0.0, 1.0))),
-        ("clip_unit", FunctionTransformer(_clip_unit, validate=False)),
+        ("quantile", QuantileTransformer(output_distribution="normal", random_state=RANDOM_SEED))
     ])
     pipeline.fit(np.asarray(X_fit, dtype=np.float64))
 

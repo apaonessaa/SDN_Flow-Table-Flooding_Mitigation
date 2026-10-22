@@ -9,7 +9,7 @@ class FTFAttack:
     
     def __init__(self, attacker: str, probe_dst: str, 
                 npacket: int, added_new_packets: int, added_new_macs: int,
-                max_iter: int, max_interval: int, 
+                n: int, t_max: int, 
                 net: Mininet, 
                 local_ip: bool=False, 
                 out_file: str='/tmp/ftf.csv'):
@@ -18,8 +18,8 @@ class FTFAttack:
         self.npacket = npacket
         self.added_new_packets = added_new_packets
         self.added_new_macs = added_new_macs
-        self.max_iter = max_iter
-        self.max_interval = max_interval
+        self.n = n
+        self.t_max = t_max
         self._stop_event: Event = Event()
         self._worker_proc = None
         self.local_ip = local_ip
@@ -37,8 +37,8 @@ class FTFAttack:
             '--npacket', str(self.npacket),
             '--anp', str(self.added_new_packets),
             '--anm', str(self.added_new_macs),
-            '--max-iter', str(self.max_iter),
-            '--max-interval', str(self.max_interval),
+            '--n', str(self.n),
+            '--t-max', str(self.t_max),
             '--local-ip' if self.local_ip else ''
             '--out-file', self.out_file,
         ]
