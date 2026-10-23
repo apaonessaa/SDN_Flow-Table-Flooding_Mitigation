@@ -22,13 +22,13 @@ def tune_xgboost(X_train, y_train, groups_train, profiles_train):
 
     def objective(trial):
         params = {
-            'max_depth': trial.suggest_int('max_depth', 4, 10),
-            'learning_rate': trial.suggest_float('learning_rate', 0.01, 0.2, log=True),
-            'reg_lambda': trial.suggest_float('reg_lambda', 1.0, 15.0),
-            'colsample_bytree': trial.suggest_float('colsample_bytree', 0.5, 1.0),
-            'subsample': trial.suggest_float('subsample', 0.5, 1.0),
-            'min_child_weight': trial.suggest_float('min_child_weight', 1.0, 10.0),
-            'n_estimators': 1000,
+            'max_depth': trial.suggest_int('max_depth', *DEPTH),
+            'learning_rate': trial.suggest_float('learning_rate', *LEARNING_RATE, log=True),
+            'reg_lambda': trial.suggest_float('reg_lambda', *L2_REG, log=True),
+            'colsample_bytree': trial.suggest_float('colsample_bytree', *COLSAMPLE),
+            'subsample': trial.suggest_float('subsample', *SUBSAMPLE),
+            'min_child_weight': trial.suggest_float('min_child_weight', *MIN_CHILD_WEIGHT, log=True),
+            'n_estimators': ITERATIONS,
             'objective': 'binary:logistic',
             'eval_metric': 'logloss',
             'random_state': RANDOM_SEED,
@@ -74,7 +74,7 @@ def train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_
     scale_pos_weight = n_neg / max(n_pos, 1)
 
     params = {
-        'n_estimators': 1000,
+        'n_estimators': ITERATIONS,
         'objective': 'binary:logistic',
         'eval_metric': 'logloss',
         'random_state': RANDOM_SEED,
@@ -97,8 +97,17 @@ def train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_
     y_pred = model.predict(X_test)
     evaluate("XGBoost", y_test, y_pred, results, elapsed)
 
-    importances = pd.Series(model.feature_importances_, index=features)
+    ## Built-in feature importance
+    #importances = pd.Series(model.feature_importances_, index=features)
+    #print(importances.sort_values(ascending=False))
+
+    ## F1-score permutation importance
+    importances = permutation_importance(
+        lambda X: model.predict(X), X_test, y_test, features
+    )
     print(importances.sort_values(ascending=False))
+    #importances_pct = to_percent(importances)
+    #print(importances_pct.sort_values(ascending=False))
 
     out_path = os.path.join(model_dir, "xgboost_model.json")
     model.save_model(out_path)

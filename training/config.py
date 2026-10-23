@@ -1,0 +1,40 @@
+"""
+    Configuration model file
+"""
+# Tuning + Training
+N_TRIALS = 2#20
+N_SPLITS = 5
+TEST_SIZE = 0.2
+VAL_SIZE = 0.15
+CV_EARLY_STOPPING_ROUNDS = 50
+FINAL_EARLY_STOPPING_ROUNDS = 50
+RANDOM_SEED = 42
+
+# Optuna Catboost & XGBoost
+DEPTH = (3, 10)
+LEARNING_RATE = (1e-5, 1)
+L2_REG = (1.0, 10.0)
+COLSAMPLE = (0.5, 1.0)
+SUBSAMPLE = (0.5, 1.0)  
+ITERATIONS = 1000
+BAGGING_TEMPERATURE = (0.0, 1.0)   # CatBoost
+MIN_CHILD_WEIGHT = (1e-8, 1e5)     # XGBoost
+
+# Optuna Tuning BERT
+BERT_CV_EPOCHS = 30
+BERT_CV_PATIENCE = 5
+NUM_ATTENTION_HEADS = [2,4,8]
+HEAD_DIM = [8,16,24,32]
+NUM_HIDDEN_LAYERS = (1,6)
+INTERMEDIATE_SIZE = [64,128,256,512]
+# Revisiting Deep Learning Models for Tabular Data (Table 13)
+LEARNING_RATE = (1e-5,1e-3)
+WEIGHT_DECAY = (1e-6,1e-3)
+DROPOUT = (0.0,0.5)
+BATCH_SIZE = [256,512,1024]
+# Optuna Training+Validation BERT
+BERT_FINAL_EPOCHS = 50
+BERT_FINAL_PATIENCE = 10
+
+# TempBERT
+WINDOWS = [3,5,8,12]

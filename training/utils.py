@@ -1,11 +1,17 @@
 import pandas as pd
-from sklearn.model_selection import StratifiedGroupKFold, train_test_split
+import numpy as np
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader, TensorDataset
 from sklearn.metrics import (
+    f1_score,
     accuracy_score,
     precision_recall_fscore_support,
     classification_report,
 )
-import numpy as np
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import QuantileTransformer
+from sklearn.model_selection import StratifiedGroupKFold, train_test_split
 
 # Modules loader
 import sys
@@ -13,6 +19,10 @@ import os
 current = os.path.dirname(os.path.realpath(__file__))
 root = os.path.dirname(current)
 sys.path.append(root)
+
+from config import *
+
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 FTF_FEATURES = [
     "payload_entropy_mean", "payload_entropy_cv", "payload_size_entropy",
@@ -34,15 +44,6 @@ BENIGN_PROFILE_LABEL = "benigni"
 # MFR dataset
 RULE_KEY_COL = "match_hash"
 FLOW_KEY_COL = "flow_key"
-
-# Tuning + Training
-N_TRIALS = 10
-N_SPLITS = 5
-TEST_SIZE = 0.2
-VAL_SIZE = 0.15
-CV_EARLY_STOPPING_ROUNDS = 50
-FINAL_EARLY_STOPPING_ROUNDS = 50
-RANDOM_SEED = 42
 
 # Numpy SEED
 np.random.seed(RANDOM_SEED)
@@ -233,4 +234,181 @@ def evaluate(name, y_true, y_pred, results, elapsed=None):
            "recall": rec, "f1": f1, "train_time_s": elapsed}
 
     results.append(row)
+
+# --------------------------------------------------------------------------- #
+# BERT
+# --------------------------------------------------------------------------- #
+# 1. Preprocessing
+# --------------------------------------------------------------------------- #
+def scale_features(X_fit, *X_others):
+    """
+    Data pre-processing: Gorishniy et al. 2021
+    """
+    pipeline = Pipeline([
+        ("quantile", QuantileTransformer(output_distribution="normal", random_state=RANDOM_SEED))
+    ])
+    pipeline.fit(np.asarray(X_fit, dtype=np.float64))
+
+    def _tf(X):
+        return pipeline.transform(np.asarray(X, dtype=np.float64)).astype(np.float32)
+
+    return (_tf(X_fit), *[_tf(X) for X in X_others], pipeline)
+
+# --------------------------------------------------------------------------- #
+# 2. Initialization
+# --------------------------------------------------------------------------- #
+def init_uniform_(*tensors, fan_in):
+    """
+    Uniform rule for all input parameters in FeatBERT and TempBERT (feature tokens, 
+    round projection, [CLS]):
+        
+        U(-1/sqrt(fan_in), +1/sqrt(fan_in)).
+
+    This corresponds to `kaiming_uniform_(a=sqrt(5))` - the default for `nn.Linear` and 
+    the scheme used in the FT-Transformer codebase.    
     
+        `fan_in = d` for token vectors (weights, biases, and the `[CLS]` token, following 
+            the `(n, d)` layout from the original code). 
+        `fan_in = F` for the `Linear(F, d)` layer in TempBERT (which aligns with the 
+        PyTorch default). 
+    
+    The BERT encoder retains the HuggingFace initialization.
+    """
+    bound = float(fan_in) ** -0.5
+    for t in tensors:
+        nn.init.uniform_(t, -bound, bound)
+
+# --------------------------------------------------------------------------- #
+# 3. Training
+# --------------------------------------------------------------------------- #
+def class_weights(y):
+    counts = np.bincount(np.asarray(y), minlength=2)
+    return torch.tensor(counts.sum() / (len(counts) * counts), dtype=torch.float32)
+
+
+def _loader(inputs, y, batch_size, shuffle):
+    ds = TensorDataset(*[torch.from_numpy(a) for a in inputs],
+                       torch.as_tensor(np.asarray(y), dtype=torch.long))
+    return DataLoader(ds, batch_size=batch_size, shuffle=shuffle)
+
+
+@torch.no_grad()
+def predict_model(model, inputs, batch_size=512):
+    model.eval()
+    preds = []
+    for *xs, _ in _loader(inputs, np.zeros(len(inputs[0])), batch_size, False):
+        preds.append(model(*[x.to(DEVICE) for x in xs]).argmax(-1).cpu().numpy())
+    return np.concatenate(preds)
+
+# Parameters excluded from weight decay (in addition to biases and LayerNorm - i.e., 
+# tensors with ndim < 2).
+# As in FT-Transformer (Gorishniy et al., 2021, App. E.3): the tokenizer/input projection 
+# and [CLS] do not undergo weight decay.
+NO_DECAY_PREFIXES = ("tokenizer.", "proj.", "cls")
+
+def fit_model(model_fn, train_inputs, y_tr, val_inputs, y_va, params, epochs, patience):
+    """
+    AdamW with constant learning rate (no scheduler, Gorishniy et al. 2021, §4.3), 
+    class-weighted loss, gradient clip at 1.0, early stopping on F1 validation 
+    and restore the best model.
+    """
+    torch.manual_seed(RANDOM_SEED)
+    model = model_fn().to(DEVICE)
+
+    decay, no_decay = [], []
+    for name, p in model.named_parameters():
+        (no_decay if p.ndim < 2 or name.startswith(NO_DECAY_PREFIXES) else decay).append(p)
+    opt = torch.optim.AdamW(
+        [{"params": decay, "weight_decay": params["weight_decay"]},
+         {"params": no_decay, "weight_decay": 0.0}],
+        lr=params["learning_rate"],
+    )
+    loss_fn = nn.CrossEntropyLoss(weight=class_weights(y_tr).to(DEVICE))
+    loader = _loader(train_inputs, y_tr, params["batch_size"], shuffle=True)
+
+    best_f1, best_state, bad = -1.0, None, 0
+    for _ in range(epochs):
+        model.train()
+        for *xs, yb in loader:
+            opt.zero_grad()
+            loss = loss_fn(model(*[x.to(DEVICE) for x in xs]), yb.to(DEVICE))
+            loss.backward()
+            nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+            opt.step()
+
+        f1 = f1_score(y_va, predict_model(model, val_inputs), zero_division=0)
+        if f1 > best_f1:
+            best_f1, bad = f1, 0
+            best_state = {k: v.detach().clone() for k, v in model.state_dict().items()}
+        else:
+            bad += 1
+            if bad >= patience:
+                break
+
+    model.load_state_dict(best_state)
+    return model, best_f1
+
+# --------------------------------------------------------------------------- #
+
+# --------------------------------------------------------------------------- #
+# FEATURE IMPORTANCE
+# --------------------------------------------------------------------------- #
+
+def permutation_importance(predict_fn, X, y, features, n_repeats=5):
+    """
+    Permutation Importance based on F1-score.
+    X can be a pd.DataFrame (CatBoost, XGBoost) or a np.ndarray (FeatBERT).
+    """
+    rng = np.random.default_rng(RANDOM_SEED)
+    y = np.asarray(y)
+    base = f1_score(y, predict_fn(X), zero_division=0)
+
+    is_df = isinstance(X, pd.DataFrame)
+    X_p = X.copy()
+    drops = np.zeros((len(features), n_repeats))
+
+    for j, feat in enumerate(features):
+        orig = X_p[feat].copy() if is_df else X_p[:, j].copy()
+        for r in range(n_repeats):
+            perm_idx = rng.permutation(len(X_p))
+            if is_df:
+                X_p[feat] = orig.to_numpy()[perm_idx]
+            else:
+                X_p[:, j] = orig[perm_idx]
+            f1 = f1_score(y, predict_fn(X_p), zero_division=0)
+            drops[j, r] = base - f1
+        if is_df:
+            X_p[feat] = orig
+        else:
+            X_p[:, j] = orig
+
+    return pd.Series(drops.mean(axis=1), index=list(features))
+
+def permutation_importance_seq(predict_fn, seq, valid, y, features, n_repeats=5):
+    """
+    Permutation Importance based on F1-score for TempBERT.
+    The input is (round, valid).
+    """
+    rng = np.random.default_rng(RANDOM_SEED)
+    y = np.asarray(y)
+    base = f1_score(y, predict_fn(seq, valid), zero_division=0)
+    seq_p = seq.copy()
+    drops = np.zeros((len(features), n_repeats))
+    for j in range(len(features)):
+        orig = seq[:, :, j]
+        for r in range(n_repeats):
+            perm = rng.permutation(len(seq))
+            col = orig[perm].copy()
+            col[~valid] = 0.0
+            seq_p[:, :, j] = col
+            f1 = f1_score(y, predict_fn(seq_p, valid), zero_division=0)
+            drops[j, r] = base - f1
+        seq_p[:, :, j] = orig
+    return pd.Series(drops.mean(axis=1), index=list(features))
+
+def to_percent(importances: pd.Series) -> pd.Series:
+    clipped = importances.clip(lower=0)
+    total = clipped.sum()
+    if total == 0:
+        return clipped
+    return clipped / total * 100

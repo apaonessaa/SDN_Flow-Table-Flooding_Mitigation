@@ -21,13 +21,12 @@ def tune_catboost(X_train, y_train, groups_train, profiles_train):
 
     def objective(trial):
         params = {
-            'depth': trial.suggest_int('depth', 4, 10),
-            'learning_rate': trial.suggest_float('learning_rate', 0.01, 0.2, log=True),
-            'l2_leaf_reg': trial.suggest_float('l2_leaf_reg', 1.0, 15.0),
-            'rsm': trial.suggest_float('rsm', 0.5, 1.0),
-            'bagging_temperature': trial.suggest_float('bagging_temperature', 0.0, 3.0),
-            'random_strength': trial.suggest_float('random_strength', 0.0, 5.0),
-            'iterations': 1000,
+            'depth': trial.suggest_int('depth', *DEPTH),
+            'learning_rate': trial.suggest_float('learning_rate', *LEARNING_RATE, log=True),
+            'l2_leaf_reg': trial.suggest_float('l2_leaf_reg', *L2_REG, log=True),
+            'rsm': trial.suggest_float('rsm', *COLSAMPLE),
+            'bagging_temperature': trial.suggest_float('bagging_temperature', *BAGGING_TEMPERATURE),
+            'iterations': ITERATIONS,
             'loss_function': 'Logloss',
             'eval_metric': 'F1',
             'random_seed': RANDOM_SEED,
@@ -96,7 +95,17 @@ def train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best
     y_pred = model.predict(test_pool)
     evaluate("CatBoost", y_test, y_pred, results, elapsed)
 
-    print(model.get_feature_importance(prettified=True))
+    ## Built-in feature importance
+    #print(model.get_feature_importance(prettified=True)) 
+    
+    ## F1-score permutation importance
+    features = list(X_test.columns)
+    importances = permutation_importance(
+        lambda X: model.predict(X).ravel(), X_test, y_test, features
+    )
+    print(importances.sort_values(ascending=False))
+    #importances_pct = to_percent(importances)
+    #print(importances_pct.sort_values(ascending=False))
 
     out_path = os.path.join(model_dir, "catboost_model.cbm")
     model.save_model(out_path)

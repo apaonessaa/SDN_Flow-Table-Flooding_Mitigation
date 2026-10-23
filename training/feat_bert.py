@@ -1,17 +1,15 @@
 """
 FeatBERT tuning + training
 
-Un token per feature: T_j = b_j + x_j * W_j (Linear(1, d) distinta per ogni feature,
-Gorishniy et al., 2021, §3.3), più un [CLS] in prima posizione. Encoder BERT (HuggingFace).
-Preprocessing, inizializzazione e ciclo di training sono condivisi con TempBERT (nn_training.py).
+One token per feature: T_j = b_j + x_j * W_j (Linear(1, d) separate for each feature,
+Gorishniy et al., 2021, §3.3) with a [CLS] token in the first position. 
+Encoder BERT (HuggingFace).
 """
 import time
 import joblib
 import optuna
-import torch
-import torch.nn as nn
-from transformers import BertConfig, BertForSequenceClassification
 from sklearn.metrics import f1_score
+from transformers import BertConfig, BertForSequenceClassification
 
 # Modules loader
 import sys
@@ -21,33 +19,13 @@ root = os.path.dirname(current)
 sys.path.append(root)
 
 from utils import *
-from nn_training import scale_features, init_uniform_, fit_model, predict_model
 
 # Torch Numpy
+import torch
+import torch.nn as nn
 torch.manual_seed(RANDOM_SEED)
 
 optuna.logging.set_verbosity(optuna.logging.WARNING)
-
-# Tuning
-BERT_CV_EPOCHS = 30
-BERT_CV_PATIENCE = 5
-# Training+Validation
-BERT_FINAL_EPOCHS = 50
-BERT_FINAL_PATIENCE = 10
-
-def _build_bert_config(n_features, params):
-    return BertConfig(
-        vocab_size=1,                                   # not used: continuous feature 
-        hidden_size=params['num_attention_heads'] * params['head_dim'],
-        num_hidden_layers=params['num_hidden_layers'],
-        num_attention_heads=params['num_attention_heads'],
-        intermediate_size=params['intermediate_size'],
-        hidden_dropout_prob=params['dropout'],
-        attention_probs_dropout_prob=params['dropout'],
-        max_position_embeddings=n_features + 1,         # not used: BertEmbeddings saved
-        type_vocab_size=1,
-        num_labels=2,
-    )
 
 class FeatureTokenizer(nn.Module):
     """T_j = b_j + x_j * W_j: Linear(1, d) per feature, [CLS] in pos 0."""
@@ -64,7 +42,7 @@ class FeatureTokenizer(nn.Module):
 class FeatBert(nn.Module):
     def __init__(self, n_feat, params):
         super().__init__()
-        config = _build_bert_config(n_feat, params)
+        config = self._build_bert_config(n_feat, params)
         self.tokenizer = FeatureTokenizer(n_feat, config.hidden_size)
         self.bert = BertForSequenceClassification(config)
         self.bert.bert.embeddings = nn.Identity()       # no BertEmbeddings (LayerNorm, positions)
@@ -73,12 +51,19 @@ class FeatBert(nn.Module):
         h = self.bert.bert.encoder(self.tokenizer(x)).last_hidden_state     # (B, F+1, d)
         return self.bert.classifier(self.bert.dropout(self.bert.bert.pooler(h)))   # pooler sul [CLS]
 
-def fit_feat(params, x_tr, y_tr, x_va, y_va, n_features, epochs, patience):
-    return fit_model(lambda: FeatBert(n_features, params),
-                     (x_tr,), y_tr, (x_va,), y_va, params, epochs, patience)
-
-def predict_feat(model, x):
-    return predict_model(model, (x,))
+    def _build_bert_config(self, n_features, params):
+        return BertConfig(
+            vocab_size=1,                                   # not used: continuous feature 
+            hidden_size=params['num_attention_heads']*params['head_dim'],
+            num_hidden_layers=params['num_hidden_layers'],
+            num_attention_heads=params['num_attention_heads'],
+            intermediate_size=params['intermediate_size'],
+            hidden_dropout_prob=params['dropout'],
+            attention_probs_dropout_prob=params['dropout'],
+            max_position_embeddings=n_features+1,         # not used: BertEmbeddings saved
+            type_vocab_size=1,
+            num_labels=2,
+        )
 
 def tune_featBERT(X_train, y_train, groups_train, profiles_train):
     splits = make_group_kfold_splits(X_train, groups_train, profiles_train)
@@ -86,14 +71,14 @@ def tune_featBERT(X_train, y_train, groups_train, profiles_train):
 
     def objective(trial):
         params = {
-            'num_attention_heads': trial.suggest_categorical('num_attention_heads', [2, 4, 8]),
-            'head_dim': trial.suggest_categorical('head_dim', [8, 16, 24]),
-            'num_hidden_layers': trial.suggest_int('num_hidden_layers', 2, 6),
-            'intermediate_size': trial.suggest_categorical('intermediate_size', [128, 256, 512]),
-            'dropout': trial.suggest_float('dropout', 0.0, 0.5),
-            'learning_rate': trial.suggest_float('learning_rate', 1e-5, 1e-3, log=True),
-            'weight_decay': trial.suggest_float('weight_decay', 1e-5, 1e-2, log=True),
-            'batch_size': trial.suggest_categorical('batch_size', [128, 256]),
+            'num_attention_heads': trial.suggest_categorical('num_attention_heads', NUM_ATTENTION_HEADS),
+            'head_dim': trial.suggest_categorical('head_dim', HEAD_DIM),
+            'num_hidden_layers': trial.suggest_int('num_hidden_layers', NUM_HIDDEN_LAYERS[0], NUM_HIDDEN_LAYERS[1]),
+            'intermediate_size': trial.suggest_categorical('intermediate_size', INTERMEDIATE_SIZE),
+            'dropout': trial.suggest_float('dropout', DROPOUT[0], DROPOUT[1]),
+            'learning_rate': trial.suggest_float('learning_rate', LEARNING_RATE[0], LEARNING_RATE[1], log=True),
+            'weight_decay': trial.suggest_float('weight_decay', WEIGHT_DECAY[0], WEIGHT_DECAY[1], log=True),
+            'batch_size': trial.suggest_categorical('batch_size', BATCH_SIZE),
         }
 
         fold_scores = []
@@ -138,9 +123,13 @@ def train_featBERT(X_train, X_val, X_test, y_train, y_val, y_test, results, best
     y_pred = predict_feat(model, x_te)
     evaluate("FeatBERT", y_test, y_pred, results, elapsed)
 
-    importances = permutation_importance_feat(model, x_te, y_test.values, features)
-    importances_pct = to_percent(importances)
-    print(importances_pct.sort_values(ascending=False))
+    ## F1-score permutation importance
+    importances = importances = permutation_importance(
+        lambda X: predict_feat(model, X), x_te, y_test.values, features
+    )
+    print(importances.sort_values(ascending=False))
+    #importances_pct = to_percent(importances)
+    #print(importances_pct.sort_values(ascending=False))
 
     out_dir = os.path.join(model_dir, "feat_bert")
     os.makedirs(out_dir, exist_ok=True)
@@ -152,24 +141,12 @@ def train_featBERT(X_train, X_val, X_test, y_train, y_val, y_test, results, best
 
     return model
 
-def permutation_importance_feat(model, x, y, features, n_repeats=5):
-    rng = np.random.default_rng(RANDOM_SEED)
-    y = np.asarray(y)
-    base = f1_score(y, predict_feat(model, x), zero_division=0)
-    x_p = x.copy()
-    drops = np.zeros((len(features), n_repeats))
-    for j in range(len(features)):
-        orig = x[:, j].copy()
-        for r in range(n_repeats):
-            x_p[:, j] = orig[rng.permutation(len(x))]
-            f1 = f1_score(y, predict_feat(model, x_p), zero_division=0)
-            drops[j, r] = base - f1
-        x_p[:, j] = orig
-    return pd.Series(drops.mean(axis=1), index=list(features))
+"""
+Utilities
+"""
+def fit_feat(params, x_tr, y_tr, x_va, y_va, n_features, epochs, patience):
+    return fit_model(lambda: FeatBert(n_features, params),
+                     (x_tr,), y_tr, (x_va,), y_va, params, epochs, patience)
 
-def to_percent(importances: pd.Series) -> pd.Series:
-    clipped = importances.clip(lower=0)
-    total = clipped.sum()
-    if total == 0:
-        return clipped
-    return clipped / total * 100
+def predict_feat(model, x):
+    return predict_model(model, (x,))
