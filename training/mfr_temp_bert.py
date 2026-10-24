@@ -1,20 +1,17 @@
 """
 TempBERT tuning + training (dataset MFR)
 
-Stessa architettura e stessi componenti condivisi della versione FTF (temp_bert.py):
-un token per round (Linear(F, d), Zerveas et al., 2021, §3.1) + [CLS], finestra causale di W round
-con padding mask, encoder BERT (HuggingFace). Preprocessing, inizializzazione e ciclo di training
-vengono da nn_training.py.
+One token per round: Linear(F, d) on the feature vector of the round (Zerveas et al., 2021, §3.1), 
+plus a [CLS] in first position. Random window of W round inside the scenario, with padding mask. 
+BERT (HuggingFace) encoder.
 
-Differenza rispetto alla versione FTF: le finestre non seguono lo scenario ma la chiave del flusso
-(flow_key = scenario_id + match_hash, `keys_*`), mentre i fold del tuning sono costruiti
-sugli scenari (`groups_train`) e sul profilo d'attacco.
+Difference from the FTF version: the windows do not follow the scenario but the flow key 
+(flow_key = scenario_id + match_hash, 'keys_*'), while tuning folds are constructed on the scenarios 
+('groups_train') and on the attack profile.
 """
 import time
 import joblib
 import optuna
-import torch
-import torch.nn as nn
 from sklearn.metrics import f1_score
 from transformers import BertConfig, BertForSequenceClassification
 
@@ -26,21 +23,48 @@ root = os.path.dirname(current)
 sys.path.append(root)
 
 from utils import *
-from nn_training import scale_features, init_uniform_, fit_model, predict_model
 
 # Torch Numpy
+import torch
+import torch.nn as nn
 torch.manual_seed(RANDOM_SEED)
 
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
-# Tuning
-SEQ_CV_EPOCHS = 30
-SEQ_CV_PATIENCE = 5
-# Training+Validation
-SEQ_FINAL_EPOCHS = 50
-SEQ_FINAL_PATIENCE = 10
+class TempBERT(nn.Module):
+    def __init__(self, n_feat, window, params):
+        super().__init__()
+        config = self._build_seq_bert_config(window, params)
+        d = config.hidden_size
+        self.proj = nn.Linear(n_feat, d)
+        self.cls = nn.Parameter(torch.empty(1, 1, d))
+        init_uniform_(self.proj.weight, self.proj.bias, fan_in=n_feat)   # = default di nn.Linear
+        init_uniform_(self.cls, fan_in=d)                                # stessa regola di FeatBERT
+        self.bert = BertForSequenceClassification(config)
 
-WINDOWS = [3, 5, 8]
+    def forward(self, x, valid):
+        # x: (B, W, F) scalato; valid: (B, W) bool (True = round reale)
+        h = self.proj(x)                                        # (B, W, d)
+        cls = self.cls.expand(h.size(0), -1, -1)                # (B, 1, d)
+        h = torch.cat([cls, h], dim=1)                          # (B, W+1, d)
+        mask = torch.cat(
+            [torch.ones_like(valid[:, :1]), valid], dim=1
+        ).long()                                                # (B, W+1), 0 = padding
+        return self.bert(inputs_embeds=h, attention_mask=mask).logits
+
+    def _build_seq_bert_config(self, window, params):
+        return BertConfig(
+            vocab_size=1,
+            hidden_size=params['num_attention_heads']*params['head_dim'],
+            num_hidden_layers=params['num_hidden_layers'],
+            num_attention_heads=params['num_attention_heads'],
+            intermediate_size=params['intermediate_size'],
+            hidden_dropout_prob=params['dropout'],
+            attention_probs_dropout_prob=params['dropout'],
+            max_position_embeddings=window+1,
+            type_vocab_size=1,
+            num_labels=2,
+        )
 
 def tune_tempBERT(X_train, y_train, groups_train, profiles_train, keys_train):
     splits = make_group_kfold_splits(X_train, groups_train, profiles_train)
@@ -48,14 +72,14 @@ def tune_tempBERT(X_train, y_train, groups_train, profiles_train, keys_train):
     def objective(trial):
         params = {
             'window': trial.suggest_categorical('window', WINDOWS),
-            'num_attention_heads': trial.suggest_categorical('num_attention_heads', [2, 4]),
-            'head_dim': trial.suggest_categorical('head_dim', [8, 16, 32]),
-            'num_hidden_layers': trial.suggest_int('num_hidden_layers', 1, 3),
-            'intermediate_size': trial.suggest_categorical('intermediate_size', [64, 128, 256]),
-            'dropout': trial.suggest_float('dropout', 0.0, 0.3),
-            'learning_rate': trial.suggest_float('learning_rate', 1e-4, 3e-3, log=True),
-            'weight_decay': trial.suggest_float('weight_decay', 1e-5, 1e-2, log=True),
-            'batch_size': trial.suggest_categorical('batch_size', [128, 256]),
+            'num_attention_heads': trial.suggest_categorical('num_attention_heads', NUM_ATTENTION_HEADS),
+            'head_dim': trial.suggest_categorical('head_dim', HEAD_DIM),
+            'num_hidden_layers': trial.suggest_int('num_hidden_layers', NUM_HIDDEN_LAYERS[0], NUM_HIDDEN_LAYERS[1]),
+            'intermediate_size': trial.suggest_categorical('intermediate_size', INTERMEDIATE_SIZE),
+            'dropout': trial.suggest_float('dropout', DROPOUT[0], DROPOUT[1]),
+            'learning_rate': trial.suggest_float('learning_rate', LEARNING_RATE[0], LEARNING_RATE[1], log=True),
+            'weight_decay': trial.suggest_float('weight_decay', WEIGHT_DECAY[0], WEIGHT_DECAY[1], log=True),
+            'batch_size': trial.suggest_categorical('batch_size', BATCH_SIZE),
         }
         scores = []
         for fold_idx, (tr_idx, va_idx) in enumerate(splits):
@@ -66,7 +90,7 @@ def tune_tempBERT(X_train, y_train, groups_train, profiles_train, keys_train):
             _, ((s_tr, m_tr), (s_va, m_va)) = _prepare_seq(
                 X_tr, k_tr, [(X_va, k_va)], params['window'])
             _, f1 = fit_seq(params, s_tr, m_tr, y_tr, s_va, m_va, y_va,
-                            SEQ_CV_EPOCHS, SEQ_CV_PATIENCE)
+                            BERT_CV_EPOCHS, BERT_CV_PATIENCE)
             scores.append(f1)
 
             trial.report(float(np.mean(scores)), step=fold_idx)
@@ -94,15 +118,19 @@ def train_tempBERT(X_train, X_val, X_test, y_train, y_val, y_test,
 
     t0 = time.time()
     model, _ = fit_seq(best_params, s_tr, m_tr, y_train.values, s_va, m_va, y_val.values,
-                       SEQ_FINAL_EPOCHS, SEQ_FINAL_PATIENCE)
+                       BEERT_FINAL_EPOCHS, BBERT_FINAL_PATIENCE)
     elapsed = time.time() - t0
 
     y_pred = predict_seq(model, s_te, m_te)
     evaluate(f"TempBERT (W={best_params['window']})", y_test, y_pred, results, elapsed)
 
-    importances = permutation_importance_seq(model, s_te, m_te, y_test.values, features)
-    importances_pct = to_percent(importances)
-    print(importances_pct.sort_values(ascending=False))
+    ## F1-score permutation importance
+    importances = permutation_importance_seq(
+        lambda seq, valid: predict_seq(model, seq, valid), s_te, m_te, y_test.values, features
+    )
+    print(importances.sort_values(ascending=False))
+    #importances_pct = to_percent(importances)
+    #print(importances_pct.sort_values(ascending=False))
 
     out_dir = os.path.join(model_dir, "temp_bert")
     os.makedirs(out_dir, exist_ok=True)
@@ -116,43 +144,8 @@ def train_tempBERT(X_train, X_val, X_test, y_train, y_val, y_test,
 """
 Utilities
 """
-class RoundBert(nn.Module):
-    def __init__(self, n_feat, window, params):
-        super().__init__()
-        config = self._build_seq_bert_config(window, params)
-        d = config.hidden_size
-        self.proj = nn.Linear(n_feat, d)
-        self.cls = nn.Parameter(torch.empty(1, 1, d))
-        init_uniform_(self.proj.weight, self.proj.bias, fan_in=n_feat)   # = default di nn.Linear
-        init_uniform_(self.cls, fan_in=d)                                # stessa regola di FeatBERT
-        self.bert = BertForSequenceClassification(config)
-
-    def forward(self, x, valid):
-        # x: (B, W, F) scalato; valid: (B, W) bool (True = round reale)
-        h = self.proj(x)                                        # (B, W, d)
-        cls = self.cls.expand(h.size(0), -1, -1)                # (B, 1, d)
-        h = torch.cat([cls, h], dim=1)                          # (B, W+1, d)
-        mask = torch.cat(
-            [torch.ones_like(valid[:, :1]), valid], dim=1
-        ).long()                                                # (B, W+1), 0 = padding
-        return self.bert(inputs_embeds=h, attention_mask=mask).logits
-
-    def _build_seq_bert_config(self, window, params):
-        return BertConfig(
-            vocab_size=1,
-            hidden_size=params['num_attention_heads'] * params['head_dim'],
-            num_hidden_layers=params['num_hidden_layers'],
-            num_attention_heads=params['num_attention_heads'],
-            intermediate_size=params['intermediate_size'],
-            hidden_dropout_prob=params['dropout'],
-            attention_probs_dropout_prob=params['dropout'],
-            max_position_embeddings=window+1,
-            type_vocab_size=1,
-            num_labels=2,
-        )
-
 def fit_seq(params, seq_tr, m_tr, y_tr, seq_va, m_va, y_va, epochs, patience):
-    return fit_model(lambda: RoundBert(seq_tr.shape[2], params['window'], params),
+    return fit_model(lambda: TempBERT(seq_tr.shape[2], params['window'], params),
                      (seq_tr, m_tr), y_tr, (seq_va, m_va), y_va, params, epochs, patience)
 
 def predict_seq(model, seq, valid):
@@ -185,28 +178,3 @@ def build_windows(X, scen, w):
             seq[t, w - k:] = X[lo:t + 1]
             valid[t, w - k:] = True
     return seq, valid
-
-def permutation_importance_seq(model, seq, valid, y, features, n_repeats=5):
-    rng = np.random.default_rng(RANDOM_SEED)
-    y = np.asarray(y)
-    base = f1_score(y, predict_seq(model, seq, valid), zero_division=0)
-    seq_p = seq.copy()
-    drops = np.zeros((len(features), n_repeats))
-    for j in range(len(features)):
-        orig = seq[:, :, j]
-        for r in range(n_repeats):
-            perm = rng.permutation(len(seq))
-            col = orig[perm].copy()
-            col[~valid] = 0.0
-            seq_p[:, :, j] = col
-            f1 = f1_score(y, predict_seq(model, seq_p, valid), zero_division=0)
-            drops[j, r] = base - f1
-        seq_p[:, :, j] = orig
-    return pd.Series(drops.mean(axis=1), index=list(features))
-
-def to_percent(importances: pd.Series) -> pd.Series:
-    clipped = importances.clip(lower=0)
-    total = clipped.sum()
-    if total == 0:
-        return clipped
-    return clipped / total * 100

@@ -1,10 +1,9 @@
 """
 TempBERT tuning + training
 
-Un token per round: Linear(F, d) sul vettore di feature del round (Zerveas et al., 2021, §3.1),
-più un [CLS] in prima posizione. Finestra causale di W round dentro lo scenario, con padding mask.
-Encoder BERT (HuggingFace).
-Preprocessing, inizializzazione e ciclo di training sono condivisi con FeatBERT (nn_training.py).
+One token per round: Linear(F, d) on the feature vector of the round (Zerveas et al., 2021, §3.1), 
+plus a [CLS] in first position. Random window of W round inside the scenario, with padding mask. 
+BERT (HuggingFace) encoder.
 """
 import time
 import joblib

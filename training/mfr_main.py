@@ -11,8 +11,8 @@ sys.path.append(root)
 from utils import *
 from m_catboost import *
 from m_xgboost import *
-from mfr_temp_bert import *
 from feat_bert import *
+from mfr_temp_bert import *
 
 MODELS_DIR = root + '/models/mfr_detector'
 os.makedirs(MODELS_DIR, exist_ok=True)
@@ -30,25 +30,25 @@ if __name__ == "__main__":
     best_tempBERT_params = None
 
     print("\n\n=== Tuning XGBoost ===")
-    best_xgb_params = tune_xgboost(X_train, y_train, groups_train, profiles_train)
+    #best_xgb_params = tune_xgboost(X_train, y_train, groups_train, profiles_train)
 
     print("\n\n=== Tuning CatBoost ===")
-    best_cb_params = tune_catboost(X_train, y_train, groups_train, profiles_train)
+    #best_cb_params = tune_catboost(X_train, y_train, groups_train, profiles_train)
 
     print("\n\n=== Tuning FeatBERT ===")
-    best_featBERT_params = tune_featBERT(X_train, y_train, groups_train, profiles_train)
+    #best_featBERT_params = tune_featBERT(X_train, y_train, groups_train, profiles_train)
 
     print("\n\n=== Tuning TempBERT ===")
     best_tempBERT_params = tune_tempBERT(X_train, y_train, groups_train, profiles_train, keys_train)
 
     print("\n\n=== Training finale XGBoost ===")
-    train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_xgb_params, features=MFR_FEATURES, model_dir=MODELS_DIR)
+    #train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_xgb_params, features=MFR_FEATURES, model_dir=MODELS_DIR)
 
     print("\n\n=== Training finale CatBoost ===")
-    train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params, model_dir=MODELS_DIR)
+    #train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params, model_dir=MODELS_DIR)
 
     print("\n\n=== Training finale FeatBERT ===")
-    train_featBERT(X_train, X_val, X_test, y_train, y_val, y_test, results, best_featBERT_params, features=MFR_FEATURES, model_dir=MODELS_DIR)
+    #train_featBERT(X_train, X_val, X_test, y_train, y_val, y_test, results, best_featBERT_params, features=MFR_FEATURES, model_dir=MODELS_DIR)
 
     print("\n\n=== Training finale TempBERT ===")
     train_tempBERT(X_train, X_val, X_test, y_train, y_val, y_test,
