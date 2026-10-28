@@ -11,8 +11,9 @@ FINAL_EARLY_STOPPING_ROUNDS = 50
 RANDOM_SEED = 42
 
 # Optuna Catboost & XGBoost
+# Revisiting Deep Learning Models for Tabular Data (Table 16-17)
 DEPTH = (3, 10)
-LEARNING_RATE = (1e-5, 1)
+BOOST_LEARNING_RATE = (1e-5, 1)
 L2_REG = (1.0, 10.0)
 COLSAMPLE = (0.5, 1.0)
 SUBSAMPLE = (0.5, 1.0)  

@@ -30,13 +30,13 @@ if __name__ == "__main__":
     best_tempBERT_params = None
 
     print("\n\n=== Tuning FeatBERT ===")
-    #best_featBERT_params = tune_featBERT(X_train, y_train, groups_train, profiles_train)
+    best_featBERT_params = tune_featBERT(X_train, y_train, groups_train, profiles_train)
 
     print("\n\n=== Tuning TempBERT ===")
     best_tempBERT_params = tune_tempBERT(X_train, y_train, groups_train, profiles_train, keys_train)
 
     print("\n\n=== Training finale FeatBERT ===")
-    #train_featBERT(X_train, X_val, X_test, y_train, y_val, y_test, results, best_featBERT_params, features=MFR_FEATURES, model_dir=MODELS_DIR)
+    train_featBERT(X_train, X_val, X_test, y_train, y_val, y_test, results, best_featBERT_params, features=MFR_FEATURES, model_dir=MODELS_DIR)
 
     print("\n\n=== Training finale TempBERT ===")
     train_tempBERT(X_train, X_val, X_test, y_train, y_val, y_test,
