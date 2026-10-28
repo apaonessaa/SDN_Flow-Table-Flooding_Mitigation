@@ -29,23 +29,11 @@ if __name__ == "__main__":
     best_featBERT_params = None
     best_tempBERT_params = None
 
-    print("\n\n=== Tuning XGBoost ===")
-    #best_xgb_params = tune_xgboost(X_train, y_train, groups_train, profiles_train)
-
-    print("\n\n=== Tuning CatBoost ===")
-    #best_cb_params = tune_catboost(X_train, y_train, groups_train, profiles_train)
-
     print("\n\n=== Tuning FeatBERT ===")
     #best_featBERT_params = tune_featBERT(X_train, y_train, groups_train, profiles_train)
 
     print("\n\n=== Tuning TempBERT ===")
     best_tempBERT_params = tune_tempBERT(X_train, y_train, groups_train, profiles_train, keys_train)
-
-    print("\n\n=== Training finale XGBoost ===")
-    #train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_xgb_params, features=MFR_FEATURES, model_dir=MODELS_DIR)
-
-    print("\n\n=== Training finale CatBoost ===")
-    #train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params, model_dir=MODELS_DIR)
 
     print("\n\n=== Training finale FeatBERT ===")
     #train_featBERT(X_train, X_val, X_test, y_train, y_val, y_test, results, best_featBERT_params, features=MFR_FEATURES, model_dir=MODELS_DIR)
@@ -53,6 +41,18 @@ if __name__ == "__main__":
     print("\n\n=== Training finale TempBERT ===")
     train_tempBERT(X_train, X_val, X_test, y_train, y_val, y_test,
             keys_train, keys_val, keys_test, results, best_tempBERT_params, features=MFR_FEATURES, model_dir=MODELS_DIR)
+
+    print("\n\n=== Tuning XGBoost ===")
+    best_xgb_params = tune_xgboost(X_train, y_train, groups_train, profiles_train)
+
+    print("\n\n=== Tuning CatBoost ===")
+    best_cb_params = tune_catboost(X_train, y_train, groups_train, profiles_train)
+
+    print("\n\n=== Training finale XGBoost ===")
+    train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_xgb_params, features=MFR_FEATURES, model_dir=MODELS_DIR)
+
+    print("\n\n=== Training finale CatBoost ===")
+    train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params, model_dir=MODELS_DIR)
 
     comparison = pd.DataFrame(results).set_index("model")
     print("\n\n=== Confronto finale ===")

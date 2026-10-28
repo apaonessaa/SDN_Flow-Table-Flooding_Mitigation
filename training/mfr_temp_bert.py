@@ -118,7 +118,7 @@ def train_tempBERT(X_train, X_val, X_test, y_train, y_val, y_test,
 
     t0 = time.time()
     model, _ = fit_seq(best_params, s_tr, m_tr, y_train.values, s_va, m_va, y_val.values,
-                       BEERT_FINAL_EPOCHS, BBERT_FINAL_PATIENCE)
+                       BERT_FINAL_EPOCHS, BERT_FINAL_PATIENCE)
     elapsed = time.time() - t0
 
     y_pred = predict_seq(model, s_te, m_te)
