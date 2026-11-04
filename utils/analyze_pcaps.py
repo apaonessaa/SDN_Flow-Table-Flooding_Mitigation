@@ -14,12 +14,25 @@ Per ogni file traffic_10_0_0_X.pcap estrae:
   - TCP: flag, connessioni iniziate (SYN senza ACK)
   - DNS: query uniche e nomi piu' richiesti
 
-Output: tabella a console + summary.csv + details.json (+ aggregato).
+NOVITA': dati per stimare HARD e IDLE TIMEOUT delle flow rule
+  - DURATA DEL FLUSSO (primo -> ultimo pacchetto)        -> hard timeout
+  - GAP TRA PACCHETTI CONSECUTIVI DELLO STESSO FLUSSO    -> idle timeout
+  - gap massimo per flusso (il caso peggiore di ogni flusso)
+  - tutto separato per TCP / UDP / ALL / coppia di host (IP pair) / servizio
+  - percentuale di flussi che supererebbero un dato hard timeout e
+    percentuale di gap / flussi che supererebbero un dato idle timeout
+  - range indicativo suggerito (percentili) e avviso di troncamento
+    della cattura
+  Nell'output a console il blocco e' evidenziato (banner giallo).
+
+Output: tabella a console + summary.csv + details.json
+        + timeout_summary.csv + timeout_thresholds.csv (+ aggregato).
 
 Uso:
     pip install scapy
-    python3 analyze_pcaps.py                       # usa $PROGETTO/traffic/scenario_000
+    python3 analyze_pcaps.py                       # usa $PROGETTO/traffics/scenario_000
     python3 analyze_pcaps.py -d /path/ai/pcap -o risultati
+    python3 analyze_pcaps.py --hard-candidates 5,15,60,300 --idle-candidates 1,5,30
 """
 import argparse
 import csv
@@ -34,6 +47,19 @@ from collections import Counter, defaultdict
 
 from scapy.all import PcapReader, Ether, IP, IPv6, TCP, UDP, ICMP, ARP, DNS, DNSQR, Raw
 
+COLOR = False
+BANNER = "1;30;43"   # grassetto, nero su giallo
+HEAD = "1;33"        # grassetto giallo
+GOOD = "1;32"        # grassetto verde
+WARN = "1;31"        # grassetto rosso
+
+DEFAULT_HARD = [5, 10, 15, 30, 60, 120, 300]
+DEFAULT_IDLE = [1, 2, 3, 5, 10, 15, 30, 60]
+
+
+def c(txt, code):
+    return f"\033[{code}m{txt}\033[0m" if COLOR else txt
+
 
 # ----------------------------------------------------------------- helper --
 def pct(sorted_vals, p):
@@ -41,8 +67,8 @@ def pct(sorted_vals, p):
     if not sorted_vals:
         return 0.0
     k = (len(sorted_vals) - 1) * p / 100.0
-    f, c = int(k), min(int(k) + 1, len(sorted_vals) - 1)
-    return sorted_vals[f] + (sorted_vals[c] - sorted_vals[f]) * (k - f)
+    f, c_ = int(k), min(int(k) + 1, len(sorted_vals) - 1)
+    return sorted_vals[f] + (sorted_vals[c_] - sorted_vals[f]) * (k - f)
 
 
 def describe(vals):
@@ -82,8 +108,94 @@ def fmt_bytes(n):
     return f"{n:.1f} TB"
 
 
+def parse_list(s):
+    return [float(x) if "." in x else int(x) for x in s.split(",") if x.strip()]
+
+
+# ------------------------------------------- raccolta dati per i timeout --
+def new_group():
+    # dur    : durata di ogni flusso con >= 2 pacchetti          (-> hard timeout)
+    # gap    : gap tra pacchetti consecutivi dello stesso flusso (-> idle timeout)
+    # maxgap : gap massimo di ogni flusso con >= 2 pacchetti
+    return {"dur": [], "gap": [], "maxgap": []}
+
+
+def new_raw():
+    return {
+        "TCP": new_group(), "UDP": new_group(), "PAIR": new_group(),
+        "svc": defaultdict(new_group),
+        "single": 0,        # flussi con 1 solo pacchetto (esclusi dalle durate)
+        "capture_s": 0.0,   # durata della cattura
+    }
+
+
+def merge_raw(raws):
+    m = new_raw()
+    for r in raws:
+        for g in ("TCP", "UDP", "PAIR"):
+            for k in ("dur", "gap", "maxgap"):
+                m[g][k].extend(r[g][k])
+        for label, grp in r["svc"].items():
+            for k in ("dur", "gap", "maxgap"):
+                m["svc"][label][k].extend(grp[k])
+        m["single"] += r["single"]
+        m["capture_s"] = max(m["capture_s"], r["capture_s"])
+    return m
+
+
+def combine(*groups):
+    out = new_group()
+    for g in groups:
+        for k in ("dur", "gap", "maxgap"):
+            out[k].extend(g[k])
+    return out
+
+
+def pct_above(vals, t):
+    return 100.0 * sum(1 for v in vals if v > t) / len(vals) if vals else 0.0
+
+
+def group_stats(g, hard_c, idle_c):
+    return {
+        "n_flows": len(g["dur"]),
+        "n_gaps": len(g["gap"]),
+        "duration": describe(g["dur"]),
+        "gap": describe(g["gap"]),
+        "max_gap_per_flow": describe(g["maxgap"]),
+        # % di flussi piu' lunghi di T: la regola scadrebbe per hard timeout
+        "hard_exceed_pct_flows": {str(t): pct_above(g["dur"], t) for t in hard_c},
+        # % di gap piu' lunghi di T: ogni gap cosi' causa un nuovo Packet-In
+        "idle_exceed_pct_gaps": {str(t): pct_above(g["gap"], t) for t in idle_c},
+        # % di flussi con almeno un gap piu' lungo di T
+        "idle_exceed_pct_flows": {str(t): pct_above(g["maxgap"], t) for t in idle_c},
+    }
+
+
+def timeout_stats(raw, hard_c, idle_c, top_services=10):
+    groups = {
+        "TCP": raw["TCP"],
+        "UDP": raw["UDP"],
+        "ALL": combine(raw["TCP"], raw["UDP"]),
+        "PAIR": raw["PAIR"],
+    }
+    svc_sorted = sorted(raw["svc"].items(), key=lambda kv: len(kv[1]["dur"]), reverse=True)
+    out = {
+        "flows_multi_packet": len(groups["ALL"]["dur"]),
+        "flows_single_packet": raw["single"],
+        "capture_s": raw["capture_s"],
+        "hard_candidates": hard_c,
+        "idle_candidates": idle_c,
+        "groups": {name: group_stats(g, hard_c, idle_c) for name, g in groups.items()},
+        "by_service": {
+            label: group_stats(g, hard_c, idle_c)
+            for label, g in svc_sorted[:top_services] if g["dur"]
+        },
+    }
+    return out
+
+
 # ---------------------------------------------------------- analisi pcap --
-def analyze(path):
+def analyze(path, hard_c, idle_c):
     host = host_ip_from_filename(path)
 
     sizes, iats = [], []
@@ -107,8 +219,14 @@ def analyze(path):
     per_sec_bytes = defaultdict(int)
     payload_sizes = []
 
-    # flussi bidirezionali: key -> [first_ts, last_ts, pkts, bytes]
+    raw = new_raw()
+
+    # flussi bidirezionali 5-tuple:
+    #   key -> [first_ts, last_ts, pkts, bytes, max_gap, proto, label]
     flows = {}
+    # coppie di host (proxy di una regola che fa match su eth_src/eth_dst):
+    #   (ipA, ipB) -> [first_ts, last_ts, pkts, max_gap]
+    pairs = {}
 
     with PcapReader(path) as reader:
         for pkt in reader:
@@ -144,6 +262,18 @@ def analyze(path):
                 continue
 
             src, dst = ip.src, ip.dst
+
+            # ---- coppia di host (gap e durata a livello host-pair)
+            pk = tuple(sorted((src, dst)))
+            pr = pairs.get(pk)
+            if pr is None:
+                pairs[pk] = [ts, ts, 1, 0.0]
+            else:
+                g = max(ts - pr[1], 0.0)
+                raw["PAIR"]["gap"].append(g)
+                pr[1] = max(ts, pr[1])
+                pr[2] += 1
+                pr[3] = max(pr[3], g)
 
             # ---- direzione
             if host and src == host:
@@ -206,14 +336,36 @@ def analyze(path):
                 key = (proto_name,) + tuple(sorted([(src, sport), (dst, dport)]))
                 fl = flows.get(key)
                 if fl is None:
-                    flows[key] = [ts, ts, 1, size]
+                    flows[key] = [ts, ts, 1, size, 0.0, proto_name, label]
                 else:
-                    fl[1] = ts
+                    gap = max(ts - fl[1], 0.0)
+                    fl[1] = max(ts, fl[1])
                     fl[2] += 1
                     fl[3] += size
+                    fl[4] = max(fl[4], gap)
+                    # gap tra due pacchetti consecutivi dello stesso flusso
+                    raw[proto_name.upper()]["gap"].append(gap)
+                    raw["svc"][label]["gap"].append(gap)
 
     n = len(sizes)
     duration = (ts_last - ts_first) if n > 1 else 0.0
+    raw["capture_s"] = duration
+
+    # ---- durate dei flussi (solo >= 2 pacchetti, i flussi da 1 pkt hanno durata 0)
+    for f in flows.values():
+        if f[2] >= 2:
+            d = f[1] - f[0]
+            g_proto = raw[f[5].upper()]
+            g_proto["dur"].append(d)
+            g_proto["maxgap"].append(f[4])
+            raw["svc"][f[6]]["dur"].append(d)
+            raw["svc"][f[6]]["maxgap"].append(f[4])
+        else:
+            raw["single"] += 1
+    for p in pairs.values():
+        if p[2] >= 2:
+            raw["PAIR"]["dur"].append(p[1] - p[0])
+            raw["PAIR"]["maxgap"].append(p[3])
 
     flow_durs = [f[1] - f[0] for f in flows.values()]
     flow_pkts = [f[2] for f in flows.values()]
@@ -265,6 +417,8 @@ def analyze(path):
             "unique_names": len(dns_queries),
             "top_names": dns_queries.most_common(10),
         },
+        "timeout": timeout_stats(raw, hard_c, idle_c),
+        "_raw": raw,   # dati grezzi per l'aggregato: non viene salvato nel JSON
     }
     return res
 
@@ -280,6 +434,11 @@ SUMMARY_COLS = [
     ("pct_tcp", "%TCP"), ("pct_udp", "%UDP"), ("pct_out", "%uscente"),
     ("flows", "Flussi"), ("unique_dst_ips", "Dst IP unici"),
     ("top_service", "Servizio principale"),
+    # --- timeout (TCP)
+    ("tcp_dur_p50", "TCP durata p50(s)"), ("tcp_dur_p90", "TCP durata p90(s)"),
+    ("tcp_dur_p99", "TCP durata p99(s)"), ("tcp_dur_max", "TCP durata max(s)"),
+    ("tcp_gap_p50", "TCP gap p50(s)"), ("tcp_gap_p90", "TCP gap p90(s)"),
+    ("tcp_gap_p99", "TCP gap p99(s)"), ("tcp_gap_max", "TCP gap max(s)"),
 ]
 
 
@@ -287,6 +446,7 @@ def flat_row(r):
     n = max(r["packets"], 1)
     out = r["direction_pkts"].get("out", 0)
     top = r["top_services_pkts"][0][0] if r["top_services_pkts"] else "-"
+    tcp = r["timeout"]["groups"]["TCP"]
     return {
         "file": r["file"], "host_ip": r["host_ip"], "packets": r["packets"],
         "bytes": r["bytes"], "duration_s": round(r["duration_s"], 2),
@@ -305,7 +465,93 @@ def flat_row(r):
         "pct_out": round(100 * out / n, 1),
         "flows": r["flows"]["count"], "unique_dst_ips": r["unique_dst_ips"],
         "top_service": top,
+        "tcp_dur_p50": round(tcp["duration"]["median"], 3),
+        "tcp_dur_p90": round(tcp["duration"]["p90"], 3),
+        "tcp_dur_p99": round(tcp["duration"]["p99"], 3),
+        "tcp_dur_max": round(tcp["duration"]["max"], 3),
+        "tcp_gap_p50": round(tcp["gap"]["median"], 3),
+        "tcp_gap_p90": round(tcp["gap"]["p90"], 3),
+        "tcp_gap_p99": round(tcp["gap"]["p99"], 3),
+        "tcp_gap_max": round(tcp["gap"]["max"], 3),
     }
+
+
+def _row(label, n, d):
+    return (f"  {label:<8}{n:>9}  {d['median']:>9.3f} {d['p90']:>9.3f} "
+            f"{d['p95']:>9.3f} {d['p99']:>9.3f} {d['max']:>9.3f}")
+
+
+def _header(title):
+    return (c(f"  {title}", HEAD) + "\n"
+            f"  {'gruppo':<8}{'n':>9}  {'mediana':>9} {'p90':>9} {'p95':>9} {'p99':>9} {'max':>9}")
+
+
+def print_timeout(ts, title, full=True):
+    """Blocco evidenziato con i dati per la stima di hard e idle timeout."""
+    g = ts["groups"]
+    print(c((" >>> " + title + " <<< ").center(72), BANNER))
+    print(f"  Flussi con >=2 pkt: {ts['flows_multi_packet']}   "
+          f"flussi da 1 solo pkt (esclusi): {ts['flows_single_packet']}   "
+          f"durata cattura: {ts['capture_s']:.1f} s")
+
+    print(_header("DURATA DEL FLUSSO [s]  ->  HARD TIMEOUT"))
+    for name in ("TCP", "UDP", "ALL", "PAIR"):
+        print(_row(name, g[name]["n_flows"], g[name]["duration"]))
+
+    print(_header("GAP TRA PACCHETTI DELLO STESSO FLUSSO [s]  ->  IDLE TIMEOUT"))
+    for name in ("TCP", "UDP", "ALL", "PAIR"):
+        print(_row(name, g[name]["n_gaps"], g[name]["gap"]))
+
+    print(_header("GAP MASSIMO DI OGNI FLUSSO [s]  (caso peggiore per flusso)"))
+    for name in ("TCP", "UDP", "ALL", "PAIR"):
+        print(_row(name, g[name]["n_flows"], g[name]["max_gap_per_flow"]))
+    print("  PAIR = coppia di host (IP): proxy di una regola con match eth_src/eth_dst")
+
+    if full:
+        print()
+        print(c("  SOGLIE: quanti flussi/gap supererebbero un dato timeout?", HEAD))
+        print(f"  {'hard T(s)':>10} | {'% flussi durata>T (TCP)':>24} {'(ALL)':>9} {'(PAIR)':>9}")
+        for t in ts["hard_candidates"]:
+            k = str(t)
+            print(f"  {t:>10} | {g['TCP']['hard_exceed_pct_flows'][k]:>24.2f} "
+                  f"{g['ALL']['hard_exceed_pct_flows'][k]:>9.2f} "
+                  f"{g['PAIR']['hard_exceed_pct_flows'][k]:>9.2f}")
+        print(f"  {'idle T(s)':>10} | {'% gap>T (TCP)':>14} {'(ALL)':>8} | "
+              f"{'% flussi con gap>T (TCP)':>25} {'(ALL)':>8}")
+        for t in ts["idle_candidates"]:
+            k = str(t)
+            print(f"  {t:>10} | {g['TCP']['idle_exceed_pct_gaps'][k]:>14.2f} "
+                  f"{g['ALL']['idle_exceed_pct_gaps'][k]:>8.2f} | "
+                  f"{g['TCP']['idle_exceed_pct_flows'][k]:>25.2f} "
+                  f"{g['ALL']['idle_exceed_pct_flows'][k]:>8.2f}")
+
+        if ts["by_service"]:
+            print()
+            print(c("  PER SERVIZIO (top per numero di flussi)  durata / gap [s]", HEAD))
+            print(f"  {'servizio':<14}{'flussi':>8} | {'durata p50':>10} {'p90':>8} {'p99':>8} "
+                  f"| {'gap p50':>8} {'p90':>8} {'p99':>8}")
+            for label, s in ts["by_service"].items():
+                d, gp = s["duration"], s["gap"]
+                print(f"  {label:<14}{s['n_flows']:>8} | {d['median']:>10.3f} {d['p90']:>8.3f} "
+                      f"{d['p99']:>8.3f} | {gp['median']:>8.3f} {gp['p90']:>8.3f} {gp['p99']:>8.3f}")
+
+        # range indicativo
+        tcp = g["TCP"]
+        print()
+        if tcp["n_flows"]:
+            print(c(f"  INDICATIVO hard timeout  : da p50={tcp['duration']['median']:.1f} s "
+                    f"a p99={tcp['duration']['p99']:.1f} s (flussi TCP)", GOOD))
+            print(c(f"  INDICATIVO idle timeout  : da p50={tcp['gap']['median']:.2f} s "
+                    f"a p99={tcp['gap']['p99']:.2f} s (gap TCP, regola idle < hard)", GOOD))
+        # avviso di troncamento
+        cap = ts["capture_s"]
+        if cap and tcp["duration"]["max"] >= 0.95 * cap:
+            print(c(f"  ATTENZIONE: la durata massima TCP ({tcp['duration']['max']:.0f} s) e' "
+                    f"~ la durata della cattura ({cap:.0f} s): i flussi lunghi sono "
+                    f"TRONCATI, il vero hard timeout necessario puo' essere maggiore.", WARN))
+        print("  Nota: gap/durate sono misurati sul flusso 5-tuple nel pcap, non sulla regola "
+              "OpenFlow; se il controller fa match su MAC (simple_switch_14) vale di piu' PAIR.")
+    print()
 
 
 def print_report(r):
@@ -335,9 +581,10 @@ def print_report(r):
         print(f"DNS: {r['dns']['queries_total']} query, {r['dns']['unique_names']} nomi unici; "
               + ", ".join(k for k, _ in r["dns"]["top_names"][:5]))
     print()
+    print_timeout(r["timeout"], f"TIMEOUT - {r['file']}", full=False)
 
 
-def aggregate(results):
+def aggregate(results, hard_c, idle_c):
     tot_pkts = sum(r["packets"] for r in results)
     tot_bytes = sum(r["bytes"] for r in results)
     # media pesata della dimensione pacchetto
@@ -350,6 +597,7 @@ def aggregate(results):
     l4 = Counter()
     for r in results:
         l4.update(r["l4"])
+    merged = merge_raw([r["_raw"] for r in results])
     return {
         "hosts": len(results),
         "total_packets": tot_pkts,
@@ -362,16 +610,55 @@ def aggregate(results):
         "total_flows": sum(r["flows"]["count"] for r in results),
         "l4_total": dict(l4),
         "top_services_pkts": services.most_common(10),
+        "timeout": timeout_stats(merged, hard_c, idle_c),
     }
+
+
+def write_timeout_csvs(out_dir, results, agg):
+    scopes = [(r["file"], r["timeout"]) for r in results] + [("AGGREGATE", agg["timeout"])]
+
+    with open(os.path.join(out_dir, "timeout_summary.csv"), "w", newline="") as fh:
+        w = csv.writer(fh)
+        w.writerow(["scope", "group", "kind", "n", "min", "p50", "p90", "p95", "p99", "max", "mean"])
+        for scope, ts in scopes:
+            items = list(ts["groups"].items()) + [(f"svc:{k}", v) for k, v in ts["by_service"].items()]
+            for gname, s in items:
+                for kind, key, n in (("flow_duration_s", "duration", s["n_flows"]),
+                                     ("intra_flow_gap_s", "gap", s["n_gaps"]),
+                                     ("max_gap_per_flow_s", "max_gap_per_flow", s["n_flows"])):
+                    d = s[key]
+                    w.writerow([scope, gname, kind, n] +
+                               [round(d[k], 4) for k in ("min", "median", "p90", "p95", "p99", "max", "mean")])
+
+    with open(os.path.join(out_dir, "timeout_thresholds.csv"), "w", newline="") as fh:
+        w = csv.writer(fh)
+        w.writerow(["scope", "group", "kind", "T_s", "pct_exceeding"])
+        for scope, ts in scopes:
+            for gname, s in ts["groups"].items():
+                for kind, key in (("hard: flows with duration > T", "hard_exceed_pct_flows"),
+                                  ("idle: gaps > T", "idle_exceed_pct_gaps"),
+                                  ("idle: flows with a gap > T", "idle_exceed_pct_flows")):
+                    for t, v in s[key].items():
+                        w.writerow([scope, gname, kind, t, round(v, 3)])
 
 
 # ------------------------------------------------------------------ main --
 def main():
+    global COLOR
     default_dir = os.path.join(os.environ.get("PROGETTO", "."), "traffics", "scenario_000")
     ap = argparse.ArgumentParser(description="Statistiche sui pcap di traffico benevolo")
     ap.add_argument("-d", "--dir", default=default_dir, help=f"cartella pcap (default: {default_dir})")
     ap.add_argument("-o", "--out", default="pcap_stats", help="cartella di output")
+    ap.add_argument("--hard-candidates", default=",".join(map(str, DEFAULT_HARD)),
+                    help="soglie di hard timeout da valutare, in secondi (separate da virgola)")
+    ap.add_argument("--idle-candidates", default=",".join(map(str, DEFAULT_IDLE)),
+                    help="soglie di idle timeout da valutare, in secondi (separate da virgola)")
+    ap.add_argument("--no-color", action="store_true", help="disattiva l'evidenziazione ANSI")
     args = ap.parse_args()
+
+    COLOR = sys.stdout.isatty() and not args.no_color and "NO_COLOR" not in os.environ
+    hard_c = parse_list(args.hard_candidates)
+    idle_c = parse_list(args.idle_candidates)
 
     files = sorted(
         glob.glob(os.path.join(args.dir, "traffic_10_0_0_*.pcap")),
@@ -384,11 +671,11 @@ def main():
     results = []
     for f in files:
         print(f"[+] Analizzo {os.path.basename(f)} ...", file=sys.stderr)
-        r = analyze(f)
+        r = analyze(f, hard_c, idle_c)
         results.append(r)
         print_report(r)
 
-    agg = aggregate(results)
+    agg = aggregate(results, hard_c, idle_c)
     print("#" * 72)
     print("AGGREGATO SCENARIO")
     print("#" * 72)
@@ -403,6 +690,8 @@ def main():
           f"{agg['avg_bps_per_host']['mean']/1000:.2f} kbit/s")
     print(f"Flussi totali: {agg['total_flows']}   L4: {agg['l4_total']}")
     print("Top servizi:", ", ".join(f"{k}={v}" for k, v in agg["top_services_pkts"][:8]))
+    print()
+    print_timeout(agg["timeout"], "TIMEOUT - AGGREGATO SU TUTTI GLI HOST", full=True)
 
     # CSV riassuntivo
     csv_path = os.path.join(args.out, "summary.csv")
@@ -413,12 +702,18 @@ def main():
             row = flat_row(r)
             w.writerow([row[k] for k, _ in SUMMARY_COLS])
 
-    # JSON dettagliato
-    json_path = os.path.join(args.out, "details.json")
-    with open(json_path, "w") as fh:
-        json.dump({"aggregate": agg, "per_host": results}, fh, indent=2, default=str)
+    # CSV dedicati ai timeout
+    write_timeout_csvs(args.out, results, agg)
 
-    print(f"\nSalvati: {csv_path}, {json_path}")
+    # JSON dettagliato (senza i dati grezzi)
+    json_path = os.path.join(args.out, "details.json")
+    per_host = [{k: v for k, v in r.items() if k != "_raw"} for r in results]
+    with open(json_path, "w") as fh:
+        json.dump({"aggregate": agg, "per_host": per_host}, fh, indent=2, default=str)
+
+    print(f"Salvati: {csv_path}, {json_path}, "
+          f"{os.path.join(args.out, 'timeout_summary.csv')}, "
+          f"{os.path.join(args.out, 'timeout_thresholds.csv')}")
 
 
 if __name__ == "__main__":
