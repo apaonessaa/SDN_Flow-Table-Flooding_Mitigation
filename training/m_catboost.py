@@ -22,7 +22,7 @@ def tune_catboost(X_train, y_train, groups_train, profiles_train):
     def objective(trial):
         params = {
             'depth': trial.suggest_int('depth', *DEPTH),
-            'learning_rate': trial.suggest_float('learning_rate', *LEARNING_RATE, log=True),
+            'learning_rate': trial.suggest_float('learning_rate', *BOOST_LEARNING_RATE, log=True),
             'l2_leaf_reg': trial.suggest_float('l2_leaf_reg', *L2_REG, log=True),
             'rsm': trial.suggest_float('rsm', *COLSAMPLE),
             'bagging_temperature': trial.suggest_float('bagging_temperature', *BAGGING_TEMPERATURE),
