@@ -138,12 +138,11 @@ def main() -> None:
         controller_envs = {
             "SCENARIO_ID": f"{i}",
             "FTF_LABEL": "1",
-            "DATASET_FTF_PATH": f"{current}/logs/dataset_ftf_{log_timestamp}.csv",
-            "DATASET_MFR_PATH": f"{current}/logs/dataset_mfr_{log_timestamp}.csv",
+            "DATASET_FTF_PATH": f"{current}/logs/dataset_ftf_{log_timestamp}",
+            "DATASET_MFR_PATH": f"{current}/logs/dataset_mfr_{log_timestamp}",
             "FLOW_TABLE_SIZE": f"{flow_table_size}",
             "IDLE_TIMEOUT": f"{idle_timeout}",
             "HARD_TIMEOUT": f"{hard_timeout}",
-            "K_FACTOR": f"{k_factor}",
             "DPID": f"{topo.victim_dpid}"
         }
         controller = start_controller(controller_envs, log_path=f"{current}/logs/controller_{i}_{log_timestamp}.log")
@@ -244,12 +243,11 @@ def main() -> None:
         controller_envs = {
             "SCENARIO_ID": f"{i}",
             "FTF_LABEL": "0",
-            "DATASET_FTF_PATH": f"{current}/logs/dataset_ftf_{log_timestamp}.csv",
-            "DATASET_MFR_PATH": f"{current}/logs/dataset_mfr_{log_timestamp}.csv",
+            "DATASET_FTF_PATH": f"{current}/logs/dataset_ftf_{log_timestamp}",
+            "DATASET_MFR_PATH": f"{current}/logs/dataset_mfr_{log_timestamp}",
             "FLOW_TABLE_SIZE": f"{flow_table_size}",
             "IDLE_TIMEOUT": f"{idle_timeout}",
             "HARD_TIMEOUT": f"{hard_timeout}",
-            "K_FACTOR": f"{k_factor}",
             "DPID": f"{topo.victim_dpid}"
         }
         controller = start_controller(controller_envs, log_path=f"{current}/logs/controller_{i}_{log_timestamp}.log")

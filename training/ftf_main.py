@@ -15,7 +15,9 @@ from feat_bert import *
 from temp_bert import *
 
 MODELS_DIR = root + '/models/ftf_detector'
+PLOTS_DIR = os.path.join(MODELS_DIR, 'tuning_plots') 
 os.makedirs(MODELS_DIR, exist_ok=True)
+os.makedirs(PLOTS_DIR, exist_ok=True) 
 
 TRAINING_SET = root + '/feature_collector/datasets/dataset_ftf.csv'
 
@@ -29,17 +31,22 @@ if __name__ == "__main__":
     best_featBERT_params = None
     best_tempBERT_params = None
 
-    print("\n\n=== Tuning XGBoost ===")
-    best_xgb_params = tune_xgboost(X_train, y_train, groups_train, profiles_train)
+    print("\n\n=== Tuning XGBoost===")
+    best_xgb_params = tune_xgboost(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
 
     print("\n\n=== Tuning CatBoost ===")
-    best_cb_params = tune_catboost(X_train, y_train, groups_train, profiles_train)
+    best_cb_params = tune_catboost(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
 
     print("\n\n=== Tuning FeatBERT ===")
-    best_featBERT_params = tune_featBERT(X_train, y_train, groups_train, profiles_train)
+    best_featBERT_params = tune_featBERT(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
 
     print("\n\n=== Tuning TempBERT ===")
-    best_tempBERT_params = tune_tempBERT(X_train, y_train, groups_train, profiles_train)
+    best_tempBERT_params = tune_tempBERT(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
+
+    plot_models_convergence(
+        PLOTS_DIR, ["XGBoost", "CatBoost", "FeatBERT", "TempBERT"],
+        os.path.join(PLOTS_DIR, "convergence_all_models.png"),
+    )
 
     print("\n\n=== Training finale XGBoost ===")
     train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_xgb_params, features=FTF_FEATURES, model_dir=MODELS_DIR)

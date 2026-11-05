@@ -1,0 +1,1565 @@
+scope,group,kind,T_s,pct_exceeding
+scenario_000,TCP,hard: flows with duration > T,5,44.15
+scenario_000,TCP,hard: flows with duration > T,10,36.037
+scenario_000,TCP,hard: flows with duration > T,15,32.917
+scenario_000,TCP,hard: flows with duration > T,30,28.237
+scenario_000,TCP,hard: flows with duration > T,60,25.741
+scenario_000,TCP,hard: flows with duration > T,120,7.332
+scenario_000,TCP,hard: flows with duration > T,300,0.624
+scenario_000,TCP,idle: gaps > T,1,5.608
+scenario_000,TCP,idle: gaps > T,2,5.453
+scenario_000,TCP,idle: gaps > T,3,5.239
+scenario_000,TCP,idle: gaps > T,5,4.757
+scenario_000,TCP,idle: gaps > T,10,4.028
+scenario_000,TCP,idle: gaps > T,15,0.872
+scenario_000,TCP,idle: gaps > T,30,0.717
+scenario_000,TCP,idle: gaps > T,60,0.21
+scenario_000,TCP,idle: flows/pairs with a gap > T,1,46.958
+scenario_000,TCP,idle: flows/pairs with a gap > T,2,45.71
+scenario_000,TCP,idle: flows/pairs with a gap > T,3,43.838
+scenario_000,TCP,idle: flows/pairs with a gap > T,5,41.81
+scenario_000,TCP,idle: flows/pairs with a gap > T,10,35.257
+scenario_000,TCP,idle: flows/pairs with a gap > T,15,18.409
+scenario_000,TCP,idle: flows/pairs with a gap > T,30,14.821
+scenario_000,TCP,idle: flows/pairs with a gap > T,60,7.488
+scenario_000,UDP,hard: flows with duration > T,5,4.301
+scenario_000,UDP,hard: flows with duration > T,10,4.18
+scenario_000,UDP,hard: flows with duration > T,15,4.14
+scenario_000,UDP,hard: flows with duration > T,30,3.939
+scenario_000,UDP,hard: flows with duration > T,60,3.859
+scenario_000,UDP,hard: flows with duration > T,120,3.658
+scenario_000,UDP,hard: flows with duration > T,300,2.452
+scenario_000,UDP,idle: gaps > T,1,14.177
+scenario_000,UDP,idle: gaps > T,2,9.602
+scenario_000,UDP,idle: gaps > T,3,7.274
+scenario_000,UDP,idle: gaps > T,5,6.295
+scenario_000,UDP,idle: gaps > T,10,5.234
+scenario_000,UDP,idle: gaps > T,15,4.904
+scenario_000,UDP,idle: gaps > T,30,4.08
+scenario_000,UDP,idle: gaps > T,60,2.926
+scenario_000,UDP,idle: flows/pairs with a gap > T,1,4.703
+scenario_000,UDP,idle: flows/pairs with a gap > T,2,4.26
+scenario_000,UDP,idle: flows/pairs with a gap > T,3,4.22
+scenario_000,UDP,idle: flows/pairs with a gap > T,5,4.22
+scenario_000,UDP,idle: flows/pairs with a gap > T,10,4.059
+scenario_000,UDP,idle: flows/pairs with a gap > T,15,4.019
+scenario_000,UDP,idle: flows/pairs with a gap > T,30,3.778
+scenario_000,UDP,idle: flows/pairs with a gap > T,60,3.215
+scenario_000,ALL,hard: flows with duration > T,5,12.464
+scenario_000,ALL,hard: flows with duration > T,10,10.706
+scenario_000,ALL,hard: flows with duration > T,15,10.035
+scenario_000,ALL,hard: flows with duration > T,30,8.917
+scenario_000,ALL,hard: flows with duration > T,60,8.341
+scenario_000,ALL,hard: flows with duration > T,120,4.41
+scenario_000,ALL,hard: flows with duration > T,300,2.077
+scenario_000,ALL,idle: gaps > T,1,8.086
+scenario_000,ALL,idle: gaps > T,2,6.653
+scenario_000,ALL,idle: gaps > T,3,5.827
+scenario_000,ALL,idle: gaps > T,5,5.202
+scenario_000,ALL,idle: gaps > T,10,4.377
+scenario_000,ALL,idle: gaps > T,15,2.038
+scenario_000,ALL,idle: gaps > T,30,1.689
+scenario_000,ALL,idle: gaps > T,60,0.995
+scenario_000,ALL,idle: flows/pairs with a gap > T,1,13.359
+scenario_000,ALL,idle: flows/pairs with a gap > T,2,12.752
+scenario_000,ALL,idle: flows/pairs with a gap > T,3,12.336
+scenario_000,ALL,idle: flows/pairs with a gap > T,5,11.921
+scenario_000,ALL,idle: flows/pairs with a gap > T,10,10.451
+scenario_000,ALL,idle: flows/pairs with a gap > T,15,6.967
+scenario_000,ALL,idle: flows/pairs with a gap > T,30,6.04
+scenario_000,ALL,idle: flows/pairs with a gap > T,60,4.091
+scenario_000,PAIR,hard: flows with duration > T,5,93.805
+scenario_000,PAIR,hard: flows with duration > T,10,93.805
+scenario_000,PAIR,hard: flows with duration > T,15,93.805
+scenario_000,PAIR,hard: flows with duration > T,30,92.035
+scenario_000,PAIR,hard: flows with duration > T,60,91.15
+scenario_000,PAIR,hard: flows with duration > T,120,86.726
+scenario_000,PAIR,hard: flows with duration > T,300,61.062
+scenario_000,PAIR,idle: gaps > T,1,7.394
+scenario_000,PAIR,idle: gaps > T,2,5.425
+scenario_000,PAIR,idle: gaps > T,3,4.244
+scenario_000,PAIR,idle: gaps > T,5,3.26
+scenario_000,PAIR,idle: gaps > T,10,2.184
+scenario_000,PAIR,idle: gaps > T,15,1.544
+scenario_000,PAIR,idle: gaps > T,30,1.03
+scenario_000,PAIR,idle: gaps > T,60,0.516
+scenario_000,PAIR,idle: flows/pairs with a gap > T,1,93.805
+scenario_000,PAIR,idle: flows/pairs with a gap > T,2,93.805
+scenario_000,PAIR,idle: flows/pairs with a gap > T,3,93.805
+scenario_000,PAIR,idle: flows/pairs with a gap > T,5,93.805
+scenario_000,PAIR,idle: flows/pairs with a gap > T,10,92.035
+scenario_000,PAIR,idle: flows/pairs with a gap > T,15,91.15
+scenario_000,PAIR,idle: flows/pairs with a gap > T,30,80.531
+scenario_000,PAIR,idle: flows/pairs with a gap > T,60,59.292
+scenario_001,TCP,hard: flows with duration > T,5,70.022
+scenario_001,TCP,hard: flows with duration > T,10,50.496
+scenario_001,TCP,hard: flows with duration > T,15,45.505
+scenario_001,TCP,hard: flows with duration > T,30,39.079
+scenario_001,TCP,hard: flows with duration > T,60,29.868
+scenario_001,TCP,hard: flows with duration > T,120,7.667
+scenario_001,TCP,hard: flows with duration > T,300,0.717
+scenario_001,TCP,idle: gaps > T,1,2.201
+scenario_001,TCP,idle: gaps > T,2,2.107
+scenario_001,TCP,idle: gaps > T,3,2.057
+scenario_001,TCP,idle: gaps > T,5,1.914
+scenario_001,TCP,idle: gaps > T,10,1.617
+scenario_001,TCP,idle: gaps > T,15,0.217
+scenario_001,TCP,idle: gaps > T,30,0.192
+scenario_001,TCP,idle: gaps > T,60,0.017
+scenario_001,TCP,idle: flows/pairs with a gap > T,1,72.201
+scenario_001,TCP,idle: flows/pairs with a gap > T,2,70.905
+scenario_001,TCP,idle: flows/pairs with a gap > T,3,70.105
+scenario_001,TCP,idle: flows/pairs with a gap > T,5,66.327
+scenario_001,TCP,idle: flows/pairs with a gap > T,10,46.056
+scenario_001,TCP,idle: flows/pairs with a gap > T,15,14.231
+scenario_001,TCP,idle: flows/pairs with a gap > T,30,13.155
+scenario_001,TCP,idle: flows/pairs with a gap > T,60,2.206
+scenario_001,UDP,hard: flows with duration > T,5,14.899
+scenario_001,UDP,hard: flows with duration > T,10,14.216
+scenario_001,UDP,hard: flows with duration > T,15,13.726
+scenario_001,UDP,hard: flows with duration > T,30,12.875
+scenario_001,UDP,hard: flows with duration > T,60,12.205
+scenario_001,UDP,hard: flows with duration > T,120,11.69
+scenario_001,UDP,hard: flows with duration > T,300,7.707
+scenario_001,UDP,idle: gaps > T,1,14.095
+scenario_001,UDP,idle: gaps > T,2,13.187
+scenario_001,UDP,idle: gaps > T,3,12.598
+scenario_001,UDP,idle: gaps > T,5,11.776
+scenario_001,UDP,idle: gaps > T,10,10.217
+scenario_001,UDP,idle: gaps > T,15,9.525
+scenario_001,UDP,idle: gaps > T,30,8.391
+scenario_001,UDP,idle: gaps > T,60,7.24
+scenario_001,UDP,idle: flows/pairs with a gap > T,1,15.479
+scenario_001,UDP,idle: flows/pairs with a gap > T,2,15.118
+scenario_001,UDP,idle: flows/pairs with a gap > T,3,15.015
+scenario_001,UDP,idle: flows/pairs with a gap > T,5,14.757
+scenario_001,UDP,idle: flows/pairs with a gap > T,10,14.164
+scenario_001,UDP,idle: flows/pairs with a gap > T,15,13.674
+scenario_001,UDP,idle: flows/pairs with a gap > T,30,12.798
+scenario_001,UDP,idle: flows/pairs with a gap > T,60,12.012
+scenario_001,ALL,hard: flows with duration > T,5,32.455
+scenario_001,ALL,hard: flows with duration > T,10,25.771
+scenario_001,ALL,hard: flows with duration > T,15,23.847
+scenario_001,ALL,hard: flows with duration > T,30,21.221
+scenario_001,ALL,hard: flows with duration > T,60,17.83
+scenario_001,ALL,hard: flows with duration > T,120,10.408
+scenario_001,ALL,hard: flows with duration > T,300,5.481
+scenario_001,ALL,idle: gaps > T,1,2.584
+scenario_001,ALL,idle: gaps > T,2,2.463
+scenario_001,ALL,idle: gaps > T,3,2.396
+scenario_001,ALL,idle: gaps > T,5,2.231
+scenario_001,ALL,idle: gaps > T,10,1.893
+scenario_001,ALL,idle: gaps > T,15,0.517
+scenario_001,ALL,idle: gaps > T,30,0.456
+scenario_001,ALL,idle: gaps > T,60,0.25
+scenario_001,ALL,idle: flows/pairs with a gap > T,1,33.544
+scenario_001,ALL,idle: flows/pairs with a gap > T,2,32.885
+scenario_001,ALL,idle: flows/pairs with a gap > T,3,32.56
+scenario_001,ALL,idle: flows/pairs with a gap > T,5,31.181
+scenario_001,ALL,idle: flows/pairs with a gap > T,10,24.321
+scenario_001,ALL,idle: flows/pairs with a gap > T,15,13.852
+scenario_001,ALL,idle: flows/pairs with a gap > T,30,12.912
+scenario_001,ALL,idle: flows/pairs with a gap > T,60,8.889
+scenario_001,PAIR,hard: flows with duration > T,5,96.0
+scenario_001,PAIR,hard: flows with duration > T,10,96.0
+scenario_001,PAIR,hard: flows with duration > T,15,96.0
+scenario_001,PAIR,hard: flows with duration > T,30,96.0
+scenario_001,PAIR,hard: flows with duration > T,60,92.0
+scenario_001,PAIR,hard: flows with duration > T,120,88.0
+scenario_001,PAIR,hard: flows with duration > T,300,85.6
+scenario_001,PAIR,idle: gaps > T,1,1.036
+scenario_001,PAIR,idle: gaps > T,2,0.727
+scenario_001,PAIR,idle: gaps > T,3,0.574
+scenario_001,PAIR,idle: gaps > T,5,0.404
+scenario_001,PAIR,idle: gaps > T,10,0.222
+scenario_001,PAIR,idle: gaps > T,15,0.138
+scenario_001,PAIR,idle: gaps > T,30,0.079
+scenario_001,PAIR,idle: gaps > T,60,0.031
+scenario_001,PAIR,idle: flows/pairs with a gap > T,1,96.0
+scenario_001,PAIR,idle: flows/pairs with a gap > T,2,96.0
+scenario_001,PAIR,idle: flows/pairs with a gap > T,3,96.0
+scenario_001,PAIR,idle: flows/pairs with a gap > T,5,96.0
+scenario_001,PAIR,idle: flows/pairs with a gap > T,10,96.0
+scenario_001,PAIR,idle: flows/pairs with a gap > T,15,94.4
+scenario_001,PAIR,idle: flows/pairs with a gap > T,30,85.6
+scenario_001,PAIR,idle: flows/pairs with a gap > T,60,60.8
+scenario_002,TCP,hard: flows with duration > T,5,75.174
+scenario_002,TCP,hard: flows with duration > T,10,53.8
+scenario_002,TCP,hard: flows with duration > T,15,50.966
+scenario_002,TCP,hard: flows with duration > T,30,45.562
+scenario_002,TCP,hard: flows with duration > T,60,38.281
+scenario_002,TCP,hard: flows with duration > T,120,10.021
+scenario_002,TCP,hard: flows with duration > T,300,1.163
+scenario_002,TCP,idle: gaps > T,1,1.297
+scenario_002,TCP,idle: gaps > T,2,1.241
+scenario_002,TCP,idle: gaps > T,3,1.2
+scenario_002,TCP,idle: gaps > T,5,1.122
+scenario_002,TCP,idle: gaps > T,10,0.951
+scenario_002,TCP,idle: gaps > T,15,0.132
+scenario_002,TCP,idle: gaps > T,30,0.114
+scenario_002,TCP,idle: gaps > T,60,0.01
+scenario_002,TCP,idle: flows/pairs with a gap > T,1,78.551
+scenario_002,TCP,idle: flows/pairs with a gap > T,2,77.181
+scenario_002,TCP,idle: flows/pairs with a gap > T,3,75.23
+scenario_002,TCP,idle: flows/pairs with a gap > T,5,71.27
+scenario_002,TCP,idle: flows/pairs with a gap > T,10,51.755
+scenario_002,TCP,idle: flows/pairs with a gap > T,15,15.5
+scenario_002,TCP,idle: flows/pairs with a gap > T,30,14.918
+scenario_002,TCP,idle: flows/pairs with a gap > T,60,2.777
+scenario_002,UDP,hard: flows with duration > T,5,13.681
+scenario_002,UDP,hard: flows with duration > T,10,13.418
+scenario_002,UDP,hard: flows with duration > T,15,13.106
+scenario_002,UDP,hard: flows with duration > T,30,12.119
+scenario_002,UDP,hard: flows with duration > T,60,11.382
+scenario_002,UDP,hard: flows with duration > T,120,9.845
+scenario_002,UDP,hard: flows with duration > T,300,5.097
+scenario_002,UDP,idle: gaps > T,1,18.104
+scenario_002,UDP,idle: gaps > T,2,16.299
+scenario_002,UDP,idle: gaps > T,3,15.5
+scenario_002,UDP,idle: gaps > T,5,14.873
+scenario_002,UDP,idle: gaps > T,10,13.343
+scenario_002,UDP,idle: gaps > T,15,12.0
+scenario_002,UDP,idle: gaps > T,30,10.127
+scenario_002,UDP,idle: gaps > T,60,8.396
+scenario_002,UDP,idle: flows/pairs with a gap > T,1,14.43
+scenario_002,UDP,idle: flows/pairs with a gap > T,2,14.005
+scenario_002,UDP,idle: flows/pairs with a gap > T,3,13.781
+scenario_002,UDP,idle: flows/pairs with a gap > T,5,13.618
+scenario_002,UDP,idle: flows/pairs with a gap > T,10,13.368
+scenario_002,UDP,idle: flows/pairs with a gap > T,15,12.881
+scenario_002,UDP,idle: flows/pairs with a gap > T,30,11.969
+scenario_002,UDP,idle: flows/pairs with a gap > T,60,11.132
+scenario_002,ALL,hard: flows with duration > T,5,38.258
+scenario_002,ALL,hard: flows with duration > T,10,29.558
+scenario_002,ALL,hard: flows with duration > T,15,28.238
+scenario_002,ALL,hard: flows with duration > T,30,25.486
+scenario_002,ALL,hard: flows with duration > T,60,22.133
+scenario_002,ALL,hard: flows with duration > T,120,9.915
+scenario_002,ALL,hard: flows with duration > T,300,3.525
+scenario_002,ALL,idle: gaps > T,1,1.438
+scenario_002,ALL,idle: gaps > T,2,1.367
+scenario_002,ALL,idle: gaps > T,3,1.32
+scenario_002,ALL,idle: gaps > T,5,1.237
+scenario_002,ALL,idle: gaps > T,10,1.055
+scenario_002,ALL,idle: gaps > T,15,0.231
+scenario_002,ALL,idle: gaps > T,30,0.198
+scenario_002,ALL,idle: gaps > T,60,0.08
+scenario_002,ALL,idle: flows/pairs with a gap > T,1,40.059
+scenario_002,ALL,idle: flows/pairs with a gap > T,2,39.256
+scenario_002,ALL,idle: flows/pairs with a gap > T,3,38.341
+scenario_002,ALL,idle: flows/pairs with a gap > T,5,36.661
+scenario_002,ALL,idle: flows/pairs with a gap > T,10,28.711
+scenario_002,ALL,idle: flows/pairs with a gap > T,15,13.928
+scenario_002,ALL,idle: flows/pairs with a gap > T,30,13.148
+scenario_002,ALL,idle: flows/pairs with a gap > T,60,7.793
+scenario_002,PAIR,hard: flows with duration > T,5,99.237
+scenario_002,PAIR,hard: flows with duration > T,10,99.237
+scenario_002,PAIR,hard: flows with duration > T,15,99.237
+scenario_002,PAIR,hard: flows with duration > T,30,98.473
+scenario_002,PAIR,hard: flows with duration > T,60,98.473
+scenario_002,PAIR,hard: flows with duration > T,120,97.71
+scenario_002,PAIR,hard: flows with duration > T,300,90.076
+scenario_002,PAIR,idle: gaps > T,1,0.594
+scenario_002,PAIR,idle: gaps > T,2,0.367
+scenario_002,PAIR,idle: gaps > T,3,0.271
+scenario_002,PAIR,idle: gaps > T,5,0.17
+scenario_002,PAIR,idle: gaps > T,10,0.081
+scenario_002,PAIR,idle: gaps > T,15,0.042
+scenario_002,PAIR,idle: gaps > T,30,0.022
+scenario_002,PAIR,idle: gaps > T,60,0.006
+scenario_002,PAIR,idle: flows/pairs with a gap > T,1,99.237
+scenario_002,PAIR,idle: flows/pairs with a gap > T,2,99.237
+scenario_002,PAIR,idle: flows/pairs with a gap > T,3,99.237
+scenario_002,PAIR,idle: flows/pairs with a gap > T,5,99.237
+scenario_002,PAIR,idle: flows/pairs with a gap > T,10,98.473
+scenario_002,PAIR,idle: flows/pairs with a gap > T,15,90.076
+scenario_002,PAIR,idle: flows/pairs with a gap > T,30,83.206
+scenario_002,PAIR,idle: flows/pairs with a gap > T,60,38.931
+scenario_003,TCP,hard: flows with duration > T,5,52.091
+scenario_003,TCP,hard: flows with duration > T,10,41.588
+scenario_003,TCP,hard: flows with duration > T,15,33.579
+scenario_003,TCP,hard: flows with duration > T,30,30.5
+scenario_003,TCP,hard: flows with duration > T,60,22.967
+scenario_003,TCP,hard: flows with duration > T,120,7.192
+scenario_003,TCP,hard: flows with duration > T,300,1.975
+scenario_003,TCP,idle: gaps > T,1,1.487
+scenario_003,TCP,idle: gaps > T,2,1.402
+scenario_003,TCP,idle: gaps > T,3,1.363
+scenario_003,TCP,idle: gaps > T,5,1.253
+scenario_003,TCP,idle: gaps > T,10,1.071
+scenario_003,TCP,idle: gaps > T,15,0.242
+scenario_003,TCP,idle: gaps > T,30,0.192
+scenario_003,TCP,idle: gaps > T,60,0.008
+scenario_003,TCP,idle: flows/pairs with a gap > T,1,54.666
+scenario_003,TCP,idle: flows/pairs with a gap > T,2,53.399
+scenario_003,TCP,idle: flows/pairs with a gap > T,3,52.636
+scenario_003,TCP,idle: flows/pairs with a gap > T,5,49.367
+scenario_003,TCP,idle: flows/pairs with a gap > T,10,39.014
+scenario_003,TCP,idle: flows/pairs with a gap > T,15,14.903
+scenario_003,TCP,idle: flows/pairs with a gap > T,30,13.908
+scenario_003,TCP,idle: flows/pairs with a gap > T,60,1.321
+scenario_003,UDP,hard: flows with duration > T,5,12.578
+scenario_003,UDP,hard: flows with duration > T,10,12.33
+scenario_003,UDP,hard: flows with duration > T,15,12.105
+scenario_003,UDP,hard: flows with duration > T,30,11.525
+scenario_003,UDP,hard: flows with duration > T,60,10.295
+scenario_003,UDP,hard: flows with duration > T,120,8.283
+scenario_003,UDP,hard: flows with duration > T,300,3.834
+scenario_003,UDP,idle: gaps > T,1,15.264
+scenario_003,UDP,idle: gaps > T,2,13.67
+scenario_003,UDP,idle: gaps > T,3,12.771
+scenario_003,UDP,idle: gaps > T,5,12.226
+scenario_003,UDP,idle: gaps > T,10,11.557
+scenario_003,UDP,idle: gaps > T,15,10.815
+scenario_003,UDP,idle: gaps > T,30,9.253
+scenario_003,UDP,idle: gaps > T,60,6.976
+scenario_003,UDP,idle: flows/pairs with a gap > T,1,13.217
+scenario_003,UDP,idle: flows/pairs with a gap > T,2,12.933
+scenario_003,UDP,idle: flows/pairs with a gap > T,3,12.744
+scenario_003,UDP,idle: flows/pairs with a gap > T,5,12.413
+scenario_003,UDP,idle: flows/pairs with a gap > T,10,12.318
+scenario_003,UDP,idle: flows/pairs with a gap > T,15,11.975
+scenario_003,UDP,idle: flows/pairs with a gap > T,30,11.336
+scenario_003,UDP,idle: flows/pairs with a gap > T,60,9.94
+scenario_003,ALL,hard: flows with duration > T,5,30.946
+scenario_003,ALL,hard: flows with duration > T,10,25.931
+scenario_003,ALL,hard: flows with duration > T,15,22.087
+scenario_003,ALL,hard: flows with duration > T,30,20.346
+scenario_003,ALL,hard: flows with duration > T,60,16.185
+scenario_003,ALL,hard: flows with duration > T,120,7.776
+scenario_003,ALL,hard: flows with duration > T,300,2.97
+scenario_003,ALL,idle: gaps > T,1,1.657
+scenario_003,ALL,idle: gaps > T,2,1.553
+scenario_003,ALL,idle: gaps > T,3,1.503
+scenario_003,ALL,idle: gaps > T,5,1.388
+scenario_003,ALL,idle: gaps > T,10,1.201
+scenario_003,ALL,idle: gaps > T,15,0.372
+scenario_003,ALL,idle: gaps > T,30,0.304
+scenario_003,ALL,idle: gaps > T,60,0.094
+scenario_003,ALL,idle: flows/pairs with a gap > T,1,32.485
+scenario_003,ALL,idle: flows/pairs with a gap > T,2,31.744
+scenario_003,ALL,idle: flows/pairs with a gap > T,3,31.288
+scenario_003,ALL,idle: flows/pairs with a gap > T,5,29.591
+scenario_003,ALL,idle: flows/pairs with a gap > T,10,24.728
+scenario_003,ALL,idle: flows/pairs with a gap > T,15,13.336
+scenario_003,ALL,idle: flows/pairs with a gap > T,30,12.532
+scenario_003,ALL,idle: flows/pairs with a gap > T,60,5.933
+scenario_003,PAIR,hard: flows with duration > T,5,100.0
+scenario_003,PAIR,hard: flows with duration > T,10,100.0
+scenario_003,PAIR,hard: flows with duration > T,15,100.0
+scenario_003,PAIR,hard: flows with duration > T,30,98.438
+scenario_003,PAIR,hard: flows with duration > T,60,98.438
+scenario_003,PAIR,hard: flows with duration > T,120,92.188
+scenario_003,PAIR,hard: flows with duration > T,300,92.188
+scenario_003,PAIR,idle: gaps > T,1,0.736
+scenario_003,PAIR,idle: gaps > T,2,0.487
+scenario_003,PAIR,idle: gaps > T,3,0.366
+scenario_003,PAIR,idle: gaps > T,5,0.234
+scenario_003,PAIR,idle: gaps > T,10,0.109
+scenario_003,PAIR,idle: gaps > T,15,0.049
+scenario_003,PAIR,idle: gaps > T,30,0.026
+scenario_003,PAIR,idle: gaps > T,60,0.007
+scenario_003,PAIR,idle: flows/pairs with a gap > T,1,100.0
+scenario_003,PAIR,idle: flows/pairs with a gap > T,2,100.0
+scenario_003,PAIR,idle: flows/pairs with a gap > T,3,100.0
+scenario_003,PAIR,idle: flows/pairs with a gap > T,5,100.0
+scenario_003,PAIR,idle: flows/pairs with a gap > T,10,95.312
+scenario_003,PAIR,idle: flows/pairs with a gap > T,15,87.5
+scenario_003,PAIR,idle: flows/pairs with a gap > T,30,77.344
+scenario_003,PAIR,idle: flows/pairs with a gap > T,60,38.281
+scenario_004,TCP,hard: flows with duration > T,5,72.788
+scenario_004,TCP,hard: flows with duration > T,10,54.295
+scenario_004,TCP,hard: flows with duration > T,15,41.741
+scenario_004,TCP,hard: flows with duration > T,30,38.392
+scenario_004,TCP,hard: flows with duration > T,60,33.134
+scenario_004,TCP,hard: flows with duration > T,120,9.319
+scenario_004,TCP,hard: flows with duration > T,300,1.618
+scenario_004,TCP,idle: gaps > T,1,1.172
+scenario_004,TCP,idle: gaps > T,2,1.129
+scenario_004,TCP,idle: gaps > T,3,1.096
+scenario_004,TCP,idle: gaps > T,5,1.024
+scenario_004,TCP,idle: gaps > T,10,0.873
+scenario_004,TCP,idle: gaps > T,15,0.158
+scenario_004,TCP,idle: gaps > T,30,0.134
+scenario_004,TCP,idle: gaps > T,60,0.005
+scenario_004,TCP,idle: flows/pairs with a gap > T,1,76.929
+scenario_004,TCP,idle: flows/pairs with a gap > T,2,76.088
+scenario_004,TCP,idle: flows/pairs with a gap > T,3,73.807
+scenario_004,TCP,idle: flows/pairs with a gap > T,5,69.18
+scenario_004,TCP,idle: flows/pairs with a gap > T,10,49.183
+scenario_004,TCP,idle: flows/pairs with a gap > T,15,16.195
+scenario_004,TCP,idle: flows/pairs with a gap > T,30,14.577
+scenario_004,TCP,idle: flows/pairs with a gap > T,60,1.537
+scenario_004,UDP,hard: flows with duration > T,5,11.905
+scenario_004,UDP,hard: flows with duration > T,10,11.261
+scenario_004,UDP,hard: flows with duration > T,15,11.014
+scenario_004,UDP,hard: flows with duration > T,30,10.474
+scenario_004,UDP,hard: flows with duration > T,60,9.925
+scenario_004,UDP,hard: flows with duration > T,120,8.58
+scenario_004,UDP,hard: flows with duration > T,300,4.735
+scenario_004,UDP,idle: gaps > T,1,13.734
+scenario_004,UDP,idle: gaps > T,2,13.031
+scenario_004,UDP,idle: gaps > T,3,12.472
+scenario_004,UDP,idle: gaps > T,5,11.69
+scenario_004,UDP,idle: gaps > T,10,10.523
+scenario_004,UDP,idle: gaps > T,15,9.668
+scenario_004,UDP,idle: gaps > T,30,8.163
+scenario_004,UDP,idle: gaps > T,60,6.954
+scenario_004,UDP,idle: flows/pairs with a gap > T,1,12.501
+scenario_004,UDP,idle: flows/pairs with a gap > T,2,12.16
+scenario_004,UDP,idle: flows/pairs with a gap > T,3,12.028
+scenario_004,UDP,idle: flows/pairs with a gap > T,5,11.687
+scenario_004,UDP,idle: flows/pairs with a gap > T,10,11.232
+scenario_004,UDP,idle: flows/pairs with a gap > T,15,10.825
+scenario_004,UDP,idle: flows/pairs with a gap > T,30,10.342
+scenario_004,UDP,idle: flows/pairs with a gap > T,60,9.736
+scenario_004,ALL,hard: flows with duration > T,5,34.385
+scenario_004,ALL,hard: flows with duration > T,10,27.151
+scenario_004,ALL,hard: flows with duration > T,15,22.36
+scenario_004,ALL,hard: flows with duration > T,30,20.783
+scenario_004,ALL,hard: flows with duration > T,60,18.495
+scenario_004,ALL,hard: flows with duration > T,120,8.853
+scenario_004,ALL,hard: flows with duration > T,300,3.584
+scenario_004,ALL,idle: gaps > T,1,1.301
+scenario_004,ALL,idle: gaps > T,2,1.251
+scenario_004,ALL,idle: gaps > T,3,1.212
+scenario_004,ALL,idle: gaps > T,5,1.133
+scenario_004,ALL,idle: gaps > T,10,0.971
+scenario_004,ALL,idle: gaps > T,15,0.255
+scenario_004,ALL,idle: gaps > T,30,0.216
+scenario_004,ALL,idle: gaps > T,60,0.077
+scenario_004,ALL,idle: flows/pairs with a gap > T,1,36.29
+scenario_004,ALL,idle: flows/pairs with a gap > T,2,35.765
+scenario_004,ALL,idle: flows/pairs with a gap > T,3,34.839
+scenario_004,ALL,idle: flows/pairs with a gap > T,5,32.915
+scenario_004,ALL,idle: flows/pairs with a gap > T,10,25.245
+scenario_004,ALL,idle: flows/pairs with a gap > T,15,12.808
+scenario_004,ALL,idle: flows/pairs with a gap > T,30,11.906
+scenario_004,ALL,idle: flows/pairs with a gap > T,60,6.708
+scenario_004,PAIR,hard: flows with duration > T,5,100.0
+scenario_004,PAIR,hard: flows with duration > T,10,100.0
+scenario_004,PAIR,hard: flows with duration > T,15,98.519
+scenario_004,PAIR,hard: flows with duration > T,30,98.519
+scenario_004,PAIR,hard: flows with duration > T,60,98.519
+scenario_004,PAIR,hard: flows with duration > T,120,97.778
+scenario_004,PAIR,hard: flows with duration > T,300,94.815
+scenario_004,PAIR,idle: gaps > T,1,0.529
+scenario_004,PAIR,idle: gaps > T,2,0.356
+scenario_004,PAIR,idle: gaps > T,3,0.275
+scenario_004,PAIR,idle: gaps > T,5,0.185
+scenario_004,PAIR,idle: gaps > T,10,0.075
+scenario_004,PAIR,idle: gaps > T,15,0.034
+scenario_004,PAIR,idle: gaps > T,30,0.016
+scenario_004,PAIR,idle: gaps > T,60,0.005
+scenario_004,PAIR,idle: flows/pairs with a gap > T,1,100.0
+scenario_004,PAIR,idle: flows/pairs with a gap > T,2,99.259
+scenario_004,PAIR,idle: flows/pairs with a gap > T,3,99.259
+scenario_004,PAIR,idle: flows/pairs with a gap > T,5,99.259
+scenario_004,PAIR,idle: flows/pairs with a gap > T,10,97.778
+scenario_004,PAIR,idle: flows/pairs with a gap > T,15,96.296
+scenario_004,PAIR,idle: flows/pairs with a gap > T,30,77.778
+scenario_004,PAIR,idle: flows/pairs with a gap > T,60,34.815
+scenario_005,TCP,hard: flows with duration > T,5,70.66
+scenario_005,TCP,hard: flows with duration > T,10,45.725
+scenario_005,TCP,hard: flows with duration > T,15,40.121
+scenario_005,TCP,hard: flows with duration > T,30,36.277
+scenario_005,TCP,hard: flows with duration > T,60,29.721
+scenario_005,TCP,hard: flows with duration > T,120,8.282
+scenario_005,TCP,hard: flows with duration > T,300,1.479
+scenario_005,TCP,idle: gaps > T,1,5.81
+scenario_005,TCP,idle: gaps > T,2,5.569
+scenario_005,TCP,idle: gaps > T,3,5.386
+scenario_005,TCP,idle: gaps > T,5,4.986
+scenario_005,TCP,idle: gaps > T,10,3.932
+scenario_005,TCP,idle: gaps > T,15,0.472
+scenario_005,TCP,idle: gaps > T,30,0.408
+scenario_005,TCP,idle: gaps > T,60,0.012
+scenario_005,TCP,idle: flows/pairs with a gap > T,1,77.014
+scenario_005,TCP,idle: flows/pairs with a gap > T,2,75.67
+scenario_005,TCP,idle: flows/pairs with a gap > T,3,71.915
+scenario_005,TCP,idle: flows/pairs with a gap > T,5,64.138
+scenario_005,TCP,idle: flows/pairs with a gap > T,10,42.127
+scenario_005,TCP,idle: flows/pairs with a gap > T,15,11.454
+scenario_005,TCP,idle: flows/pairs with a gap > T,30,10.479
+scenario_005,TCP,idle: flows/pairs with a gap > T,60,0.672
+scenario_005,UDP,hard: flows with duration > T,5,15.143
+scenario_005,UDP,hard: flows with duration > T,10,14.128
+scenario_005,UDP,hard: flows with duration > T,15,13.922
+scenario_005,UDP,hard: flows with duration > T,30,13.294
+scenario_005,UDP,hard: flows with duration > T,60,12.376
+scenario_005,UDP,hard: flows with duration > T,120,10.184
+scenario_005,UDP,hard: flows with duration > T,300,4.639
+scenario_005,UDP,idle: gaps > T,1,19.413
+scenario_005,UDP,idle: gaps > T,2,18.633
+scenario_005,UDP,idle: gaps > T,3,18.223
+scenario_005,UDP,idle: gaps > T,5,17.448
+scenario_005,UDP,idle: gaps > T,10,15.955
+scenario_005,UDP,idle: gaps > T,15,15.416
+scenario_005,UDP,idle: gaps > T,30,13.808
+scenario_005,UDP,idle: gaps > T,60,11.313
+scenario_005,UDP,idle: flows/pairs with a gap > T,1,15.734
+scenario_005,UDP,idle: flows/pairs with a gap > T,2,15.553
+scenario_005,UDP,idle: flows/pairs with a gap > T,3,15.487
+scenario_005,UDP,idle: flows/pairs with a gap > T,5,15.112
+scenario_005,UDP,idle: flows/pairs with a gap > T,10,14.11
+scenario_005,UDP,idle: flows/pairs with a gap > T,15,13.898
+scenario_005,UDP,idle: flows/pairs with a gap > T,30,13.282
+scenario_005,UDP,idle: flows/pairs with a gap > T,60,12.147
+scenario_005,ALL,hard: flows with duration > T,5,34.585
+scenario_005,ALL,hard: flows with duration > T,10,25.193
+scenario_005,ALL,hard: flows with duration > T,15,23.097
+scenario_005,ALL,hard: flows with duration > T,30,21.343
+scenario_005,ALL,hard: flows with duration > T,60,18.45
+scenario_005,ALL,hard: flows with duration > T,120,9.518
+scenario_005,ALL,hard: flows with duration > T,300,3.532
+scenario_005,ALL,idle: gaps > T,1,6.317
+scenario_005,ALL,idle: gaps > T,2,6.056
+scenario_005,ALL,idle: gaps > T,3,5.865
+scenario_005,ALL,idle: gaps > T,5,5.452
+scenario_005,ALL,idle: gaps > T,10,4.38
+scenario_005,ALL,idle: gaps > T,15,1.03
+scenario_005,ALL,idle: gaps > T,30,0.908
+scenario_005,ALL,idle: gaps > T,60,0.434
+scenario_005,ALL,idle: flows/pairs with a gap > T,1,37.195
+scenario_005,ALL,idle: flows/pairs with a gap > T,2,36.607
+scenario_005,ALL,idle: flows/pairs with a gap > T,3,35.249
+scenario_005,ALL,idle: flows/pairs with a gap > T,5,32.281
+scenario_005,ALL,idle: flows/pairs with a gap > T,10,23.922
+scenario_005,ALL,idle: flows/pairs with a gap > T,15,13.042
+scenario_005,ALL,idle: flows/pairs with a gap > T,30,12.3
+scenario_005,ALL,idle: flows/pairs with a gap > T,60,8.128
+scenario_005,PAIR,hard: flows with duration > T,5,100.0
+scenario_005,PAIR,hard: flows with duration > T,10,100.0
+scenario_005,PAIR,hard: flows with duration > T,15,100.0
+scenario_005,PAIR,hard: flows with duration > T,30,100.0
+scenario_005,PAIR,hard: flows with duration > T,60,100.0
+scenario_005,PAIR,hard: flows with duration > T,120,100.0
+scenario_005,PAIR,hard: flows with duration > T,300,98.496
+scenario_005,PAIR,idle: gaps > T,1,1.811
+scenario_005,PAIR,idle: gaps > T,2,1.055
+scenario_005,PAIR,idle: gaps > T,3,0.757
+scenario_005,PAIR,idle: gaps > T,5,0.466
+scenario_005,PAIR,idle: gaps > T,10,0.187
+scenario_005,PAIR,idle: gaps > T,15,0.104
+scenario_005,PAIR,idle: gaps > T,30,0.056
+scenario_005,PAIR,idle: gaps > T,60,0.018
+scenario_005,PAIR,idle: flows/pairs with a gap > T,1,100.0
+scenario_005,PAIR,idle: flows/pairs with a gap > T,2,100.0
+scenario_005,PAIR,idle: flows/pairs with a gap > T,3,100.0
+scenario_005,PAIR,idle: flows/pairs with a gap > T,5,98.496
+scenario_005,PAIR,idle: flows/pairs with a gap > T,10,87.218
+scenario_005,PAIR,idle: flows/pairs with a gap > T,15,84.962
+scenario_005,PAIR,idle: flows/pairs with a gap > T,30,77.444
+scenario_005,PAIR,idle: flows/pairs with a gap > T,60,48.872
+scenario_006,TCP,hard: flows with duration > T,5,61.596
+scenario_006,TCP,hard: flows with duration > T,10,36.294
+scenario_006,TCP,hard: flows with duration > T,15,31.938
+scenario_006,TCP,hard: flows with duration > T,30,28.039
+scenario_006,TCP,hard: flows with duration > T,60,22.737
+scenario_006,TCP,hard: flows with duration > T,120,7.195
+scenario_006,TCP,hard: flows with duration > T,300,1.847
+scenario_006,TCP,idle: gaps > T,1,15.032
+scenario_006,TCP,idle: gaps > T,2,14.274
+scenario_006,TCP,idle: gaps > T,3,13.737
+scenario_006,TCP,idle: gaps > T,5,12.422
+scenario_006,TCP,idle: gaps > T,10,9.285
+scenario_006,TCP,idle: gaps > T,15,2.125
+scenario_006,TCP,idle: gaps > T,30,1.645
+scenario_006,TCP,idle: gaps > T,60,0.087
+scenario_006,TCP,idle: flows/pairs with a gap > T,1,68.62
+scenario_006,TCP,idle: flows/pairs with a gap > T,2,65.587
+scenario_006,TCP,idle: flows/pairs with a gap > T,3,61.881
+scenario_006,TCP,idle: flows/pairs with a gap > T,5,54.504
+scenario_006,TCP,idle: flows/pairs with a gap > T,10,34.299
+scenario_006,TCP,idle: flows/pairs with a gap > T,15,13.58
+scenario_006,TCP,idle: flows/pairs with a gap > T,30,11.927
+scenario_006,TCP,idle: flows/pairs with a gap > T,60,1.494
+scenario_006,UDP,hard: flows with duration > T,5,14.143
+scenario_006,UDP,hard: flows with duration > T,10,12.841
+scenario_006,UDP,hard: flows with duration > T,15,12.544
+scenario_006,UDP,hard: flows with duration > T,30,11.797
+scenario_006,UDP,hard: flows with duration > T,60,10.801
+scenario_006,UDP,hard: flows with duration > T,120,8.12
+scenario_006,UDP,hard: flows with duration > T,300,2.614
+scenario_006,UDP,idle: gaps > T,1,17.312
+scenario_006,UDP,idle: gaps > T,2,16.713
+scenario_006,UDP,idle: gaps > T,3,16.307
+scenario_006,UDP,idle: gaps > T,5,15.589
+scenario_006,UDP,idle: gaps > T,10,13.959
+scenario_006,UDP,idle: gaps > T,15,13.074
+scenario_006,UDP,idle: gaps > T,30,11.371
+scenario_006,UDP,idle: gaps > T,60,9.395
+scenario_006,UDP,idle: flows/pairs with a gap > T,1,14.814
+scenario_006,UDP,idle: flows/pairs with a gap > T,2,14.517
+scenario_006,UDP,idle: flows/pairs with a gap > T,3,14.364
+scenario_006,UDP,idle: flows/pairs with a gap > T,5,14.067
+scenario_006,UDP,idle: flows/pairs with a gap > T,10,12.841
+scenario_006,UDP,idle: flows/pairs with a gap > T,15,12.391
+scenario_006,UDP,idle: flows/pairs with a gap > T,30,11.759
+scenario_006,UDP,idle: flows/pairs with a gap > T,60,10.533
+scenario_006,ALL,hard: flows with duration > T,5,35.804
+scenario_006,ALL,hard: flows with duration > T,10,23.547
+scenario_006,ALL,hard: flows with duration > T,15,21.397
+scenario_006,ALL,hard: flows with duration > T,30,19.211
+scenario_006,ALL,hard: flows with duration > T,60,16.249
+scenario_006,ALL,hard: flows with duration > T,120,7.698
+scenario_006,ALL,hard: flows with duration > T,300,2.264
+scenario_006,ALL,idle: gaps > T,1,15.235
+scenario_006,ALL,idle: gaps > T,2,14.491
+scenario_006,ALL,idle: gaps > T,3,13.966
+scenario_006,ALL,idle: gaps > T,5,12.704
+scenario_006,ALL,idle: gaps > T,10,9.701
+scenario_006,ALL,idle: gaps > T,15,3.101
+scenario_006,ALL,idle: gaps > T,30,2.512
+scenario_006,ALL,idle: gaps > T,60,0.917
+scenario_006,ALL,idle: flows/pairs with a gap > T,1,39.374
+scenario_006,ALL,idle: flows/pairs with a gap > T,2,37.829
+scenario_006,ALL,idle: flows/pairs with a gap > T,3,36.054
+scenario_006,ALL,idle: flows/pairs with a gap > T,5,32.525
+scenario_006,ALL,idle: flows/pairs with a gap > T,10,22.636
+scenario_006,ALL,idle: flows/pairs with a gap > T,15,12.934
+scenario_006,ALL,idle: flows/pairs with a gap > T,30,11.836
+scenario_006,ALL,idle: flows/pairs with a gap > T,60,6.407
+scenario_006,PAIR,hard: flows with duration > T,5,100.0
+scenario_006,PAIR,hard: flows with duration > T,10,100.0
+scenario_006,PAIR,hard: flows with duration > T,15,100.0
+scenario_006,PAIR,hard: flows with duration > T,30,100.0
+scenario_006,PAIR,hard: flows with duration > T,60,100.0
+scenario_006,PAIR,hard: flows with duration > T,120,100.0
+scenario_006,PAIR,hard: flows with duration > T,300,92.086
+scenario_006,PAIR,idle: gaps > T,1,5.651
+scenario_006,PAIR,idle: gaps > T,2,3.616
+scenario_006,PAIR,idle: gaps > T,3,2.537
+scenario_006,PAIR,idle: gaps > T,5,1.545
+scenario_006,PAIR,idle: gaps > T,10,0.68
+scenario_006,PAIR,idle: gaps > T,15,0.37
+scenario_006,PAIR,idle: gaps > T,30,0.184
+scenario_006,PAIR,idle: gaps > T,60,0.063
+scenario_006,PAIR,idle: flows/pairs with a gap > T,1,100.0
+scenario_006,PAIR,idle: flows/pairs with a gap > T,2,100.0
+scenario_006,PAIR,idle: flows/pairs with a gap > T,3,100.0
+scenario_006,PAIR,idle: flows/pairs with a gap > T,5,100.0
+scenario_006,PAIR,idle: flows/pairs with a gap > T,10,97.122
+scenario_006,PAIR,idle: flows/pairs with a gap > T,15,95.683
+scenario_006,PAIR,idle: flows/pairs with a gap > T,30,82.014
+scenario_006,PAIR,idle: flows/pairs with a gap > T,60,59.712
+scenario_007,TCP,hard: flows with duration > T,5,68.308
+scenario_007,TCP,hard: flows with duration > T,10,38.052
+scenario_007,TCP,hard: flows with duration > T,15,32.154
+scenario_007,TCP,hard: flows with duration > T,30,28.274
+scenario_007,TCP,hard: flows with duration > T,60,24.65
+scenario_007,TCP,hard: flows with duration > T,120,5.168
+scenario_007,TCP,hard: flows with duration > T,300,1.07
+scenario_007,TCP,idle: gaps > T,1,17.792
+scenario_007,TCP,idle: gaps > T,2,17.054
+scenario_007,TCP,idle: gaps > T,3,16.651
+scenario_007,TCP,idle: gaps > T,5,15.514
+scenario_007,TCP,idle: gaps > T,10,12.003
+scenario_007,TCP,idle: gaps > T,15,2.042
+scenario_007,TCP,idle: gaps > T,30,1.5
+scenario_007,TCP,idle: gaps > T,60,0.161
+scenario_007,TCP,idle: flows/pairs with a gap > T,1,71.227
+scenario_007,TCP,idle: flows/pairs with a gap > T,2,69.634
+scenario_007,TCP,idle: flows/pairs with a gap > T,3,68.418
+scenario_007,TCP,idle: flows/pairs with a gap > T,5,62.131
+scenario_007,TCP,idle: flows/pairs with a gap > T,10,35.133
+scenario_007,TCP,idle: flows/pairs with a gap > T,15,13.389
+scenario_007,TCP,idle: flows/pairs with a gap > T,30,11.152
+scenario_007,TCP,idle: flows/pairs with a gap > T,60,2.457
+scenario_007,UDP,hard: flows with duration > T,5,13.47
+scenario_007,UDP,hard: flows with duration > T,10,12.902
+scenario_007,UDP,hard: flows with duration > T,15,12.716
+scenario_007,UDP,hard: flows with duration > T,30,12.21
+scenario_007,UDP,hard: flows with duration > T,60,11.777
+scenario_007,UDP,hard: flows with duration > T,120,9.17
+scenario_007,UDP,hard: flows with duration > T,300,4.14
+scenario_007,UDP,idle: gaps > T,1,12.061
+scenario_007,UDP,idle: gaps > T,2,11.566
+scenario_007,UDP,idle: gaps > T,3,11.265
+scenario_007,UDP,idle: gaps > T,5,10.72
+scenario_007,UDP,idle: gaps > T,10,9.924
+scenario_007,UDP,idle: gaps > T,15,9.398
+scenario_007,UDP,idle: gaps > T,30,8.477
+scenario_007,UDP,idle: gaps > T,60,7.669
+scenario_007,UDP,idle: flows/pairs with a gap > T,1,14.076
+scenario_007,UDP,idle: flows/pairs with a gap > T,2,13.742
+scenario_007,UDP,idle: flows/pairs with a gap > T,3,13.643
+scenario_007,UDP,idle: flows/pairs with a gap > T,5,13.309
+scenario_007,UDP,idle: flows/pairs with a gap > T,10,12.877
+scenario_007,UDP,idle: flows/pairs with a gap > T,15,12.63
+scenario_007,UDP,idle: flows/pairs with a gap > T,30,12.135
+scenario_007,UDP,idle: flows/pairs with a gap > T,60,11.777
+scenario_007,ALL,hard: flows with duration > T,5,41.109
+scenario_007,ALL,hard: flows with duration > T,10,25.578
+scenario_007,ALL,hard: flows with duration > T,15,22.513
+scenario_007,ALL,hard: flows with duration > T,30,20.306
+scenario_007,ALL,hard: flows with duration > T,60,18.265
+scenario_007,ALL,hard: flows with duration > T,120,7.153
+scenario_007,ALL,hard: flows with duration > T,300,2.593
+scenario_007,ALL,idle: gaps > T,1,17.16
+scenario_007,ALL,idle: gaps > T,2,16.449
+scenario_007,ALL,idle: gaps > T,3,16.057
+scenario_007,ALL,idle: gaps > T,5,14.986
+scenario_007,ALL,idle: gaps > T,10,11.774
+scenario_007,ALL,idle: gaps > T,15,2.853
+scenario_007,ALL,idle: gaps > T,30,2.269
+scenario_007,ALL,idle: gaps > T,60,0.989
+scenario_007,ALL,idle: flows/pairs with a gap > T,1,42.881
+scenario_007,ALL,idle: flows/pairs with a gap > T,2,41.912
+scenario_007,ALL,idle: flows/pairs with a gap > T,3,41.25
+scenario_007,ALL,idle: flows/pairs with a gap > T,5,37.916
+scenario_007,ALL,idle: flows/pairs with a gap > T,10,24.094
+scenario_007,ALL,idle: flows/pairs with a gap > T,15,13.013
+scenario_007,ALL,idle: flows/pairs with a gap > T,30,11.64
+scenario_007,ALL,idle: flows/pairs with a gap > T,60,7.079
+scenario_007,PAIR,hard: flows with duration > T,5,98.611
+scenario_007,PAIR,hard: flows with duration > T,10,98.611
+scenario_007,PAIR,hard: flows with duration > T,15,98.611
+scenario_007,PAIR,hard: flows with duration > T,30,98.611
+scenario_007,PAIR,hard: flows with duration > T,60,97.222
+scenario_007,PAIR,hard: flows with duration > T,120,97.222
+scenario_007,PAIR,hard: flows with duration > T,300,93.056
+scenario_007,PAIR,idle: gaps > T,1,5.482
+scenario_007,PAIR,idle: gaps > T,2,3.735
+scenario_007,PAIR,idle: gaps > T,3,2.916
+scenario_007,PAIR,idle: gaps > T,5,1.923
+scenario_007,PAIR,idle: gaps > T,10,0.88
+scenario_007,PAIR,idle: gaps > T,15,0.481
+scenario_007,PAIR,idle: gaps > T,30,0.25
+scenario_007,PAIR,idle: gaps > T,60,0.098
+scenario_007,PAIR,idle: flows/pairs with a gap > T,1,100.0
+scenario_007,PAIR,idle: flows/pairs with a gap > T,2,100.0
+scenario_007,PAIR,idle: flows/pairs with a gap > T,3,98.611
+scenario_007,PAIR,idle: flows/pairs with a gap > T,5,97.222
+scenario_007,PAIR,idle: flows/pairs with a gap > T,10,93.056
+scenario_007,PAIR,idle: flows/pairs with a gap > T,15,88.889
+scenario_007,PAIR,idle: flows/pairs with a gap > T,30,76.389
+scenario_007,PAIR,idle: flows/pairs with a gap > T,60,59.722
+scenario_008,TCP,hard: flows with duration > T,5,75.528
+scenario_008,TCP,hard: flows with duration > T,10,42.722
+scenario_008,TCP,hard: flows with duration > T,15,33.837
+scenario_008,TCP,hard: flows with duration > T,30,29.995
+scenario_008,TCP,hard: flows with duration > T,60,20.778
+scenario_008,TCP,hard: flows with duration > T,120,5.265
+scenario_008,TCP,hard: flows with duration > T,300,1.608
+scenario_008,TCP,idle: gaps > T,1,15.544
+scenario_008,TCP,idle: gaps > T,2,14.752
+scenario_008,TCP,idle: gaps > T,3,14.339
+scenario_008,TCP,idle: gaps > T,5,13.288
+scenario_008,TCP,idle: gaps > T,10,9.767
+scenario_008,TCP,idle: gaps > T,15,2.243
+scenario_008,TCP,idle: gaps > T,30,1.703
+scenario_008,TCP,idle: gaps > T,60,0.082
+scenario_008,TCP,idle: flows/pairs with a gap > T,1,78.412
+scenario_008,TCP,idle: flows/pairs with a gap > T,2,76.632
+scenario_008,TCP,idle: flows/pairs with a gap > T,3,75.405
+scenario_008,TCP,idle: flows/pairs with a gap > T,5,69.477
+scenario_008,TCP,idle: flows/pairs with a gap > T,10,37.371
+scenario_008,TCP,idle: flows/pairs with a gap > T,15,14.335
+scenario_008,TCP,idle: flows/pairs with a gap > T,30,12.948
+scenario_008,TCP,idle: flows/pairs with a gap > T,60,1.338
+scenario_008,UDP,hard: flows with duration > T,5,15.036
+scenario_008,UDP,hard: flows with duration > T,10,14.609
+scenario_008,UDP,hard: flows with duration > T,15,14.515
+scenario_008,UDP,hard: flows with duration > T,30,13.754
+scenario_008,UDP,hard: flows with duration > T,60,12.649
+scenario_008,UDP,hard: flows with duration > T,120,10.73
+scenario_008,UDP,hard: flows with duration > T,300,5.026
+scenario_008,UDP,idle: gaps > T,1,16.827
+scenario_008,UDP,idle: gaps > T,2,16.19
+scenario_008,UDP,idle: gaps > T,3,15.892
+scenario_008,UDP,idle: gaps > T,5,15.344
+scenario_008,UDP,idle: gaps > T,10,14.249
+scenario_008,UDP,idle: gaps > T,15,13.819
+scenario_008,UDP,idle: gaps > T,30,12.572
+scenario_008,UDP,idle: gaps > T,60,11.075
+scenario_008,UDP,idle: flows/pairs with a gap > T,1,15.839
+scenario_008,UDP,idle: flows/pairs with a gap > T,2,15.474
+scenario_008,UDP,idle: flows/pairs with a gap > T,3,15.349
+scenario_008,UDP,idle: flows/pairs with a gap > T,5,14.984
+scenario_008,UDP,idle: flows/pairs with a gap > T,10,14.567
+scenario_008,UDP,idle: flows/pairs with a gap > T,15,14.369
+scenario_008,UDP,idle: flows/pairs with a gap > T,30,13.67
+scenario_008,UDP,idle: flows/pairs with a gap > T,60,12.586
+scenario_008,ALL,hard: flows with duration > T,5,42.823
+scenario_008,ALL,hard: flows with duration > T,10,27.523
+scenario_008,ALL,hard: flows with duration > T,15,23.39
+scenario_008,ALL,hard: flows with duration > T,30,21.214
+scenario_008,ALL,hard: flows with duration > T,60,16.383
+scenario_008,ALL,hard: flows with duration > T,120,8.22
+scenario_008,ALL,hard: flows with duration > T,300,3.456
+scenario_008,ALL,idle: gaps > T,1,15.666
+scenario_008,ALL,idle: gaps > T,2,14.889
+scenario_008,ALL,idle: gaps > T,3,14.487
+scenario_008,ALL,idle: gaps > T,5,13.484
+scenario_008,ALL,idle: gaps > T,10,10.195
+scenario_008,ALL,idle: gaps > T,15,3.348
+scenario_008,ALL,idle: gaps > T,30,2.741
+scenario_008,ALL,idle: gaps > T,60,1.132
+scenario_008,ALL,idle: flows/pairs with a gap > T,1,44.582
+scenario_008,ALL,idle: flows/pairs with a gap > T,2,43.567
+scenario_008,ALL,idle: flows/pairs with a gap > T,3,42.936
+scenario_008,ALL,idle: flows/pairs with a gap > T,5,40.016
+scenario_008,ALL,idle: flows/pairs with a gap > T,10,25.042
+scenario_008,ALL,idle: flows/pairs with a gap > T,15,14.353
+scenario_008,ALL,idle: flows/pairs with a gap > T,30,13.339
+scenario_008,ALL,idle: flows/pairs with a gap > T,60,7.419
+scenario_008,PAIR,hard: flows with duration > T,5,100.0
+scenario_008,PAIR,hard: flows with duration > T,10,100.0
+scenario_008,PAIR,hard: flows with duration > T,15,100.0
+scenario_008,PAIR,hard: flows with duration > T,30,100.0
+scenario_008,PAIR,hard: flows with duration > T,60,98.621
+scenario_008,PAIR,hard: flows with duration > T,120,97.241
+scenario_008,PAIR,hard: flows with duration > T,300,94.483
+scenario_008,PAIR,idle: gaps > T,1,5.003
+scenario_008,PAIR,idle: gaps > T,2,3.355
+scenario_008,PAIR,idle: gaps > T,3,2.67
+scenario_008,PAIR,idle: gaps > T,5,1.65
+scenario_008,PAIR,idle: gaps > T,10,0.848
+scenario_008,PAIR,idle: gaps > T,15,0.451
+scenario_008,PAIR,idle: gaps > T,30,0.24
+scenario_008,PAIR,idle: gaps > T,60,0.094
+scenario_008,PAIR,idle: flows/pairs with a gap > T,1,100.0
+scenario_008,PAIR,idle: flows/pairs with a gap > T,2,100.0
+scenario_008,PAIR,idle: flows/pairs with a gap > T,3,98.621
+scenario_008,PAIR,idle: flows/pairs with a gap > T,5,98.621
+scenario_008,PAIR,idle: flows/pairs with a gap > T,10,94.483
+scenario_008,PAIR,idle: flows/pairs with a gap > T,15,90.345
+scenario_008,PAIR,idle: flows/pairs with a gap > T,30,79.31
+scenario_008,PAIR,idle: flows/pairs with a gap > T,60,64.828
+scenario_009,TCP,hard: flows with duration > T,5,68.728
+scenario_009,TCP,hard: flows with duration > T,10,49.225
+scenario_009,TCP,hard: flows with duration > T,15,45.406
+scenario_009,TCP,hard: flows with duration > T,30,39.753
+scenario_009,TCP,hard: flows with duration > T,60,28.894
+scenario_009,TCP,hard: flows with duration > T,120,7.855
+scenario_009,TCP,hard: flows with duration > T,300,1.006
+scenario_009,TCP,idle: gaps > T,1,17.888
+scenario_009,TCP,idle: gaps > T,2,17.324
+scenario_009,TCP,idle: gaps > T,3,16.893
+scenario_009,TCP,idle: gaps > T,5,15.542
+scenario_009,TCP,idle: gaps > T,10,13.05
+scenario_009,TCP,idle: gaps > T,15,2.244
+scenario_009,TCP,idle: gaps > T,30,1.721
+scenario_009,TCP,idle: gaps > T,60,0.033
+scenario_009,TCP,idle: flows/pairs with a gap > T,1,72.737
+scenario_009,TCP,idle: flows/pairs with a gap > T,2,70.998
+scenario_009,TCP,idle: flows/pairs with a gap > T,3,69.829
+scenario_009,TCP,idle: flows/pairs with a gap > T,5,64.583
+scenario_009,TCP,idle: flows/pairs with a gap > T,10,45.76
+scenario_009,TCP,idle: flows/pairs with a gap > T,15,16.553
+scenario_009,TCP,idle: flows/pairs with a gap > T,30,14.352
+scenario_009,TCP,idle: flows/pairs with a gap > T,60,0.584
+scenario_009,UDP,hard: flows with duration > T,5,13.083
+scenario_009,UDP,hard: flows with duration > T,10,12.512
+scenario_009,UDP,hard: flows with duration > T,15,12.168
+scenario_009,UDP,hard: flows with duration > T,30,11.425
+scenario_009,UDP,hard: flows with duration > T,60,10.025
+scenario_009,UDP,hard: flows with duration > T,120,8.388
+scenario_009,UDP,hard: flows with duration > T,300,2.81
+scenario_009,UDP,idle: gaps > T,1,17.061
+scenario_009,UDP,idle: gaps > T,2,16.106
+scenario_009,UDP,idle: gaps > T,3,15.579
+scenario_009,UDP,idle: gaps > T,5,14.754
+scenario_009,UDP,idle: gaps > T,10,13.661
+scenario_009,UDP,idle: gaps > T,15,12.893
+scenario_009,UDP,idle: gaps > T,30,11.679
+scenario_009,UDP,idle: gaps > T,60,9.599
+scenario_009,UDP,idle: flows/pairs with a gap > T,1,13.729
+scenario_009,UDP,idle: flows/pairs with a gap > T,2,13.578
+scenario_009,UDP,idle: flows/pairs with a gap > T,3,13.384
+scenario_009,UDP,idle: flows/pairs with a gap > T,5,12.9
+scenario_009,UDP,idle: flows/pairs with a gap > T,10,12.48
+scenario_009,UDP,idle: flows/pairs with a gap > T,15,12.081
+scenario_009,UDP,idle: flows/pairs with a gap > T,30,11.295
+scenario_009,UDP,idle: flows/pairs with a gap > T,60,9.939
+scenario_009,ALL,hard: flows with duration > T,5,37.681
+scenario_009,ALL,hard: flows with duration > T,10,28.741
+scenario_009,ALL,hard: flows with duration > T,15,26.861
+scenario_009,ALL,hard: flows with duration > T,30,23.947
+scenario_009,ALL,hard: flows with duration > T,60,18.366
+scenario_009,ALL,hard: flows with duration > T,120,8.153
+scenario_009,ALL,hard: flows with duration > T,300,2.013
+scenario_009,ALL,idle: gaps > T,1,17.819
+scenario_009,ALL,idle: gaps > T,2,17.222
+scenario_009,ALL,idle: gaps > T,3,16.783
+scenario_009,ALL,idle: gaps > T,5,15.476
+scenario_009,ALL,idle: gaps > T,10,13.101
+scenario_009,ALL,idle: gaps > T,15,3.135
+scenario_009,ALL,idle: gaps > T,30,2.555
+scenario_009,ALL,idle: gaps > T,60,0.834
+scenario_009,ALL,idle: flows/pairs with a gap > T,1,39.814
+scenario_009,ALL,idle: flows/pairs with a gap > T,2,38.961
+scenario_009,ALL,idle: flows/pairs with a gap > T,3,38.336
+scenario_009,ALL,idle: flows/pairs with a gap > T,5,35.746
+scenario_009,ALL,idle: flows/pairs with a gap > T,10,27.191
+scenario_009,ALL,idle: flows/pairs with a gap > T,15,14.058
+scenario_009,ALL,idle: flows/pairs with a gap > T,30,12.646
+scenario_009,ALL,idle: flows/pairs with a gap > T,60,5.804
+scenario_009,PAIR,hard: flows with duration > T,5,98.63
+scenario_009,PAIR,hard: flows with duration > T,10,98.63
+scenario_009,PAIR,hard: flows with duration > T,15,98.63
+scenario_009,PAIR,hard: flows with duration > T,30,98.63
+scenario_009,PAIR,hard: flows with duration > T,60,98.63
+scenario_009,PAIR,hard: flows with duration > T,120,98.63
+scenario_009,PAIR,hard: flows with duration > T,300,95.89
+scenario_009,PAIR,idle: gaps > T,1,5.461
+scenario_009,PAIR,idle: gaps > T,2,3.648
+scenario_009,PAIR,idle: gaps > T,3,2.76
+scenario_009,PAIR,idle: gaps > T,5,1.765
+scenario_009,PAIR,idle: gaps > T,10,0.92
+scenario_009,PAIR,idle: gaps > T,15,0.453
+scenario_009,PAIR,idle: gaps > T,30,0.245
+scenario_009,PAIR,idle: gaps > T,60,0.084
+scenario_009,PAIR,idle: flows/pairs with a gap > T,1,98.63
+scenario_009,PAIR,idle: flows/pairs with a gap > T,2,98.63
+scenario_009,PAIR,idle: flows/pairs with a gap > T,3,98.63
+scenario_009,PAIR,idle: flows/pairs with a gap > T,5,98.63
+scenario_009,PAIR,idle: flows/pairs with a gap > T,10,98.63
+scenario_009,PAIR,idle: flows/pairs with a gap > T,15,95.89
+scenario_009,PAIR,idle: flows/pairs with a gap > T,30,83.562
+scenario_009,PAIR,idle: flows/pairs with a gap > T,60,65.753
+scenario_010,TCP,hard: flows with duration > T,5,55.807
+scenario_010,TCP,hard: flows with duration > T,10,40.155
+scenario_010,TCP,hard: flows with duration > T,15,36.989
+scenario_010,TCP,hard: flows with duration > T,30,31.966
+scenario_010,TCP,hard: flows with duration > T,60,25.618
+scenario_010,TCP,hard: flows with duration > T,120,7.301
+scenario_010,TCP,hard: flows with duration > T,300,1.599
+scenario_010,TCP,idle: gaps > T,1,14.982
+scenario_010,TCP,idle: gaps > T,2,14.423
+scenario_010,TCP,idle: gaps > T,3,14.064
+scenario_010,TCP,idle: gaps > T,5,13.104
+scenario_010,TCP,idle: gaps > T,10,10.841
+scenario_010,TCP,idle: gaps > T,15,2.039
+scenario_010,TCP,idle: gaps > T,30,1.452
+scenario_010,TCP,idle: gaps > T,60,0.178
+scenario_010,TCP,idle: flows/pairs with a gap > T,1,59.053
+scenario_010,TCP,idle: flows/pairs with a gap > T,2,58.004
+scenario_010,TCP,idle: flows/pairs with a gap > T,3,56.711
+scenario_010,TCP,idle: flows/pairs with a gap > T,5,53.287
+scenario_010,TCP,idle: flows/pairs with a gap > T,10,38.088
+scenario_010,TCP,idle: flows/pairs with a gap > T,15,15.313
+scenario_010,TCP,idle: flows/pairs with a gap > T,30,12.647
+scenario_010,TCP,idle: flows/pairs with a gap > T,60,2.681
+scenario_010,UDP,hard: flows with duration > T,5,11.912
+scenario_010,UDP,hard: flows with duration > T,10,11.396
+scenario_010,UDP,hard: flows with duration > T,15,11.099
+scenario_010,UDP,hard: flows with duration > T,30,10.349
+scenario_010,UDP,hard: flows with duration > T,60,9.254
+scenario_010,UDP,hard: flows with duration > T,120,6.941
+scenario_010,UDP,hard: flows with duration > T,300,2.235
+scenario_010,UDP,idle: gaps > T,1,9.832
+scenario_010,UDP,idle: gaps > T,2,9.415
+scenario_010,UDP,idle: gaps > T,3,9.134
+scenario_010,UDP,idle: gaps > T,5,8.565
+scenario_010,UDP,idle: gaps > T,10,7.915
+scenario_010,UDP,idle: gaps > T,15,7.514
+scenario_010,UDP,idle: gaps > T,30,6.816
+scenario_010,UDP,idle: gaps > T,60,5.613
+scenario_010,UDP,idle: flows/pairs with a gap > T,1,12.803
+scenario_010,UDP,idle: flows/pairs with a gap > T,2,12.475
+scenario_010,UDP,idle: flows/pairs with a gap > T,3,12.209
+scenario_010,UDP,idle: flows/pairs with a gap > T,5,11.756
+scenario_010,UDP,idle: flows/pairs with a gap > T,10,11.38
+scenario_010,UDP,idle: flows/pairs with a gap > T,15,11.036
+scenario_010,UDP,idle: flows/pairs with a gap > T,30,10.317
+scenario_010,UDP,idle: flows/pairs with a gap > T,60,9.051
+scenario_010,ALL,hard: flows with duration > T,5,33.5
+scenario_010,ALL,hard: flows with duration > T,10,25.54
+scenario_010,ALL,hard: flows with duration > T,15,23.832
+scenario_010,ALL,hard: flows with duration > T,30,20.98
+scenario_010,ALL,hard: flows with duration > T,60,17.302
+scenario_010,ALL,hard: flows with duration > T,120,7.118
+scenario_010,ALL,hard: flows with duration > T,300,1.922
+scenario_010,ALL,idle: gaps > T,1,14.465
+scenario_010,ALL,idle: gaps > T,2,13.921
+scenario_010,ALL,idle: gaps > T,3,13.569
+scenario_010,ALL,idle: gaps > T,5,12.649
+scenario_010,ALL,idle: gaps > T,10,10.548
+scenario_010,ALL,idle: gaps > T,15,2.588
+scenario_010,ALL,idle: gaps > T,30,1.99
+scenario_010,ALL,idle: gaps > T,60,0.723
+scenario_010,ALL,idle: flows/pairs with a gap > T,1,35.55
+scenario_010,ALL,idle: flows/pairs with a gap > T,2,34.867
+scenario_010,ALL,idle: flows/pairs with a gap > T,3,34.096
+scenario_010,ALL,idle: flows/pairs with a gap > T,5,32.181
+scenario_010,ALL,idle: flows/pairs with a gap > T,10,24.515
+scenario_010,ALL,idle: flows/pairs with a gap > T,15,13.139
+scenario_010,ALL,idle: flows/pairs with a gap > T,30,11.463
+scenario_010,ALL,idle: flows/pairs with a gap > T,60,5.918
+scenario_010,PAIR,hard: flows with duration > T,5,100.0
+scenario_010,PAIR,hard: flows with duration > T,10,100.0
+scenario_010,PAIR,hard: flows with duration > T,15,100.0
+scenario_010,PAIR,hard: flows with duration > T,30,100.0
+scenario_010,PAIR,hard: flows with duration > T,60,100.0
+scenario_010,PAIR,hard: flows with duration > T,120,98.684
+scenario_010,PAIR,hard: flows with duration > T,300,93.421
+scenario_010,PAIR,idle: gaps > T,1,5.613
+scenario_010,PAIR,idle: gaps > T,2,4.121
+scenario_010,PAIR,idle: gaps > T,3,3.478
+scenario_010,PAIR,idle: gaps > T,5,2.494
+scenario_010,PAIR,idle: gaps > T,10,1.355
+scenario_010,PAIR,idle: gaps > T,15,0.606
+scenario_010,PAIR,idle: gaps > T,30,0.321
+scenario_010,PAIR,idle: gaps > T,60,0.12
+scenario_010,PAIR,idle: flows/pairs with a gap > T,1,100.0
+scenario_010,PAIR,idle: flows/pairs with a gap > T,2,100.0
+scenario_010,PAIR,idle: flows/pairs with a gap > T,3,100.0
+scenario_010,PAIR,idle: flows/pairs with a gap > T,5,98.684
+scenario_010,PAIR,idle: flows/pairs with a gap > T,10,97.368
+scenario_010,PAIR,idle: flows/pairs with a gap > T,15,93.421
+scenario_010,PAIR,idle: flows/pairs with a gap > T,30,84.211
+scenario_010,PAIR,idle: flows/pairs with a gap > T,60,62.5
+scenario_011,TCP,hard: flows with duration > T,5,43.465
+scenario_011,TCP,hard: flows with duration > T,10,33.608
+scenario_011,TCP,hard: flows with duration > T,15,28.821
+scenario_011,TCP,hard: flows with duration > T,30,25.769
+scenario_011,TCP,hard: flows with duration > T,60,21.807
+scenario_011,TCP,hard: flows with duration > T,120,5.341
+scenario_011,TCP,hard: flows with duration > T,300,1.095
+scenario_011,TCP,idle: gaps > T,1,12.252
+scenario_011,TCP,idle: gaps > T,2,11.757
+scenario_011,TCP,idle: gaps > T,3,11.494
+scenario_011,TCP,idle: gaps > T,5,10.649
+scenario_011,TCP,idle: gaps > T,10,9.131
+scenario_011,TCP,idle: gaps > T,15,1.76
+scenario_011,TCP,idle: gaps > T,30,1.365
+scenario_011,TCP,idle: gaps > T,60,0.23
+scenario_011,TCP,idle: flows/pairs with a gap > T,1,45.619
+scenario_011,TCP,idle: flows/pairs with a gap > T,2,44.61
+scenario_011,TCP,idle: flows/pairs with a gap > T,3,44.032
+scenario_011,TCP,idle: flows/pairs with a gap > T,5,41.25
+scenario_011,TCP,idle: flows/pairs with a gap > T,10,31.935
+scenario_011,TCP,idle: flows/pairs with a gap > T,15,11.9
+scenario_011,TCP,idle: flows/pairs with a gap > T,30,10.128
+scenario_011,TCP,idle: flows/pairs with a gap > T,60,1.92
+scenario_011,UDP,hard: flows with duration > T,5,13.991
+scenario_011,UDP,hard: flows with duration > T,10,13.482
+scenario_011,UDP,hard: flows with duration > T,15,13.163
+scenario_011,UDP,hard: flows with duration > T,30,12.436
+scenario_011,UDP,hard: flows with duration > T,60,11.623
+scenario_011,UDP,hard: flows with duration > T,120,10.199
+scenario_011,UDP,hard: flows with duration > T,300,3.443
+scenario_011,UDP,idle: gaps > T,1,16.037
+scenario_011,UDP,idle: gaps > T,2,15.067
+scenario_011,UDP,idle: gaps > T,3,14.722
+scenario_011,UDP,idle: gaps > T,5,14.117
+scenario_011,UDP,idle: gaps > T,10,13.356
+scenario_011,UDP,idle: gaps > T,15,12.688
+scenario_011,UDP,idle: gaps > T,30,11.676
+scenario_011,UDP,idle: gaps > T,60,10.278
+scenario_011,UDP,idle: flows/pairs with a gap > T,1,14.819
+scenario_011,UDP,idle: flows/pairs with a gap > T,2,14.427
+scenario_011,UDP,idle: flows/pairs with a gap > T,3,14.253
+scenario_011,UDP,idle: flows/pairs with a gap > T,5,13.86
+scenario_011,UDP,idle: flows/pairs with a gap > T,10,13.424
+scenario_011,UDP,idle: flows/pairs with a gap > T,15,13.061
+scenario_011,UDP,idle: flows/pairs with a gap > T,30,12.436
+scenario_011,UDP,idle: flows/pairs with a gap > T,60,11.448
+scenario_011,ALL,hard: flows with duration > T,5,29.949
+scenario_011,ALL,hard: flows with duration > T,10,24.379
+scenario_011,ALL,hard: flows with duration > T,15,21.64
+scenario_011,ALL,hard: flows with duration > T,30,19.655
+scenario_011,ALL,hard: flows with duration > T,60,17.136
+scenario_011,ALL,hard: flows with duration > T,120,7.569
+scenario_011,ALL,hard: flows with duration > T,300,2.172
+scenario_011,ALL,idle: gaps > T,1,12.501
+scenario_011,ALL,idle: gaps > T,2,11.975
+scenario_011,ALL,idle: gaps > T,3,11.706
+scenario_011,ALL,idle: gaps > T,5,10.877
+scenario_011,ALL,idle: gaps > T,10,9.409
+scenario_011,ALL,idle: gaps > T,15,2.48
+scenario_011,ALL,idle: gaps > T,30,2.044
+scenario_011,ALL,idle: gaps > T,60,0.892
+scenario_011,ALL,idle: flows/pairs with a gap > T,1,31.494
+scenario_011,ALL,idle: flows/pairs with a gap > T,2,30.768
+scenario_011,ALL,idle: flows/pairs with a gap > T,3,30.375
+scenario_011,ALL,idle: flows/pairs with a gap > T,5,28.689
+scenario_011,ALL,idle: flows/pairs with a gap > T,10,23.446
+scenario_011,ALL,idle: flows/pairs with a gap > T,15,12.433
+scenario_011,ALL,idle: flows/pairs with a gap > T,30,11.187
+scenario_011,ALL,idle: flows/pairs with a gap > T,60,6.29
+scenario_011,PAIR,hard: flows with duration > T,5,98.561
+scenario_011,PAIR,hard: flows with duration > T,10,98.561
+scenario_011,PAIR,hard: flows with duration > T,15,98.561
+scenario_011,PAIR,hard: flows with duration > T,30,98.561
+scenario_011,PAIR,hard: flows with duration > T,60,98.561
+scenario_011,PAIR,hard: flows with duration > T,120,98.561
+scenario_011,PAIR,hard: flows with duration > T,300,92.806
+scenario_011,PAIR,idle: gaps > T,1,4.954
+scenario_011,PAIR,idle: gaps > T,2,3.293
+scenario_011,PAIR,idle: gaps > T,3,2.517
+scenario_011,PAIR,idle: gaps > T,5,1.694
+scenario_011,PAIR,idle: gaps > T,10,0.843
+scenario_011,PAIR,idle: gaps > T,15,0.473
+scenario_011,PAIR,idle: gaps > T,30,0.262
+scenario_011,PAIR,idle: gaps > T,60,0.081
+scenario_011,PAIR,idle: flows/pairs with a gap > T,1,98.561
+scenario_011,PAIR,idle: flows/pairs with a gap > T,2,98.561
+scenario_011,PAIR,idle: flows/pairs with a gap > T,3,98.561
+scenario_011,PAIR,idle: flows/pairs with a gap > T,5,98.561
+scenario_011,PAIR,idle: flows/pairs with a gap > T,10,98.561
+scenario_011,PAIR,idle: flows/pairs with a gap > T,15,95.683
+scenario_011,PAIR,idle: flows/pairs with a gap > T,30,89.209
+scenario_011,PAIR,idle: flows/pairs with a gap > T,60,59.712
+scenario_012,TCP,hard: flows with duration > T,5,58.688
+scenario_012,TCP,hard: flows with duration > T,10,44.259
+scenario_012,TCP,hard: flows with duration > T,15,36.445
+scenario_012,TCP,hard: flows with duration > T,30,30.444
+scenario_012,TCP,hard: flows with duration > T,60,22.923
+scenario_012,TCP,hard: flows with duration > T,120,6.534
+scenario_012,TCP,hard: flows with duration > T,300,1.347
+scenario_012,TCP,idle: gaps > T,1,15.906
+scenario_012,TCP,idle: gaps > T,2,15.236
+scenario_012,TCP,idle: gaps > T,3,14.72
+scenario_012,TCP,idle: gaps > T,5,13.575
+scenario_012,TCP,idle: gaps > T,10,11.011
+scenario_012,TCP,idle: gaps > T,15,2.484
+scenario_012,TCP,idle: gaps > T,30,1.868
+scenario_012,TCP,idle: gaps > T,60,0.287
+scenario_012,TCP,idle: flows/pairs with a gap > T,1,61.915
+scenario_012,TCP,idle: flows/pairs with a gap > T,2,60.368
+scenario_012,TCP,idle: flows/pairs with a gap > T,3,59.035
+scenario_012,TCP,idle: flows/pairs with a gap > T,5,56.021
+scenario_012,TCP,idle: flows/pairs with a gap > T,10,39.712
+scenario_012,TCP,idle: flows/pairs with a gap > T,15,15.589
+scenario_012,TCP,idle: flows/pairs with a gap > T,30,12.708
+scenario_012,TCP,idle: flows/pairs with a gap > T,60,2.8
+scenario_012,UDP,hard: flows with duration > T,5,13.684
+scenario_012,UDP,hard: flows with duration > T,10,13.215
+scenario_012,UDP,hard: flows with duration > T,15,13.058
+scenario_012,UDP,hard: flows with duration > T,30,12.733
+scenario_012,UDP,hard: flows with duration > T,60,11.903
+scenario_012,UDP,hard: flows with duration > T,120,8.99
+scenario_012,UDP,hard: flows with duration > T,300,3.382
+scenario_012,UDP,idle: gaps > T,1,15.782
+scenario_012,UDP,idle: gaps > T,2,14.728
+scenario_012,UDP,idle: gaps > T,3,14.333
+scenario_012,UDP,idle: gaps > T,5,13.789
+scenario_012,UDP,idle: gaps > T,10,13.122
+scenario_012,UDP,idle: gaps > T,15,12.692
+scenario_012,UDP,idle: gaps > T,30,12.007
+scenario_012,UDP,idle: gaps > T,60,10.436
+scenario_012,UDP,idle: flows/pairs with a gap > T,1,14.671
+scenario_012,UDP,idle: flows/pairs with a gap > T,2,14.165
+scenario_012,UDP,idle: flows/pairs with a gap > T,3,13.961
+scenario_012,UDP,idle: flows/pairs with a gap > T,5,13.503
+scenario_012,UDP,idle: flows/pairs with a gap > T,10,13.142
+scenario_012,UDP,idle: flows/pairs with a gap > T,15,12.914
+scenario_012,UDP,idle: flows/pairs with a gap > T,30,12.721
+scenario_012,UDP,idle: flows/pairs with a gap > T,60,11.734
+scenario_012,ALL,hard: flows with duration > T,5,35.033
+scenario_012,ALL,hard: flows with duration > T,10,27.942
+scenario_012,ALL,hard: flows with duration > T,15,24.152
+scenario_012,ALL,hard: flows with duration > T,30,21.135
+scenario_012,ALL,hard: flows with duration > T,60,17.131
+scenario_012,ALL,hard: flows with duration > T,120,7.825
+scenario_012,ALL,hard: flows with duration > T,300,2.416
+scenario_012,ALL,idle: gaps > T,1,15.895
+scenario_012,ALL,idle: gaps > T,2,15.19
+scenario_012,ALL,idle: gaps > T,3,14.685
+scenario_012,ALL,idle: gaps > T,5,13.594
+scenario_012,ALL,idle: gaps > T,10,11.2
+scenario_012,ALL,idle: gaps > T,15,3.4
+scenario_012,ALL,idle: gaps > T,30,2.777
+scenario_012,ALL,idle: gaps > T,60,1.197
+scenario_012,ALL,idle: flows/pairs with a gap > T,1,37.082
+scenario_012,ALL,idle: flows/pairs with a gap > T,2,36.083
+scenario_012,ALL,idle: flows/pairs with a gap > T,3,35.343
+scenario_012,ALL,idle: flows/pairs with a gap > T,5,33.673
+scenario_012,ALL,idle: flows/pairs with a gap > T,10,25.746
+scenario_012,ALL,idle: flows/pairs with a gap > T,15,14.183
+scenario_012,ALL,idle: flows/pairs with a gap > T,30,12.715
+scenario_012,ALL,idle: flows/pairs with a gap > T,60,7.496
+scenario_012,PAIR,hard: flows with duration > T,5,98.649
+scenario_012,PAIR,hard: flows with duration > T,10,98.649
+scenario_012,PAIR,hard: flows with duration > T,15,98.649
+scenario_012,PAIR,hard: flows with duration > T,30,98.649
+scenario_012,PAIR,hard: flows with duration > T,60,98.649
+scenario_012,PAIR,hard: flows with duration > T,120,97.297
+scenario_012,PAIR,hard: flows with duration > T,300,91.892
+scenario_012,PAIR,idle: gaps > T,1,5.456
+scenario_012,PAIR,idle: gaps > T,2,3.788
+scenario_012,PAIR,idle: gaps > T,3,2.961
+scenario_012,PAIR,idle: gaps > T,5,1.952
+scenario_012,PAIR,idle: gaps > T,10,1.004
+scenario_012,PAIR,idle: gaps > T,15,0.537
+scenario_012,PAIR,idle: gaps > T,30,0.312
+scenario_012,PAIR,idle: gaps > T,60,0.112
+scenario_012,PAIR,idle: flows/pairs with a gap > T,1,98.649
+scenario_012,PAIR,idle: flows/pairs with a gap > T,2,98.649
+scenario_012,PAIR,idle: flows/pairs with a gap > T,3,98.649
+scenario_012,PAIR,idle: flows/pairs with a gap > T,5,98.649
+scenario_012,PAIR,idle: flows/pairs with a gap > T,10,98.649
+scenario_012,PAIR,idle: flows/pairs with a gap > T,15,95.946
+scenario_012,PAIR,idle: flows/pairs with a gap > T,30,85.811
+scenario_012,PAIR,idle: flows/pairs with a gap > T,60,66.216
+scenario_013,TCP,hard: flows with duration > T,5,47.766
+scenario_013,TCP,hard: flows with duration > T,10,35.664
+scenario_013,TCP,hard: flows with duration > T,15,29.977
+scenario_013,TCP,hard: flows with duration > T,30,24.628
+scenario_013,TCP,hard: flows with duration > T,60,18.908
+scenario_013,TCP,hard: flows with duration > T,120,4.806
+scenario_013,TCP,hard: flows with duration > T,300,0.902
+scenario_013,TCP,idle: gaps > T,1,12.571
+scenario_013,TCP,idle: gaps > T,2,12.054
+scenario_013,TCP,idle: gaps > T,3,11.712
+scenario_013,TCP,idle: gaps > T,5,10.931
+scenario_013,TCP,idle: gaps > T,10,8.7
+scenario_013,TCP,idle: gaps > T,15,1.56
+scenario_013,TCP,idle: gaps > T,30,1.1
+scenario_013,TCP,idle: gaps > T,60,0.198
+scenario_013,TCP,idle: flows/pairs with a gap > T,1,50.082
+scenario_013,TCP,idle: flows/pairs with a gap > T,2,48.864
+scenario_013,TCP,idle: flows/pairs with a gap > T,3,47.853
+scenario_013,TCP,idle: flows/pairs with a gap > T,5,45.765
+scenario_013,TCP,idle: flows/pairs with a gap > T,10,31.51
+scenario_013,TCP,idle: flows/pairs with a gap > T,15,10.732
+scenario_013,TCP,idle: flows/pairs with a gap > T,30,9.199
+scenario_013,TCP,idle: flows/pairs with a gap > T,60,1.99
+scenario_013,UDP,hard: flows with duration > T,5,12.486
+scenario_013,UDP,hard: flows with duration > T,10,12.252
+scenario_013,UDP,hard: flows with duration > T,15,12.179
+scenario_013,UDP,hard: flows with duration > T,30,11.81
+scenario_013,UDP,hard: flows with duration > T,60,10.985
+scenario_013,UDP,hard: flows with duration > T,120,9.251
+scenario_013,UDP,hard: flows with duration > T,300,4.736
+scenario_013,UDP,idle: gaps > T,1,12.254
+scenario_013,UDP,idle: gaps > T,2,11.552
+scenario_013,UDP,idle: gaps > T,3,11.376
+scenario_013,UDP,idle: gaps > T,5,11.073
+scenario_013,UDP,idle: gaps > T,10,10.73
+scenario_013,UDP,idle: gaps > T,15,10.371
+scenario_013,UDP,idle: gaps > T,30,9.693
+scenario_013,UDP,idle: gaps > T,60,8.656
+scenario_013,UDP,idle: flows/pairs with a gap > T,1,12.88
+scenario_013,UDP,idle: flows/pairs with a gap > T,2,12.634
+scenario_013,UDP,idle: flows/pairs with a gap > T,3,12.56
+scenario_013,UDP,idle: flows/pairs with a gap > T,5,12.363
+scenario_013,UDP,idle: flows/pairs with a gap > T,10,12.252
+scenario_013,UDP,idle: flows/pairs with a gap > T,15,12.105
+scenario_013,UDP,idle: flows/pairs with a gap > T,30,11.785
+scenario_013,UDP,idle: flows/pairs with a gap > T,60,10.936
+scenario_013,ALL,hard: flows with duration > T,5,31.213
+scenario_013,ALL,hard: flows with duration > T,10,24.68
+scenario_013,ALL,hard: flows with duration > T,15,21.626
+scenario_013,ALL,hard: flows with duration > T,30,18.614
+scenario_013,ALL,hard: flows with duration > T,60,15.191
+scenario_013,ALL,hard: flows with duration > T,120,6.891
+scenario_013,ALL,hard: flows with duration > T,300,2.701
+scenario_013,ALL,idle: gaps > T,1,12.546
+scenario_013,ALL,idle: gaps > T,2,12.015
+scenario_013,ALL,idle: gaps > T,3,11.686
+scenario_013,ALL,idle: gaps > T,5,10.942
+scenario_013,ALL,idle: gaps > T,10,8.857
+scenario_013,ALL,idle: gaps > T,15,2.241
+scenario_013,ALL,idle: gaps > T,30,1.764
+scenario_013,ALL,idle: gaps > T,60,0.852
+scenario_013,ALL,idle: flows/pairs with a gap > T,1,32.627
+scenario_013,ALL,idle: flows/pairs with a gap > T,2,31.865
+scenario_013,ALL,idle: flows/pairs with a gap > T,3,31.294
+scenario_013,ALL,idle: flows/pairs with a gap > T,5,30.094
+scenario_013,ALL,idle: flows/pairs with a gap > T,10,22.475
+scenario_013,ALL,idle: flows/pairs with a gap > T,15,11.376
+scenario_013,ALL,idle: flows/pairs with a gap > T,30,10.412
+scenario_013,ALL,idle: flows/pairs with a gap > T,60,6.187
+scenario_013,PAIR,hard: flows with duration > T,5,99.286
+scenario_013,PAIR,hard: flows with duration > T,10,99.286
+scenario_013,PAIR,hard: flows with duration > T,15,99.286
+scenario_013,PAIR,hard: flows with duration > T,30,99.286
+scenario_013,PAIR,hard: flows with duration > T,60,99.286
+scenario_013,PAIR,hard: flows with duration > T,120,97.857
+scenario_013,PAIR,hard: flows with duration > T,300,95.0
+scenario_013,PAIR,idle: gaps > T,1,5.023
+scenario_013,PAIR,idle: gaps > T,2,3.468
+scenario_013,PAIR,idle: gaps > T,3,2.764
+scenario_013,PAIR,idle: gaps > T,5,1.826
+scenario_013,PAIR,idle: gaps > T,10,0.803
+scenario_013,PAIR,idle: gaps > T,15,0.368
+scenario_013,PAIR,idle: gaps > T,30,0.176
+scenario_013,PAIR,idle: gaps > T,60,0.073
+scenario_013,PAIR,idle: flows/pairs with a gap > T,1,99.286
+scenario_013,PAIR,idle: flows/pairs with a gap > T,2,99.286
+scenario_013,PAIR,idle: flows/pairs with a gap > T,3,99.286
+scenario_013,PAIR,idle: flows/pairs with a gap > T,5,99.286
+scenario_013,PAIR,idle: flows/pairs with a gap > T,10,96.429
+scenario_013,PAIR,idle: flows/pairs with a gap > T,15,92.143
+scenario_013,PAIR,idle: flows/pairs with a gap > T,30,85.0
+scenario_013,PAIR,idle: flows/pairs with a gap > T,60,62.143
+scenario_014,TCP,hard: flows with duration > T,5,45.469
+scenario_014,TCP,hard: flows with duration > T,10,37.457
+scenario_014,TCP,hard: flows with duration > T,15,31.97
+scenario_014,TCP,hard: flows with duration > T,30,26.586
+scenario_014,TCP,hard: flows with duration > T,60,21.049
+scenario_014,TCP,hard: flows with duration > T,120,6.64
+scenario_014,TCP,hard: flows with duration > T,300,1.013
+scenario_014,TCP,idle: gaps > T,1,11.558
+scenario_014,TCP,idle: gaps > T,2,11.096
+scenario_014,TCP,idle: gaps > T,3,10.802
+scenario_014,TCP,idle: gaps > T,5,10.042
+scenario_014,TCP,idle: gaps > T,10,8.358
+scenario_014,TCP,idle: gaps > T,15,1.76
+scenario_014,TCP,idle: gaps > T,30,1.29
+scenario_014,TCP,idle: gaps > T,60,0.255
+scenario_014,TCP,idle: flows/pairs with a gap > T,1,48.558
+scenario_014,TCP,idle: flows/pairs with a gap > T,2,47.135
+scenario_014,TCP,idle: flows/pairs with a gap > T,3,46.225
+scenario_014,TCP,idle: flows/pairs with a gap > T,5,43.571
+scenario_014,TCP,idle: flows/pairs with a gap > T,10,34.111
+scenario_014,TCP,idle: flows/pairs with a gap > T,15,13.678
+scenario_014,TCP,idle: flows/pairs with a gap > T,30,11.178
+scenario_014,TCP,idle: flows/pairs with a gap > T,60,2.769
+scenario_014,UDP,hard: flows with duration > T,5,11.423
+scenario_014,UDP,hard: flows with duration > T,10,11.3
+scenario_014,UDP,hard: flows with duration > T,15,11.022
+scenario_014,UDP,hard: flows with duration > T,30,10.621
+scenario_014,UDP,hard: flows with duration > T,60,9.82
+scenario_014,UDP,hard: flows with duration > T,120,8.463
+scenario_014,UDP,hard: flows with duration > T,300,3.808
+scenario_014,UDP,idle: gaps > T,1,12.38
+scenario_014,UDP,idle: gaps > T,2,11.818
+scenario_014,UDP,idle: gaps > T,3,11.593
+scenario_014,UDP,idle: gaps > T,5,11.345
+scenario_014,UDP,idle: gaps > T,10,10.962
+scenario_014,UDP,idle: gaps > T,15,10.445
+scenario_014,UDP,idle: gaps > T,30,9.848
+scenario_014,UDP,idle: gaps > T,60,8.644
+scenario_014,UDP,idle: flows/pairs with a gap > T,1,12.024
+scenario_014,UDP,idle: flows/pairs with a gap > T,2,11.7
+scenario_014,UDP,idle: flows/pairs with a gap > T,3,11.577
+scenario_014,UDP,idle: flows/pairs with a gap > T,5,11.377
+scenario_014,UDP,idle: flows/pairs with a gap > T,10,11.3
+scenario_014,UDP,idle: flows/pairs with a gap > T,15,10.945
+scenario_014,UDP,idle: flows/pairs with a gap > T,30,10.621
+scenario_014,UDP,idle: flows/pairs with a gap > T,60,9.727
+scenario_014,ALL,hard: flows with duration > T,5,30.011
+scenario_014,ALL,hard: flows with duration > T,10,25.581
+scenario_014,ALL,hard: flows with duration > T,15,22.459
+scenario_014,ALL,hard: flows with duration > T,30,19.338
+scenario_014,ALL,hard: flows with duration > T,60,15.95
+scenario_014,ALL,hard: flows with duration > T,120,7.468
+scenario_014,ALL,hard: flows with duration > T,300,2.282
+scenario_014,ALL,idle: gaps > T,1,11.605
+scenario_014,ALL,idle: gaps > T,2,11.138
+scenario_014,ALL,idle: gaps > T,3,10.848
+scenario_014,ALL,idle: gaps > T,5,10.117
+scenario_014,ALL,idle: gaps > T,10,8.508
+scenario_014,ALL,idle: gaps > T,15,2.259
+scenario_014,ALL,idle: gaps > T,30,1.781
+scenario_014,ALL,idle: gaps > T,60,0.736
+scenario_014,ALL,idle: flows/pairs with a gap > T,1,31.971
+scenario_014,ALL,idle: flows/pairs with a gap > T,2,31.047
+scenario_014,ALL,idle: flows/pairs with a gap > T,3,30.494
+scenario_014,ALL,idle: flows/pairs with a gap > T,5,28.954
+scenario_014,ALL,idle: flows/pairs with a gap > T,10,23.754
+scenario_014,ALL,idle: flows/pairs with a gap > T,15,12.437
+scenario_014,ALL,idle: flows/pairs with a gap > T,30,10.925
+scenario_014,ALL,idle: flows/pairs with a gap > T,60,5.928
+scenario_014,PAIR,hard: flows with duration > T,5,100.0
+scenario_014,PAIR,hard: flows with duration > T,10,100.0
+scenario_014,PAIR,hard: flows with duration > T,15,100.0
+scenario_014,PAIR,hard: flows with duration > T,30,100.0
+scenario_014,PAIR,hard: flows with duration > T,60,98.611
+scenario_014,PAIR,hard: flows with duration > T,120,98.611
+scenario_014,PAIR,hard: flows with duration > T,300,95.833
+scenario_014,PAIR,idle: gaps > T,1,5.079
+scenario_014,PAIR,idle: gaps > T,2,3.566
+scenario_014,PAIR,idle: gaps > T,3,2.864
+scenario_014,PAIR,idle: gaps > T,5,2.11
+scenario_014,PAIR,idle: gaps > T,10,0.992
+scenario_014,PAIR,idle: gaps > T,15,0.434
+scenario_014,PAIR,idle: gaps > T,30,0.23
+scenario_014,PAIR,idle: gaps > T,60,0.097
+scenario_014,PAIR,idle: flows/pairs with a gap > T,1,100.0
+scenario_014,PAIR,idle: flows/pairs with a gap > T,2,100.0
+scenario_014,PAIR,idle: flows/pairs with a gap > T,3,100.0
+scenario_014,PAIR,idle: flows/pairs with a gap > T,5,100.0
+scenario_014,PAIR,idle: flows/pairs with a gap > T,10,98.611
+scenario_014,PAIR,idle: flows/pairs with a gap > T,15,92.361
+scenario_014,PAIR,idle: flows/pairs with a gap > T,30,81.25
+scenario_014,PAIR,idle: flows/pairs with a gap > T,60,59.722
+scenario_015,TCP,hard: flows with duration > T,5,46.196
+scenario_015,TCP,hard: flows with duration > T,10,25.903
+scenario_015,TCP,hard: flows with duration > T,15,22.92
+scenario_015,TCP,hard: flows with duration > T,30,20.043
+scenario_015,TCP,hard: flows with duration > T,60,16.595
+scenario_015,TCP,hard: flows with duration > T,120,4.101
+scenario_015,TCP,hard: flows with duration > T,300,0.654
+scenario_015,TCP,idle: gaps > T,1,10.32
+scenario_015,TCP,idle: gaps > T,2,9.486
+scenario_015,TCP,idle: gaps > T,3,9.008
+scenario_015,TCP,idle: gaps > T,5,8.115
+scenario_015,TCP,idle: gaps > T,10,6.442
+scenario_015,TCP,idle: gaps > T,15,0.919
+scenario_015,TCP,idle: gaps > T,30,0.716
+scenario_015,TCP,idle: gaps > T,60,0.252
+scenario_015,TCP,idle: flows/pairs with a gap > T,1,53.923
+scenario_015,TCP,idle: flows/pairs with a gap > T,2,50.262
+scenario_015,TCP,idle: flows/pairs with a gap > T,3,47.266
+scenario_015,TCP,idle: flows/pairs with a gap > T,5,40.062
+scenario_015,TCP,idle: flows/pairs with a gap > T,10,23.181
+scenario_015,TCP,idle: flows/pairs with a gap > T,15,7.323
+scenario_015,TCP,idle: flows/pairs with a gap > T,30,6.146
+scenario_015,TCP,idle: flows/pairs with a gap > T,60,2.52
+scenario_015,UDP,hard: flows with duration > T,5,13.366
+scenario_015,UDP,hard: flows with duration > T,10,13.04
+scenario_015,UDP,hard: flows with duration > T,15,12.698
+scenario_015,UDP,hard: flows with duration > T,30,11.779
+scenario_015,UDP,hard: flows with duration > T,60,11.022
+scenario_015,UDP,hard: flows with duration > T,120,8.871
+scenario_015,UDP,hard: flows with duration > T,300,2.908
+scenario_015,UDP,idle: gaps > T,1,11.653
+scenario_015,UDP,idle: gaps > T,2,11.063
+scenario_015,UDP,idle: gaps > T,3,10.829
+scenario_015,UDP,idle: gaps > T,5,10.43
+scenario_015,UDP,idle: gaps > T,10,10.039
+scenario_015,UDP,idle: gaps > T,15,9.466
+scenario_015,UDP,idle: gaps > T,30,8.729
+scenario_015,UDP,idle: gaps > T,60,7.61
+scenario_015,UDP,idle: flows/pairs with a gap > T,1,14.048
+scenario_015,UDP,idle: flows/pairs with a gap > T,2,13.648
+scenario_015,UDP,idle: flows/pairs with a gap > T,3,13.514
+scenario_015,UDP,idle: flows/pairs with a gap > T,5,13.218
+scenario_015,UDP,idle: flows/pairs with a gap > T,10,13.04
+scenario_015,UDP,idle: flows/pairs with a gap > T,15,12.342
+scenario_015,UDP,idle: flows/pairs with a gap > T,30,11.749
+scenario_015,UDP,idle: flows/pairs with a gap > T,60,10.874
+scenario_015,ALL,hard: flows with duration > T,5,31.591
+scenario_015,ALL,hard: flows with duration > T,10,20.181
+scenario_015,ALL,hard: flows with duration > T,15,18.373
+scenario_015,ALL,hard: flows with duration > T,30,16.366
+scenario_015,ALL,hard: flows with duration > T,60,14.116
+scenario_015,ALL,hard: flows with duration > T,120,6.223
+scenario_015,ALL,hard: flows with duration > T,300,1.656
+scenario_015,ALL,idle: gaps > T,1,10.411
+scenario_015,ALL,idle: gaps > T,2,9.594
+scenario_015,ALL,idle: gaps > T,3,9.133
+scenario_015,ALL,idle: gaps > T,5,8.273
+scenario_015,ALL,idle: gaps > T,10,6.688
+scenario_015,ALL,idle: gaps > T,15,1.504
+scenario_015,ALL,idle: gaps > T,30,1.264
+scenario_015,ALL,idle: gaps > T,60,0.755
+scenario_015,ALL,idle: flows/pairs with a gap > T,1,36.184
+scenario_015,ALL,idle: flows/pairs with a gap > T,2,33.973
+scenario_015,ALL,idle: flows/pairs with a gap > T,3,32.251
+scenario_015,ALL,idle: flows/pairs with a gap > T,5,28.12
+scenario_015,ALL,idle: flows/pairs with a gap > T,10,18.67
+scenario_015,ALL,idle: flows/pairs with a gap > T,15,9.556
+scenario_015,ALL,idle: flows/pairs with a gap > T,30,8.639
+scenario_015,ALL,idle: flows/pairs with a gap > T,60,6.236
+scenario_015,PAIR,hard: flows with duration > T,5,100.0
+scenario_015,PAIR,hard: flows with duration > T,10,100.0
+scenario_015,PAIR,hard: flows with duration > T,15,100.0
+scenario_015,PAIR,hard: flows with duration > T,30,100.0
+scenario_015,PAIR,hard: flows with duration > T,60,100.0
+scenario_015,PAIR,hard: flows with duration > T,120,98.571
+scenario_015,PAIR,hard: flows with duration > T,300,94.286
+scenario_015,PAIR,idle: gaps > T,1,4.394
+scenario_015,PAIR,idle: gaps > T,2,2.986
+scenario_015,PAIR,idle: gaps > T,3,2.377
+scenario_015,PAIR,idle: gaps > T,5,1.654
+scenario_015,PAIR,idle: gaps > T,10,0.785
+scenario_015,PAIR,idle: gaps > T,15,0.358
+scenario_015,PAIR,idle: gaps > T,30,0.197
+scenario_015,PAIR,idle: gaps > T,60,0.083
+scenario_015,PAIR,idle: flows/pairs with a gap > T,1,100.0
+scenario_015,PAIR,idle: flows/pairs with a gap > T,2,100.0
+scenario_015,PAIR,idle: flows/pairs with a gap > T,3,100.0
+scenario_015,PAIR,idle: flows/pairs with a gap > T,5,100.0
+scenario_015,PAIR,idle: flows/pairs with a gap > T,10,100.0
+scenario_015,PAIR,idle: flows/pairs with a gap > T,15,97.143
+scenario_015,PAIR,idle: flows/pairs with a gap > T,30,87.857
+scenario_015,PAIR,idle: flows/pairs with a gap > T,60,65.0
+ALL_SCENARIOS,TCP,hard: flows with duration > T,5,59.857
+ALL_SCENARIOS,TCP,hard: flows with duration > T,10,40.934
+ALL_SCENARIOS,TCP,hard: flows with duration > T,15,35.153
+ALL_SCENARIOS,TCP,hard: flows with duration > T,30,30.787
+ALL_SCENARIOS,TCP,hard: flows with duration > T,60,24.487
+ALL_SCENARIOS,TCP,hard: flows with duration > T,120,6.662
+ALL_SCENARIOS,TCP,hard: flows with duration > T,300,1.279
+ALL_SCENARIOS,TCP,idle: gaps > T,1,4.229
+ALL_SCENARIOS,TCP,idle: gaps > T,2,4.04
+ALL_SCENARIOS,TCP,idle: gaps > T,3,3.919
+ALL_SCENARIOS,TCP,idle: gaps > T,5,3.624
+ALL_SCENARIOS,TCP,idle: gaps > T,10,2.937
+ALL_SCENARIOS,TCP,idle: gaps > T,15,0.531
+ALL_SCENARIOS,TCP,idle: gaps > T,30,0.414
+ALL_SCENARIOS,TCP,idle: gaps > T,60,0.042
+ALL_SCENARIOS,TCP,idle: flows/pairs with a gap > T,1,63.791
+ALL_SCENARIOS,TCP,idle: flows/pairs with a gap > T,2,62.13
+ALL_SCENARIOS,TCP,idle: flows/pairs with a gap > T,3,60.402
+ALL_SCENARIOS,TCP,idle: flows/pairs with a gap > T,5,55.675
+ALL_SCENARIOS,TCP,idle: flows/pairs with a gap > T,10,37.638
+ALL_SCENARIOS,TCP,idle: flows/pairs with a gap > T,15,13.429
+ALL_SCENARIOS,TCP,idle: flows/pairs with a gap > T,30,11.714
+ALL_SCENARIOS,TCP,idle: flows/pairs with a gap > T,60,1.929
+ALL_SCENARIOS,UDP,hard: flows with duration > T,5,13.362
+ALL_SCENARIOS,UDP,hard: flows with duration > T,10,12.791
+ALL_SCENARIOS,UDP,hard: flows with duration > T,15,12.544
+ALL_SCENARIOS,UDP,hard: flows with duration > T,30,11.9
+ALL_SCENARIOS,UDP,hard: flows with duration > T,60,11.03
+ALL_SCENARIOS,UDP,hard: flows with duration > T,120,9.143
+ALL_SCENARIOS,UDP,hard: flows with duration > T,300,4.098
+ALL_SCENARIOS,UDP,idle: gaps > T,1,14.975
+ALL_SCENARIOS,UDP,idle: gaps > T,2,13.961
+ALL_SCENARIOS,UDP,idle: gaps > T,3,13.432
+ALL_SCENARIOS,UDP,idle: gaps > T,5,12.799
+ALL_SCENARIOS,UDP,idle: gaps > T,10,11.78
+ALL_SCENARIOS,UDP,idle: gaps > T,15,11.137
+ALL_SCENARIOS,UDP,idle: gaps > T,30,9.949
+ALL_SCENARIOS,UDP,idle: gaps > T,60,8.409
+ALL_SCENARIOS,UDP,idle: flows/pairs with a gap > T,1,14.032
+ALL_SCENARIOS,UDP,idle: flows/pairs with a gap > T,2,13.713
+ALL_SCENARIOS,UDP,idle: flows/pairs with a gap > T,3,13.57
+ALL_SCENARIOS,UDP,idle: flows/pairs with a gap > T,5,13.242
+ALL_SCENARIOS,UDP,idle: flows/pairs with a gap > T,10,12.762
+ALL_SCENARIOS,UDP,idle: flows/pairs with a gap > T,15,12.423
+ALL_SCENARIOS,UDP,idle: flows/pairs with a gap > T,30,11.832
+ALL_SCENARIOS,UDP,idle: flows/pairs with a gap > T,60,10.851
+ALL_SCENARIOS,ALL,hard: flows with duration > T,5,34.491
+ALL_SCENARIOS,ALL,hard: flows with duration > T,10,25.58
+ALL_SCENARIOS,ALL,hard: flows with duration > T,15,22.818
+ALL_SCENARIOS,ALL,hard: flows with duration > T,30,20.483
+ALL_SCENARIOS,ALL,hard: flows with duration > T,60,17.146
+ALL_SCENARIOS,ALL,hard: flows with duration > T,120,8.016
+ALL_SCENARIOS,ALL,hard: flows with duration > T,300,2.817
+ALL_SCENARIOS,ALL,idle: gaps > T,1,4.552
+ALL_SCENARIOS,ALL,idle: gaps > T,2,4.339
+ALL_SCENARIOS,ALL,idle: gaps > T,3,4.206
+ALL_SCENARIOS,ALL,idle: gaps > T,5,3.901
+ALL_SCENARIOS,ALL,idle: gaps > T,10,3.204
+ALL_SCENARIOS,ALL,idle: gaps > T,15,0.85
+ALL_SCENARIOS,ALL,idle: gaps > T,30,0.701
+ALL_SCENARIOS,ALL,idle: gaps > T,60,0.293
+ALL_SCENARIOS,ALL,idle: flows/pairs with a gap > T,1,36.645
+ALL_SCENARIOS,ALL,idle: flows/pairs with a gap > T,2,35.715
+ALL_SCENARIOS,ALL,idle: flows/pairs with a gap > T,3,34.853
+ALL_SCENARIOS,ALL,idle: flows/pairs with a gap > T,5,32.526
+ALL_SCENARIOS,ALL,idle: flows/pairs with a gap > T,10,24.067
+ALL_SCENARIOS,ALL,idle: flows/pairs with a gap > T,15,12.88
+ALL_SCENARIOS,ALL,idle: flows/pairs with a gap > T,30,11.778
+ALL_SCENARIOS,ALL,idle: flows/pairs with a gap > T,60,6.797
+ALL_SCENARIOS,PAIR,hard: flows with duration > T,5,99.001
+ALL_SCENARIOS,PAIR,hard: flows with duration > T,10,99.001
+ALL_SCENARIOS,PAIR,hard: flows with duration > T,15,98.91
+ALL_SCENARIOS,PAIR,hard: flows with duration > T,30,98.683
+ALL_SCENARIOS,PAIR,hard: flows with duration > T,60,98.138
+ALL_SCENARIOS,PAIR,hard: flows with duration > T,120,96.776
+ALL_SCENARIOS,PAIR,hard: flows with duration > T,300,91.735
+ALL_SCENARIOS,PAIR,idle: gaps > T,1,1.775
+ALL_SCENARIOS,PAIR,idle: gaps > T,2,1.186
+ALL_SCENARIOS,PAIR,idle: gaps > T,3,0.915
+ALL_SCENARIOS,PAIR,idle: gaps > T,5,0.607
+ALL_SCENARIOS,PAIR,idle: gaps > T,10,0.292
+ALL_SCENARIOS,PAIR,idle: gaps > T,15,0.149
+ALL_SCENARIOS,PAIR,idle: gaps > T,30,0.08
+ALL_SCENARIOS,PAIR,idle: gaps > T,60,0.029
+ALL_SCENARIOS,PAIR,idle: flows/pairs with a gap > T,1,99.092
+ALL_SCENARIOS,PAIR,idle: flows/pairs with a gap > T,2,99.046
+ALL_SCENARIOS,PAIR,idle: flows/pairs with a gap > T,3,98.865
+ALL_SCENARIOS,PAIR,idle: flows/pairs with a gap > T,5,98.592
+ALL_SCENARIOS,PAIR,idle: flows/pairs with a gap > T,10,96.322
+ALL_SCENARIOS,PAIR,idle: flows/pairs with a gap > T,15,92.688
+ALL_SCENARIOS,PAIR,idle: flows/pairs with a gap > T,30,82.334
+ALL_SCENARIOS,PAIR,idle: flows/pairs with a gap > T,60,56.948

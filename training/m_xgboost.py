@@ -17,7 +17,7 @@ from utils import *
 
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
-def tune_xgboost(X_train, y_train, groups_train, profiles_train):
+def tune_xgboost(X_train, y_train, groups_train, profiles_train, plots_dir=None):
     splits = make_group_kfold_splits(X_train, groups_train, profiles_train)
 
     def objective(trial):
@@ -62,6 +62,9 @@ def tune_xgboost(X_train, y_train, groups_train, profiles_train):
         sampler=optuna.samplers.TPESampler(seed=RANDOM_SEED),
     )
     study.optimize(objective, n_trials=N_TRIALS, show_progress_bar=True)
+
+    if plots_dir:
+        save_study_plots(study, "XGBoost", plots_dir)
 
     print(f"\n[XGBoost] Miglior F1 medio in CV: {study.best_value:.4f}")
     print(f"[XGBoost] Migliori parametri: {study.best_params}")

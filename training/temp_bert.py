@@ -62,7 +62,7 @@ class TempBert(nn.Module):
             num_labels=2,
         )
 
-def tune_tempBERT(X_train, y_train, groups_train, profiles_train):
+def tune_tempBERT(X_train, y_train, groups_train, profiles_train, plots_dir=None):
     splits = make_group_kfold_splits(X_train, groups_train, profiles_train)
 
     def objective(trial):
@@ -100,6 +100,10 @@ def tune_tempBERT(X_train, y_train, groups_train, profiles_train):
         sampler=optuna.samplers.TPESampler(seed=RANDOM_SEED),
     )
     study.optimize(objective, n_trials=N_TRIALS, show_progress_bar=True)
+
+    if plots_dir:
+        save_study_plots(study, "TempBERT", plots_dir)
+
     print(f"\n[TempBERT] Miglior F1 medio in CV: {study.best_value:.4f}")
     print(f"[TempBERT] Migliori parametri: {study.best_params}")
     return study.best_params

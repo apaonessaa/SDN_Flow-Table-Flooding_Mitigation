@@ -65,7 +65,7 @@ class FeatBert(nn.Module):
             num_labels=2,
         )
 
-def tune_featBERT(X_train, y_train, groups_train, profiles_train):
+def tune_featBERT(X_train, y_train, groups_train, profiles_train, plots_dir=None):
     splits = make_group_kfold_splits(X_train, groups_train, profiles_train)
     n_features = X_train.shape[1]
 
@@ -104,6 +104,9 @@ def tune_featBERT(X_train, y_train, groups_train, profiles_train):
         sampler=optuna.samplers.TPESampler(seed=RANDOM_SEED),
     )
     study.optimize(objective, n_trials=N_TRIALS, show_progress_bar=True)
+
+    if plots_dir:
+        save_study_plots(study, "FeatBERT", plots_dir)
 
     print(f"\n[FeatBERT] Miglior F1 medio in CV: {study.best_value:.4f}")
     print(f"[FeatBERT] Migliori parametri: {study.best_params}")

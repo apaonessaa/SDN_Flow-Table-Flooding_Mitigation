@@ -13,6 +13,15 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import QuantileTransformer
 from sklearn.model_selection import StratifiedGroupKFold, train_test_split
 
+# Optuna Visualization
+import joblib
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import optuna
+from optuna.trial import TrialState
+from optuna.visualization import matplotlib as optuna_plt
+
 # Modules loader
 import sys
 import os
@@ -412,3 +421,74 @@ def to_percent(importances: pd.Series) -> pd.Series:
     if total == 0:
         return clipped
     return clipped / total * 100
+
+# --------------------------------------------------------------------------- #
+# OPTUNA VISUALIZATION
+# --------------------------------------------------------------------------- #
+def _save_ax(ax, path):
+    """Optuna restituisce un Axes oppure un array di Axes: prendo la figura."""
+    fig = np.ravel(ax)[0].figure
+    fig.tight_layout()
+    fig.savefig(path, dpi=200, bbox_inches="tight")
+    plt.close(fig)
+
+def save_study_plots(study, name, out_dir, top_k_contour=4):
+    """Salva dati grezzi + plot di uno studio Optuna in out_dir/name/."""
+    out_dir = os.path.join(out_dir, name)
+    os.makedirs(out_dir, exist_ok=True)
+
+    # --- dati grezzi (per tabella in appendice e per rigenerare i plot senza rifare il tuning)
+    study.trials_dataframe().to_csv(os.path.join(out_dir, "trials.csv"), index=False)
+    joblib.dump(study, os.path.join(out_dir, "study.joblib"))
+
+    n_complete = sum(t.state == TrialState.COMPLETE for t in study.trials)
+    n_pruned = sum(t.state == TrialState.PRUNED for t in study.trials)
+    print(f"[{name}] trial completati: {n_complete}, potati: {n_pruned}, "
+          f"best trial: #{study.best_trial.number} (F1={study.best_value:.4f})")
+
+    # --- parametri più importanti (per il contour plot)
+    try:
+        imp = optuna.importance.get_param_importances(study)
+        top_params = list(imp.keys())[:top_k_contour]
+    except Exception:
+        top_params = None
+
+    has_intermediate = any(t.intermediate_values for t in study.trials)
+
+    plots = {
+        "optimization_history": lambda: optuna_plt.plot_optimization_history(study),
+        "param_importances":    lambda: optuna_plt.plot_param_importances(study),
+        "slice":                lambda: optuna_plt.plot_slice(study),
+        "parallel_coordinate":  lambda: optuna_plt.plot_parallel_coordinate(study),
+        "edf":                  lambda: optuna_plt.plot_edf(study),
+        "timeline":             lambda: optuna_plt.plot_timeline(study),
+    }
+    if top_params and len(top_params) >= 2:
+        plots["contour"] = lambda: optuna_plt.plot_contour(study, params=top_params)
+    if has_intermediate:   # solo studi con trial.report (FeatBERT / TempBERT)
+        plots["intermediate_values"] = lambda: optuna_plt.plot_intermediate_values(study)
+
+    for plot_name, fn in plots.items():
+        try:
+            _save_ax(fn(), os.path.join(out_dir, f"{plot_name}.png"))
+        except Exception as e:     # es. pochi trial, parametri costanti, versione optuna vecchia
+            plt.close("all")
+            print(f"[{name}] plot '{plot_name}' saltato: {e}")
+
+def plot_models_convergence(plots_dir, names, out_path):
+    """Best-so-far del F1 medio in CV, tutti i modelli nello stesso grafico."""
+    fig, ax = plt.subplots(figsize=(8, 5))
+    for name in names:
+        study = joblib.load(os.path.join(plots_dir, name, "study.joblib"))
+        done = [t for t in study.trials if t.state == TrialState.COMPLETE]
+        ax.plot([t.number for t in done],
+                np.maximum.accumulate([t.value for t in done]),
+                label=name, linewidth=2)
+    ax.set_xlabel("Trial")
+    ax.set_ylabel("Miglior F1 medio in CV (best-so-far)")
+    ax.set_title("Convergenza del tuning Optuna")
+    ax.grid(alpha=0.3)
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=200)
+    plt.close(fig)
