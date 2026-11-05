@@ -22,7 +22,7 @@ from ryu.lib.packet import packet, ethernet, ether_types, ipv4
 from ryu.lib import hub
 
 from netaddr import IPAddress, IPNetwork
-from collections import defaultdict 
+from collections import defaultdict, deque
 import csv
 import threading
 from hashlib import sha256
@@ -52,12 +52,11 @@ class FTFMController(app_manager.RyuApp):
     GROUP_ID = -1
     SCENARIO_ID = os.environ.get('SCENARIO_ID', 0)
     FTF_LABEL = os.environ.get('FTF_LABEL', 0) #0 buono, 1 cattivo
-    DATASET_FTF_PATH = os.environ.get('DATASET_FTF_PATH', '/tmp/dataset_ftf.csv')
-    DATASET_MFR_PATH = os.environ.get('DATASET_MFR_PATH', '/tmp/dataset_mfr.csv')
+    DATASET_FTF_PATH = os.environ.get('DATASET_FTF_PATH', '/tmp/dataset_ftf')
+    DATASET_MFR_PATH = os.environ.get('DATASET_MFR_PATH', '/tmp/dataset_mfr')
     FLOW_TABLE_SIZE = int(os.environ.get('FLOW_TABLE_SIZE', '50'))
     IDLE_TIMEOUT = int(os.environ.get('IDLE_TIMEOUT', '10'))
     HARD_TIMEOUT = int(os.environ.get('HARD_TIMEOUT', '20'))
-    K_FACTOR = int(os.environ.get('K_FACTOR', '3'))
     DPID = int(os.environ.get('DPID', '0000000000000001'), 16)
     VALID_MACS = [
         '00:00:00:00:00:01', '00:00:00:00:00:02', '00:00:00:00:00:03',
@@ -71,28 +70,67 @@ class FTFMController(app_manager.RyuApp):
         super(FTFMController, self).__init__(*args, **kwargs)
         self.mac_to_port = {}
         self.datapaths = {}
-        self.feature_ext = defaultdict(FeatureExt)
+
+        # WINDOW_SIZE e K_FACTOR devono esistere PRIMA di _init_csv() e di
+        # feature_ext, altrimenti _init_csv() non puo' creare i 9 file e
+        # feature_ext non puo' essere costruito.
+        self.WINDOW_SIZE = [10, 100, 1000]
+        self.K_FACTOR = [2, 3, 4]
+        self.feature_ext = [FeatureExt(window_size=ws) for ws in self.WINDOW_SIZE]
+
         self._init_csv()
-        self.T = float("{:.2f}".format(self.IDLE_TIMEOUT / self.K_FACTOR))
-        self.logger.debug(f"[GAP] Intervallo di tempo per la cattura delle features: {self.T}s")
+
         self._round_lock = threading.Lock()
         self._csv_lock = threading.Lock()
+
+        # Coda FIFO dei K "dovuti" per ogni OFPFlowStatsRequest inviata:
+        # alla risposta, popleft() ci dice quali K hanno originato quella
+        # richiesta (assunzione: un solo switch monitorato, risposte in
+        # ordine di invio).
+        self._pending_due_ks = deque()
+
         self.collector = hub.spawn(self._collector)
 
     def _init_csv(self):
-        write_header_ftf = not os.path.exists(self.DATASET_FTF_PATH)
-        self._csv_file_ftf = open(self.DATASET_FTF_PATH, "a", newline="")
-        self._csv_writer_ftf = csv.writer(self._csv_file_ftf)
-        if write_header_ftf:
-            self._csv_writer_ftf.writerow(self.DATASET_FTF_COLUMNS)
-            self._csv_file_ftf.flush()
+        """
+        Crea 9 file per FTF e 9 per MFR: uno per ogni combinazione
+        (K_FACTOR, WINDOW_SIZE). Nome file: <DATASET_..._PATH>_<K>_<W>.csv
+        """
+        self._csv_file_ftf = {}
+        self._csv_writer_ftf = {}
+        self._csv_file_mfr = {}
+        self._csv_writer_mfr = {}
 
-        write_header_mfr = not os.path.exists(self.DATASET_MFR_PATH)
-        self._csv_file_mfr = open(self.DATASET_MFR_PATH, "a", newline="")
-        self._csv_writer_mfr = csv.writer(self._csv_file_mfr)
-        if write_header_mfr:
-            self._csv_writer_mfr.writerow(self.DATASET_MFR_COLUMNS)
-            self._csv_file_mfr.flush()
+        for k in self.K_FACTOR:
+            for ws in self.WINDOW_SIZE:
+                path_ftf = f"{self.DATASET_FTF_PATH}_{k}_{ws}.csv"
+                write_header_ftf = not os.path.exists(path_ftf)
+                f_ftf = open(path_ftf, "a", newline="")
+                w_ftf = csv.writer(f_ftf)
+                if write_header_ftf:
+                    w_ftf.writerow(self.DATASET_FTF_COLUMNS)
+                    f_ftf.flush()
+                self._csv_file_ftf[(k, ws)] = f_ftf
+                self._csv_writer_ftf[(k, ws)] = w_ftf
+
+                path_mfr = f"{self.DATASET_MFR_PATH}_{k}_{ws}.csv"
+                write_header_mfr = not os.path.exists(path_mfr)
+                f_mfr = open(path_mfr, "a", newline="")
+                w_mfr = csv.writer(f_mfr)
+                if write_header_mfr:
+                    w_mfr.writerow(self.DATASET_MFR_COLUMNS)
+                    f_mfr.flush()
+                self._csv_file_mfr[(k, ws)] = f_mfr
+                self._csv_writer_mfr[(k, ws)] = w_mfr
+
+    def close(self):
+        """Chiude ordinatamente tutti i file CSV allo spegnimento dell'app."""
+        super(FTFMController, self).close()
+        for f in list(self._csv_file_ftf.values()) + list(self._csv_file_mfr.values()):
+            try:
+                f.close()
+            except Exception:
+                pass
 
     def _next_round(self):
         """Atomic inc GROUP_ID"""
@@ -102,27 +140,57 @@ class FTFMController(app_manager.RyuApp):
 
     def _collector(self):
         """
-        T_max = min { idle, hard } tempo massimo per intercettare una flow rule 
+        T_max = min { idle, hard } tempo massimo per intercettare una flow rule
         prima che venga rimossa
 
         Per il teorema del campionamento
         - fs > 2*fM
         - 1/ts > 2*1/tM (=>) 2*ts <= tM
-    
+
         (=>) T <= T_max/2
 
         Per catturare piu'campioni si puo' considerare un fattore k>=2
 
         (=>) T <= T_max/k
 
-        Il valore k=2 e' minimo, k=3 o k=4 e' il piu' sicuro dipende da quanto 
+        Il valore k=2 e' minimo, k=3 o k=4 e' il piu' sicuro dipende da quanto
         vogliamo raccogliere in un periodo.
+
+        K piu' grande => T_k piu' piccolo => polling piu' frequente per quel K.
+        Per gestire con un solo loop i diversi T_k (uno per ogni K_FACTOR)
+        uso uno scheduler multi-rate: il tick base e' il T_k piu' piccolo,
+        e per ogni K accumulo il tempo trascorso finche' non supera il suo
+        T_k, con riporto del resto per evitare drift nel tempo.
         """
+        self.T = {k: float(f"{self.IDLE_TIMEOUT / k:.2f}") for k in self.K_FACTOR}
+        base_tick = min(self.T.values())
+        elapsed = {k: 0.0 for k in self.K_FACTOR}
+
+        for k in sorted(self.K_FACTOR):
+            self.logger.debug(f"[GAP] K={k}: T={self.T[k]}s")
+
         while True:
-            for datapath in list(self.datapaths.values()):
-                if datapath.id == self.DPID:
-                    self._request_stats(datapath)
-            hub.sleep(self.T)
+            hub.sleep(base_tick)
+
+            due_ks = []
+            for k in self.K_FACTOR:
+                elapsed[k] += base_tick
+                if elapsed[k] >= self.T[k]:
+                    due_ks.append(k)
+                    elapsed[k] -= self.T[k]  # riporta il resto, evita drift
+
+            if not due_ks:
+                continue
+
+            datapath = next(
+                (dp for dp in self.datapaths.values() if dp.id == self.DPID),
+                None,
+            )
+            if datapath is None:
+                continue
+
+            self._pending_due_ks.append(due_ks)
+            self._request_stats(datapath)
 
     def _request_stats(self, datapath):
         parser = datapath.ofproto_parser
@@ -250,13 +318,16 @@ class FTFMController(app_manager.RyuApp):
             payload = b""
 
         if dpid == self.DPID:
-            self.feature_ext[dpid].add_pkt_in(
-                payload=payload,
-                src_ip=ip.src,
-                dst_ip=ip.dst,
-                src_mac=src,
-                dst_mac=dst
-            )
+            # Ogni finestra W accumula sempre, indipendentemente da K:
+            # K riguarda solo la frequenza di polling delle flow stats.
+            for i in range(len(self.WINDOW_SIZE)):
+                self.feature_ext[i].add_pkt_in(
+                    payload=payload,
+                    src_ip=ip.src,
+                    dst_ip=ip.dst,
+                    src_mac=src,
+                    dst_mac=dst
+                )
 
     """
     Flow Stats Handler
@@ -269,56 +340,73 @@ class FTFMController(app_manager.RyuApp):
 
         if not stats:
             return
-        if not self.feature_ext[dpid].has_enough_data(occupancy=0.2):
-            return            
 
-        # Atomic Inc GROUP_ID
+        try:
+            due_ks = self._pending_due_ks.popleft()
+        except IndexError:
+            self.logger.warning(
+                "Flow stats reply ricevuta senza una richiesta pendente "
+                "corrispondente in coda; scarto."
+            )
+            return
+
+        # Atomic Inc GROUP_ID, condiviso tra tutte le combinazioni (K, W)
+        # generate da questa risposta: serve solo a ordinare cronologicamente
+        # le righe dentro ciascun file, non deve essere contiguo per file.
         round = self._next_round()
-        
-        hub.spawn(self._ftf_stats, dpid, stats, round)
-        if self.FTF_LABEL: # attack mode
-            hub.spawn(self._mfr_stats, dpid, stats, round) 
 
-    def _ftf_stats(self, dpid, stats, round):
-        self.logger.debug(f"[FTF] DPID: {dpid:016x} round={round}")
- 
+        for k in due_ks:
+            for w_idx in range(len(self.WINDOW_SIZE)):
+                if self.feature_ext[w_idx].has_enough_data(n_pktin=2):
+                    hub.spawn(self._ftf_stats, k, w_idx, stats, round)
+                    if self.FTF_LABEL:  # attack mode
+                        hub.spawn(self._mfr_stats, k, w_idx, stats, round)
+
+    def _ftf_stats(self, k, w_idx, stats, round):
+        ws = self.WINDOW_SIZE[w_idx]
+        self.logger.debug(f"[FTF] K={k} W={ws} round={round}")
+
         # Get Pkt In Feature
         ((payload_entropy_mean, payload_entropy_cv), payload_size_entropy,
          src_ip_entropy, dst_ip_entropy,
-         src_mac_entropy, dst_mac_entropy) = self.feature_ext[dpid].get_pkt_in_features()
- 
+         src_mac_entropy, dst_mac_entropy) = self.feature_ext[w_idx].get_pkt_in_features()
+
         # Get Flow Table Feature
         (c_used, paf, ft_psi,
          durations_entropy, pkts_entropy, bytes_entropy,
          (mean_duration, cvd),
          (mean_pkts, cvp),
-         (mean_bytes, cvb)) = self.feature_ext[dpid].get_ft_features(stats, self.FLOW_TABLE_SIZE)
- 
+         (mean_bytes, cvb)) = self.feature_ext[w_idx].get_ft_features(stats, self.FLOW_TABLE_SIZE)
+
         row_ftf = [
             payload_entropy_mean, payload_entropy_cv, payload_size_entropy,
             src_ip_entropy, dst_ip_entropy, src_mac_entropy, dst_mac_entropy,
             c_used, paf, ft_psi, durations_entropy, pkts_entropy, bytes_entropy,
-            mean_duration, cvd, mean_pkts, cvp, mean_bytes, cvb, 
+            mean_duration, cvd, mean_pkts, cvp, mean_bytes, cvb,
             round, self.SCENARIO_ID, self.FTF_LABEL
         ]
+
         with self._csv_lock:
-            self._csv_writer_ftf.writerow(row_ftf)
-            self._csv_file_ftf.flush()
- 
-    def _mfr_stats(self, dpid, stats, round):
-        self.logger.debug(f"[MFR] DPID: {dpid:016x} round={round}")
+            writer = self._csv_writer_ftf[(k, ws)]
+            writer.writerow(row_ftf)
+            self._csv_file_ftf[(k, ws)].flush()
+
+    def _mfr_stats(self, k, w_idx, stats, round):
+        ws = self.WINDOW_SIZE[w_idx]
+        self.logger.debug(f"[MFR] K={k} W={ws} round={round}")
 
         # Get Flow Rules Features
         rows_mfr = []
         for stat in stats:
             match_hash = sha256(str(stat.match).encode()).hexdigest()
-            duration, packet_count, byte_count, pkt_rate, byte_rate, psi = self.feature_ext[dpid].get_flow_feature(stat)
+            duration, packet_count, byte_count, pkt_rate, byte_rate, psi = self.feature_ext[w_idx].get_flow_feature(stat)
             rows_mfr.append([
                 match_hash, duration, packet_count, byte_count, pkt_rate, byte_rate, psi,
-                round, self.SCENARIO_ID, int(stat.match.get('eth_src') not in self.VALID_MACS or 
+                round, self.SCENARIO_ID, int(stat.match.get('eth_src') not in self.VALID_MACS or
                 stat.match.get('eth_dst') not in self.VALID_MACS)
             ])
-        with self._csv_lock:
-            self._csv_writer_mfr.writerows(rows_mfr)
-            self._csv_file_mfr.flush()
 
+        with self._csv_lock:
+            writer = self._csv_writer_mfr[(k, ws)]
+            writer.writerows(rows_mfr)
+            self._csv_file_mfr[(k, ws)].flush()

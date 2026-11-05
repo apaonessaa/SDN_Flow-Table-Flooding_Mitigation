@@ -4,18 +4,24 @@ import numpy as np
 
 class FeatureExt():
     VALID_IP_RANGES = ['10.0.0.0/24']
-    WINDOW_SIZE = 100
-    
+
     PktInData = namedtuple('PktInData', ['payload', 'size', 'src_ip', 'dst_ip', 'src_mac', 'dst_mac'])
 
-    def __init__(self):
-        self.window = deque(maxlen=self.WINDOW_SIZE)
+    def __init__(self, window_size):
+        self.window_size = window_size if window_size>0 else 100
+        self.window = deque(maxlen=self.window_size)
 
-    def has_enough_data(self, occupancy: float=0.8):
+    def has_enough_data(self, n_pktin: int=2):
         """
         Check if pkt-in window has enough data
         """
-        return len(self.window) / float(self.WINDOW_SIZE) >= occupancy
+        return len(self.window) >= n_pktin
+
+    def has_enough_data_perc(self, occupancy: float=0.8):
+        """
+        Check if pkt-in window has enough data (occupancy%)
+        """
+        return len(self.window) / float(self.window_size) >= occupancy
 
     def add_pkt_in(self, payload, src_ip, dst_ip, src_mac, dst_mac):
         self.window.append(self.PktInData(payload, len(payload), src_ip, dst_ip, src_mac, dst_mac))
