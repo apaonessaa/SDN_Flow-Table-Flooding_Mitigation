@@ -23,7 +23,7 @@ def tune_xgboost(X_train, y_train, groups_train, profiles_train):
     def objective(trial):
         params = {
             'max_depth': trial.suggest_int('max_depth', *DEPTH),
-            'learning_rate': trial.suggest_float('learning_rate', *LEARNING_RATE, log=True),
+            'learning_rate': trial.suggest_float('learning_rate', *BOOST_LEARNING_RATE, log=True),
             'reg_lambda': trial.suggest_float('reg_lambda', *LAMBDA, log=True),
             'colsample_bytree': trial.suggest_float('colsample_bytree', *COLSAMPLE),
             'subsample': trial.suggest_float('subsample', *SUBSAMPLE),
