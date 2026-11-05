@@ -15,7 +15,9 @@ from feat_bert import *
 from mfr_temp_bert import *
 
 MODELS_DIR = root + '/models/mfr_detector'
+PLOTS_DIR = os.path.join(MODELS_DIR, 'tuning_plots') 
 os.makedirs(MODELS_DIR, exist_ok=True)
+os.makedirs(PLOTS_DIR, exist_ok=True) 
 
 TRAINING_SET = root + '/feature_collector/datasets/dataset_mfr.csv'
 
@@ -30,10 +32,10 @@ if __name__ == "__main__":
     best_tempBERT_params = None
 
     print("\n\n=== Tuning FeatBERT ===")
-    best_featBERT_params = tune_featBERT(X_train, y_train, groups_train, profiles_train)
+    best_featBERT_params = tune_featBERT(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
 
     print("\n\n=== Tuning TempBERT ===")
-    best_tempBERT_params = tune_tempBERT(X_train, y_train, groups_train, profiles_train, keys_train)
+    best_tempBERT_params = tune_tempBERT(X_train, y_train, groups_train, profiles_train, keys_train, plots_dir=PLOTS_DIR)
 
     print("\n\n=== Training finale FeatBERT ===")
     train_featBERT(X_train, X_val, X_test, y_train, y_val, y_test, results, best_featBERT_params, features=MFR_FEATURES, model_dir=MODELS_DIR)
@@ -43,16 +45,21 @@ if __name__ == "__main__":
             keys_train, keys_val, keys_test, results, best_tempBERT_params, features=MFR_FEATURES, model_dir=MODELS_DIR)
 
     print("\n\n=== Tuning XGBoost ===")
-    best_xgb_params = tune_xgboost(X_train, y_train, groups_train, profiles_train)
+    best_xgb_params = tune_xgboost(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
 
     print("\n\n=== Tuning CatBoost ===")
-    best_cb_params = tune_catboost(X_train, y_train, groups_train, profiles_train)
+    best_cb_params = tune_catboost(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
 
     print("\n\n=== Training finale XGBoost ===")
     train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_xgb_params, features=MFR_FEATURES, model_dir=MODELS_DIR)
 
     print("\n\n=== Training finale CatBoost ===")
     train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params, model_dir=MODELS_DIR)
+
+    plot_models_convergence(
+        PLOTS_DIR, ["XGBoost", "CatBoost", "FeatBERT", "TempBERT"],
+        os.path.join(PLOTS_DIR, "convergence_all_models.png"),
+    )
 
     comparison = pd.DataFrame(results).set_index("model")
     print("\n\n=== Confronto finale ===")
