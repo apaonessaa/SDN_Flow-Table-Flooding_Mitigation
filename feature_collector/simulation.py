@@ -40,7 +40,7 @@ def sample_attack_rate(npkts, flow_table_size, min_anp={"aggressive": 10,"modera
     fill_time = rng.uniform(t_min, t_max)
     anp = max(min_anp[profile], math.ceil(flow_table_size / fill_time))
     anm = rng.uniform(anms[profile][0], anms[profile][1])
-    return anp, anm, profile, fill_time
+    return anp, int(anm), profile, fill_time
 
 def main() -> None:
     # Topologies
