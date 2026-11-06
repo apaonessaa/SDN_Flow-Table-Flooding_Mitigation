@@ -1,23 +1,17 @@
-import pandas as pd
-import joblib
-
-# Modules loader
-import sys
-import os
-current = os.path.dirname(os.path.realpath(__file__))
-root = os.path.dirname(current)
-sys.path.append(root)
-
 from utils import *
 from m_catboost import *
 from m_xgboost import *
 from feat_bert import *
 from temp_bert import *
 
+# FeatBERT & TempBERT Ablation
+from feat_bert_ablation import run_featbert_ablation
+from temp_bert_ablation import run_tempbert_ablation
+
 MODELS_DIR = root + '/models/ftf_detector'
-PLOTS_DIR = os.path.join(MODELS_DIR, 'tuning_plots') 
+PLOTS_DIR = os.path.join(MODELS_DIR, 'tuning_plots')
 os.makedirs(MODELS_DIR, exist_ok=True)
-os.makedirs(PLOTS_DIR, exist_ok=True) 
+os.makedirs(PLOTS_DIR, exist_ok=True)
 
 TRAINING_SET = root + '/feature_collector/datasets/dataset_ftf.csv'
 
@@ -40,8 +34,21 @@ if __name__ == "__main__":
     print("\n\n=== Tuning FeatBERT ===")
     best_featBERT_params = tune_featBERT(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
 
+    print("\n\n=== Ablation FeatBERT (M0-MLP vs M1-Tokenizer+MeanPool vs M2-FeatBERT) ===")
+    ablation_df = run_featbert_ablation(
+        X_train, X_val, X_test, y_train, y_val, y_test,
+        best_featBERT_params, features=FTF_FEATURES, out_dir=PLOTS_DIR,
+    )
+
     print("\n\n=== Tuning TempBERT ===")
     best_tempBERT_params = tune_tempBERT(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
+
+    print("\n\n=== Ablation TempBERT (M0-MLP vs M1-RoundToken+MeanPool vs M2-TempBERT) ===")
+    tempbert_ablation_df = run_tempbert_ablation(
+        X_train, X_val, X_test, y_train, y_val, y_test,
+        groups_train, groups_val, groups_test,
+        best_tempBERT_params, features=FTF_FEATURES, out_dir=PLOTS_DIR,
+    )
 
     plot_models_convergence(
         PLOTS_DIR, ["XGBoost", "CatBoost", "FeatBERT", "TempBERT"],
@@ -72,8 +79,8 @@ if __name__ == "__main__":
     best_params_path = os.path.join(MODELS_DIR, "best_params.joblib")
     joblib.dump(
         {
-            "xgboost": best_xgb_params, 
-            "catboost": best_cb_params, 
+            "xgboost": best_xgb_params,
+            "catboost": best_cb_params,
             "featBERT": best_featBERT_params,
             "tempBERT": best_tempBERT_params,
         },

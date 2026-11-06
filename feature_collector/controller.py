@@ -141,19 +141,12 @@ class FTFMController(app_manager.RyuApp):
 
         (=>) T <= T_max/k
 
-        Il valore k=2 e' minimo, k=3 o k=4 e' il piu' sicuro dipende da quanto
-        vogliamo raccogliere in un periodo.
-
         K piu' grande => T_k piu' piccolo => polling piu' frequente per quel K.
 
         Scheduler multi-rate con scadenze assolute: per ogni K si tiene la
-        prossima scadenza teorica (time.monotonic()) in un min-heap. Il loop
-        dorme fino alla scadenza piu' vicina; dopo la scadenza, la successiva
-        e' calcolata a partire dalla scadenza TEORICA (non dall'istante
-        reale), quindi:
-        - non esiste un tick base: ogni K scatta a esattamente T_k, anche se
-          i T_k non sono multipli tra loro;
-        - il ritardo di uno sleep non si accumula (nessun drift).
+        prossima scadenza teorica in un min-heap. 
+        Il loop dorme fino alla scadenza piu' vicina; dopo la scadenza, la successiva
+        e' calcolata a partire dalla scadenza TEORICA.
         Se piu' K scadono insieme si invia una sola FlowStatsRequest.
         """
         self.T = {k: self.IDLE_TIMEOUT / k for k in self.K_FACTOR}
