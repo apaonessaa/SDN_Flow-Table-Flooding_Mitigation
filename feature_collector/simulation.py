@@ -120,10 +120,10 @@ def main() -> None:
 
     for i in range(0, 16):
         topo = topos[i%len(topos)]
-        # hard_timeout: 5 < hard <= 30
-        hard_timeout = rng.randint(6, 30)
-        # idle_timeout: idle <= hard
-        idle_timeout = rng.randint(2, hard_timeout)
+        # hard_timeout: 5 <= hard <= 30
+        hard_timeout = rng.randint(5, 30)
+        # idle_timeout: idle <= min(10, hard)
+        idle_timeout = rng.randint(2, min(10, hard_timeout))
         # flow_table_size
         flow_table_size = rng.randint(half_size, 2*full_size)
         # att_npkts: att_npkts >= flow_table_size
