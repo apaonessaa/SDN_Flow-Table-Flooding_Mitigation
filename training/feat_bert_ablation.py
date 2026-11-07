@@ -3,9 +3,9 @@ Ablation study FeatBERT:
     M0 (MLP su tabulare grezzo) vs M1 (Feature Tokenizer + mean pooling, SENZA self-attention) 
         vs M2 (FeatBERT completo).
 
-M0 -> M1: No Tokenizer
-M1 -> M2: Tokenizer + mean pooling
-M2 -> M3: Tokenizer + self-attention + CLS pooling
+M0: No Tokenizer
+M1: Feature Tokenizer Linear(1,d) + mean pooling
+M2: Feature Tokenizer Linear(1,d) + self-attention + CLS pooling
 """
 
 import time

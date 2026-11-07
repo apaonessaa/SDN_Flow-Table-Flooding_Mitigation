@@ -2,7 +2,7 @@
     Configuration model file
 """
 # Tuning + Training
-N_TRIALS = 3
+N_TRIALS = 2
 N_SPLITS = 5
 TEST_SIZE = 0.2
 VAL_SIZE = 0.15

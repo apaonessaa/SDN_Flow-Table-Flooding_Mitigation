@@ -140,7 +140,7 @@ def run_tempbert_ablation(X_train, X_val, X_test, y_train, y_val, y_test,
     print(ablation_df.to_string(float_format="%.4f"))
 
     os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, "tempbert_ablation.csv")
+    out_path = os.path.join(out_dir, "mfr_tempbert_ablation.csv")
     ablation_df.to_csv(out_path)
     print(f"Risultati ablation salvati in: {out_path}")
 

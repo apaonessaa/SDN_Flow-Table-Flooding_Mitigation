@@ -35,20 +35,20 @@ if __name__ == "__main__":
     best_featBERT_params = tune_featBERT(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
 
     print("\n\n=== Ablation FeatBERT (M0-MLP vs M1-Tokenizer+MeanPool vs M2-FeatBERT) ===")
-    ablation_df = run_featbert_ablation(
-        X_train, X_val, X_test, y_train, y_val, y_test,
-        best_featBERT_params, features=FTF_FEATURES, out_dir=PLOTS_DIR,
-    )
+    #ablation_df = run_featbert_ablation(
+    #    X_train, X_val, X_test, y_train, y_val, y_test,
+    #    best_featBERT_params, features=FTF_FEATURES, out_dir=PLOTS_DIR,
+    #)
 
     print("\n\n=== Tuning TempBERT ===")
     best_tempBERT_params = tune_tempBERT(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
 
     print("\n\n=== Ablation TempBERT (M0-MLP vs M1-RoundToken+MeanPool vs M2-TempBERT) ===")
-    tempbert_ablation_df = run_tempbert_ablation(
-        X_train, X_val, X_test, y_train, y_val, y_test,
-        groups_train, groups_val, groups_test,
-        best_tempBERT_params, features=FTF_FEATURES, out_dir=PLOTS_DIR,
-    )
+    #tempbert_ablation_df = run_tempbert_ablation(
+    #    X_train, X_val, X_test, y_train, y_val, y_test,
+    #    groups_train, groups_val, groups_test,
+    #    best_tempBERT_params, features=FTF_FEATURES, out_dir=PLOTS_DIR,
+    #)
 
     plot_models_convergence(
         PLOTS_DIR, ["XGBoost", "CatBoost", "FeatBERT", "TempBERT"],

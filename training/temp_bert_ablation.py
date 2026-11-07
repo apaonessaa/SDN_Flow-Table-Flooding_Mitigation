@@ -3,9 +3,9 @@ Ablation study TempBERT:
     M0 (MLP on raw tabular) vs M1 (Round Tokenizer + mean pooling, SENZA self-attention) 
         vs M2 (TempBERT)
 
-M0 -> M1: No Tokenizer and no masking the padding
-M1 -> M2: Round Tokenizer + shared Linear(F,d) but the mean pooling is calculated with masking the padding
-M2 -> M3: Tokenizer + shared Linear(F,d) + self-attention + CLS pooling
+M0: No Tokenizer and no masking the padding
+M1: Round Tokenizer + shared Linear(F,d) but the mean pooling is calculated with masking the padding
+M2: Tokenizer + shared Linear(F,d) + self-attention + CLS pooling
 """
 import time
 import torch
