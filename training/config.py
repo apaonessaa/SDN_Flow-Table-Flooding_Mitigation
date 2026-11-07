@@ -24,7 +24,7 @@ MIN_CHILD_WEIGHT = (1e-8, 1e5)
 
 #CatBoost
 L2_REG = (1.0, 10.0)
-BAGGING_TEMPERATURE = (0.0, 3.0)
+BAGGING_TEMPERATURE = (0.0, 1.0)
 
 # Optuna Tuning BERT
 # Revisiting Deep Learning Models for Tabular Data (Table 13)
