@@ -13,10 +13,7 @@ from m_catboost import *
 from m_xgboost import *
 from feat_bert import *
 from mfr_temp_bert import *
-
-# FeatBERT & TempBERT Ablation
-from feat_bert_ablation import run_featbert_ablation
-from mfr_temp_bert_ablation import run_tempbert_ablation
+from ablation import run_featbert_ablation, run_tempbert_ablation
 
 MODELS_DIR = root + '/models/mfr_detector'
 PLOTS_DIR = os.path.join(MODELS_DIR, 'tuning_plots') 
@@ -38,20 +35,20 @@ if __name__ == "__main__":
     print("\n\n=== Tuning FeatBERT ===")
     best_featBERT_params = tune_featBERT(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
 
-    print("\n\n=== Ablation FeatBERT (M0-MLP vs M1-Tokenizer+MeanPool vs M2-FeatBERT) ===")
-    ablation_df = run_featbert_ablation(
-        X_train, X_val, X_test, y_train, y_val, y_test,
-        best_featBERT_params, features=FTF_FEATURES, out_dir=PLOTS_DIR,
-    )
+    print("\n\n=== Ablation FeatBERT ===")
+    run_featbert_ablation(X_train, X_val, X_test, y_train, y_val, y_test,
+                      best_featBERT_params, out_dir)
 
     print("\n\n=== Tuning TempBERT ===")
     best_tempBERT_params = tune_tempBERT(X_train, y_train, groups_train, profiles_train, keys_train, plots_dir=PLOTS_DIR)
 
-    print("\n\n=== Ablation TempBERT (M0-MLP vs M1-RoundToken+MeanPool vs M2-TempBERT) ===")
-    tempbert_ablation_df = run_tempbert_ablation(
+    print("\n\n=== Ablation TempBERT ===")
+    run_tempbert_ablation(
+        mfr_temp_bert.TempBert, mfr_temp_bert._prepare_seq,
         X_train, X_val, X_test, y_train, y_val, y_test,
         keys_train, keys_val, keys_test,
-        best_tempBERT_params, features=MFR_FEATURES, out_dir=PLOTS_DIR,
+        best_tempBERT_params, out_dir,
+        csv_name="mfr_tempbert_ablation.csv",
     )
 
     print("\n\n=== Training finale FeatBERT ===")
@@ -60,7 +57,7 @@ if __name__ == "__main__":
     print("\n\n=== Training finale TempBERT ===")
     train_tempBERT(X_train, X_val, X_test, y_train, y_val, y_test,
             keys_train, keys_val, keys_test, results, best_tempBERT_params, features=MFR_FEATURES, model_dir=MODELS_DIR)
-
+    
     print("\n\n=== Tuning XGBoost ===")
     best_xgb_params = tune_xgboost(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
 
