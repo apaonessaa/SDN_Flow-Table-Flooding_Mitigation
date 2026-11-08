@@ -8,5 +8,6 @@
 **feature_collector/pcaps/scenarios/scenario_**
 **feature_collector/datasets/**/**.bak
 **feature_collector/logs/**
-**feature_collector/datasets/new**
+**feature_collector/datasets/backup/**
+**feature_collector/datasets/**
 **feature_collector/logs/**/controller_**

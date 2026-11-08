@@ -294,12 +294,10 @@ def class_weights(y):
     counts = np.bincount(np.asarray(y), minlength=2)
     return torch.tensor(counts.sum() / (len(counts) * counts), dtype=torch.float32)
 
-
 def _loader(inputs, y, batch_size, shuffle):
     ds = TensorDataset(*[torch.from_numpy(a) for a in inputs],
                        torch.as_tensor(np.asarray(y), dtype=torch.long))
     return DataLoader(ds, batch_size=batch_size, shuffle=shuffle)
-
 
 @torch.no_grad()
 def predict_model(model, inputs, batch_size=512):
@@ -421,7 +419,6 @@ def to_percent(importances: pd.Series) -> pd.Series:
     if total == 0:
         return clipped
     return clipped / total * 100
-
 # --------------------------------------------------------------------------- #
 # OPTUNA VISUALIZATION
 # --------------------------------------------------------------------------- #

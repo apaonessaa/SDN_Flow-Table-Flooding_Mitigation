@@ -10,6 +10,8 @@ from scapy.all import sendp
 
 from ftf_utils import FTFUtils
 
+# TODO: Duration per stage on CSV
+
 def stage_0(dst_ip, n, t_max):
     hard_timeout = FTFUtils.estimate_hard_timeout(dst_ip, n, t_max)
     print(f"[*] T_hard={hard_timeout}", flush=True)
