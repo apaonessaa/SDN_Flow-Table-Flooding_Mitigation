@@ -26,6 +26,14 @@ MIN_CHILD_WEIGHT = (1e-8, 1e5)
 L2_REG = (1.0, 10.0)
 BAGGING_TEMPERATURE = (0.0, 1.0)
 
+# Decision Tree / Random Forest
+TREE_MAX_DEPTH = [2, 3, 4]
+TREE_MIN_SAMPLES_LEAF = (1, 50)
+TREE_MAX_FEATURES = (0.1, 1.0)
+
+RF_N_ESTIMATORS = (10, 3000)
+RF_BOOTSTRAP = [True, False]
+
 # Optuna Tuning BERT
 # Revisiting Deep Learning Models for Tabular Data (Table 13)
 BERT_CV_EPOCHS = 30
