@@ -18,26 +18,15 @@ from utils import *
 
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
-# Range di ricerca specifici per il Decision Tree.
-# (Se preferisci, spostali in config.py insieme agli altri range.)
-DT_DEPTH = (2, 30)
-DT_MIN_SAMPLES_SPLIT = (2, 50)
-DT_MIN_SAMPLES_LEAF = (1, 30)
-DT_CCP_ALPHA = (1e-6, 1e-1)
-DT_MAX_FEATURES = (0.3, 1.0)
-
-
 def tune_decision_tree(X_train, y_train, groups_train, profiles_train, plots_dir=None):
     splits = make_group_kfold_splits(X_train, groups_train, profiles_train)
 
     def objective(trial):
         params = {
-            'criterion': trial.suggest_categorical('criterion', ['gini', 'entropy', 'log_loss']),
-            'max_depth': trial.suggest_int('max_depth', *DT_DEPTH),
-            'min_samples_split': trial.suggest_int('min_samples_split', *DT_MIN_SAMPLES_SPLIT),
-            'min_samples_leaf': trial.suggest_int('min_samples_leaf', *DT_MIN_SAMPLES_LEAF),
-            'max_features': trial.suggest_float('max_features', *DT_MAX_FEATURES),
-            'ccp_alpha': trial.suggest_float('ccp_alpha', *DT_CCP_ALPHA, log=True),
+            'max_depth': trial.suggest_categorical('max_depth', TREE_MAX_DEPTH),
+            'min_samples_leaf': trial.suggest_int('min_samples_leaf', *TREE_MIN_SAMPLES_LEAF, log=True),
+            'max_features': trial.suggest_float('max_features', *TREE_MAX_FEATURES),
+            'criterion': 'gini',
             'class_weight': 'balanced',
             'random_state': RANDOM_SEED,
         }
@@ -70,9 +59,7 @@ def tune_decision_tree(X_train, y_train, groups_train, profiles_train, plots_dir
     return study.best_params
 
 
-def train_decision_tree(X_train, X_val, X_test, y_train, y_val, y_test, results, best_params, features, model_dir: str):
-    # X_val / y_val non servono al Decision Tree (nessun early stopping):
-    # restano nella firma per uniformità con gli altri modelli.
+def train_decision_tree(X_train, X_test, y_train, y_test, results, best_params, features, model_dir: str):
     params = {
         'class_weight': 'balanced',
         'random_state': RANDOM_SEED,
