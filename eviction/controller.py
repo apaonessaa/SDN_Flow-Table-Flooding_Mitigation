@@ -21,9 +21,9 @@ from ryu.ofproto import ofproto_v1_4
 from ryu.lib.packet import packet, ethernet, ether_types, ipv4
 from ryu.lib import hub
 
-import threading
-from time import time
-from collections import defaultdict 
+import time
+from collections import defaultdict
+from hashlib import sha256
 
 # Modules loader
 import sys
@@ -33,120 +33,64 @@ root = os.path.dirname(current)
 sys.path.append(root)
 from mitigation.feature_ext import FeatureExt
 
-import joblib
-import numpy as np
-import torch
-from catboost import CatBoostClassifier
-from xgboost import XGBClassifier
-from transformers import BertForSequenceClassification
+class FTSnapshot():
+    def __init__(self, payload_entropy_mean, payload_entropy_cv, payload_size_entropy,
+        src_ip_entropy, dst_ip_entropy, src_mac_entropy, dst_mac_entropy,
+        c_used, paf, ft_psi, durations_entropy, pkts_entropy, bytes_entropy,
+        mean_duration, cvd, mean_pkts, cvp, mean_bytes, cvb): 
+
+        self.payload_entropy_mean = payload_entropy_mean
+        self.payload_entropy_cv = ...
+
+class FRSnapshot():
+    def __init__(self, duration, packet_count, byte_count,
+        packets_per_seconds, bytes_per_seconds, psi):
+        self.duration = ...
 
 class FTFMController(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_4.OFP_VERSION]
-    REPORT_PATH = os.environ.get('REPORT_PATH', current + '/logs/report.txt')
     FLOW_TABLE_SIZE = int(os.environ.get('FLOW_TABLE_SIZE', '50'))
     IDLE_TIMEOUT = int(os.environ.get('IDLE_TIMEOUT', '10'))
     HARD_TIMEOUT = int(os.environ.get('HARD_TIMEOUT', '20'))
-    K_FACTOR = int(os.environ.get('K_FACTOR', '3'))
-    FLOW_TABLE_THRESHOLD = 0.8
-    MODEL = os.environ.get('MODEL', 'Catboost')
-
-    # Numero di flow rules legittime tollerate per l'eviction
+    K_FACTOR = int(os.environ.get('K_FACTOR', '2'))
+    W_PKTIN = int(os.environ.get('W_PKTIN', '10'))
     MAX_COLLATERAL_PORT = int(os.environ.get('MAX_COLLATERAL_PORT', '0'))
+    REPORT_PATH = os.environ.get('REPORT_PATH', '/tmp/report.txt')
 
-    CATBOOST_FTF_DETECTOR = root + '/models/ftf_detector/catboost_model.cbm' 
-    CATBOOST_MFR_DETECTOR = root + '/models/malicious_fr_detector/catboost_model.cbm'
-    XGBOOST_FTF_DETECTOR = root + '/models/ftf_detector/xgboost_model.json' 
-    XGBOOST_MFR_DETECTOR = root + '/models/malicious_fr_detector/xgboost_model.json'
-    BERT_FTF_DETECTOR = root + '/models/ftf_detector/hf_bert_model'
-    BERT_MFR_DETECTOR = root + '/models/malicious_fr_detector/hf_bert_model'
+    FLOW_TABLE_THRESHOLD = 0.8
 
     def __init__(self, *args, **kwargs):
         super(FTFMController, self).__init__(*args, **kwargs)
         self.mac_to_port = {}
         self.datapaths = {}
+
         self.feature_ext = defaultdict(FeatureExt)
-        self.T = float("{:.2f}".format(min(self.IDLE_TIMEOUT, self.HARD_TIMEOUT) / self.K_FACTOR))
-        self.logger.debug(f"[GAP] Intervallo di tempo per la cattura delle features: {self.T}s")
+        self.w_round_per_ft = defaultdict() # { DPID: deque(FTSnapshot) }
+        self.w_round_per_fr = defaultdict() # { DPID: { match_hash: deque(FRSnapshot) } }
+
+        self.T = float("{:.2f}".format(self.IDLE_TIMEOUT / self.K_FACTOR))
+
+        self.logger.debug(f"K: {self.K_FACTOR}, T: {self.T}s")
+        self.logger.debug(f"W_pktin: {self.W_PKTIN}")
+
         self.collector = hub.spawn(self._collector)
-        self._report_lock = threading.Lock()
-
-        if self.MODEL == "CatBoost":
-            self.ftf_detector = CatBoostClassifier()
-            self.mfr_detector = CatBoostClassifier()
-            self.ftf_detector.load_model(self.CATBOOST_FTF_DETECTOR)
-            self.mfr_detector.load_model(self.CATBOOST_MFR_DETECTOR)
-        elif self.MODEL == "XGBoost":
-            self.ftf_detector = XGBClassifier()
-            self.mfr_detector = XGBClassifier()
-            self.ftf_detector.load_model(self.XGBOOST_FTF_DETECTOR)
-            self.mfr_detector.load_model(self.XGBOOST_MFR_DETECTOR)
-        elif self.MODEL == "HFBert":
-            # TODO: add token CLS
-            self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-            self.ftf_bert = BertForSequenceClassification.from_pretrained(self.BERT_FTF_DETECTOR)
-            self.ftf_bert.to(self.device).eval()
-            self.ftf_bert_discretizer = joblib.load(os.path.join(self.BERT_FTF_DETECTOR, 'discretizer.joblib'))
-            self.ftf_bert_n_bins = int(self.ftf_bert_discretizer.n_bins_[0])
-            self.mfr_bert = BertForSequenceClassification.from_pretrained(self.BERT_MFR_DETECTOR)
-            self.mfr_bert.to(self.device).eval()
-            self.mfr_bert_discretizer = joblib.load(os.path.join(self.BERT_MFR_DETECTOR, 'discretizer.joblib'))
-            self.mfr_bert_n_bins = int(self.mfr_bert_discretizer.n_bins_[0])
-        else:
-            self.ftf_detector = CatBoostClassifier()
-            self.mfr_detector = CatBoostClassifier()
-            self.ftf_detector.load_model(self.CATBOOST_FTF_DETECTOR)
-            self.mfr_detector.load_model(self.CATBOOST_MFR_DETECTOR)
-
-        with self._report_lock:
-            with open(self.REPORT_PATH, "w", newline="") as f:
-                f.write(f"""
-                {self.MODEL} FTF DETECTOR & MFR DETECTOR
-                
-                Configurations:
-                - FLOW_TABLE_SIZE: {int(os.environ.get('FLOW_TABLE_SIZE', '50'))}
-                - FLOW_TABLE_THRESHOLD: 0.8
-                - IDLE_TIMEOUT: {int(os.environ.get('IDLE_TIMEOUT', '10'))}
-                - HARD_TIMEOUT: {int(os.environ.get('HARD_TIMEOUT', '20'))}
-                - K_FACTOR: {int(os.environ.get('K_FACTOR', '3'))}
-                - T: {self.T}
-                """)
-
-    def _bert_tokenize(self, discretizer, n_bins, features):
-        """Applica lo stesso discretizer (fit in training) a un singolo
-        vettore di feature e lo trasforma in una sequenza di token id,
-        replicando esattamente _tokenize_features() dello script di training."""
-        X = np.asarray(features, dtype=np.float64).reshape(1, -1)
-        bins = discretizer.transform(X).astype(np.int64)
-        offsets = (np.arange(X.shape[1]) * n_bins).astype(np.int64)
-        return bins + offsets
-
-    def _bert_predict(self, model, discretizer, n_bins, features):
-        """Ritorna la classe predetta (0/1) dal modello BERT per un flow."""
-        input_ids = self._bert_tokenize(discretizer, n_bins, features)
-        input_ids_t = torch.tensor(input_ids, dtype=torch.long, device=self.device)
-        attention_mask = torch.ones_like(input_ids_t)
-        with torch.no_grad():
-            outputs = model(input_ids=input_ids_t, attention_mask=attention_mask)
-        pred = torch.argmax(outputs.logits, dim=-1).item()
-        return pred
 
     def _collector(self):
         """
-        T_max = min { idle, hard } tempo massimo per intercettare una flow rule 
+        T_max = min { idle, hard } tempo massimo per intercettare una flow rule
         prima che venga rimossa
 
         Per il teorema del campionamento
         - fs > 2*fM
         - 1/ts > 2*1/tM (=>) 2*ts <= tM
-    
+
         (=>) T <= T_max/2
 
         Per catturare piu'campioni si puo' considerare un fattore k>=2
 
         (=>) T <= T_max/k
 
-        Il valore k=2 e' minimo, k=3 o k=4 e' il piu' sicuro dipende da quanto 
-        vogliamo raccogliere in un periodo.
+        K piu' grande => T_k piu' piccolo => polling piu' frequente per quel K.
         """
         while True:
             for datapath in list(self.datapaths.values()):
@@ -178,14 +122,6 @@ class FTFMController(app_manager.RyuApp):
         datapath = ev.msg.datapath
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
-
-        # install table-miss flow entry
-        #
-        # We specify NO BUFFER to max_len of the output action due to
-        # OVS bug. At this moment, if we specify a lesser number, e.g.,
-        # 128, OVS will send Packet-In with invalid buffer_id and
-        # truncated packet data. In that case, we cannot output packets
-        # correctly.  The bug has been fixed in OVS v2.1.0.
         match = parser.OFPMatch()
         actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
                                            ofproto.OFPCML_NO_BUFFER)]
@@ -203,30 +139,6 @@ class FTFMController(app_manager.RyuApp):
                                  idle_timeout=idle_timeout, hard_timeout=hard_timeout)
         
         datapath.send_msg(mod)
-
-    def delete_flow(self, datapath, match, priority=1, strict=True):
-        """
-        Send an OFPFlowMod:
-
-        - OFPFC_DELETE_STRICT (strict=True) deletes flow rules by match+priority
-        - OFPFC_DELETE (strict=False) deletes flow rules by wildcard
-        """
-        ofproto = datapath.ofproto
-        parser = datapath.ofproto_parser
-
-        command = ofproto.OFPFC_DELETE_STRICT if strict else ofproto.OFPFC_DELETE
-
-        mod = parser.OFPFlowMod(
-            datapath=datapath, command=command,
-            out_port=ofproto.OFPP_ANY, out_group=ofproto.OFPG_ANY,
-            priority=priority, match=match)
-        
-        datapath.send_msg(mod)
-
-        self.logger.info(
-            '[EVICTION] dpid=%016x priority=%s match=%s',
-            datapath.id, priority, match
-        )
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
@@ -318,19 +230,18 @@ class FTFMController(app_manager.RyuApp):
         body = ev.msg.body
         dpid = ev.msg.datapath.id
         stats = [stat for stat in body if stat.priority == 1]
-        if not stats:
-            return
-        if not self.feature_ext[dpid].has_enough_data():
+        if not stats or not self.feature_ext[dpid].has_enough_data():
             return
         occupancy = len(stats) / float(self.FLOW_TABLE_SIZE)
         if occupancy < self.FLOW_TABLE_THRESHOLD:
-            pass# return
-        hub.spawn(self._process_stats, dpid, stats) 
-
-    def _process_stats(self, dpid, stats):
-        self.logger.debug(f"[GAP] DPID: {dpid:016x}")
-        datapath = self.datapaths.get(dpid)
-
+            return
+        self.logger.debug(f"DPID={dpid}'s flow table {occupancy}% full")
+        hub.spawn(self._detection, dpid, stats)
+    
+    def _mitigation(self, dpid, stats):
+        """
+        Detection
+        """
         # Get Pkt In Feature
         ((payload_entropy_mean, payload_entropy_cv), payload_size_entropy,
          src_ip_entropy, dst_ip_entropy,
@@ -343,56 +254,52 @@ class FTFMController(app_manager.RyuApp):
          (mean_pkts, cvp),
          (mean_bytes, cvb)) = self.feature_ext[dpid].get_ft_features(stats, self.FLOW_TABLE_SIZE)
 
-        ft_features = [
+        features_ftf = [
             payload_entropy_mean, payload_entropy_cv, payload_size_entropy,
             src_ip_entropy, dst_ip_entropy, src_mac_entropy, dst_mac_entropy,
             c_used, paf, ft_psi, durations_entropy, pkts_entropy, bytes_entropy,
-            mean_duration, cvd, mean_pkts, cvp, mean_bytes, cvb
+            mean_duration, cvd, mean_pkts, cvp, mean_bytes, cvb,
         ]
 
-        if self.MODEL in ("HFBert"):
-            ftf_pred = self._bert_predict(
-                self.ftf_bert, self.ftf_bert_discretizer, self.ftf_bert_n_bins, ft_features
-            )
-        else:
-            ftf_pred = self.ftf_detector.predict([ft_features])
-
-        self.logger.debug('[FTF] dpid=%s %s=%s', dpid, self.MODEL, ftf_pred)
+        # FTF prediction
+        ftf_pred = 
 
         if ftf_pred:
-            self.logger.info('[ANOMALY] Detected FTF attack for %s', dpid)
-            with open(self.REPORT_PATH, "a", newline="") as f:
-                f.write(f"""
-                ANOMALY@{dpid}, timestamp {time()}
-                    * FLOW TABLE FEATURES: {ft_features}
-                    * FLOW TABLE OCCUPANCY: {len(stats)}/{self.FLOW_TABLE_SIZE}
-
-                """)
+            self.logger.debug(f"[!] FTF Attack Detected on DPID={dpid}")
         else:
+            self.logger.debug(f"[-] No FTF Attack Detected on DPID={dpid}")
             return
 
+        """
+        Eviction
+        """
         # Get Flow Rule Features
         malicious_stats = []
         legit_stats = []
 
+    def _eviction(self, dpid, stats):
+        # Get Flow Rules Features
+        flows_mfr = []
         for stat in stats:
-            duration, packet_count, byte_count, pkt_rate, byte_rate, psi = \
-                self.feature_ext[dpid].get_flow_feature(stat)
-            fr_features = [duration, packet_count, byte_count, pkt_rate, byte_rate, psi]
+            match_hash = sha256(str(stat.match).encode()).hexdigest()
+            duration, packet_count, byte_count, pkt_rate, byte_rate, psi = self.feature_ext[dpid].get_flow_feature(stat)
+            flows_mfr.append((
+                [match_hash, duration, packet_count, byte_count, pkt_rate, byte_rate, psi],
+            ))
+            # FTF prediction
+            mfr_pred = 
 
-            if self.MODEL in ("HFBert"):
-                fr_pred = self._bert_predict(
-                    self.mfr_bert, self.mfr_bert_discretizer, self.mfr_bert_n_bins, fr_features
-                )
-            else:
-                fr_pred = self.mfr_detector.predict([fr_features])
-
-            # Group by malicious and legit flow rules
-            if fr_pred:
+            if mfr_pred:
                 malicious_stats.append(stat)
             else:
                 legit_stats.append(stat)
 
+        if malicious_stats:
+            self.logger.debug(f"[!] Detected {len(malicious_stats)} malicious flow rules on DPID={dpid}")
+        else:
+            self.logger.debug(f"[-] No malicious flow rules on DPID={dpid}")
+            return
+        
         # ---- Eviction Tier 0: group by in_port ----
         evicted_via_wildcard, remaining = self._evict_by_port(
             datapath, malicious_stats, legit_stats
@@ -402,46 +309,7 @@ class FTFMController(app_manager.RyuApp):
         for stat in remaining:
             self.delete_flow(datapath, stat.match, priority=stat.priority, strict=True)
 
-        # --- Logs ---
-        for stat in malicious_stats:
-            src_ip = stat.match.get('ipv4_src', None)
-            dst_ip = stat.match.get('ipv4_dst', None)
-            with self._report_lock:
-                with open(self.REPORT_PATH, "a", newline="") as f:
-                    f.write(f"""
-                        * FLOW RULE: {src_ip} -> {dst_ip}
-
-                    """)
-
-        i = len(evicted_via_wildcard) + len(remaining)
-        with self._report_lock:
-            with open(self.REPORT_PATH, "a", newline="") as f:
-                f.write(f"""
-                    * MALICIOUS FLOW RULES: {i}/{len(stats)}/{self.FLOW_TABLE_SIZE}
-                    * EVICTED VIA PORT-WILDCARD: {len(evicted_via_wildcard)} rules, {len(set(s.match['in_port'] for s in evicted_via_wildcard))} DELETE msgs
-                    * EVICTED VIA STRICT FALLBACK: {len(remaining)} rules, {len(remaining)} DELETE msgs
-
-                """)
-
-    # Eviction
     def _evict_by_port(self, datapath, malicious_stats, legit_stats):
-        """
-        Livello 0 dell'eviction: raggruppa le flow rules malevole per in_port
-        e, se il collateral damage (regole legittime sulla stessa porta) e'
-        entro MAX_COLLATERAL_PORT, invia un unico OFPFlowMod non-strict
-        (command=OFPFC_DELETE) con match={in_port: X}, cancellando in blocco
-        tutte le entry su quella porta a priorita' 1.
-
-        in_port e' scelto come primo criterio di raggruppamento perche' non
-        e' falsificabile dall'attaccante (a differenza di eth_src/ipv4_src),
-        quindi il raggruppamento e' esatto e non richiede euristiche di
-        similarita': o la porta e' "pulita" (solo traffico malevolo) e il
-        wildcard e' sicuro, oppure si rimanda al fallback strict.
-
-        Ritorna:
-            evicted: lista di (stat, fr_features) coperte dal wildcard
-            remaining: lista di (stat, fr_features) da gestire con delete strict
-        """
         by_port = defaultdict(list)
         for stat in malicious_stats:
             by_port[stat.match['in_port']].append(stat)
@@ -467,7 +335,7 @@ class FTFMController(app_manager.RyuApp):
                 self.delete_flow(datapath, match, priority=1, strict=False)
 
                 self.logger.info(
-                    '[EVICTION-L0] dpid=%016x in_port=%s covered=%d collateral=%d',
+                    '[EVICTION-L0] Dpid=%016x discarded in_port=%s covered=%d collateral=%d',
                     datapath.id, in_port, len(group), collateral
                 )
                 evicted.extend(group)
