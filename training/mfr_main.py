@@ -1,6 +1,8 @@
 from utils import *
 from m_catboost import *
 from m_xgboost import *
+from m_decision_tree import *
+from m_random_forest import *
 from feat_bert import *
 from mfr_temp_bert import *
 from ablation import run_featbert_ablation, run_tempbert_ablation
@@ -25,6 +27,8 @@ def save_best_params_csv(params: dict, path: str, dataset: str = None):
 if __name__ == "__main__":
     xgb_param_rows = []
     cb_param_rows = []
+    dt_param_rows = []
+    rf_param_rows = []
     featbert_param_rows = []
     tempbert_param_rows = []
 
@@ -43,9 +47,17 @@ if __name__ == "__main__":
 
         best_cb_params = None
         best_xgb_params = None
+        best_dt_params = None
+        best_rf_params = None
         best_featBERT_params = None
         best_tempBERT_params = None
 
+        print("\n\n=== Tuning Decision Tree ===")
+        best_dt_params = tune_decision_tree(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
+ 
+        print("\n\n=== Tuning Random Forest ===")
+        best_rf_params = tune_random_forest(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
+        
         print("\n\n=== Tuning XGBoost ===")
         best_xgb_params = tune_xgboost(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
 
@@ -58,28 +70,38 @@ if __name__ == "__main__":
         print("\n\n=== Tuning TempBERT ===")
         best_tempBERT_params = tune_tempBERT(X_train, y_train, groups_train, profiles_train, keys_train, plots_dir=PLOTS_DIR)
 
+        save_best_params_csv(best_dt_params, os.path.join(dataset_model_dir, "best_params_decision_tree.csv"))
+        save_best_params_csv(best_rf_params, os.path.join(dataset_model_dir, "best_params_random_forest.csv"))
         save_best_params_csv(best_xgb_params, os.path.join(dataset_model_dir, "best_params_xgboost.csv"))
         save_best_params_csv(best_cb_params, os.path.join(dataset_model_dir, "best_params_catboost.csv"))
         save_best_params_csv(best_featBERT_params, os.path.join(dataset_model_dir, "best_params_featbert.csv"))
         save_best_params_csv(best_tempBERT_params, os.path.join(dataset_model_dir, "best_params_tempbert.csv"))
 
+        dt_param_rows.append({"dataset": subdir, **best_dt_params})
+        rf_param_rows.append({"dataset": subdir, **best_rf_params})
         xgb_param_rows.append({"dataset": subdir, **best_xgb_params})
         cb_param_rows.append({"dataset": subdir, **best_cb_params})
         featbert_param_rows.append({"dataset": subdir, **best_featBERT_params})
         tempbert_param_rows.append({"dataset": subdir, **best_tempBERT_params})
 
+        print("\n\n=== Training Decision Tree ===")
+        train_decision_tree(X_train, X_test, y_train, y_test, results, best_dt_params, features=MFR_FEATURES, model_dir=dataset_model_dir)
+ 
+        print("\n\n=== Training Random Forest ===")
+        train_random_forest(X_train, X_test, y_train, y_test, results, best_rf_params, features=MFR_FEATURES, model_dir=dataset_model_dir)
+        
         print("\n\n=== Training XGBoost ===")
-        train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_xgb_params, features=MFR_FEATURES, model_dir=MODELS_DIR)
+        train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_xgb_params, features=MFR_FEATURES, model_dir=dataset_model_dir)
 
         print("\n\n=== Training CatBoost ===")
-        train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params, model_dir=MODELS_DIR)
+        train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params, model_dir=dataset_model_dir)
 
         print("\n\n=== Training FeatBERT ===")
-        train_featBERT(X_train, X_val, X_test, y_train, y_val, y_test, results, best_featBERT_params, features=MFR_FEATURES, model_dir=MODELS_DIR)
+        train_featBERT(X_train, X_val, X_test, y_train, y_val, y_test, results, best_featBERT_params, features=MFR_FEATURES, model_dir=dataset_model_dir)
 
         print("\n\n=== Training TempBERT ===")
         train_tempBERT(X_train, X_val, X_test, y_train, y_val, y_test,
-                keys_train, keys_val, keys_test, results, best_tempBERT_params, features=MFR_FEATURES, model_dir=MODELS_DIR)
+                keys_train, keys_val, keys_test, results, best_tempBERT_params, features=MFR_FEATURES, model_dir=dataset_model_dir)
         
         print("\n\n=== Ablation FeatBERT ===")
         run_featbert_ablation(
@@ -94,7 +116,7 @@ if __name__ == "__main__":
             best_tempBERT_params, out_dir=PLOTS_DIR, csv_name="mfr_tempbert_ablation.csv")
 
         plot_models_convergence(
-            PLOTS_DIR, ["XGBoost", "CatBoost", "FeatBERT", "TempBERT"],
+            PLOTS_DIR, ["DecisionTree", "RandomForest", "XGBoost", "CatBoost", "FeatBERT", "TempBERT"],
             os.path.join(PLOTS_DIR, "convergence_all_models.png"),
         )
 
@@ -109,6 +131,8 @@ if __name__ == "__main__":
         best_params_path = os.path.join(dataset_model_dir, "best_params.joblib")
         joblib.dump(
             {
+                "decision_tree": best_dt_params,
+                "random_forest": best_rf_params,
                 "xgboost": best_xgb_params,
                 "catboost": best_cb_params,
                 "featBERT": best_featBERT_params,
@@ -118,6 +142,10 @@ if __name__ == "__main__":
         )
         print(f"Migliori iperparametri salvati in: {best_params_path}")
 
+    pd.DataFrame(dt_param_rows).set_index("dataset").to_csv(
+        os.path.join(MODELS_DIR, "best_params_decision_tree_all_datasets.csv"))
+    pd.DataFrame(rf_param_rows).set_index("dataset").to_csv(
+        os.path.join(MODELS_DIR, "best_params_random_forest_all_datasets.csv"))
     pd.DataFrame(xgb_param_rows).set_index("dataset").to_csv(
         os.path.join(MODELS_DIR, "best_params_xgboost_all_datasets.csv"))
     pd.DataFrame(cb_param_rows).set_index("dataset").to_csv(
