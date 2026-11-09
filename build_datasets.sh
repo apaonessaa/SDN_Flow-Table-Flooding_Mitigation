@@ -18,9 +18,6 @@ python3 "${ROOT}/utils/add_attack_profile_column.py" --output-dir "${OUT}" --net
 cd -
 
 ## Analysis
-# I path vengono passati come variabili d'ambiente invece di essere
-# ricostruiti con __file__: con `python3 -` (codice letto da stdin, non da
-# un file su disco) __file__ non esiste e solleverebbe NameError.
 TIMESTAMP="${TIMESTAMP}" MFR_DATASET_DIR="${OUT}" python3 - <<'EOF'
 import os
 import pandas as pd
@@ -34,10 +31,7 @@ MFR_DATASETS = [
     f"{mfr_dir}/dataset_mfr_{timestamp}_4_10.csv",
 ]
 
-# Numero di round storici richiesti dalla finestra di TempBERT (W),
-# da non confondere con la dimensione W_pktin della finestra di Packet-In
-# usata in cattura feature.
-WINDOWS = [4, 8, 12, 16, 20]
+WINDOWS = [4, 8, 12, 16, 20, 24, 28, 32]
 
 RULE_KEY_COL = "match_hash"
 FLOW_KEY_COL = "flow_key"
@@ -46,6 +40,7 @@ ROUND_COL = "round"
 
 for mfr_dataset in MFR_DATASETS:
     df = pd.read_csv(mfr_dataset)
+    print(f"\n=== {os.path.basename(mfr_dataset)} ===")
     print(f"Numero di entry del dataset: {len(df)}")
 
     """
@@ -55,8 +50,14 @@ for mfr_dataset in MFR_DATASETS:
     df = df.sort_values([SCENARIO_COL, FLOW_KEY_COL, ROUND_COL]).reset_index(drop=True)
 
     obs = df.groupby(FLOW_KEY_COL).size()
+    n_rules = len(obs)
+    print(f"Numero di regole: {n_rules}")
     print("Osservazioni per regola:")
     print(obs.describe())
+
     for w in WINDOWS:
-        print(f"  regole con >= {w} osservazioni: {(obs >= w).mean():.1%}")
+        short = (obs <= w - 1).sum()   # < W: la finestra non si riempie (padding)
+        print(f"  W={w:>2}: regole con <= {w-1:>2} oss. (finestra incompleta): "
+              f"{short / n_rules:.1%} ({short})"
+              f" | => almeno {w} oss.: {1 - short / n_rules:.1%}")
 EOF

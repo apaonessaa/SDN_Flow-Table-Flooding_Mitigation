@@ -1,3 +1,4 @@
+import gc
 import pandas as pd
 import numpy as np
 import torch
@@ -353,8 +354,13 @@ def fit_model(model_fn, train_inputs, y_tr, val_inputs, y_va, params, epochs, pa
                 break
 
     model.load_state_dict(best_state)
-    return model, best_f1
 
+    del opt, loader, loss_fn, best_state
+    gc.collect()
+    if DEVICE == "cuda":
+        torch.cuda.empty_cache()
+
+    return model, best_f1
 # --------------------------------------------------------------------------- #
 
 # --------------------------------------------------------------------------- #

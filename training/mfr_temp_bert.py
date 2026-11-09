@@ -103,7 +103,7 @@ def tune_tempBERT(X_train, y_train, groups_train, profiles_train, keys_train, pl
         pruner=optuna.pruners.MedianPruner(n_warmup_steps=1),
         sampler=optuna.samplers.TPESampler(seed=RANDOM_SEED),
     )
-    study.optimize(objective, n_trials=N_TRIALS, show_progress_bar=True)
+    study.optimize(objective, n_trials=N_TRIALS, show_progress_bar=True, gc_after_trial=True)
     
     if plots_dir:
         save_study_plots(study, "TempBERT", plots_dir)

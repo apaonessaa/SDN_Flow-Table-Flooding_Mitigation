@@ -87,14 +87,17 @@ def tune_featBERT(X_train, y_train, groups_train, profiles_train, plots_dir=None
             y_tr, y_val = y_train.iloc[tr_idx].values, y_train.iloc[val_idx].values
 
             x_tr, x_val, _ = scale_features(X_tr, X_val)
-            _, f1 = fit_feat(params, x_tr, y_tr, x_val, y_val,
+            model, f1 = fit_feat(params, x_tr, y_tr, x_val, y_val,
                              n_features, BERT_CV_EPOCHS, BERT_CV_PATIENCE)
             fold_scores.append(f1)
+
+            del model
+            gc.collect()
 
             trial.report(float(np.mean(fold_scores)), step=fold_idx)
             if trial.should_prune():
                 raise optuna.TrialPruned()
-
+        
         return float(np.mean(fold_scores))
 
     study = optuna.create_study(
@@ -103,7 +106,7 @@ def tune_featBERT(X_train, y_train, groups_train, profiles_train, plots_dir=None
         pruner=optuna.pruners.MedianPruner(n_warmup_steps=1),
         sampler=optuna.samplers.TPESampler(seed=RANDOM_SEED),
     )
-    study.optimize(objective, n_trials=N_TRIALS, show_progress_bar=True)
+    study.optimize(objective, n_trials=N_TRIALS, show_progress_bar=True, gc_after_trial=True)
 
     if plots_dir:
         save_study_plots(study, "FeatBERT", plots_dir)

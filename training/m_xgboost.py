@@ -61,7 +61,7 @@ def tune_xgboost(X_train, y_train, groups_train, profiles_train, plots_dir=None)
         study_name='xgboost_tuning',
         sampler=optuna.samplers.TPESampler(seed=RANDOM_SEED),
     )
-    study.optimize(objective, n_trials=N_TRIALS, show_progress_bar=True)
+    study.optimize(objective, n_trials=N_TRIALS, show_progress_bar=True, gc_after_trial=True)
 
     if plots_dir:
         save_study_plots(study, "XGBoost", plots_dir)

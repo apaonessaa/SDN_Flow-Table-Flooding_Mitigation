@@ -85,9 +85,12 @@ def tune_tempBERT(X_train, y_train, groups_train, profiles_train, plots_dir=None
 
             _, ((s_tr, m_tr), (s_va, m_va)) = prepare_seq(
                 X_tr, g_tr, [(X_va, g_va)], params['window'])
-            _, f1 = fit_seq(params, s_tr, m_tr, y_tr, s_va, m_va, y_va,
+            model, f1 = fit_seq(params, s_tr, m_tr, y_tr, s_va, m_va, y_va,
                             BERT_CV_EPOCHS, BERT_CV_PATIENCE)
             scores.append(f1)
+
+            del model
+            gc.collect()
 
             trial.report(float(np.mean(scores)), step=fold_idx)
             if trial.should_prune():
@@ -99,7 +102,7 @@ def tune_tempBERT(X_train, y_train, groups_train, profiles_train, plots_dir=None
         pruner=optuna.pruners.MedianPruner(n_warmup_steps=1),
         sampler=optuna.samplers.TPESampler(seed=RANDOM_SEED),
     )
-    study.optimize(objective, n_trials=N_TRIALS, show_progress_bar=True)
+    study.optimize(objective, n_trials=N_TRIALS, show_progress_bar=True, gc_after_trial=True)
 
     if plots_dir:
         save_study_plots(study, "TempBERT", plots_dir)
