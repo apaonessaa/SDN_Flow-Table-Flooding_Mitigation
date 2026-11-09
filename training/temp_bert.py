@@ -83,7 +83,7 @@ def tune_tempBERT(X_train, y_train, groups_train, profiles_train, plots_dir=None
             g_tr, g_va = groups_train.iloc[tr_idx].values, groups_train.iloc[va_idx].values
             y_tr, y_va = y_train.iloc[tr_idx].values, y_train.iloc[va_idx].values
 
-            _, ((s_tr, m_tr), (s_va, m_va)) = _prepare_seq(
+            _, ((s_tr, m_tr), (s_va, m_va)) = prepare_seq(
                 X_tr, g_tr, [(X_va, g_va)], params['window'])
             _, f1 = fit_seq(params, s_tr, m_tr, y_tr, s_va, m_va, y_va,
                             BERT_CV_EPOCHS, BERT_CV_PATIENCE)
@@ -110,7 +110,7 @@ def tune_tempBERT(X_train, y_train, groups_train, profiles_train, plots_dir=None
 
 def train_tempBERT(X_train, X_val, X_test, y_train, y_val, y_test,
               groups_train, groups_val, groups_test, results, best_params, features, model_dir:str):
-    scaler, ((s_tr, m_tr), (s_va, m_va), (s_te, m_te)) = _prepare_seq(
+    scaler, ((s_tr, m_tr), (s_va, m_va), (s_te, m_te)) = prepare_seq(
         X_train.values, groups_train.values,
         [(X_val.values, groups_val.values), (X_test.values, groups_test.values)],
         best_params['window'],
@@ -151,7 +151,7 @@ def fit_seq(params, seq_tr, m_tr, y_tr, seq_va, m_va, y_va, epochs, patience):
 def predict_seq(model, seq, valid):
     return predict_model(model, (seq, valid))
 
-def _prepare_seq(X_fit, g_fit, others, w):
+def prepare_seq(X_fit, g_fit, others, w):
     # Il preprocessing agisce sulle righe (round) prima del windowing: è equivalente a scalare
     # le finestre dopo, perché ogni trasformazione è per-feature e non dipende dalle altre righe.
     *xs, scaler = scale_features(X_fit, *[X for X, _ in others])

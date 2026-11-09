@@ -1,3 +1,0 @@
-number,value,datetime_start,datetime_complete,duration,params_batch_size,params_dropout,params_head_dim,params_intermediate_size,params_learning_rate,params_num_attention_heads,params_num_hidden_layers,params_weight_decay,state
-0,0.5827039783607978,2026-11-07 04:38:29.458572,2026-11-07 04:40:11.276674,0 days 00:01:41.818102,1024,0.41622132040021087,8,512,2.6587543983272695e-05,4,6,3.5113563139704077e-06,COMPLETE
-1,0.6232159237897454,2026-11-07 04:40:11.277629,2026-11-07 05:57:29.481024,0 days 01:17:18.203395,512,0.3037724259507192,32,256,2.1930485556643678e-05,8,5,1.5673095467235414e-06,COMPLETE

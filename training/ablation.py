@@ -27,7 +27,6 @@ from utils import (RANDOM_SEED, BERT_FINAL_EPOCHS, BERT_FINAL_PATIENCE,
                    scale_features, fit_model, predict_model, init_uniform_)
 from feat_bert import FeatBert
 
-
 # ---------------------------------------------------------------------------
 # 1. Togliere la self-attention (comune a FeatBERT e TempBERT)
 # ---------------------------------------------------------------------------
@@ -39,7 +38,6 @@ class NoMix(nn.Module):
 
     def forward(self, hidden_states, *args, **kwargs):
         return (self.value(hidden_states), None)          # stessa forma di output dell'attention HF
-
 
 @torch.no_grad()
 def drop_attention(encoder):
@@ -57,7 +55,6 @@ def drop_attention(encoder):
     assert torch.allclose(a[:, 1:], b[:, 1:], atol=1e-6), "l'attention e' ancora attiva"
     encoder.train(was_training)
 
-
 # ---------------------------------------------------------------------------
 # 2. FeatBERT
 # ---------------------------------------------------------------------------
@@ -71,13 +68,11 @@ class SingleToken(nn.Module):
     def forward(self, x):                                  # (B, F) -> (B, 1, d)
         return self.proj(x).unsqueeze(1)
 
-
 class FeatBertNoTok(FeatBert):
     def __init__(self, n_feat, params):
         super().__init__(n_feat, params)
         self.tokenizer = SingleToken(n_feat, self.bert.config.hidden_size)
         # forward ereditato: encoder -> pooler sulla posizione 0 (qui l'unico token)
-
 
 class FeatBertNoAttn(FeatBert):
     def __init__(self, n_feat, params):
@@ -88,7 +83,6 @@ class FeatBertNoAttn(FeatBert):
         h = self.bert.bert.encoder(self.tokenizer(x)).last_hidden_state    # (B, F+1, d)
         h = h[:, 1:].mean(dim=1, keepdim=True)             # media dei token-feature (il [CLS] non riceve nulla)
         return self.bert.classifier(self.bert.dropout(self.bert.bert.pooler(h)))
-
 
 # ---------------------------------------------------------------------------
 # 3. TempBERT (le classi sono costruite a partire da TempBert di temp_bert o mfr_temp_bert)
@@ -125,7 +119,6 @@ def make_temp_variants(TempBert):
 
     return TempBertNoTok, TempBertNoAttn
 
-
 # ---------------------------------------------------------------------------
 # 4. Esecuzione
 # ---------------------------------------------------------------------------
@@ -138,14 +131,12 @@ def _row(name, y_true, y_pred, elapsed, model):
     return {"variant": name, "accuracy": acc, "precision": prec, "recall": rec,
             "f1": f1, "train_time_s": elapsed, "n_params": n_params}
 
-
 def _save(rows, out_dir, csv_name):
     df = pd.DataFrame(rows).set_index("variant")
     print("\n" + df.to_string(float_format="%.4f"))
     os.makedirs(out_dir, exist_ok=True)
     df.to_csv(os.path.join(out_dir, csv_name))
     return df
-
 
 def run_featbert_ablation(X_train, X_val, X_test, y_train, y_val, y_test,
                           best_params, out_dir, csv_name="featbert_ablation.csv"):
