@@ -21,6 +21,8 @@ from ryu.ofproto import ofproto_v1_4
 from ryu.lib.packet import packet, ethernet, ether_types, ipv4
 from ryu.lib import hub
 
+from eventlet import tpool
+
 import os
 import sys
 import csv
@@ -39,20 +41,10 @@ root = os.path.dirname(current)
 sys.path.append(root)
 from mitigation.feature_ext import FeatureExt
 
-# Directory in cui vivono temp_bert.py e mfr_temp_bert.py (la pipeline di
-# training): di default la assumiamo coincidente con `root`, ma puoi
-# sovrascriverla se nel tuo repo il layout e' diverso.
-MODEL_CODE_DIR = os.environ.get('MODEL_CODE_DIR', root)
-sys.path.append(MODEL_CODE_DIR)
-
-# Nota: temp_bert.py / mfr_temp_bert.py fanno "from utils import *" al loro
-# interno, quindi importarli richiede che l'intero ambiente di training
-# (torch, transformers, optuna, scikit-learn, config.py/utils.py) sia
-# disponibile anche nel processo del controller Ryu. Si riusano le classi
-# originali (non una loro riscrittura) per garantire che l'architettura a
-# inferenza coincida esattamente con quella usata in training.
-from temp_bert import TempBert
-from mfr_temp_bert import TempBERT as TempBertMFR
+# Solo le classi nn.Module (nessuna dipendenza dall'ambiente di training:
+# niente optuna, utils.py, config.py). Il file di training deve importare le
+# stesse classi da qui, cosi' l'architettura ha un'unica sorgente.
+from mitigation.tempbert_arch import TempBert, MFRTempBert as TempBertMFR
 
 
 # --------------------------------------------------------------------------- #
@@ -83,11 +75,22 @@ def load_tempbert(model_dir, model_cls, device):
     }
 
 
+# Una riga per ogni round di polling (anche quando la detection non parte),
+# cosi' il costo del round e' misurabile in tutte le fasi del test.
+#   round_wall_s : durata totale del round (include l'attesa dell'inferenza)
+#   prep_cpu_s   : CPU nel thread del controller per estrazione feature,
+#                  aggiornamento/potatura finestre e snapshot
+#   infer_wall_s : tempo reale speso nel thread nativo di inferenza
+#   infer_cpu_s  : CPU del thread di inferenza (thread_time: i thread
+#                  helper interni di torch NON sono inclusi)
+#   mitig_cpu_s  : CPU nel thread del controller per build finestre MFR + eviction
 REPORT_COLUMNS = [
-    "timestamp", "dpid", "flow_table_occupancy", "ftf_detected",
-    "n_malicious_rules", "n_legit_rules",
+    "timestamp", "dpid", "round", "detection_run", "skipped",
+    "flow_table_occupancy", "ftf_detected",
+    "n_malicious_rules", "n_legit_rules", "n_fr_windows",
+    "n_rules_wildcard",
     "n_eviction_msgs_wildcard", "n_eviction_msgs_strict", "n_eviction_msgs_total",
-    "detection_time_s",
+    "round_wall_s", "prep_cpu_s", "infer_wall_s", "infer_cpu_s", "mitig_cpu_s",
 ]
 
 
@@ -100,6 +103,13 @@ class FTFMController(app_manager.RyuApp):
     W_PKTIN = int(os.environ.get('W_PKTIN', '10'))
     MAX_COLLATERAL_PORT = int(os.environ.get('MAX_COLLATERAL_PORT', '0'))
     REPORT_PATH = os.environ.get('REPORT_PATH', '/tmp/report.txt')
+    LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
+
+    # Quanti round una regola puo' mancare dalle stats prima che la sua
+    # finestra MFR venga eliminata. 0 = si elimina appena sparisce.
+    # Se la stessa regola (stesso match) riappare dopo la scadenza, con 0
+    # la sua storia riparte da zero.
+    FR_PRUNE_GRACE = int(os.environ.get('FR_PRUNE_GRACE', '0'))
 
     FTF_MODEL_DIR = os.environ.get('FTF_MODEL_DIR', root + '/models/ftf_detector')
     MFR_MODEL_DIR = os.environ.get('MFR_MODEL_DIR', root + '/models/mfr_detector')
@@ -108,6 +118,7 @@ class FTFMController(app_manager.RyuApp):
 
     def __init__(self, *args, **kwargs):
         super(FTFMController, self).__init__(*args, **kwargs)
+        self.logger.setLevel(self.LOG_LEVEL)
         self.mac_to_port = {}
         self.datapaths = {}
 
@@ -137,7 +148,7 @@ class FTFMController(app_manager.RyuApp):
         self.logger.info(f"MFR TempBERT caricato: window={self.mfr_window_size}, "
                           f"n_feat={self.mfr_n_feat}, da {self.MFR_MODEL_DIR}")
 
-        # (1) Finestre W_round come code: una per DPID (FT), una per ogni
+        # Finestre W_round come code: una per DPID (FT), una per ogni
         # coppia (DPID, match_hash) di flow rule (FR). maxlen = la window del
         # rispettivo modello: una volta piena, append+eviction del piu'
         # vecchio e' gestito automaticamente da deque, cosi' come il
@@ -146,6 +157,20 @@ class FTFMController(app_manager.RyuApp):
         # training (padding a sinistra finche' la storia reale e' < window).
         self.w_round_per_ft = defaultdict(lambda: deque(maxlen=self.ftf_window_size))
         self.w_round_per_fr = defaultdict(lambda: defaultdict(lambda: deque(maxlen=self.mfr_window_size)))
+
+        # Punto 1: ultimo round in cui ogni regola e' comparsa nelle stats,
+        # serve a potare le finestre FR delle regole scadute/evictate.
+        self._round_idx = defaultdict(int)
+        self._fr_last_seen = defaultdict(dict)
+
+        # Punto 3: l'inferenza gira in UN thread nativo (tpool), cosi' l'event
+        # loop di Ryu continua a servire Packet-In ed echo mentre torch calcola.
+        # Un solo thread = inferenze serializzate, niente CPU concorrente
+        # che falserebbe le misure.
+        tpool.set_num_threads(1)
+        # DPID con una detection in corso: evita che round successivi ne
+        # lancino una seconda mentre la prima non e' ancora tornata.
+        self._detecting = set()
 
         self.T = float("{:.2f}".format(self.IDLE_TIMEOUT / self.K_FACTOR))
         self.logger.debug(f"K: {self.K_FACTOR}, T: {self.T}s")
@@ -156,7 +181,7 @@ class FTFMController(app_manager.RyuApp):
         self.collector = hub.spawn(self._collector)
 
     # ----------------------------------------------------------------- #
-    # (3) Report CSV
+    # Report CSV
     # ----------------------------------------------------------------- #
     def _init_report(self):
         self._report_lock = threading.Lock()
@@ -167,14 +192,8 @@ class FTFMController(app_manager.RyuApp):
             self._report_writer.writerow(REPORT_COLUMNS)
             self._report_file.flush()
 
-    def _write_report(self, dpid, occupancy, ftf_detected, n_malicious, n_legit,
-                       n_evicted_wildcard, n_evicted_strict, elapsed):
-        row = [
-            int(time.time()), f"{dpid:016x}", round(occupancy, 4), int(ftf_detected),
-            n_malicious, n_legit,
-            n_evicted_wildcard, n_evicted_strict, n_evicted_wildcard + n_evicted_strict,
-            round(elapsed, 4),
-        ]
+    def _write_report(self, **fields):
+        row = [fields.get(c, 0) for c in REPORT_COLUMNS]
         with self._report_lock:
             self._report_writer.writerow(row)
             self._report_file.flush()
@@ -284,7 +303,8 @@ class FTFMController(app_manager.RyuApp):
         src = eth.src
         dpid = datapath.id
         self.mac_to_port.setdefault(dpid, {})
-        self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
+        # DEBUG: a livello INFO, sotto flooding, il logging domina la CPU
+        self.logger.debug("packet in %s %s %s %s", dpid, src, dst, in_port)
 
         self.mac_to_port[dpid][src] = in_port
         if dst in self.mac_to_port[dpid]:
@@ -355,31 +375,100 @@ class FTFMController(app_manager.RyuApp):
         dpid = ev.msg.datapath.id
         stats = [stat for stat in body if stat.priority == 1]
         if not stats:
+            # Tabella vuota (es. dopo un'eviction): nessuna finestra da
+            # aggiornare, ma quelle delle regole sparite vanno comunque potate.
+            self._round_idx[dpid] += 1
+            self._prune_fr_windows(dpid, self._round_idx[dpid])
             return
         hub.spawn(self._update_windows_and_maybe_detect, dpid, stats)
 
+    # ----------------------------------------------------------------- #
+    # Punto 1: potatura delle finestre per-regola
+    # ----------------------------------------------------------------- #
+    def _prune_fr_windows(self, dpid, rnd):
+        """Elimina le finestre FR delle regole non piu' presenti nelle stats."""
+        seen = self._fr_last_seen[dpid]
+        wins = self.w_round_per_fr[dpid]
+        stale = [h for h, r in seen.items() if rnd - r > self.FR_PRUNE_GRACE]
+        for h in stale:
+            seen.pop(h, None)
+            wins.pop(h, None)
+
+    # ----------------------------------------------------------------- #
+    # Round completo: parte sincrona (feature + finestre) e, se serve,
+    # detection. La parte sincrona NON cede mai il controllo, quindi i suoi
+    # tempi CPU sono attribuibili al solo round.
+    # ----------------------------------------------------------------- #
     def _update_windows_and_maybe_detect(self, dpid, stats):
+        ts0 = time.time()
+        t0 = time.perf_counter()
+        c0 = time.thread_time()
+
+        self._round_idx[dpid] += 1
+        rnd = self._round_idx[dpid]
+
         # Aggiorna SEMPRE la finestra FT, indipendentemente dalla soglia di
         # occupazione: se aspettassimo la soglia per cominciare a popolare la
         # storia, il modello vedrebbe una finestra quasi tutta di padding
-        # proprio nel momento in cui servirebbe davvero (vedi spiegazione).
+        # proprio nel momento in cui servirebbe davvero.
         ftf_vec = self._extract_ftf_vector(dpid, stats)
         self.w_round_per_ft[dpid].append(ftf_vec)
 
+        # Anche le finestre per-regola vanno SEMPRE aggiornate, per non
+        # perdere storia nei round in cui la detection non parte.
+        seen = self._fr_last_seen[dpid]
+        hashes = []
+        for stat in stats:
+            h = sha256(str(stat.match).encode()).hexdigest()
+            self.w_round_per_fr[dpid][h].append(self._extract_mfr_vector(dpid, stat))
+            seen[h] = rnd
+            hashes.append(h)
+        self._prune_fr_windows(dpid, rnd)
+
         occupancy = len(stats) / float(self.FLOW_TABLE_SIZE)
         ready = self.feature_ext[dpid].has_enough_data() and occupancy >= self.FLOW_TABLE_THRESHOLD
+        skipped = ready and dpid in self._detecting   # inferenza precedente ancora in corso
+        detect = ready and not skipped
 
-        if not ready:
-            # Niente detection in questo round, ma le finestre per-regola
-            # vanno comunque aggiornate per non perdere storia.
-            for stat in stats:
-                match_hash = sha256(str(stat.match).encode()).hexdigest()
-                fr_vec = self._extract_mfr_vector(dpid, stat)
-                self.w_round_per_fr[dpid][match_hash].append(fr_vec)
-            return
+        # Snapshot prima di cedere il controllo: round successivi possono
+        # modificare le deque mentre questa detection e' in attesa.
+        ftf_win = fr_snap = None
+        if detect:
+            self.logger.debug(f"DPID={dpid:016x} flow table {occupancy:.1%} full")
+            ftf_win = self._build_window(
+                self.ftf_window_size, self.ftf_n_feat, self.w_round_per_ft[dpid])
+            fr_snap = [tuple(self.w_round_per_fr[dpid][h]) for h in hashes]
+        prep_cpu = time.thread_time() - c0
 
-        self.logger.debug(f"DPID={dpid:016x} flow table {occupancy:.1%} full")
-        self._detect_and_mitigate(dpid, stats, occupancy)
+        res = None
+        if detect:
+            self._detecting.add(dpid)
+            try:
+                res = self._detect_and_mitigate(dpid, stats, ftf_win, fr_snap)
+            finally:
+                self._detecting.discard(dpid)
+        res = res or {}
+
+        n_wc_msgs = res.get("n_eviction_msgs_wildcard", 0)
+        n_strict = res.get("n_eviction_msgs_strict", 0)
+        self._write_report(
+            timestamp=round(ts0, 3), dpid=f"{dpid:016x}", round=rnd,
+            detection_run=int(bool(res)), skipped=int(skipped),
+            flow_table_occupancy=round(occupancy, 4),
+            ftf_detected=res.get("ftf_detected", 0),
+            n_malicious_rules=res.get("n_malicious_rules", 0),
+            n_legit_rules=res.get("n_legit_rules", 0),
+            n_fr_windows=len(self.w_round_per_fr[dpid]),
+            n_rules_wildcard=res.get("n_rules_wildcard", 0),
+            n_eviction_msgs_wildcard=n_wc_msgs,
+            n_eviction_msgs_strict=n_strict,
+            n_eviction_msgs_total=n_wc_msgs + n_strict,
+            round_wall_s=round(time.perf_counter() - t0, 4),
+            prep_cpu_s=round(prep_cpu, 4),
+            infer_wall_s=round(res.get("infer_wall_s", 0.0), 4),
+            infer_cpu_s=round(res.get("infer_cpu_s", 0.0), 4),
+            mitig_cpu_s=round(res.get("mitig_cpu_s", 0.0), 4),
+        )
 
     # ----------------------------------------------------------------- #
     # Estrazione feature -> vettore ordinato come il modello si aspetta,
@@ -435,82 +524,117 @@ class FTFMController(app_manager.RyuApp):
         return self.mfr_scaler.transform(ordered).astype(np.float32)[0]
 
     # ----------------------------------------------------------------- #
-    # (2) Predizione TempBERT su una coda/finestra
+    # Predizione TempBERT su una finestra
     # ----------------------------------------------------------------- #
-    @torch.no_grad()
-    def _predict_window(self, model, window_size, n_feat, snapshot_deque):
+    @staticmethod
+    def _build_window(window_size, n_feat, snapshot):
         """
         Replica esattamente la logica di padding di build_windows: i round
         reali vanno allineati a destra (il piu' recente e' sempre l'ultimo
         token), gli slot iniziali mancanti restano a zero con valid=False.
+        `snapshot` e' una deque o una tupla; np.stack copia i dati, quindi
+        la finestra restituita e' indipendente dalle strutture condivise.
         """
-        k = len(snapshot_deque)
+        k = len(snapshot)
         seq = np.zeros((window_size, n_feat), dtype=np.float32)
         valid = np.zeros((window_size,), dtype=bool)
         if k > 0:
-            real = np.stack(list(snapshot_deque), axis=0)   # (k, n_feat), k <= window_size (maxlen)
+            real = np.stack(list(snapshot), axis=0)   # (k, n_feat), k <= window_size (maxlen)
             seq[window_size - k:] = real
             valid[window_size - k:] = True
+        return seq, valid
 
-        seq_t = torch.from_numpy(seq).unsqueeze(0).to(self.device)     # (1, W, F)
-        valid_t = torch.from_numpy(valid).unsqueeze(0).to(self.device)  # (1, W)
-        logits = model(seq_t, valid_t)
-        return int(logits.argmax(-1).item())
+    @torch.no_grad()
+    def _forward_many(self, model, windows, max_batch=512):
+    """
+    Gira in un thread nativo (tpool): tocca solo gli array ricevuti e il
+    modello, mai le strutture condivise del controller. Le finestre vengono
+    impilate e processate in batch (a blocchi di max_batch per limitare la
+    memoria con molte regole). Restituisce (predizioni, wall, cpu).
+    """
+    t_wall = time.perf_counter()
+    t_cpu = time.thread_time()
+
+    if not windows:
+        return [], time.perf_counter() - t_wall, time.thread_time() - t_cpu
+
+    seqs = np.stack([seq for seq, _ in windows])        # (N, W, F)
+    valids = np.stack([valid for _, valid in windows])  # (N, W)
+
+    preds = []
+    for i in range(0, len(windows), max_batch):
+        seq_t = torch.from_numpy(seqs[i:i + max_batch]).to(self.device)      # (B, W, F)
+        valid_t = torch.from_numpy(valids[i:i + max_batch]).to(self.device)  # (B, W)
+        logits = model(seq_t, valid_t)                                       # (B, 2)
+        preds.extend(logits.argmax(-1).tolist())
+
+    return preds, time.perf_counter() - t_wall, time.thread_time() - t_cpu
+
+    def _infer(self, model, windows):
+        """Sospende solo questo greenlet: l'event loop di Ryu resta libero."""
+        return tpool.execute(self._forward_many, model, windows)
 
     # ----------------------------------------------------------------- #
     # Detection (FTF) + classificazione per-regola (MFR) + eviction
     # ----------------------------------------------------------------- #
-    def _detect_and_mitigate(self, dpid, stats, occupancy):
-        datapath = self.datapaths.get(dpid)
-        if datapath is None:
-            return  # switch disconnesso nel frattempo
+    def _detect_and_mitigate(self, dpid, stats, ftf_win, fr_snap):
+        if self.datapaths.get(dpid) is None:
+            return None  # switch disconnesso nel frattempo
 
-        t0 = time.time()
+        infer_wall = infer_cpu = mitig_cpu = 0.0
+        n_malicious = n_legit = n_rules_wildcard = n_wc_msgs = n_strict = 0
 
-        ftf_pred = self._predict_window(
-            self.ftf_model, self.ftf_window_size, self.ftf_n_feat, self.w_round_per_ft[dpid]
-        )
-
-        n_malicious = n_legit = n_evicted_wildcard = n_evicted_strict = 0
-        malicious_stats, legit_stats = [], []
-
-        for stat in stats:
-            match_hash = sha256(str(stat.match).encode()).hexdigest()
-            fr_vec = self._extract_mfr_vector(dpid, stat)
-            self.w_round_per_fr[dpid][match_hash].append(fr_vec)
-
-            if ftf_pred:
-                mfr_pred = self._predict_window(
-                    self.mfr_model, self.mfr_window_size, self.mfr_n_feat,
-                    self.w_round_per_fr[dpid][match_hash],
-                )
-                (malicious_stats if mfr_pred else legit_stats).append(stat)
+        (ftf_pred,), w, c = self._infer(self.ftf_model, [ftf_win])
+        infer_wall += w
+        infer_cpu += c
 
         if ftf_pred:
-            self.logger.info(f"[!] FTF Attack Detected on DPID={dpid:016x}")
+            c0 = time.thread_time()
+            windows = [
+                self._build_window(self.mfr_window_size, self.mfr_n_feat, snap)
+                for snap in fr_snap
+            ]
+            mitig_cpu += time.thread_time() - c0
+
+            mfr_preds, w, c = self._infer(self.mfr_model, windows)
+            infer_wall += w
+            infer_cpu += c
+
+            c0 = time.thread_time()
+            malicious_stats = [s for s, p in zip(stats, mfr_preds) if p]
+            legit_stats = [s for s, p in zip(stats, mfr_preds) if not p]
             n_malicious, n_legit = len(malicious_stats), len(legit_stats)
 
-            if malicious_stats:
+            self.logger.info(f"[!] FTF Attack Detected on DPID={dpid:016x}")
+            # Dopo l'attesa lo switch potrebbe essere sparito
+            datapath = self.datapaths.get(dpid)
+            if datapath is not None and malicious_stats:
                 self.logger.info(f"[!] {n_malicious} regole malevole su DPID={dpid:016x}")
-                evicted, remaining = self._evict_by_port(datapath, malicious_stats, legit_stats)
-                n_evicted_wildcard = len(evicted)
+                evicted, remaining, n_wc_msgs = self._evict_by_port(
+                    datapath, malicious_stats, legit_stats)
+                n_rules_wildcard = len(evicted)
                 for stat in remaining:
                     self.delete_flow(datapath, stat.match, priority=stat.priority, strict=True)
-                    n_evicted_strict += 1
-            else:
+                    n_strict += 1
+            elif not malicious_stats:
                 self.logger.debug(f"[-] Nessuna regola malevola su DPID={dpid:016x}")
+            mitig_cpu += time.thread_time() - c0
         else:
             self.logger.debug(f"[-] Nessun attacco FTF rilevato su DPID={dpid:016x}")
 
-        elapsed = time.time() - t0
-        self._write_report(
-            dpid=dpid, occupancy=occupancy, ftf_detected=bool(ftf_pred),
-            n_malicious=n_malicious, n_legit=n_legit,
-            n_evicted_wildcard=n_evicted_wildcard, n_evicted_strict=n_evicted_strict,
-            elapsed=elapsed,
-        )
+        return {
+            "ftf_detected": int(bool(ftf_pred)),
+            "n_malicious_rules": n_malicious, "n_legit_rules": n_legit,
+            "n_rules_wildcard": n_rules_wildcard,
+            "n_eviction_msgs_wildcard": n_wc_msgs,
+            "n_eviction_msgs_strict": n_strict,
+            "infer_wall_s": infer_wall, "infer_cpu_s": infer_cpu,
+            "mitig_cpu_s": mitig_cpu,
+        }
 
     def _evict_by_port(self, datapath, malicious_stats, legit_stats):
+        """Ritorna (regole coperte da wildcard, regole rimaste per il delete
+        strict, numero di messaggi wildcard inviati)."""
         by_port = defaultdict(list)
         for stat in malicious_stats:
             by_port[stat.match['in_port']].append(stat)
@@ -520,6 +644,7 @@ class FTFMController(app_manager.RyuApp):
             legit_by_port[stat.match['in_port']] += 1
 
         evicted, remaining = [], []
+        n_wc_msgs = 0
         for in_port, group in by_port.items():
             collateral = legit_by_port.get(in_port, 0)
 
@@ -533,6 +658,7 @@ class FTFMController(app_manager.RyuApp):
                 parser = datapath.ofproto_parser
                 match = parser.OFPMatch(in_port=in_port)
                 self.delete_flow(datapath, match, priority=1, strict=False)
+                n_wc_msgs += 1
 
                 self.logger.info(
                     '[EVICTION-L0] Dpid=%016x discarded in_port=%s covered=%d collateral=%d',
@@ -546,4 +672,4 @@ class FTFMController(app_manager.RyuApp):
                 )
                 remaining.extend(group)
 
-        return evicted, remaining
+        return evicted, remaining, n_wc_msgs
