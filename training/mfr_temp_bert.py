@@ -22,11 +22,8 @@ root = os.path.dirname(current)
 sys.path.append(root)
 
 from utils import *
-from mitigation.tempbert_arch import MFRTempBert
+from mitigation.tempbert_arch import *
 
-# Torch Numpy
-import torch
-import torch.nn as nn
 torch.manual_seed(RANDOM_SEED)
 
 optuna.logging.set_verbosity(optuna.logging.WARNING)
@@ -109,41 +106,3 @@ def train_tempBERT(X_train, X_val, X_test, y_train, y_val, y_test,
                 os.path.join(out_dir, "meta.joblib"))
     print(f"Model path: {out_dir}")
     return model
-
-"""
-Utilities
-"""
-def fit_seq(params, seq_tr, m_tr, y_tr, seq_va, m_va, y_va, epochs, patience):
-    return fit_model(lambda: TempBERT(seq_tr.shape[2], params['window'], params),
-                     (seq_tr, m_tr), y_tr, (seq_va, m_va), y_va, params, epochs, patience)
-
-def predict_seq(model, seq, valid):
-    return predict_model(model, (seq, valid))
-
-def prepare_seq(X_fit, g_fit, others, w):
-    # Il preprocessing agisce sulle righe (round) prima del windowing: è equivalente a scalare
-    # le finestre dopo, perché ogni trasformazione è per-feature e non dipende dalle altre righe.
-    # Qui g_fit / g sono le chiavi di flusso (keys_*), non gli scenari.
-    *xs, scaler = scale_features(X_fit, *[X for X, _ in others])
-    groups = [g_fit] + [g for _, g in others]
-    out = [build_windows(x, g, w) for x, g in zip(xs, groups)]
-    return scaler, out
-
-def build_windows(X, scen, w):
-    X = np.asarray(X, dtype=np.float32)
-    scen = np.asarray(scen)
-    n, f = X.shape
-    seq = np.zeros((n, w, f), dtype=np.float32)
-    valid = np.zeros((n, w), dtype=bool)
-
-    starts = np.r_[0, np.flatnonzero(scen[1:] != scen[:-1]) + 1]
-    ends = np.r_[starts[1:], n]
-    assert len(set(scen[starts])) == len(starts), "chiave non contigua: ordina il dataframe per scenario, flow_key, round"
-
-    for s, e in zip(starts, ends):
-        for t in range(s, e):
-            lo = max(s, t - w + 1)
-            k = t - lo + 1
-            seq[t, w - k:] = X[lo:t + 1]
-            valid[t, w - k:] = True
-    return seq, valid

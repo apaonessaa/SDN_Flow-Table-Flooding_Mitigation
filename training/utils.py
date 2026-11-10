@@ -246,50 +246,7 @@ def evaluate(name, y_true, y_pred, results, elapsed=None):
     results.append(row)
 
 # --------------------------------------------------------------------------- #
-# BERT
-# --------------------------------------------------------------------------- #
-# 1. Preprocessing
-# --------------------------------------------------------------------------- #
-def scale_features(X_fit, *X_others):
-    """
-    Data pre-processing: Gorishniy et al. 2021
-    """
-    pipeline = Pipeline([
-        ("quantile", QuantileTransformer(output_distribution="normal", random_state=RANDOM_SEED))
-    ])
-    pipeline.fit(np.asarray(X_fit, dtype=np.float64))
-
-    def _tf(X):
-        return pipeline.transform(np.asarray(X, dtype=np.float64)).astype(np.float32)
-
-    return (_tf(X_fit), *[_tf(X) for X in X_others], pipeline)
-
-# --------------------------------------------------------------------------- #
-# 2. Initialization
-# --------------------------------------------------------------------------- #
-def init_uniform_(*tensors, fan_in):
-    """
-    Uniform rule for all input parameters in FeatBERT and TempBERT (feature tokens, 
-    round projection, [CLS]):
-        
-        U(-1/sqrt(fan_in), +1/sqrt(fan_in)).
-
-    This corresponds to `kaiming_uniform_(a=sqrt(5))` - the default for `nn.Linear` and 
-    the scheme used in the FT-Transformer codebase.    
-    
-        `fan_in = d` for token vectors (weights, biases, and the `[CLS]` token, following 
-            the `(n, d)` layout from the original code). 
-        `fan_in = F` for the `Linear(F, d)` layer in TempBERT (which aligns with the 
-        PyTorch default). 
-    
-    The BERT encoder retains the HuggingFace initialization.
-    """
-    bound = float(fan_in) ** -0.5
-    for t in tensors:
-        nn.init.uniform_(t, -bound, bound)
-
-# --------------------------------------------------------------------------- #
-# 3. Training
+# Training
 # --------------------------------------------------------------------------- #
 def class_weights(y):
     counts = np.bincount(np.asarray(y), minlength=2)

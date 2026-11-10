@@ -6,7 +6,7 @@ from m_random_forest import *
 from feat_bert import *
 from mfr_temp_bert import *
 
-from mitigation.tempbert_arch import MFRTempBert
+from mitigation.tempbert_arch import TempBert
 from ablation import run_featbert_ablation, run_tempbert_ablation
 
 MODELS_DIR = root + '/models/mfr_detector'
