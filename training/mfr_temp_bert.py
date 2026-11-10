@@ -31,7 +31,7 @@ torch.manual_seed(RANDOM_SEED)
 
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
-class TempBERT(nn.Module):
+class MFRTempBert(nn.Module):
     def __init__(self, n_feat, window, params):
         super().__init__()
         config = self._build_seq_bert_config(window, params)

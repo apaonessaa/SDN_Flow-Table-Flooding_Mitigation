@@ -110,7 +110,7 @@ if __name__ == "__main__":
 
         print("\n\n=== Ablation TempBERT ===")
         run_tempbert_ablation(
-            TempBert, prepare_seq, 
+            MFRTempBert, prepare_seq, 
             X_train, X_val, X_test, y_train, y_val, y_test, 
             keys_train, keys_val, keys_test, 
             best_tempBERT_params, out_dir=PLOTS_DIR, csv_name="mfr_tempbert_ablation.csv")
