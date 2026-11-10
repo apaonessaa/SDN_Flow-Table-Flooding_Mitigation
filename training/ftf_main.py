@@ -5,6 +5,8 @@ from m_decision_tree import *
 from m_random_forest import *
 from feat_bert import *
 from temp_bert import *
+
+from mitigation.tempbert_arch import TempBert
 from ablation import run_featbert_ablation, run_tempbert_ablation
 
 MODELS_DIR = root + '/models/ftf_detector'
