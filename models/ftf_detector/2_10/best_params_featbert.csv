@@ -1,0 +1,2 @@
+num_attention_heads,head_dim,num_hidden_layers,intermediate_size,dropout,learning_rate,weight_decay,batch_size
+8,32,1,1024,0.06733337685235284,0.0017425238441376109,1.7277890583771555e-05,1024
