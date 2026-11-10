@@ -19,10 +19,8 @@ root = os.path.dirname(current)
 sys.path.append(root)
 
 from utils import *
+from mitigation.tempbert_arch import *
 
-# Torch Numpy
-import torch
-import torch.nn as nn
 torch.manual_seed(RANDOM_SEED)
 
 optuna.logging.set_verbosity(optuna.logging.WARNING)

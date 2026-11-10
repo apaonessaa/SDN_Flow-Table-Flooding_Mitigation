@@ -23,8 +23,8 @@ root = os.path.dirname(current)
 sys.path.append(current)
 sys.path.append(root)
 
-from utils import (RANDOM_SEED, BERT_FINAL_EPOCHS, BERT_FINAL_PATIENCE,
-                   scale_features, fit_model, predict_model, init_uniform_)
+from utils import (RANDOM_SEED, BERT_FINAL_EPOCHS, BERT_FINAL_PATIENCE)
+from mitigation.tempbert_arch import *
 from feat_bert import FeatBert
 
 # ---------------------------------------------------------------------------
