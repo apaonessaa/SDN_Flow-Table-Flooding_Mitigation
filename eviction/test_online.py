@@ -21,14 +21,25 @@ sys.path.append(root)
 
 from utils.sim_utils import *
 from utils.resource_monitor import ResourceMonitor, find_ryu, find_by_name, pin_process
+from utils.network_monitor import NetworkMonitor
 from attack.ftf_attack import FTFAttack
 
 SET_FT_SIZE_PATH = root + "/config/set_ft_size.sh"
+
+# App Ryu da lanciare per ciascun controller (relative alla cwd, come prima con
+# 'controller.py': 'ftfm' e' il file che usavi gia', 'baseline' va messo accanto)
+CONTROLLER_APPS = {
+    "ftfm": "controller.py",
+    "baseline": "baseline_controller.py",
+}
 
 class CustomTopo(Topo):
     "Custom Topology Network"
     conn_hosts = ('h1', 'h2')
     att_hosts = ('h5', 'h4')
+    # Coppie per la misura della latenza: solo host benigni, e mai h4
+    # (destinazione delle sonde dell'attacco) per non misurare l'attacco stesso.
+    ping_pairs = (('h1', 'h2'), ('h1', 'h3'), ('h2', 'h3'))
     def build(self):
         info("* Build Topology\n")
         # Switch
@@ -60,6 +71,9 @@ def parse_cpus(spec):
 
 def parse_args():
     ap = argparse.ArgumentParser(description="Test online FTF detection/mitigation")
+    ap.add_argument("--controller", choices=sorted(CONTROLLER_APPS), default="ftfm",
+                    help="controller sotto test: 'ftfm' (detection+mitigazione) o "
+                         "'baseline' (learning switch senza mitigazione)")
     ap.add_argument("--no-cli", action="store_true",
                     help="non aprire la CLI di Mininet a fine traffico (run automatiche)")
     ap.add_argument("--idle", type=float, default=10.0,
@@ -85,9 +99,9 @@ def main(args) -> None:
     os.makedirs(log_path, exist_ok=True)
     log_timestamp = int(time())
 
-    info("*** CONTROLLER\n")
+    info(f"*** CONTROLLER ({args.controller})\n")
     controller_envs = {
-        "REPORT_PATH": f"{log_path}/report_{log_timestamp}.txt",
+        "REPORT_PATH": f"{log_path}/report_{log_timestamp}.txt",   # solo ftfm
         "FLOW_TABLE_SIZE": f"{flow_table_size}",
         "IDLE_TIMEOUT": f"{idle_timeout}",
         "HARD_TIMEOUT": f"{hard_timeout}",
@@ -95,7 +109,11 @@ def main(args) -> None:
         "MAX_COLLATERAL_PORT": "0",
         "LOG_LEVEL": args.log_level,
     }
-    controller = start_controller(controller_envs, log_path=f"{log_path}/controller_{log_timestamp}.log")
+    controller = start_controller(
+        controller_envs,
+        log_path=f"{log_path}/controller_{log_timestamp}.log",
+        app=CONTROLLER_APPS[args.controller],
+    )
 
     if controller.poll() is not None:
         raise RuntimeError(f"Il controller è terminato subito con codice {controller.returncode}, controlla controller.log")
@@ -124,6 +142,7 @@ def main(args) -> None:
     with open(f"{log_path}/meta_{log_timestamp}.json", "w") as f:
         json.dump({
             "run_id": log_timestamp,
+            "controller": args.controller,
             "flow_table_size": flow_table_size, "idle_timeout": idle_timeout,
             "hard_timeout": hard_timeout, "k_factor": k_factor,
             "npkts": npkts, "anp": anp,
@@ -134,7 +153,8 @@ def main(args) -> None:
         }, f, indent=2)
 
     net = None
-    mon = None
+    mon = None       # ResourceMonitor: CPU/RAM di ryu e ovs
+    net_mon = None   # NetworkMonitor: flow rule + latenza ping
     info("*** NETWORK\n")
     try:
         net = Mininet(
@@ -193,49 +213,68 @@ def main(args) -> None:
         h_src, h_dst = net.get(src, dst)
         wait_for_network(h_src, h_dst)
 
-        # Il monitor parte DOPO wait_for_network (che genera flow di test) e
+        # I monitor partono DOPO wait_for_network (che genera flow di test) e
         # dopo aver atteso la loro scadenza: la baseline e' un controller a riposo.
         # OVS si cerca qui perche' e' un servizio di sistema, non un figlio dello script.
         mon = ResourceMonitor(
             {"ryu": ryu_proc, "ovs": find_by_name("ovs-vswitchd")},
             f"{log_path}/resources_{log_timestamp}.csv",
         )
+        # I ping (h.cmd) partono da host benigni che fanno anche il replay: nessun
+        # conflitto, perche' replay_worker usa h.popen e non occupa la shell del nodo.
+        net_mon = NetworkMonitor(
+            net, label=args.controller,
+            switches=[sw.name for sw in net.switches],
+            ping_pairs=topo.ping_pairs,
+            host_macs=[h.MAC() for h in net.hosts],
+            out_prefix=f"{log_path}/network_{log_timestamp}",
+        )
+
+        def mark(label):
+            """Stesso marker su entrambi i monitor (stesso orologio: time.time())."""
+            mon.mark(label)
+            net_mon.mark(label)
+
+        net_mon.start()
         mon.start()
-        mon.mark("idle_start")
+        mark("idle_start")
         sleep(max(hard_timeout, args.idle))
 
         # Start threads
         t0 = time()
 
-        mon.mark("attack_start")
+        mark("attack_start")
         attack.start()
 
         #sleep(random.randint(30, 60))
-        mon.mark("benign_start")
+        mark("benign_start")
         for t in threads:
             t.start()
 
         # Stop threads
         attack.join()
-        mon.mark("attack_end")
+        mark("attack_end")
         sleep(30)
         kill_replay_traffic(procs, stop_event)
         for t in threads:
             t.join(timeout=5)
-        mon.mark("traffic_end")
+        mark("traffic_end")
 
         info(f"*** END TRAFFIC: Session duration {math.ceil(time() - t0)}\n")
 
-        # Il monitor si ferma prima della CLI: il tempo passato al prompt
+        # I monitor si fermano prima della CLI: il tempo passato al prompt
         # non fa parte della misura.
         mon.stop()
+        net_mon.stop()
 
         if not args.no_cli:
             CLI(net)
 
     finally:
-        if mon is not None:
-            mon.stop()
+        # stop() e' idempotente in entrambi i monitor
+        for m in (net_mon, mon):
+            if m is not None:
+                m.stop()
         sleep(30)
         if net is not None:
             net.stop()
