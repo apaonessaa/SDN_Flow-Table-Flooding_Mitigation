@@ -152,6 +152,16 @@ def prepare_seq(X_fit, g_fit, others, w):
     out = [build_windows(x, g, w) for x, g in zip(xs, groups)]
     return scaler, out
 
+def pad_window(snapshot, w, n_feat):
+    """Allinea a destra gli ultimi round reali (snapshot: sequenza di vettori (n_feat,))."""
+    seq = np.zeros((w, n_feat), dtype=np.float32)
+    valid = np.zeros(w, dtype=bool)
+    k = len(snapshot)
+    if k:
+        seq[w - k:] = np.asarray(snapshot, dtype=np.float32)
+        valid[w - k:] = True
+    return seq, valid
+
 def build_windows(X, scen, w):
     X = np.asarray(X, dtype=np.float32)
     scen = np.asarray(scen)
@@ -164,11 +174,8 @@ def build_windows(X, scen, w):
     assert len(set(scen[starts])) == len(starts), "Order the dataframe by scenario_id (FTF) or scenario_id+flow_key,round (MFR)"
 
     for s, e in zip(starts, ends):
-        for t in range(s, e):
-            lo = max(s, t - w + 1)
-            k = t - lo + 1
-            seq[t, w - k:] = X[lo:t + 1]
-            valid[t, w - k:] = True
+    for t in range(s, e):
+        seq[t], valid[t] = pad_window(X[max(s, t - w + 1):t + 1], w, f)
     return seq, valid
 
 def class_weights(y):
