@@ -14,12 +14,16 @@
 # limitations under the License.
 
 import os
+
 from ryu.base import app_manager
 from ryu.controller import ofp_event
 from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_4
-from ryu.lib.packet import packet, ethernet, ether_types, ipv4
+from ryu.lib.packet import packet
+from ryu.lib.packet import ethernet
+from ryu.lib.packet import ether_types
+from ryu.lib.packet import ipv4
 
 
 class SimpleSwitch14(app_manager.RyuApp):
@@ -29,6 +33,9 @@ class SimpleSwitch14(app_manager.RyuApp):
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch14, self).__init__(*args, **kwargs)
+        # ryu-manager gira con --verbose: senza questa riga il log DEBUG dei packet-in
+        # resterebbe attivo solo nel baseline (FTFMController imposta lo stesso livello).
+        self.logger.setLevel(os.environ.get('LOG_LEVEL', 'INFO'))
         self.mac_to_port = {}
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
@@ -81,7 +88,8 @@ class SimpleSwitch14(app_manager.RyuApp):
         dpid = datapath.id
         self.mac_to_port.setdefault(dpid, {})
 
-        self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
+        # DEBUG come in FTFMController: a livello INFO, sotto flooding, il logging domina la CPU
+        self.logger.debug("packet in %s %s %s %s", dpid, src, dst, in_port)
 
         # learn a mac address to avoid FLOOD next time.
         self.mac_to_port[dpid][src] = in_port
@@ -92,16 +100,11 @@ class SimpleSwitch14(app_manager.RyuApp):
             out_port = ofproto.OFPP_FLOOD
 
         actions = [parser.OFPActionOutput(out_port)]
-        
+
         ip = None
         if eth.ethertype == ether_types.ETH_TYPE_IP:
             ip = pkt.get_protocol(ipv4.ipv4)
-            if ip is None:
-                self.logger.warning(
-                    "Pacchetto dichiarato IP ma header ipv4 non estraibile, dpid=%s in_port=%s",
-                    dpid, in_port
-                )
-                
+
         # install a flow to avoid packet_in next time
         if out_port != ofproto.OFPP_FLOOD:
             if eth.ethertype == ether_types.ETH_TYPE_IP and ip is not None:
