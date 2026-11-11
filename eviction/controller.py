@@ -44,7 +44,7 @@ from mitigation.feature_ext import FeatureExt
 # Solo le classi nn.Module (nessuna dipendenza dall'ambiente di training:
 # niente optuna, utils.py, config.py). Il file di training deve importare le
 # stesse classi da qui, cosi' l'architettura ha un'unica sorgente.
-from mitigation.tempbert_arch import TempBert, MFRTempBert as TempBertMFR
+from mitigation.tempbert_arch import TempBert
 
 
 # --------------------------------------------------------------------------- #
@@ -139,7 +139,7 @@ class FTFMController(app_manager.RyuApp):
         self.logger.info(f"FTF TempBERT caricato: window={self.ftf_window_size}, "
                           f"n_feat={self.ftf_n_feat}, da {self.FTF_MODEL_DIR}")
 
-        mfr = load_tempbert(self.MFR_MODEL_DIR, TempBertMFR, self.device)
+        mfr = load_tempbert(self.MFR_MODEL_DIR, TempBert, self.device)
         self.mfr_model = mfr["model"]
         self.mfr_scaler = mfr["scaler"]
         self.mfr_features = mfr["features"]
