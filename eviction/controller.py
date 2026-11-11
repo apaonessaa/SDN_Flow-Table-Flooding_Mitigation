@@ -546,29 +546,29 @@ class FTFMController(app_manager.RyuApp):
 
     @torch.no_grad()
     def _forward_many(self, model, windows, max_batch=512):
-    """
-    Gira in un thread nativo (tpool): tocca solo gli array ricevuti e il
-    modello, mai le strutture condivise del controller. Le finestre vengono
-    impilate e processate in batch (a blocchi di max_batch per limitare la
-    memoria con molte regole). Restituisce (predizioni, wall, cpu).
-    """
-    t_wall = time.perf_counter()
-    t_cpu = time.thread_time()
-
-    if not windows:
-        return [], time.perf_counter() - t_wall, time.thread_time() - t_cpu
-
-    seqs = np.stack([seq for seq, _ in windows])        # (N, W, F)
-    valids = np.stack([valid for _, valid in windows])  # (N, W)
-
-    preds = []
-    for i in range(0, len(windows), max_batch):
-        seq_t = torch.from_numpy(seqs[i:i + max_batch]).to(self.device)      # (B, W, F)
-        valid_t = torch.from_numpy(valids[i:i + max_batch]).to(self.device)  # (B, W)
-        logits = model(seq_t, valid_t)                                       # (B, 2)
-        preds.extend(logits.argmax(-1).tolist())
-
-    return preds, time.perf_counter() - t_wall, time.thread_time() - t_cpu
+        """
+        Gira in un thread nativo (tpool): tocca solo gli array ricevuti e il
+        modello, mai le strutture condivise del controller. Le finestre vengono
+        impilate e processate in batch (a blocchi di max_batch per limitare la
+        memoria con molte regole). Restituisce (predizioni, wall, cpu).
+        """
+        t_wall = time.perf_counter()
+        t_cpu = time.thread_time()
+    
+        if not windows:
+            return [], time.perf_counter() - t_wall, time.thread_time() - t_cpu
+    
+        seqs = np.stack([seq for seq, _ in windows])        # (N, W, F)
+        valids = np.stack([valid for _, valid in windows])  # (N, W)
+    
+        preds = []
+        for i in range(0, len(windows), max_batch):
+            seq_t = torch.from_numpy(seqs[i:i + max_batch]).to(self.device)      # (B, W, F)
+            valid_t = torch.from_numpy(valids[i:i + max_batch]).to(self.device)  # (B, W)
+            logits = model(seq_t, valid_t)                                       # (B, 2)
+            preds.extend(logits.argmax(-1).tolist())
+    
+        return preds, time.perf_counter() - t_wall, time.thread_time() - t_cpu
 
     def _infer(self, model, windows):
         """Sospende solo questo greenlet: l'event loop di Ryu resta libero."""
