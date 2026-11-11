@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader, TensorDataset
 from sklearn.metrics import (
     f1_score,
     accuracy_score,
@@ -242,81 +241,6 @@ def evaluate(name, y_true, y_pred, results, elapsed=None):
            "recall": rec, "f1": f1, "train_time_s": elapsed}
 
     results.append(row)
-
-# --------------------------------------------------------------------------- #
-# Training
-# --------------------------------------------------------------------------- #
-def class_weights(y):
-    counts = np.bincount(np.asarray(y), minlength=2)
-    return torch.tensor(counts.sum() / (len(counts) * counts), dtype=torch.float32)
-
-def _loader(inputs, y, batch_size, shuffle):
-    ds = TensorDataset(*[torch.from_numpy(a) for a in inputs],
-                       torch.as_tensor(np.asarray(y), dtype=torch.long))
-    return DataLoader(ds, batch_size=batch_size, shuffle=shuffle)
-
-@torch.no_grad()
-def predict_model(model, inputs, batch_size=512):
-    model.eval()
-    preds = []
-    for *xs, _ in _loader(inputs, np.zeros(len(inputs[0])), batch_size, False):
-        preds.append(model(*[x.to(DEVICE) for x in xs]).argmax(-1).cpu().numpy())
-    return np.concatenate(preds)
-
-# Parameters excluded from weight decay (in addition to biases and LayerNorm - i.e., 
-# tensors with ndim < 2).
-# As in FT-Transformer (Gorishniy et al., 2021, App. E.3): the tokenizer/input projection 
-# and [CLS] do not undergo weight decay.
-NO_DECAY_PREFIXES = ("tokenizer.", "proj.", "cls")
-
-def fit_model(model_fn, train_inputs, y_tr, val_inputs, y_va, params, epochs, patience):
-    """
-    AdamW with constant learning rate (no scheduler, Gorishniy et al. 2021, §4.3), 
-    class-weighted loss, gradient clip at 1.0, early stopping on F1 validation 
-    and restore the best model.
-    """
-    torch.manual_seed(RANDOM_SEED)
-    model = model_fn().to(DEVICE)
-
-    decay, no_decay = [], []
-    for name, p in model.named_parameters():
-        (no_decay if p.ndim < 2 or name.startswith(NO_DECAY_PREFIXES) else decay).append(p)
-    opt = torch.optim.AdamW(
-        [{"params": decay, "weight_decay": params["weight_decay"]},
-         {"params": no_decay, "weight_decay": 0.0}],
-        lr=params["learning_rate"],
-    )
-    loss_fn = nn.CrossEntropyLoss(weight=class_weights(y_tr).to(DEVICE))
-    loader = _loader(train_inputs, y_tr, params["batch_size"], shuffle=True)
-
-    best_f1, best_state, bad = -1.0, None, 0
-    for _ in range(epochs):
-        model.train()
-        for *xs, yb in loader:
-            opt.zero_grad()
-            loss = loss_fn(model(*[x.to(DEVICE) for x in xs]), yb.to(DEVICE))
-            loss.backward()
-            nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            opt.step()
-
-        f1 = f1_score(y_va, predict_model(model, val_inputs), zero_division=0)
-        if f1 > best_f1:
-            best_f1, bad = f1, 0
-            best_state = {k: v.detach().clone() for k, v in model.state_dict().items()}
-        else:
-            bad += 1
-            if bad >= patience:
-                break
-
-    model.load_state_dict(best_state)
-
-    del opt, loader, loss_fn, best_state
-    gc.collect()
-    if DEVICE == "cuda":
-        torch.cuda.empty_cache()
-
-    return model, best_f1
-# --------------------------------------------------------------------------- #
 
 # --------------------------------------------------------------------------- #
 # FEATURE IMPORTANCE
