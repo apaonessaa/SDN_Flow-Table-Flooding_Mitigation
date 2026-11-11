@@ -18,9 +18,7 @@ from ryu.controller import ofp_event
 from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_4
-from ryu.lib.packet import packet
-from ryu.lib.packet import ethernet
-from ryu.lib.packet import ether_types
+from ryu.lib.packet import packet, ethernet, ether_types, ipv4
 
 
 class SimpleSwitch14(app_manager.RyuApp):
@@ -93,7 +91,16 @@ class SimpleSwitch14(app_manager.RyuApp):
             out_port = ofproto.OFPP_FLOOD
 
         actions = [parser.OFPActionOutput(out_port)]
-
+        
+        ip = None
+        if eth.ethertype == ether_types.ETH_TYPE_IP:
+            ip = pkt.get_protocol(ipv4.ipv4)
+            if ip is None:
+                self.logger.warning(
+                    "Pacchetto dichiarato IP ma header ipv4 non estraibile, dpid=%s in_port=%s",
+                    dpid, in_port
+                )
+                
         # install a flow to avoid packet_in next time
         if out_port != ofproto.OFPP_FLOOD:
             if eth.ethertype == ether_types.ETH_TYPE_IP and ip is not None:
