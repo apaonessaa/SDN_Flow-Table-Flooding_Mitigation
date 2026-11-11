@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import subprocess
 import socket
@@ -10,12 +11,14 @@ def load_metadata(prefix):
     with open(f"{prefix}traffic_metadata.json") as f:
         return json.load(f)
 
-def start_controller(env_vars: dict, log_path: str = "controller.log") -> subprocess.Popen:
+def start_controller(env_vars: dict, log_path: str = "controller.log",
+                     app: str = "controller.py") -> subprocess.Popen:
+    """app: file dell'app Ryu da lanciare (relativo alla cwd o assoluto)."""
     log_file = open(log_path, "a")
     full_env = os.environ.copy()
     full_env.update(env_vars)
     proc = subprocess.Popen(
-        ['ryu-manager','--verbose','--observe-links','controller.py'],
+        ['ryu-manager','--verbose','--observe-links', app],
         env=full_env,
         stdout=log_file,
         stderr=subprocess.STDOUT,
