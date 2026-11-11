@@ -25,7 +25,8 @@ from ryu.lib.packet import ether_types
 
 class SimpleSwitch14(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_4.OFP_VERSION]
-    IDLE_TIMEOUT = 3
+    IDLE_TIMEOUT = int(os.environ.get('IDLE_TIMEOUT', '10'))
+    HARD_TIMEOUT = int(os.environ.get('HARD_TIMEOUT', '20'))
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch14, self).__init__(*args, **kwargs)
@@ -57,7 +58,8 @@ class SimpleSwitch14(app_manager.RyuApp):
                                              actions)]
 
         mod = parser.OFPFlowMod(datapath=datapath, priority=priority,
-                                match=match, instructions=inst, idle_timeout=idle_timeout, hard_timeout=hard_timeout)
+                                match=match, instructions=inst,
+                                idle_timeout=idle_timeout, hard_timeout=hard_timeout)
         datapath.send_msg(mod)
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
@@ -94,8 +96,22 @@ class SimpleSwitch14(app_manager.RyuApp):
 
         # install a flow to avoid packet_in next time
         if out_port != ofproto.OFPP_FLOOD:
-            match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
-            self.add_flow(datapath, 1, match, actions, idle_timeout=self.IDLE_TIMEOUT, hard_timeout=2*self.IDLE_TIMEOUT)
+            if eth.ethertype == ether_types.ETH_TYPE_IP and ip is not None:
+                match = parser.OFPMatch(
+                    in_port=in_port,
+                    eth_type=ether_types.ETH_TYPE_IP,
+                    eth_dst=dst, eth_src=src,
+                    ipv4_dst=ip.dst, ipv4_src=ip.src
+                )
+            else:
+                match = parser.OFPMatch(
+                    in_port=in_port, eth_dst=dst, eth_src=src
+                )
+            self.add_flow(
+                datapath, 1, match, actions,
+                idle_timeout=self.IDLE_TIMEOUT,
+                hard_timeout=self.HARD_TIMEOUT
+            )
 
         data = None
         if msg.buffer_id == ofproto.OFP_NO_BUFFER:
