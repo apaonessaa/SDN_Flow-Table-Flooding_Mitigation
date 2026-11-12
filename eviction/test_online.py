@@ -20,8 +20,8 @@ root = os.path.dirname(current)
 sys.path.append(root)
 
 from utils.sim_utils import *
-from utils.resource_monitor import ResourceMonitor, find_ryu, find_by_name, pin_process
-from utils.network_monitor import NetworkMonitor
+from resource_monitor import ResourceMonitor, find_ryu, find_by_name, pin_process
+from network_monitor import NetworkMonitor
 from attack.ftf_attack import FTFAttack
 
 SET_FT_SIZE_PATH = root + "/config/set_ft_size.sh"
@@ -93,8 +93,9 @@ def main(args) -> None:
     idle_timeout = 2
     hard_timeout = 5
     k_factor = 2
-    npkts = 230
+    npkts = 1000
     anp = 10
+    anm = 20
     log_path = current + "/logs"
     os.makedirs(log_path, exist_ok=True)
     log_timestamp = int(time())
@@ -197,16 +198,18 @@ def main(args) -> None:
                 )
                 threads.append(t)
 
-        info(f"*** [FTF ATTACK] ({attacker} -> {dst}), NPkts={npkts}, ANP={anp}\n")
+        info(f"*** [FTF ATTACK] ({attacker} -> {dst}), NPkts={npkts}, ANP={anp}, ANM={anm}n")
         attack = FTFAttack(
             attacker=attacker,
             probe_dst=dst,
             npacket=npkts,
             added_new_packets=anp,
-            max_iter=10,
-            max_interval=30,
+            added_new_macs=anm,
+            n=10,
+            t_max=30,
             net=net,
-            local_ip=True
+            out_file=f"{current}/logs/ftf_{log_timestamp}.csv",
+            local_ip=True,
         )
 
         (src, dst) = topo.conn_hosts

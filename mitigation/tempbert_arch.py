@@ -174,8 +174,8 @@ def build_windows(X, scen, w):
     assert len(set(scen[starts])) == len(starts), "Order the dataframe by scenario_id (FTF) or scenario_id+flow_key,round (MFR)"
 
     for s, e in zip(starts, ends):
-    for t in range(s, e):
-        seq[t], valid[t] = pad_window(X[max(s, t - w + 1):t + 1], w, f)
+        for t in range(s, e):
+            seq[t], valid[t] = pad_window(X[max(s, t - w + 1):t + 1], w, f)
     return seq, valid
 
 def class_weights(y):

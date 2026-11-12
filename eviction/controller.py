@@ -92,8 +92,8 @@ class FTFMController(app_manager.RyuApp):
     # la stessa regola riappare).
     FR_PRUNE_GRACE = int(os.environ.get('FR_PRUNE_GRACE', '0'))
 
-    FTF_MODEL_DIR = os.environ.get('FTF_MODEL_DIR', root + '/models/ftf_detector')
-    MFR_MODEL_DIR = os.environ.get('MFR_MODEL_DIR', root + '/models/mfr_detector')
+    FTF_MODEL_DIR = os.environ.get('FTF_MODEL_DIR', root + '/models/ftf_detector/2_100/')
+    MFR_MODEL_DIR = os.environ.get('MFR_MODEL_DIR', root + '/models/mfr_detector/2/')
 
     FLOW_TABLE_THRESHOLD = 0.8
 
@@ -105,16 +105,15 @@ class FTFMController(app_manager.RyuApp):
         self.feature_ext = defaultdict(lambda: FeatureExt(window_size=self.W_PKTIN))
 
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        ftf = load_tempbert(self.FTF_MODEL_DIR, self.device, FTF_ORDER)
-        mfr = load_tempbert(self.MFR_MODEL_DIR, self.device, MFR_ORDER)
-        self.ftf, self.mfr = ftf, mfr
-        self.logger.info(f"TempBERT su {self.device}: FTF window={ftf['window']} "
-                         f"n_feat={ftf['n_feat']}, MFR window={mfr['window']} n_feat={mfr['n_feat']}")
+        self.ftf = load_tempbert(self.FTF_MODEL_DIR, self.device, FTF_ORDER)
+        self.mfr = load_tempbert(self.MFR_MODEL_DIR, self.device, MFR_ORDER)
+        self.logger.info(f"TempBERT su {self.device}: FTF window={self.ftf['window']} "
+                         f"n_feat={self.ftf['n_feat']}, MFR window={self.mfr['window']} n_feat={self.mfr['n_feat']}")
 
         # Finestre W_round: una per DPID (FT), una per (DPID, match_hash) (FR).
         # deque(maxlen=window): l'eviction del piu' vecchio e' automatica.
-        self.w_round_per_ft = defaultdict(lambda: deque(maxlen=ftf["window"]))
-        self.w_round_per_fr = defaultdict(lambda: defaultdict(lambda: deque(maxlen=mfr["window"])))
+        self.w_round_per_ft = defaultdict(lambda: deque(maxlen=self.ftf["window"]))
+        self.w_round_per_fr = defaultdict(lambda: defaultdict(lambda: deque(maxlen=self.mfr["window"])))
         self._round_idx = defaultdict(int)
         self._fr_last_seen = defaultdict(dict)
 
@@ -394,8 +393,9 @@ class FTFMController(app_manager.RyuApp):
             malicious_stats = [s for s, p in zip(stats, mfr_preds) if p]
             legit_stats = [s for s, p in zip(stats, mfr_preds) if not p]
             n_malicious, n_legit = len(malicious_stats), len(legit_stats)
+            n_malicious, n_legit = 0, 0
+            n_rules_wildcard, n_wc_msgs, n_strict = 0, 0, 0
             self.logger.info(f"[!] FTF Attack Detected on DPID={dpid:016x}")
-
             datapath = self.datapaths.get(dpid)   # dopo l'attesa lo switch potrebbe essere sparito
             if datapath is not None and malicious_stats:
                 self.logger.info(f"[!] {n_malicious} regole malevole su DPID={dpid:016x}")
