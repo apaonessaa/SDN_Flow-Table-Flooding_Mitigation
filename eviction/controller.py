@@ -393,8 +393,6 @@ class FTFMController(app_manager.RyuApp):
             malicious_stats = [s for s, p in zip(stats, mfr_preds) if p]
             legit_stats = [s for s, p in zip(stats, mfr_preds) if not p]
             n_malicious, n_legit = len(malicious_stats), len(legit_stats)
-            n_malicious, n_legit = 0, 0
-            n_rules_wildcard, n_wc_msgs, n_strict = 0, 0, 0
             self.logger.info(f"[!] FTF Attack Detected on DPID={dpid:016x}")
             datapath = self.datapaths.get(dpid)   # dopo l'attesa lo switch potrebbe essere sparito
             if datapath is not None and malicious_stats:

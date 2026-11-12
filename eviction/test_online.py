@@ -11,6 +11,7 @@ from mininet.node import RemoteController, OVSSwitch, Host
 from mininet.topo import Topo
 from mininet.log import setLogLevel, info
 from mininet.cli import CLI
+from topology import *
 
 # Modules loader
 import sys
@@ -23,6 +24,7 @@ from utils.sim_utils import *
 from resource_monitor import ResourceMonitor, find_ryu, find_by_name, pin_process
 from network_monitor import NetworkMonitor
 from attack.ftf_attack import FTFAttack
+from topology import TestOnlineTopology
 
 SET_FT_SIZE_PATH = root + "/config/set_ft_size.sh"
 
@@ -32,30 +34,6 @@ CONTROLLER_APPS = {
     "ftfm": "controller.py",
     "baseline": "baseline_controller.py",
 }
-
-class CustomTopo(Topo):
-    "Custom Topology Network"
-    conn_hosts = ('h1', 'h2')
-    att_hosts = ('h5', 'h4')
-    # Coppie per la misura della latenza: solo host benigni, e mai h4
-    # (destinazione delle sonde dell'attacco) per non misurare l'attacco stesso.
-    ping_pairs = (('h1', 'h2'), ('h1', 'h3'), ('h2', 'h3'))
-    def build(self):
-        info("* Build Topology\n")
-        # Switch
-        s1 = self.addSwitch('s1', cls=OVSSwitch, protocols='OpenFlow14')
-        # Hosts
-        h1 = self.addHost('h1', ip='10.0.0.1/24', mac='00:00:00:00:00:01')
-        self.addLink(h1, s1)
-        h2 = self.addHost('h2', ip='10.0.0.2/24', mac='00:00:00:00:00:02')
-        self.addLink(h2, s1)
-        h3 = self.addHost('h3', ip='10.0.0.3/24', mac='00:00:00:00:00:03')
-        self.addLink(h3, s1)
-        h4 = self.addHost('h4', ip='10.0.0.4/24', mac='00:00:00:00:00:04')
-        self.addLink(h4, s1)
-        h5 = self.addHost('h5', ip='10.0.0.5/24', mac='00:00:00:00:00:05')
-        self.addLink(h5, s1)
-
 
 def parse_cpus(spec):
     """'0' -> {0}; '0,2' -> {0, 2}; '0-1' -> {0, 1}"""
@@ -87,15 +65,15 @@ def parse_args():
 
 
 def main(args) -> None:
-    pcap_prefix = current + "/pcaps/"
-    topo = CustomTopo()
+    pcap_prefix = current + "/pcaps/scenario_016/"
+    topo = TestOnlineTopology()
     flow_table_size = 100
-    idle_timeout = 2
-    hard_timeout = 5
+    idle_timeout = 10
+    hard_timeout = 10
     k_factor = 2
-    npkts = 1000
-    anp = 10
-    anm = 20
+    npkts = 150
+    anp = 20
+    anm = 30
     log_path = current + "/logs"
     os.makedirs(log_path, exist_ok=True)
     log_timestamp = int(time())
@@ -246,13 +224,13 @@ def main(args) -> None:
         # Start threads
         t0 = time()
 
-        mark("attack_start")
-        attack.start()
-
         #sleep(random.randint(30, 60))
         mark("benign_start")
         for t in threads:
             t.start()
+
+        mark("attack_start")
+        attack.start()
 
         # Stop threads
         attack.join()
