@@ -42,3 +42,210 @@ byte_count             0.010440
 duration               0.010237
 dtype: float64
 Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/mfr_detector/2/temp_bert
+
+=== Tuning FeatBERT ===
+Best trial: 18. Best value: 0.901589: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 20/20 [8:03:23<00:00, 1450.17s/it]
+[FeatBERT] trial completati: 13, potati: 7, best trial: #18 (F1=0.9016)
+[FeatBERT] Miglior F1 medio in CV: 0.9016
+[FeatBERT] Migliori parametri: {'num_attention_heads': 16, 'head_dim': 16, 'num_hidden_layers': 8, 'intermediate_size': 32, 'dropout': 0.036719725066096415, 'learning_rate': 0.0004295156228876645, 'weight_decay': 0.0004509834532736197, 'batch_size': 1024}
+
+=== Training FeatBERT ===
+
+=== FeatBERT ===
+Tempo di training: 671.2s
+Accuracy: 0.9496
+              precision    recall  f1-score   support
+
+           0       0.99      0.89      0.94     10592
+           1       0.92      0.99      0.96     13396
+
+    accuracy                           0.95     23988
+   macro avg       0.96      0.94      0.95     23988
+weighted avg       0.95      0.95      0.95     23988
+
+packet_count           0.162576
+psi                    0.151277
+packets_per_seconds    0.124378
+byte_count             0.050201
+bytes_per_seconds      0.027536
+duration               0.003272
+dtype: float64
+Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/mfr_detector/2/feat_bert
+
+=== Tuning Decision Tree ===
+Best trial: 18. Best value: 0.760066: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 20/20 [00:05<00:00,  3.97it/s]
+[DecisionTree] trial completati: 20, potati: 0, best trial: #18 (F1=0.7601)
+[DecisionTree] Miglior F1 medio in CV: 0.7601
+[DecisionTree] Migliori parametri: {'max_depth': 4, 'min_samples_leaf': 16, 'max_features': 0.4251447910479304}
+
+=== Training Decision Tree ===
+
+=== DecisionTree ===
+Tempo di training: 0.1s
+Accuracy: 0.9368
+              precision    recall  f1-score   support
+
+           0       0.98      0.87      0.92     10592
+           1       0.91      0.99      0.95     13396
+
+    accuracy                           0.94     23988
+   macro avg       0.94      0.93      0.94     23988
+weighted avg       0.94      0.94      0.94     23988
+
+Profondità albero: 4 | Foglie: 14
+packets_per_seconds    0.188979
+packet_count           0.072993
+psi                    0.053651
+byte_count             0.039543
+bytes_per_seconds      0.000339
+duration               0.000000
+dtype: float64
+Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/mfr_detector/2/decision_tree_model.joblib
+
+
+=== Tuning Random Forest ===
+Best trial: 9. Best value: 0.813947: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 20/20 [02:15<00:00,  6.78s/it]
+[RandomForest] trial completati: 20, potati: 0, best trial: #9 (F1=0.8139)
+
+[RandomForest] Miglior F1 medio in CV: 0.8139
+[RandomForest] Migliori parametri: {'n_estimators': 10, 'bootstrap': True, 'max_depth': 3, 'min_samples_leaf': 3, 'max_features': 0.20428215357261675}
+
+
+=== Training Random Forest ===
+
+=== RandomForest ===
+Tempo di training: 0.1s
+Accuracy: 0.9584
+              precision    recall  f1-score   support
+
+           0       0.98      0.92      0.95     10592
+           1       0.94      0.99      0.96     13396
+
+    accuracy                           0.96     23988
+   macro avg       0.96      0.95      0.96     23988
+weighted avg       0.96      0.96      0.96     23988
+
+psi                    0.060837
+packets_per_seconds    0.053642
+bytes_per_seconds      0.045366
+byte_count             0.022887
+duration               0.003284
+packet_count          -0.004712
+dtype: float64
+Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/mfr_detector/2/random_forest_model.joblib
+
+
+=== Tuning XGBoost ===
+Best trial: 10. Best value: 0.833476: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 20/20 [03:20<00:00, 10.05s/it]
+[XGBoost] trial completati: 20, potati: 0, best trial: #10 (F1=0.8335)
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.p
+
+[XGBoost] Miglior F1 medio in CV: 0.8335
+[XGBoost] Migliori parametri: {'max_depth': 5, 'learning_rate': 1.0714845538373102e-05, 'reg_lambda': 10.738964397756497, 'colsample_bytree': 0.5427956239846353, 'subsample': 0.7999606153648696, 'min_child_weight': 9.40182052247576}
+
+
+=== Training XGBoost ===
+[0]	validation_0-logloss:0.69314
+[50]	validation_0-logloss:0.69291
+[100]	validation_0-logloss:0.69272
+[150]	validation_0-logloss:0.69253
+[200]	validation_0-logloss:0.69235
+[250]	validation_0-logloss:0.69214
+[300]	validation_0-logloss:0.69192
+[350]	validation_0-logloss:0.69168
+[400]	validation_0-logloss:0.69150
+[450]	validation_0-logloss:0.69129
+[500]	validation_0-logloss:0.69111
+[550]	validation_0-logloss:0.69091
+[600]	validation_0-logloss:0.69073
+[650]	validation_0-logloss:0.69056
+[700]	validation_0-logloss:0.69034
+[750]	validation_0-logloss:0.69016
+[800]	validation_0-logloss:0.68995
+[850]	validation_0-logloss:0.68974
+[900]	validation_0-logloss:0.68955
+[950]	validation_0-logloss:0.68938
+[999]	validation_0-logloss:0.68920
+
+=== XGBoost ===
+Tempo di training: 3.2s
+Accuracy: 0.9594
+              precision    recall  f1-score   support
+
+           0       0.99      0.91      0.95     10592
+           1       0.94      1.00      0.96     13396
+
+    accuracy                           0.96     23988
+   macro avg       0.96      0.95      0.96     23988
+weighted avg       0.96      0.96      0.96     23988
+
+packets_per_seconds    0.060333
+psi                    0.058541
+byte_count             0.031006
+bytes_per_seconds      0.024156
+packet_count           0.012645
+duration               0.000015
+dtype: float64
+Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/mfr_detector/2/xgboost_model.json
+
+
+=== Tuning CatBoost ===
+Best trial: 13. Best value: 0.854992: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 20/20 [01:43<00:00,  5.18s/it]
+[CatBoost] trial completati: 20, potati: 0, best trial: #13 (F1=0.8550)
+
+
+[CatBoost] Miglior F1 medio in CV: 0.8550
+[CatBoost] Migliori parametri: {'depth': 3, 'learning_rate': 0.028148296482457157, 'l2_leaf_reg': 9.975953813962361, 'rsm': 0.4567031220996598, 'bagging_temperature': 0.6458564407032412}
+
+
+=== Training CatBoost ===
+0:	learn: 0.8159282	test: 0.9289339	best: 0.9289339 (0)	total: 11.4ms	remaining: 11.4s
+50:	learn: 0.8839965	test: 0.9351770	best: 0.9369109 (47)	total: 267ms	remaining: 4.96s
+100:	learn: 0.8955774	test: 0.9479466	best: 0.9520738 (67)	total: 550ms	remaining: 4.9s
+150:	learn: 0.8979907	test: 0.9573890	best: 0.9573890 (149)	total: 808ms	remaining: 4.54s
+200:	learn: 0.9000613	test: 0.9655528	best: 0.9655528 (200)	total: 1.07s	remaining: 4.27s
+250:	learn: 0.9005869	test: 0.9663262	best: 0.9670907 (242)	total: 1.33s	remaining: 3.97s
+300:	learn: 0.9010701	test: 0.9682659	best: 0.9682659 (299)	total: 1.59s	remaining: 3.71s
+350:	learn: 0.9046703	test: 0.9214316	best: 0.9683705 (306)	total: 1.84s	remaining: 3.4s
+Stopped by overfitting detector  (50 iterations wait)
+
+bestTest = 0.9683705235
+bestIteration = 306
+
+Shrink model to first 307 iterations.
+
+=== CatBoost ===
+Tempo di training: 2.0s
+Accuracy: 0.9629
+              precision    recall  f1-score   support
+
+           0       0.99      0.92      0.96     10592
+           1       0.94      1.00      0.97     13396
+
+    accuracy                           0.96     23988
+   macro avg       0.97      0.96      0.96     23988
+weighted avg       0.96      0.96      0.96     23988
+
+packet_count           0.146324
+packets_per_seconds    0.126078
+psi                    0.073340
+byte_count             0.058103
+bytes_per_seconds      0.017640
+duration               0.002937
+dtype: float64
+Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/mfr_detector/2/catboost_model.cbm
+
+
+=== Confronto finale (2) ===
+                 accuracy  precision  recall     f1  train_time_s
+model                                                            
+TempBERT (W=20)    0.9918     0.9881  0.9973 0.9927      762.6361
+FeatBERT           0.9496     0.9221  0.9937 0.9566      671.2290
+DecisionTree       0.9368     0.9085  0.9862 0.9458        0.0578
+RandomForest       0.9584     0.9406  0.9878 0.9636        0.0850
+XGBoost            0.9594     0.9360  0.9953 0.9647        3.1752
+CatBoost           0.9629     0.9414  0.9954 0.9677        2.0353
+
+Tabella di confronto salvata in: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/mfr_detector/2/model_comparison.csv
+Migliori iperparametri salvati in: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/mfr_detector/2/best_params.joblib
+
