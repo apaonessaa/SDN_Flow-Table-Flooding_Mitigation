@@ -1,0 +1,44 @@
+########## Dataset: 2 ##########
+Numero di entry del dataset: 99968
+label            0      1
+scenario_id              
+0              945   9985
+1             3205   8279
+2             8711  10732
+3            11909   3996
+4             1291   1976
+5             7387   5117
+6             8224   5694
+7             6715   5802
+
+Deviazione standard tra scenari: 4637.665977006722
+[!] Stratificazione per 'attack_profile' non applicabile (The test_size = 2 should be greater or equal to the number of classes = 3); eseguo uno split non stratificato.
+[!] Stratificazione per 'attack_profile' non applicabile (The least populated class in y has only 1 member, which is too few. The minimum number of groups for any class cannot be less than 2.); eseguo uno split non stratificato.
+=== Tuning TempBERT ===
+Best trial: 13. Best value: 0.984478: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 20/20 [11:11:25<00:00, 2014.28s/it]
+[TempBERT] trial completati: 15, potati: 5, best trial: #13 (F1=0.9845)
+[TempBERT] Miglior F1 medio in CV: 0.9845
+[TempBERT] Migliori parametri: {'window': 20, 'num_attention_heads': 2, 'head_dim': 32, 'num_hidden_layers': 7, 'intermediate_size': 32, 'dropout': 0.012774747405271514, 'learning_rate': 0.00010400217777958222, 'weight_decay': 3.099246938221801e-05, 'batch_size': 128}
+
+=== Training TempBERT ===
+
+=== TempBERT (W=20) ===
+Tempo di training: 762.6s
+Accuracy: 0.9918
+              precision    recall  f1-score   support
+
+           0       1.00      0.98      0.99     10592
+           1       0.99      1.00      0.99     13396
+
+    accuracy                           0.99     23988
+   macro avg       0.99      0.99      0.99     23988
+weighted avg       0.99      0.99      0.99     23988
+
+psi                    0.123773
+packet_count           0.105068
+packets_per_seconds    0.063051
+bytes_per_seconds      0.012220
+byte_count             0.010440
+duration               0.010237
+dtype: float64
+Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/mfr_detector/2/temp_bert

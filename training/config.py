@@ -1,8 +1,7 @@
-"""
-    Configuration model file
-"""
+"""Configuration model file"""
+
 # Tuning + Training
-N_TRIALS = 1
+N_TRIALS = 20
 N_SPLITS = 5
 TEST_SIZE = 0.2
 VAL_SIZE = 0.15

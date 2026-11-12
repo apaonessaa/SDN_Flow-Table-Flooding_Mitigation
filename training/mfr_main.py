@@ -62,7 +62,7 @@ if __name__ == "__main__":
         print("\n\n=== Training TempBERT ===")
         train_tempBERT(X_train, X_val, X_test, y_train, y_val, y_test,
                 keys_train, keys_val, keys_test, results, best_tempBERT_params, features=MFR_FEATURES, model_dir=dataset_model_dir)
-        """
+        
         print("\n\n=== Tuning FeatBERT ===")
         best_featBERT_params = tune_featBERT(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
         save_best_params_csv(best_featBERT_params, os.path.join(dataset_model_dir, "best_params_featbert.csv"))
@@ -114,7 +114,7 @@ if __name__ == "__main__":
             PLOTS_DIR, ["DecisionTree", "RandomForest", "XGBoost", "CatBoost", "FeatBERT", "TempBERT"],
             os.path.join(PLOTS_DIR, "convergence_all_models.png"),
         )
-        """
+        
         comparison = pd.DataFrame(results).set_index("model")
         print(f"\n\n=== Confronto finale ({subdir}) ===")
         print(comparison.to_string(float_format="%.4f"))
