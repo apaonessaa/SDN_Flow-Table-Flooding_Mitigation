@@ -13,14 +13,14 @@ MODELS_DIR = root + '/models/mfr_detector'
 os.makedirs(MODELS_DIR, exist_ok=True)
 
 SUBDIR = [
-    '2', '3', '4',
+    #'2', 
+    '3', '4',
 ]
 
 TRAINING_SETS = [
-    '/tmp/dataset_mfr_2.csv', '/tmp/dataset_mfr_3.csv', '/tmp/dataset_mfr_4.csv'
-    #root + '/feature_collector/datasets/dataset_mfr_1793987224_2_10.csv',
-    #root + '/feature_collector/datasets/dataset_mfr_1793987224_3_10.csv',
-    #root + '/feature_collector/datasets/dataset_mfr_1793987224_4_10.csv',
+    #root + '/feature_collector/datasets/dataset_mfr_2.csv',
+    root + '/feature_collector/datasets/dataset_mfr_3.csv',
+    root + '/feature_collector/datasets/dataset_mfr_4.csv',
 ]
 
 def save_best_params_csv(params: dict, path: str, dataset: str = None):
@@ -55,6 +55,7 @@ if __name__ == "__main__":
         best_featBERT_params = None
         best_tempBERT_params = None
 
+        """
         print("\n\n=== Tuning TempBERT ===")
         best_tempBERT_params = tune_tempBERT(X_train, y_train, groups_train, profiles_train, keys_train, plots_dir=PLOTS_DIR)
         save_best_params_csv(best_tempBERT_params, os.path.join(dataset_model_dir, "best_params_tempbert.csv"))
@@ -69,7 +70,8 @@ if __name__ == "__main__":
         featbert_param_rows.append({"dataset": subdir, **best_featBERT_params})
         print("\n\n=== Training FeatBERT ===")
         train_featBERT(X_train, X_val, X_test, y_train, y_val, y_test, results, best_featBERT_params, features=MFR_FEATURES, model_dir=dataset_model_dir)
-
+        """
+        
         print("\n\n=== Tuning Decision Tree ===")
         best_dt_params = tune_decision_tree(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
         save_best_params_csv(best_dt_params, os.path.join(dataset_model_dir, "best_params_decision_tree.csv"))
@@ -98,22 +100,10 @@ if __name__ == "__main__":
         print("\n\n=== Training CatBoost ===")
         train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params, model_dir=dataset_model_dir)
         
-        #print("\n\n=== Ablation FeatBERT ===")
-        #run_featbert_ablation(
-        #    X_train, X_val, X_test, y_train, y_val, y_test, 
-        #    best_featBERT_params, out_dir=PLOTS_DIR, csv_name="featbert_ablation.csv")
-
-        #print("\n\n=== Ablation TempBERT ===")
-        #run_tempbert_ablation(
-        #    MFRTempBert, prepare_seq, 
-        #    X_train, X_val, X_test, y_train, y_val, y_test, 
-        #    keys_train, keys_val, keys_test, 
-        #    best_tempBERT_params, out_dir=PLOTS_DIR, csv_name="mfr_tempbert_ablation.csv")
-
-        plot_models_convergence(
-            PLOTS_DIR, ["DecisionTree", "RandomForest", "XGBoost", "CatBoost", "FeatBERT", "TempBERT"],
-            os.path.join(PLOTS_DIR, "convergence_all_models.png"),
-        )
+        #plot_models_convergence(
+        #    PLOTS_DIR, ["DecisionTree", "RandomForest", "XGBoost", "CatBoost", "FeatBERT", "TempBERT"],
+        #    os.path.join(PLOTS_DIR, "convergence_all_models.png"),
+        #)
         
         comparison = pd.DataFrame(results).set_index("model")
         print(f"\n\n=== Confronto finale ({subdir}) ===")

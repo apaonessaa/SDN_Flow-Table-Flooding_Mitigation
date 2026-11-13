@@ -1,0 +1,392 @@
+########## Dataset: 2_1000 ##########
+Numero di entry del dataset: 7333
+label          0    1
+scenario_id          
+0            179  140
+1            108  106
+2            251  257
+3            292  426
+4            117   72
+5            198  137
+6            363  209
+7            590  248
+8            157   64
+9             85   66
+10            84   65
+11           107   97
+12           396  394
+13           164  156
+14           217  151
+15           780  657
+
+Deviazione standard tra scenari: 346.4164581829218
+[!] Stratificazione per 'attack_profile' non applicabile (The test_size = 2 should be greater or equal to the number of classes = 3); eseguo uno split non stratificato.
+
+=== Tuning FeatBERT ===
+Best trial: 8. Best value: 0.729017:  65%|█████████████████████████████████████████████████████████████████████████████████▎                                           | 13/20 [1:13:11<35:58, 308.43s/it]
+Killed
+
+=== Tuning TempBERT ===
+Best trial: 18. Best value: 0.735923: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 20/20 [37:46<00:00, 113.34s/it]
+[TempBERT] trial completati: 11, potati: 9, best trial: #18 (F1=0.7359)
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:341: ExperimentalWarning: optuna.visualization.matplotlib._optimization_history.plot_optimization_history is experimental (supported from v2.2.0). The interface can change in the future.
+  "optimization_history": lambda: optuna_plt.plot_optimization_history(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:342: ExperimentalWarning: optuna.visualization.matplotlib._param_importances.plot_param_importances is experimental (supported from v2.2.0). The interface can change in the future.
+  "param_importances":    lambda: optuna_plt.plot_param_importances(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:343: ExperimentalWarning: optuna.visualization.matplotlib._slice.plot_slice is experimental (supported from v2.2.0). The interface can change in the future.
+  "slice":                lambda: optuna_plt.plot_slice(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:313: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  fig.tight_layout()
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:344: ExperimentalWarning: optuna.visualization.matplotlib._parallel_coordinate.plot_parallel_coordinate is experimental (supported from v2.2.0). The interface can change in the future.
+  "parallel_coordinate":  lambda: optuna_plt.plot_parallel_coordinate(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:345: ExperimentalWarning: optuna.visualization.matplotlib._edf.plot_edf is experimental (supported from v2.2.0). The interface can change in the future.
+  "edf":                  lambda: optuna_plt.plot_edf(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:346: ExperimentalWarning: optuna.visualization.matplotlib._timeline.plot_timeline is experimental (supported from v3.2.0). The interface can change in the future.
+  "timeline":             lambda: optuna_plt.plot_timeline(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:349: ExperimentalWarning: optuna.visualization.matplotlib._contour.plot_contour is experimental (supported from v2.2.0). The interface can change in the future.
+  plots["contour"] = lambda: optuna_plt.plot_contour(study, params=top_params)
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:313: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  fig.tight_layout()
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:351: ExperimentalWarning: optuna.visualization.matplotlib._intermediate_values.plot_intermediate_values is experimental (supported from v2.2.0). The interface can change in the future.
+  plots["intermediate_values"] = lambda: optuna_plt.plot_intermediate_values(study)
+
+[TempBERT] Miglior F1 medio in CV: 0.7359
+[TempBERT] Migliori parametri: {'window': 12, 'num_attention_heads': 4, 'head_dim': 64, 'num_hidden_layers': 2, 'intermediate_size': 64, 'dropout': 0.3730691549031338, 'learning_rate': 0.00029533060247360096, 'weight_decay': 3.562846251397433e-06, 'batch_size': 256}
+
+
+=== Training TempBERT ===
+
+=== TempBERT (W=12) ===
+Tempo di training: 53.7s
+Accuracy: 0.7940
+              precision    recall  f1-score   support
+
+           0       0.74      0.92      0.82       792
+           1       0.89      0.67      0.76       786
+
+    accuracy                           0.79      1578
+   macro avg       0.81      0.79      0.79      1578
+weighted avg       0.81      0.79      0.79      1578
+
+ft_psi                  0.023841
+src_mac_entropy         0.022906
+src_ip_entropy          0.022602
+payload_size_entropy    0.021356
+pkts_entropy            0.016198
+dst_ip_entropy          0.015245
+payload_entropy_cv      0.014895
+payload_entropy_mean    0.011721
+dst_mac_entropy         0.011612
+durations_entropy       0.007345
+cvd                     0.002678
+paf                     0.002637
+mean_duration           0.001762
+mean_pkts               0.001554
+c_used                  0.000845
+bytes_entropy           0.000064
+cvp                    -0.001110
+mean_bytes             -0.002019
+cvb                    -0.004869
+dtype: float64
+Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/ftf_detector/2_1000/temp_bert
+
+=== Ablation TempBERT ===
+Full: acc=0.7940 f1=0.7633 (55.9s, 670594 params)
+NoTokenizer: acc=0.7820 f1=0.7688 (13.5s, 726914 params)
+NoAttention: acc=0.7782 f1=0.7471 (26.5s, 407426 params)
+
+             accuracy  precision  recall     f1  train_time_s  n_params
+variant                                                                
+Full           0.7940     0.8927  0.6667 0.7633       55.9277    670594
+NoTokenizer    0.7820     0.8148  0.7277 0.7688       13.4818    726914
+NoAttention    0.7782     0.8645  0.6578 0.7471       26.5300    407426
+
+=== Tuning Decision Tree ===
+Best trial: 15. Best value: 0.67: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 20/20 [00:01<00:00, 11.94it/s]
+[DecisionTree] trial completati: 20, potati: 0, best trial: #15 (F1=0.6700)
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:341: ExperimentalWarning: optuna.visualization.matplotlib._optimization_history.plot_optimization_history is experimental (supported from v2.2.0). The interface can change in the future.
+  "optimization_history": lambda: optuna_plt.plot_optimization_history(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:342: ExperimentalWarning: optuna.visualization.matplotlib._param_importances.plot_param_importances is experimental (supported from v2.2.0). The interface can change in the future.
+  "param_importances":    lambda: optuna_plt.plot_param_importances(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:343: ExperimentalWarning: optuna.visualization.matplotlib._slice.plot_slice is experimental (supported from v2.2.0). The interface can change in the future.
+  "slice":                lambda: optuna_plt.plot_slice(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:313: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  fig.tight_layout()
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:344: ExperimentalWarning: optuna.visualization.matplotlib._parallel_coordinate.plot_parallel_coordinate is experimental (supported from v2.2.0). The interface can change in the future.
+  "parallel_coordinate":  lambda: optuna_plt.plot_parallel_coordinate(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:345: ExperimentalWarning: optuna.visualization.matplotlib._edf.plot_edf is experimental (supported from v2.2.0). The interface can change in the future.
+  "edf":                  lambda: optuna_plt.plot_edf(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:346: ExperimentalWarning: optuna.visualization.matplotlib._timeline.plot_timeline is experimental (supported from v3.2.0). The interface can change in the future.
+  "timeline":             lambda: optuna_plt.plot_timeline(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:349: ExperimentalWarning: optuna.visualization.matplotlib._contour.plot_contour is experimental (supported from v2.2.0). The interface can change in the future.
+  plots["contour"] = lambda: optuna_plt.plot_contour(study, params=top_params)
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:313: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  fig.tight_layout()
+
+[DecisionTree] Miglior F1 medio in CV: 0.6700
+[DecisionTree] Migliori parametri: {'max_depth': 3, 'min_samples_leaf': 20, 'max_features': 0.21094153435784485}
+
+
+=== Tuning Random Forest ===
+Best trial: 10. Best value: 0.689314: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 20/20 [05:38<00:00, 16.93s/it]
+[RandomForest] trial completati: 20, potati: 0, best trial: #10 (F1=0.6893)
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:341: ExperimentalWarning: optuna.visualization.matplotlib._optimization_history.plot_optimization_history is experimental (supported from v2.2.0). The interface can change in the future.
+  "optimization_history": lambda: optuna_plt.plot_optimization_history(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:342: ExperimentalWarning: optuna.visualization.matplotlib._param_importances.plot_param_importances is experimental (supported from v2.2.0). The interface can change in the future.
+  "param_importances":    lambda: optuna_plt.plot_param_importances(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:343: ExperimentalWarning: optuna.visualization.matplotlib._slice.plot_slice is experimental (supported from v2.2.0). The interface can change in the future.
+  "slice":                lambda: optuna_plt.plot_slice(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:313: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  fig.tight_layout()
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:344: ExperimentalWarning: optuna.visualization.matplotlib._parallel_coordinate.plot_parallel_coordinate is experimental (supported from v2.2.0). The interface can change in the future.
+  "parallel_coordinate":  lambda: optuna_plt.plot_parallel_coordinate(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:345: ExperimentalWarning: optuna.visualization.matplotlib._edf.plot_edf is experimental (supported from v2.2.0). The interface can change in the future.
+  "edf":                  lambda: optuna_plt.plot_edf(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:346: ExperimentalWarning: optuna.visualization.matplotlib._timeline.plot_timeline is experimental (supported from v3.2.0). The interface can change in the future.
+  "timeline":             lambda: optuna_plt.plot_timeline(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:349: ExperimentalWarning: optuna.visualization.matplotlib._contour.plot_contour is experimental (supported from v2.2.0). The interface can change in the future.
+  plots["contour"] = lambda: optuna_plt.plot_contour(study, params=top_params)
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:313: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  fig.tight_layout()
+
+[RandomForest] Miglior F1 medio in CV: 0.6893
+[RandomForest] Migliori parametri: {'n_estimators': 1483, 'bootstrap': False, 'max_depth': 4, 'min_samples_leaf': 4, 'max_features': 0.11333040322192856}
+
+
+=== Tuning XGBoost===
+Best trial: 3. Best value: 0.688958: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 20/20 [02:57<00:00,  8.85s/it]
+[XGBoost] trial completati: 20, potati: 0, best trial: #3 (F1=0.6890)
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:341: ExperimentalWarning: optuna.visualization.matplotlib._optimization_history.plot_optimization_history is experimental (supported from v2.2.0). The interface can change in the future.
+  "optimization_history": lambda: optuna_plt.plot_optimization_history(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:342: ExperimentalWarning: optuna.visualization.matplotlib._param_importances.plot_param_importances is experimental (supported from v2.2.0). The interface can change in the future.
+  "param_importances":    lambda: optuna_plt.plot_param_importances(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:343: ExperimentalWarning: optuna.visualization.matplotlib._slice.plot_slice is experimental (supported from v2.2.0). The interface can change in the future.
+  "slice":                lambda: optuna_plt.plot_slice(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:313: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  fig.tight_layout()
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:344: ExperimentalWarning: optuna.visualization.matplotlib._parallel_coordinate.plot_parallel_coordinate is experimental (supported from v2.2.0). The interface can change in the future.
+  "parallel_coordinate":  lambda: optuna_plt.plot_parallel_coordinate(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:345: ExperimentalWarning: optuna.visualization.matplotlib._edf.plot_edf is experimental (supported from v2.2.0). The interface can change in the future.
+  "edf":                  lambda: optuna_plt.plot_edf(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:346: ExperimentalWarning: optuna.visualization.matplotlib._timeline.plot_timeline is experimental (supported from v3.2.0). The interface can change in the future.
+  "timeline":             lambda: optuna_plt.plot_timeline(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:349: ExperimentalWarning: optuna.visualization.matplotlib._contour.plot_contour is experimental (supported from v2.2.0). The interface can change in the future.
+  plots["contour"] = lambda: optuna_plt.plot_contour(study, params=top_params)
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:313: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  fig.tight_layout()
+
+[XGBoost] Miglior F1 medio in CV: 0.6890
+[XGBoost] Migliori parametri: {'max_depth': 7, 'learning_rate': 0.0002858549394196192, 'reg_lambda': 0.013137990612765096, 'colsample_bytree': 0.3976457024564293, 'subsample': 0.6460723242676091, 'min_child_weight': 0.0005790338629756642}
+
+
+=== Tuning CatBoost ===
+Best trial: 19. Best value: 0.740639: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 20/20 [01:19<00:00,  3.98s/it]
+[CatBoost] trial completati: 20, potati: 0, best trial: #19 (F1=0.7406)
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:341: ExperimentalWarning: optuna.visualization.matplotlib._optimization_history.plot_optimization_history is experimental (supported from v2.2.0). The interface can change in the future.
+  "optimization_history": lambda: optuna_plt.plot_optimization_history(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:342: ExperimentalWarning: optuna.visualization.matplotlib._param_importances.plot_param_importances is experimental (supported from v2.2.0). The interface can change in the future.
+  "param_importances":    lambda: optuna_plt.plot_param_importances(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:343: ExperimentalWarning: optuna.visualization.matplotlib._slice.plot_slice is experimental (supported from v2.2.0). The interface can change in the future.
+  "slice":                lambda: optuna_plt.plot_slice(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:313: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  fig.tight_layout()
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:344: ExperimentalWarning: optuna.visualization.matplotlib._parallel_coordinate.plot_parallel_coordinate is experimental (supported from v2.2.0). The interface can change in the future.
+  "parallel_coordinate":  lambda: optuna_plt.plot_parallel_coordinate(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:345: ExperimentalWarning: optuna.visualization.matplotlib._edf.plot_edf is experimental (supported from v2.2.0). The interface can change in the future.
+  "edf":                  lambda: optuna_plt.plot_edf(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:346: ExperimentalWarning: optuna.visualization.matplotlib._timeline.plot_timeline is experimental (supported from v3.2.0). The interface can change in the future.
+  "timeline":             lambda: optuna_plt.plot_timeline(study),
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:349: ExperimentalWarning: optuna.visualization.matplotlib._contour.plot_contour is experimental (supported from v2.2.0). The interface can change in the future.
+  plots["contour"] = lambda: optuna_plt.plot_contour(study, params=top_params)
+/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/training/utils.py:313: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  fig.tight_layout()
+
+[CatBoost] Miglior F1 medio in CV: 0.7406
+[CatBoost] Migliori parametri: {'depth': 8, 'learning_rate': 0.09325313819717727, 'l2_leaf_reg': 6.589641114553667, 'rsm': 0.39754973550465433, 'bagging_temperature': 0.8145901286801431}
+
+
+=== Training Decision Tree ===
+
+=== DecisionTree ===
+Tempo di training: 0.0s
+Accuracy: 0.7471
+              precision    recall  f1-score   support
+
+           0       0.66      1.00      0.80       792
+           1       1.00      0.49      0.66       786
+
+    accuracy                           0.75      1578
+   macro avg       0.83      0.75      0.73      1578
+weighted avg       0.83      0.75      0.73      1578
+
+Profondità albero: 3 | Foglie: 5
+ft_psi                  0.005939
+durations_entropy       0.000000
+mean_bytes              0.000000
+cvp                     0.000000
+mean_pkts               0.000000
+cvd                     0.000000
+mean_duration           0.000000
+bytes_entropy           0.000000
+pkts_entropy            0.000000
+payload_entropy_mean    0.000000
+payload_entropy_cv      0.000000
+paf                     0.000000
+c_used                  0.000000
+dst_mac_entropy         0.000000
+dst_ip_entropy          0.000000
+payload_size_entropy    0.000000
+cvb                     0.000000
+src_ip_entropy         -0.005650
+src_mac_entropy        -0.005724
+dtype: float64
+Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/ftf_detector/2_1000/decision_tree_model.joblib
+
+
+=== Training Random Forest ===
+
+=== RandomForest ===
+Tempo di training: 3.0s
+Accuracy: 0.7471
+              precision    recall  f1-score   support
+
+           0       0.66      1.00      0.80       792
+           1       1.00      0.49      0.66       786
+
+    accuracy                           0.75      1578
+   macro avg       0.83      0.75      0.73      1578
+weighted avg       0.83      0.75      0.73      1578
+
+dst_ip_entropy          5.242437e-03
+c_used                  4.843451e-03
+dst_mac_entropy         2.887078e-03
+cvp                     2.513327e-03
+ft_psi                  1.654539e-03
+pkts_entropy            1.144646e-03
+mean_bytes              9.147805e-04
+bytes_entropy           8.905165e-04
+paf                     7.451397e-04
+payload_entropy_mean    2.290847e-04
+payload_size_entropy    1.167805e-06
+mean_pkts               3.895999e-07
+durations_entropy       0.000000e+00
+mean_duration           0.000000e+00
+cvd                     0.000000e+00
+cvb                     0.000000e+00
+payload_entropy_cv     -6.849166e-04
+src_ip_entropy         -4.068621e-03
+src_mac_entropy        -1.031344e-02
+dtype: float64
+Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/ftf_detector/2_1000/random_forest_model.joblib
+
+
+=== Training XGBoost ===
+[0]	validation_0-logloss:0.69303
+[50]	validation_0-logloss:0.68559
+[100]	validation_0-logloss:0.67822
+[150]	validation_0-logloss:0.67083
+[200]	validation_0-logloss:0.66395
+[250]	validation_0-logloss:0.65740
+[300]	validation_0-logloss:0.65050
+[350]	validation_0-logloss:0.64393
+[400]	validation_0-logloss:0.63750
+[450]	validation_0-logloss:0.63131
+[500]	validation_0-logloss:0.62509
+[550]	validation_0-logloss:0.61906
+[600]	validation_0-logloss:0.61323
+[650]	validation_0-logloss:0.60763
+[700]	validation_0-logloss:0.60216
+[750]	validation_0-logloss:0.59654
+[800]	validation_0-logloss:0.59111
+[850]	validation_0-logloss:0.58584
+[900]	validation_0-logloss:0.58059
+[950]	validation_0-logloss:0.57563
+[999]	validation_0-logloss:0.57084
+
+=== XGBoost ===
+Tempo di training: 3.8s
+Accuracy: 0.7212
+              precision    recall  f1-score   support
+
+           0       0.66      0.91      0.77       792
+           1       0.86      0.53      0.65       786
+
+    accuracy                           0.72      1578
+   macro avg       0.76      0.72      0.71      1578
+weighted avg       0.76      0.72      0.71      1578
+
+payload_entropy_mean    0.011027
+mean_duration           0.004672
+pkts_entropy            0.003339
+cvd                     0.003223
+cvb                     0.003070
+mean_pkts               0.002454
+mean_bytes              0.001191
+cvp                     0.000946
+src_ip_entropy         -0.000853
+src_mac_entropy        -0.001732
+bytes_entropy          -0.001822
+ft_psi                 -0.002763
+payload_entropy_cv     -0.004819
+c_used                 -0.005946
+durations_entropy      -0.007891
+paf                    -0.010658
+dst_mac_entropy        -0.010740
+payload_size_entropy   -0.014275
+dst_ip_entropy         -0.014318
+dtype: float64
+Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/ftf_detector/2_1000/xgboost_model.json
+
+
+=== Training CatBoost ===
+0:	learn: 0.7303529	test: 0.8829733	best: 0.8829733 (0)	total: 6.75ms	remaining: 6.74s
+50:	learn: 0.8774287	test: 0.8823332	best: 0.8884691 (1)	total: 264ms	remaining: 4.91s
+Stopped by overfitting detector  (50 iterations wait)
+
+bestTest = 0.8884690548
+bestIteration = 1
+
+Shrink model to first 2 iterations.
+
+=== CatBoost ===
+Tempo di training: 0.3s
+Accuracy: 0.7383
+              precision    recall  f1-score   support
+
+           0       0.66      0.99      0.79       792
+           1       0.98      0.48      0.65       786
+
+    accuracy                           0.74      1578
+   macro avg       0.82      0.74      0.72      1578
+weighted avg       0.82      0.74      0.72      1578
+
+src_mac_entropy         0.004950
+mean_pkts               0.004921
+cvp                     0.000832
+payload_entropy_cv      0.000116
+ft_psi                  0.000053
+mean_bytes              0.000000
+cvd                     0.000000
+bytes_entropy           0.000000
+pkts_entropy            0.000000
+payload_entropy_mean    0.000000
+c_used                  0.000000
+dst_mac_entropy         0.000000
+dst_ip_entropy          0.000000
+cvb                     0.000000
+src_ip_entropy         -0.000100
+paf                    -0.000693
+mean_duration          -0.000696
+payload_size_entropy   -0.001767
+durations_entropy      -0.002003
+dtype: float64
+Model path: /home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/models/ftf_detector/2_1000/catboost_model.cbm
+
+
+=== Confronto finale (2_1000) ===
+              accuracy  precision  recall     f1  train_time_s
+model                                                         
+DecisionTree    0.7471     1.0000  0.4924 0.6598        0.0098
+RandomForest    0.7471     1.0000  0.4924 0.6598        3.0368
+XGBoost         0.7212     0.8574  0.5280 0.6535        3.7877
+CatBoost        0.7383     0.9794  0.4847 0.6485        0.3169
