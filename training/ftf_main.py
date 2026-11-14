@@ -14,7 +14,7 @@ os.makedirs(MODELS_DIR, exist_ok=True)
 
 SUBDIR = [
     #'2_10', '3_10', 
-    '4_10',
+    #'4_10',
     #'2_100', '3_100', 
     '4_100',
     #'2_1000', 
@@ -32,7 +32,7 @@ TRAINING_SETS = [
     #root + '/feature_collector/datasets/dataset_ftf_1793987224_2_1000.csv',
     #root + '/feature_collector/datasets/dataset_ftf_1793987224_3_1000.csv',
     #root + '/feature_collector/datasets/dataset_ftf_1793987224_4_1000.csv',
-    root + '/feature_collector/datasets/dataset_ftf_4_10.csv',
+    #root + '/feature_collector/datasets/dataset_ftf_4_10.csv',
     root + '/feature_collector/datasets/dataset_ftf_4_100.csv',
     root + '/feature_collector/datasets/dataset_ftf_4_1000.csv',
 ]
