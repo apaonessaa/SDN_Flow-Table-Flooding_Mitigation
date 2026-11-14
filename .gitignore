@@ -11,3 +11,5 @@
 **feature_collector/datasets/backup/**
 **feature_collector/datasets/**
 **feature_collector/logs/**/controller_**
+**eviction/logs/**
+**eviction/pcaps/scenario_016/**

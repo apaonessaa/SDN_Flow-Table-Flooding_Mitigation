@@ -5,6 +5,8 @@ import threading
 import subprocess
 import math
 import random
+rng = random.Random(69)
+
 from time import time, sleep
 from mininet.net import Mininet
 from mininet.node import RemoteController, OVSSwitch, Host
@@ -61,20 +63,46 @@ def parse_args():
                          "simulazione viene spostato sui core rimanenti")
     ap.add_argument("--log-level", default="INFO",
                     help="livello di log del controller (INFO, WARNING, DEBUG)")
+    ap.add_argument("--warmup", type=float, default=60.0,
+                    help="secondi di solo traffico benigno prima dell'attacco")
     return ap.parse_args()
 
+def sample_attack_rate(npkts, flow_table_size, profile):
+    stealth_profiles = {
+        "aggressive": (10, 60),
+        "moderate":   (120, 300),
+        "stealth":    (350, 550),
+    }
+    min_anp = {"aggressive": 10,"moderate": 7,"stealth": 2}
+    anms = {
+        "aggressive": (100, 200),
+        "moderate":   (30, 70),
+        "stealth":    (5, 20),
+    }
+    t_min, t_max = stealth_profiles[profile]
+    fill_time = rng.uniform(t_min, t_max)
+    anp = max(min_anp[profile], math.ceil(flow_table_size / fill_time))
+    anm = rng.uniform(anms[profile][0], anms[profile][1])
+    return anp, int(anm), fill_time
 
 def main(args) -> None:
     pcap_prefix = current + "/pcaps/scenario_016/"
     topo = TestOnlineTopology()
-    flow_table_size = 100
+    #flow_table_size = 100
     idle_timeout = 10
-    hard_timeout = 10
+    hard_timeout = 15
     k_factor = 2
-    npkts = 150
-    anp = 20
-    anm = 30
-    log_path = current + "/logs"
+    #npkts = 150
+    #anp = 20
+    #anm = 30
+    n_host = 15
+    profile = "stealth"
+    full_size = int(math.factorial(n_host) / math.factorial(n_host-2)) + 1
+    half_size = int(full_size / 2)
+    flow_table_size = rng.randint(half_size, 2*full_size)
+    npkts = flow_table_size + rng.randint(0, half_size)
+    anp, anm, fill_time = sample_attack_rate(npkts, flow_table_size, profile)
+    log_path = current + "/logs/"+args.controller
     os.makedirs(log_path, exist_ok=True)
     log_timestamp = int(time())
 
@@ -129,6 +157,8 @@ def main(args) -> None:
             "controller_cpus": args.controller_cpus,
             "controller_envs": controller_envs,
             "ryu_pid": ryu_proc.pid,
+            "profile": profile, "fill_time": fill_time, "anm": anm,
+            "warmup": args.warmup,
         }, f, indent=2)
 
     net = None
@@ -224,10 +254,10 @@ def main(args) -> None:
         # Start threads
         t0 = time()
 
-        #sleep(random.randint(30, 60))
         mark("benign_start")
         for t in threads:
             t.start()
+        sleep(args.warmup)
 
         mark("attack_start")
         attack.start()

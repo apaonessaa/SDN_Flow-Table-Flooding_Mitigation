@@ -29,13 +29,13 @@ from typing import Optional, List
 from mininet.net import Mininet
 from mininet.log import info, error
 
-SWITCHES         = ['s1', 's2', 's3']
-PING_PAIRS       = [('h1', 'h3'), ('h1', 'h4'), ('h2', 'h3'), ('h2', 'h4')]
-PING_COUNT       = 3
+import signal
+
+_PING_RE = re.compile(r'^\[(\d+\.\d+)\].*icmp_seq=(\d+).*time=([\d.]+) ms')
+_TX_RE = re.compile(r'(\d+) packets transmitted')
 MONITOR_INTERVAL = 1.0
-HOST_MACS        = ['00:00:00:00:00:01', '00:00:00:00:00:02',
-                    '00:00:00:00:00:03', '00:00:00:00:00:04']
-OUTPUT_DIR       = os.path.expanduser('~/Desktop/progetto/reports')
+HOST_MACS = ['00:00:00:00:00:01', '00:00:00:00:00:02',
+            '00:00:00:00:00:03', '00:00:00:00:00:04']
 
 # Una flow e' "valida" se matcha un MAC degli host reali (o e' la table-miss verso il controller)
 _VALID_RE = re.compile('|'.join(HOST_MACS) + '|actions=CONTROLLER', re.I)
@@ -58,34 +58,17 @@ def get_flow_counts(switch_name: str, valid_re=_VALID_RE):
         error(f"[monitor] get_flow_counts({switch_name}): {exc}\n")
         return -1, -1
 
-
-def measure_latency(net: Mininet, src_name: str, dst_name: str, count: int = PING_COUNT):
-    """Ping src -> dst. Restituisce (RTT medio in ms o None, packet loss in %)."""
-    src, dst = net.get(src_name), net.get(dst_name)
-    if src is None or dst is None:
-        error(f"[monitor] Host non trovato: {src_name} o {dst_name}\n")
-        return None, 100.0
-    out = src.cmd(f'ping -c {count} -i 0.2 -W 1 {dst.IP()}')
-    loss = re.search(r'([\d.]+)% packet loss', out)
-    rtt = re.search(r'= [\d.]+/([\d.]+)/', out)      # rtt min/avg/max/mdev = a/b/c/d
-    return (float(rtt.group(1)) if rtt else None,
-            float(loss.group(1)) if loss else 100.0)
-
-
 class NetworkMonitor:
     """Campiona flow rule e latenza finche' non viene chiamato stop() o scade
     `duration`. start() ritorna subito: la CLI Mininet resta libera."""
 
-    def __init__(self, net: Mininet, interval: float = MONITOR_INTERVAL,
-                 duration: Optional[float] = None, label: str = "monitor",
-                 switches=None, ping_pairs=None, host_macs=None,
-                 out_prefix: Optional[str] = None):
+    def __init__(self, net: Mininet, switches, ping_pairs, out_prefix, interval: float = MONITOR_INTERVAL,
+                 duration: Optional[float] = None, label: str = "monitor", host_macs=None):
         """switches / ping_pairs / host_macs: se omessi si usano le costanti del
-        modulo. out_prefix: path (senza suffisso) dei file di output; se omesso
-        e' OUTPUT_DIR/<label>_<data>."""
+        modulo. out_prefix: path (senza suffisso) dei file di output"""
         self.net, self.interval, self.duration, self.label = net, interval, duration, label
-        self.switches = list(switches) if switches else SWITCHES
-        self.ping_pairs = list(ping_pairs) if ping_pairs else PING_PAIRS
+        self.switches = list(switches)
+        self.ping_pairs = list(ping_pairs)
         self.valid_re = (re.compile('|'.join(host_macs) + '|actions=CONTROLLER', re.I)
                          if host_macs else _VALID_RE)
         self.out_prefix = out_prefix
@@ -95,10 +78,9 @@ class NetworkMonitor:
         self.flow_rows: List[tuple] = []   # (ts, t, switch, total, valid)
         self.lat_rows: List[tuple] = []    # (ts, t, src, dst, rtt_ms, loss_pct)
         self.marks: List[tuple] = []       # (ts, t, text)
-        self._threads = [
-            threading.Thread(target=self._loop, args=("flow", self._sample_flows), daemon=True),
-            threading.Thread(target=self._loop, args=("latenza", self._sample_latency), daemon=True),
-        ]
+        self.ping_interval = 1.0
+        self.ping_procs = []     # (src, dst, file, popen, path)
+        self._flows_thread = threading.Thread(target=self._loop, args=("flow", self._sample_flows), daemon=True)
 
     def _loop(self, name, sample):
         info(f"[monitor:{self.label}] ▶ thread {name} avviato\n")
@@ -119,17 +101,59 @@ class NetworkMonitor:
             parts.append(f"{sw}=tot:{total}/val:{valid}")
         info(f"  [flow t={t:6.1f}s] {'  '.join(parts)}\n")
 
-    def _sample_latency(self, ts, t):
-        rtts, losses = [], []
-        for src, dst in self.ping_pairs:
-            rtt, loss = measure_latency(self.net, src, dst)
-            self.lat_rows.append((round(ts, 3), round(t, 2), src, dst,
-                                  '' if rtt is None else rtt, loss))
-            if rtt is not None:
-                rtts.append(rtt)
-            losses.append(loss)
-        avg = f"{statistics.mean(rtts):.3f} ms" if rtts else "N/A"
-        info(f"  [rtt  t={t:6.1f}s] media={avg:<10} loss medio={statistics.mean(losses):.0f}%\n")
+    def start_pings(net, out_dir):
+        procs = []
+        for s, d in PING_PAIRS:
+            h, dst = net.get(s), net.get(d)
+            f = open(f"{out_dir}/ping_{s}_{d}.txt", "w")
+            procs.append((f, h.popen(["ping", "-D", "-i", "1", dst.IP()],
+                                    stdout=f, stderr=f)))
+        return procs
+
+    def _start_pings(self):
+        base = self.out_prefix
+        d = f"{base}_ping"
+        os.makedirs(d, exist_ok=True)
+        for s, dn in self.ping_pairs:
+            src, dst = self.net.get(s), self.net.get(dn)
+            if src is None or dst is None:
+                error(f"[monitor] Host non trovato: {s} o {dn}\n")
+                continue
+            path = f"{d}/{s}_{dn}.txt"
+            f = open(path, "w")
+            p = src.popen(["ping", "-D", "-i", str(self.ping_interval), "-W", "1", dst.IP()],
+                        stdout=f, stderr=subprocess.STDOUT)
+            self.ping_procs.append((s, dn, f, p, path))
+
+    def _collect_pings(self):
+        for s, dn, f, p, path in self.ping_procs:
+            try:
+                p.send_signal(signal.SIGINT)      # SIGINT: ping stampa il riepilogo finale
+                p.wait(timeout=5)
+            except Exception:
+                p.kill()
+            f.close()
+            got, ref, total = {}, None, 0
+            for line in open(path):
+                m = _PING_RE.match(line)
+                if m:
+                    ts, seq, rtt = float(m.group(1)), int(m.group(2)), float(m.group(3))
+                    got[seq] = (ts, rtt)
+                    ref = ref or (ts, seq)
+                m = _TX_RE.search(line)
+                if m:
+                    total = int(m.group(1))
+            if not got:
+                continue
+            ts_ref, seq_ref = ref
+            for seq in range(1, max(max(got), total) + 1):
+                if seq in got:
+                    ts, rtt = got[seq]
+                    self.lat_rows.append((round(ts, 3), round(ts - self._t0, 2), s, dn, rtt, 0.0))
+                else:
+                    ts = ts_ref + (seq - seq_ref) * self.ping_interval   # stima per i persi
+                    self.lat_rows.append((round(ts, 3), round(ts - self._t0, 2), s, dn, '', 100.0))
+        self.lat_rows.sort(key=lambda r: r[0])
 
     def mark(self, text: str):
         """Segna un evento (es. attack_start / attack_end) per i grafici."""
@@ -139,26 +163,26 @@ class NetworkMonitor:
 
     def start(self) -> 'NetworkMonitor':
         self._t0 = time.time()
-        for th in self._threads:
-            th.start()
+        self._start_pings()
+        self._flows_thread.start()
         info(f"[monitor:{self.label}] Avviato (intervallo={self.interval}s"
              f"{f', durata={self.duration}s' if self.duration else ''}).\n")
         return self
 
     def wait(self, timeout: Optional[float] = None) -> None:
-        for th in self._threads:
-            th.join(timeout=timeout)
+        self._flows_thread.join(timeout=timeout)
 
-    def stop(self, write_report: bool = True, output_dir: str = OUTPUT_DIR) -> Optional[str]:
+    def stop(self, write_report: bool = True) -> Optional[str]:
         """Ferma il monitor e (default) scrive i file. Restituisce il prefisso dei file."""
         if self._stopped:       # idempotente: si puo' chiamare anche nel finally
             return self._report
         self._stopped = True
         self._stop.set()
         self.wait(timeout=15)    # un campione di latenza puo' durare qualche secondo
+        self._collect_pings()
         info(f"[monitor:{self.label}] Fermato. Campioni: flow={len(self.flow_rows)}, "
              f"latenza={len(self.lat_rows)}\n")
-        self._report = generate_report(self, output_dir) if write_report else None
+        self._report = generate_report(self) if write_report else None
         return self._report
 
     def is_running(self) -> bool:
@@ -185,8 +209,8 @@ def _summary(m: NetworkMonitor) -> List[str]:
     return out
 
 
-def generate_report(m: NetworkMonitor, output_dir: str = OUTPUT_DIR) -> str:
-    base = m.out_prefix or os.path.join(output_dir, f"{m.label}_{datetime.now():%Y%m%d_%H%M%S}")
+def generate_report(m: NetworkMonitor) -> str:
+    base = m.out_prefix
     os.makedirs(os.path.dirname(base) or ".", exist_ok=True)
     for suffix, header, rows in (
         ("flows",   ["ts", "t", "switch", "flows_total", "flows_valid"], m.flow_rows),
@@ -223,6 +247,15 @@ def start_monitor(net: Optional[Mininet] = None, interval: float = MONITOR_INTER
     net = _get_net(net)
     return NetworkMonitor(net, interval, duration, label, **kwargs).start() if net else None
 
+def start_monitor(net: Optional[Mininet], switches, ping_pairs, out_prefix,
+                  interval: float = MONITOR_INTERVAL,
+                  duration: Optional[float] = None, label: str = "manual",
+                  **kwargs) -> Optional[NetworkMonitor]:
+    """Avvia il monitor in background (non bloccante)."""
+    net = _get_net(net)
+    return (NetworkMonitor(net, switches, ping_pairs, out_prefix,
+                           interval=interval, duration=duration, label=label,
+                           **kwargs).start() if net else None)
 
 def monitor_sdn(net: Optional[Mininet] = None, duration: float = 60.0,
                 interval: float = MONITOR_INTERVAL, label: str = "auto") -> str:
