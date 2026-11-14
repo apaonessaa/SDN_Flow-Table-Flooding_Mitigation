@@ -44,18 +44,19 @@ MFR_ORDER = [
 ]
 
 # Una riga per ogni round di polling (anche quando la detection non parte).
-#   round_wall_s : durata totale del round (include l'attesa dell'inferenza)
-#   prep_cpu_s   : CPU del controller per feature, finestre e snapshot
-#   infer_wall_s : tempo reale nel thread nativo di inferenza
-#   infer_cpu_s  : CPU del thread di inferenza (thread_time)
-#   mitig_cpu_s  : CPU del controller per build finestre MFR + eviction
+# Per ogni fase (prep, infer, mitig): wall = tempo reale, cpu = tempo di calcolo
+# effettivo; wall - cpu = attesa (scheduling del kernel o altri greenlet).
+#   round_wall_s : durata totale del round
 REPORT_COLUMNS = [
     "timestamp", "dpid", "round", "detection_run", "skipped",
     "flow_table_occupancy", "ftf_detected",
     "n_malicious_rules", "n_legit_rules", "n_fr_windows",
     "n_rules_wildcard",
     "n_eviction_msgs_wildcard", "n_eviction_msgs_strict", "n_eviction_msgs_total",
-    "round_wall_s", "prep_cpu_s", "infer_wall_s", "infer_cpu_s", "mitig_cpu_s",
+    "round_wall_s",
+    "prep_wall_s", "prep_cpu_s",
+    "infer_wall_s", "infer_cpu_s",
+    "mitig_wall_s", "mitig_cpu_s",
 ]
 
 
@@ -268,43 +269,44 @@ class FTFMController(app_manager.RyuApp):
             wins.pop(h, None)
 
     def _update_windows_and_maybe_detect(self, dpid, stats):
-        """La parte sincrona (feature + finestre) non cede mai il controllo:
-        i suoi tempi CPU sono attribuibili al solo round."""
-        ts0, t0, c0 = time.time(), time.perf_counter(), time.thread_time()
+        """La fase prep (feature + finestre + snapshot) non cede mai il controllo
+        ad altri greenlet. Ogni fase e' misurata con wall e CPU dal StageTimer."""
+        tm = StageTimer()
+        ts0, t0 = time.time(), time.perf_counter()
         self._round_idx[dpid] += 1
         rnd = self._round_idx[dpid]
         fe = self.feature_ext[dpid]
 
-        # Le finestre si aggiornano SEMPRE, anche sotto soglia di occupazione:
-        # altrimenti il modello vedrebbe quasi solo padding quando serve.
-        self.w_round_per_ft[dpid].append(self._extract_ftf_vector(fe, stats))
-
-        mfr_rows = self._scale(self.mfr, [fe.get_flow_feature(s) for s in stats])   # 1 transform per round
-        seen, hashes = self._fr_last_seen[dpid], []
-        for stat, row in zip(stats, mfr_rows):
-            h = sha256(str(stat.match).encode()).hexdigest()
-            self.w_round_per_fr[dpid][h].append(row)
-            seen[h] = rnd
-            hashes.append(h)
-        self._prune_fr_windows(dpid, rnd)
-
-        occupancy = len(stats) / float(self.FLOW_TABLE_SIZE)
-        ready = fe.has_enough_data() and occupancy >= self.FLOW_TABLE_THRESHOLD
-        skipped = ready and dpid in self._detecting   # inferenza precedente ancora in corso
-        detect = ready and not skipped
-
-        # Snapshot prima di cedere il controllo: i round successivi modificano le deque.
         ftf_win = fr_snap = None
-        if detect:
-            ftf_win = pad_window(self.w_round_per_ft[dpid], self.ftf["window"], self.ftf["n_feat"])
-            fr_snap = [tuple(self.w_round_per_fr[dpid][h]) for h in hashes]
-        prep_cpu = time.thread_time() - c0
+        with tm.stage("prep"):
+            # Le finestre si aggiornano SEMPRE, anche sotto soglia di occupazione:
+            # altrimenti il modello vedrebbe quasi solo padding quando serve.
+            self.w_round_per_ft[dpid].append(self._extract_ftf_vector(fe, stats))
+
+            mfr_rows = self._scale(self.mfr, [fe.get_flow_feature(s) for s in stats])  # 1 transform per round
+            seen, hashes = self._fr_last_seen[dpid], []
+            for stat, row in zip(stats, mfr_rows):
+                h = sha256(str(stat.match).encode()).hexdigest()
+                self.w_round_per_fr[dpid][h].append(row)
+                seen[h] = rnd
+                hashes.append(h)
+            self._prune_fr_windows(dpid, rnd)
+
+            occupancy = len(stats) / float(self.FLOW_TABLE_SIZE)
+            ready = fe.has_enough_data() and occupancy >= self.FLOW_TABLE_THRESHOLD
+            skipped = ready and dpid in self._detecting   # inferenza precedente ancora in corso
+            detect = ready and not skipped
+
+            # Snapshot prima di cedere il controllo: i round successivi modificano le deque.
+            if detect:
+                ftf_win = pad_window(self.w_round_per_ft[dpid], self.ftf["window"], self.ftf["n_feat"])
+                fr_snap = [tuple(self.w_round_per_fr[dpid][h]) for h in hashes]
 
         res = None
         if detect:
             self._detecting.add(dpid)
             try:
-                res = self._detect_and_mitigate(dpid, stats, ftf_win, fr_snap)
+                res = self._detect_and_mitigate(dpid, stats, ftf_win, fr_snap, tm)
             finally:
                 self._detecting.discard(dpid)
         res = res or {}
@@ -322,10 +324,9 @@ class FTFMController(app_manager.RyuApp):
             n_eviction_msgs_wildcard=n_wc, n_eviction_msgs_strict=n_strict,
             n_eviction_msgs_total=n_wc + n_strict,
             round_wall_s=round(time.perf_counter() - t0, 4),
-            prep_cpu_s=round(prep_cpu, 4),
-            infer_wall_s=round(res.get("infer_wall_s", 0.0), 4),
-            infer_cpu_s=round(res.get("infer_cpu_s", 0.0), 4),
-            mitig_cpu_s=round(res.get("mitig_cpu_s", 0.0), 4),
+            prep_wall_s=round(tm.wall["prep"], 4),   prep_cpu_s=round(tm.cpu["prep"], 4),
+            infer_wall_s=round(tm.wall["infer"], 4), infer_cpu_s=round(tm.cpu["infer"], 4),
+            mitig_wall_s=round(tm.wall["mitig"], 4), mitig_cpu_s=round(tm.cpu["mitig"], 4),
         )
 
     # ----------------------------------------------------------------- #
@@ -369,40 +370,43 @@ class FTFMController(app_manager.RyuApp):
     # ----------------------------------------------------------------- #
     # Detection (FTF) + classificazione per-regola (MFR) + eviction
     # ----------------------------------------------------------------- #
-    def _detect_and_mitigate(self, dpid, stats, ftf_win, fr_snap):
+    def _detect_and_mitigate(self, dpid, stats, ftf_win, fr_snap, tm):
         if self.datapaths.get(dpid) is None:
             return None  # switch disconnesso nel frattempo
 
-        infer_wall = infer_cpu = mitig_cpu = 0.0
         n_malicious = n_legit = n_rules_wildcard = n_wc_msgs = n_strict = 0
 
-        (ftf_pred,), w, c = self._infer(self.ftf["model"], [ftf_win])
-        infer_wall += w
-        infer_cpu += c
+        # --- inferenza FTF. Wall: misurato qui (include l'attesa del thread nativo).
+        #     CPU: misurata dentro il thread di inferenza e sommata a mano.
+        with tm.stage("infer", cpu=False):
+            (ftf_pred,), _, c = self._infer(self.ftf["model"], [ftf_win])
+        tm.cpu["infer"] += c
 
         if ftf_pred:
-            c0 = time.thread_time()
-            windows = [pad_window(snap, self.mfr["window"], self.mfr["n_feat"]) for snap in fr_snap]
-            mitig_cpu += time.thread_time() - c0
+            # --- mitigazione, parte 1: finestre per l'MFR
+            with tm.stage("mitig"):
+                windows = [pad_window(snap, self.mfr["window"], self.mfr["n_feat"])
+                        for snap in fr_snap]
 
-            mfr_preds, w, c = self._infer(self.mfr["model"], windows)
-            infer_wall += w
-            infer_cpu += c
+            # --- inferenza MFR
+            with tm.stage("infer", cpu=False):
+                mfr_preds, _, c = self._infer(self.mfr["model"], windows)
+            tm.cpu["infer"] += c
 
-            c0 = time.thread_time()
-            malicious_stats = [s for s, p in zip(stats, mfr_preds) if p]
-            legit_stats = [s for s, p in zip(stats, mfr_preds) if not p]
-            n_malicious, n_legit = len(malicious_stats), len(legit_stats)
-            self.logger.info(f"[!] FTF Attack Detected on DPID={dpid:016x}")
-            datapath = self.datapaths.get(dpid)   # dopo l'attesa lo switch potrebbe essere sparito
-            if datapath is not None and malicious_stats:
-                self.logger.info(f"[!] {n_malicious} regole malevole su DPID={dpid:016x}")
-                evicted, remaining, n_wc_msgs = self._evict_by_port(datapath, malicious_stats, legit_stats)
-                n_rules_wildcard = len(evicted)
-                for stat in remaining:
-                    self.delete_flow(datapath, stat.match, priority=stat.priority, strict=True)
-                    n_strict += 1
-            mitig_cpu += time.thread_time() - c0
+            # --- mitigazione, parte 2: classificazione + invio delle delete
+            with tm.stage("mitig"):
+                malicious_stats = [s for s, p in zip(stats, mfr_preds) if p]
+                legit_stats = [s for s, p in zip(stats, mfr_preds) if not p]
+                n_malicious, n_legit = len(malicious_stats), len(legit_stats)
+                self.logger.info(f"[!] FTF Attack Detected on DPID={dpid:016x}")
+                datapath = self.datapaths.get(dpid)   # dopo l'attesa lo switch potrebbe essere sparito
+                if datapath is not None and malicious_stats:
+                    self.logger.info(f"[!] {n_malicious} regole malevole su DPID={dpid:016x}")
+                    evicted, remaining, n_wc_msgs = self._evict_by_port(datapath, malicious_stats, legit_stats)
+                    n_rules_wildcard = len(evicted)
+                    for stat in remaining:
+                        self.delete_flow(datapath, stat.match, priority=stat.priority, strict=True)
+                        n_strict += 1
 
         return {
             "ftf_detected": int(bool(ftf_pred)),
@@ -410,8 +414,6 @@ class FTFMController(app_manager.RyuApp):
             "n_rules_wildcard": n_rules_wildcard,
             "n_eviction_msgs_wildcard": n_wc_msgs,
             "n_eviction_msgs_strict": n_strict,
-            "infer_wall_s": infer_wall, "infer_cpu_s": infer_cpu,
-            "mitig_cpu_s": mitig_cpu,
         }
 
     def _evict_by_port(self, datapath, malicious_stats, legit_stats):
