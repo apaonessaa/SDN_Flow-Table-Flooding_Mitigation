@@ -5,6 +5,7 @@ import threading
 import subprocess
 import math
 import random
+import csv
 rng = random.Random(69)
 
 from time import time, sleep
@@ -15,7 +16,6 @@ from mininet.log import setLogLevel, info
 from mininet.cli import CLI
 from topology import *
 
-# Modules loader
 import sys
 import os
 current = os.path.dirname(os.path.realpath(__file__))
@@ -36,6 +36,19 @@ CONTROLLER_APPS = {
     "ftfm": "controller.py",
     "baseline": "baseline_controller.py",
 }
+
+class EventLog:
+    """Marker di fase, scritti subito su disco (resistono a un crash)."""
+    def __init__(self, path):
+        self.path = path
+        self._lock = threading.Lock()
+        with open(path, "w", newline="") as f:
+            csv.writer(f).writerow(["ts", "event"])
+
+    def mark(self, label):
+        with self._lock, open(self.path, "a", newline="") as f:
+            csv.writer(f).writerow([time(), label])
+        info(f"[event] {label}\n")
 
 def parse_cpus(spec):
     """'0' -> {0}; '0,2' -> {0, 2}; '0-1' -> {0, 1}"""
@@ -68,7 +81,7 @@ def parse_args():
     return ap.parse_args()
 
 def sample_attack_rate(npkts, flow_table_size, profile):
-    stealth_profiles = {
+    attack_profiles = {
         "aggressive": (10, 60),
         "moderate":   (120, 300),
         "stealth":    (350, 550),
@@ -79,7 +92,7 @@ def sample_attack_rate(npkts, flow_table_size, profile):
         "moderate":   (30, 70),
         "stealth":    (5, 20),
     }
-    t_min, t_max = stealth_profiles[profile]
+    t_min, t_max = attack_profiles[profile]
     fill_time = rng.uniform(t_min, t_max)
     anp = max(min_anp[profile], math.ceil(flow_table_size / fill_time))
     anm = rng.uniform(anms[profile][0], anms[profile][1])
@@ -96,7 +109,7 @@ def main(args) -> None:
     #anp = 20
     #anm = 30
     n_host = 15
-    profile = "stealth"
+    profile = "aggressive"
     full_size = int(math.factorial(n_host) / math.factorial(n_host-2)) + 1
     half_size = int(full_size / 2)
     flow_table_size = rng.randint(half_size, 2*full_size)
@@ -113,7 +126,7 @@ def main(args) -> None:
         "IDLE_TIMEOUT": f"{idle_timeout}",
         "HARD_TIMEOUT": f"{hard_timeout}",
         "K_FACTOR": f"{k_factor}",
-        "MAX_COLLATERAL_PORT": "0",
+        "MAX_COLLATERAL_PORT": "10",
         "LOG_LEVEL": args.log_level,
     }
     controller = start_controller(
@@ -216,7 +229,7 @@ def main(args) -> None:
             n=10,
             t_max=30,
             net=net,
-            out_file=f"{current}/logs/ftf_{log_timestamp}.csv",
+            out_file=f"{log_path}/ftf_{log_timestamp}.csv",
             local_ip=True,
         )
 
@@ -241,10 +254,8 @@ def main(args) -> None:
             out_prefix=f"{log_path}/network_{log_timestamp}",
         )
 
-        def mark(label):
-            """Stesso marker su entrambi i monitor (stesso orologio: time.time())."""
-            mon.mark(label)
-            net_mon.mark(label)
+        events = EventLog(f"{log_path}/events_{log_timestamp}.csv")
+        mark = events.mark
 
         net_mon.start()
         mon.start()
@@ -265,6 +276,8 @@ def main(args) -> None:
         # Stop threads
         attack.join()
         mark("attack_end")
+        mark(f"attack_worker_rc={attack.returncode}")
+
         sleep(30)
         kill_replay_traffic(procs, stop_event)
         for t in threads:

@@ -6,7 +6,7 @@ from threading import Thread, Event
 class FTFAttack:
 
     WORKER_PATH = f"{os.path.dirname(os.path.realpath(__file__))}/ftf_worker.py"
-    
+
     def __init__(self, attacker: str, probe_dst: str, 
                 npacket: int, added_new_packets: int, added_new_macs: int,
                 n: int, t_max: int, 
@@ -25,6 +25,8 @@ class FTFAttack:
         self.local_ip = local_ip
         self.out_file = out_file
         self.net = net
+        self._attack_thread = None     # altrimenti stop()/join()/is_running() danno AttributeError
+        self.returncode = None
 
     def run(self):
         attacker_host = self.net.get(self.attacker)
@@ -39,21 +41,24 @@ class FTFAttack:
             '--anm', str(self.added_new_macs),
             '--n', str(self.n),
             '--t-max', str(self.t_max),
-            '--local-ip' if self.local_ip else ''
             '--out-file', self.out_file,
         ]
+        if self.local_ip:
+            cmd.append('--local-ip')
 
-        print(f"[*] FTF attack worker: {' '.join(cmd)}")
         self._worker_proc = attacker_host.popen(
-            cmd, 
-            stdout=subprocess.PIPE, 
-            stderr=subprocess.STDOUT
-        )
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-        for line in self._worker_proc.stdout:
-            print(line.decode(errors='replace').rstrip())
+        log_path = os.path.splitext(self.out_file)[0] + '.log'
+        with open(log_path, 'w') as lf:                 # output del worker su file
+            for raw in self._worker_proc.stdout:
+                line = raw.decode(errors='replace').rstrip()
+                print(line)
+                lf.write(line + '\n'); lf.flush()
 
-        self._worker_proc.wait()
+        self.returncode = self._worker_proc.wait()
+        if self.returncode != 0:
+            print(f"[!] Worker terminato con codice {self.returncode}")
 
     def start(self) -> None:
         self._stop_event.clear()

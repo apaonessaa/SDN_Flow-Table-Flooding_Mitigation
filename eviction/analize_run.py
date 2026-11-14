@@ -14,7 +14,7 @@ def load(d, rid):
     meta = json.load(open(f(f"meta_{rid}.json")))
     flows = pd.read_csv(f(f"network_{rid}_flows.csv"))
     lat = pd.read_csv(f(f"network_{rid}_latency.csv"))
-    ev = pd.read_csv(f(f"network_{rid}_events.csv"))
+    ev = pd.read_csv(f(f"events_{rid}.csv"))
     res = pd.read_csv(f(f"resources_{rid}.csv"))
     rp = f(f"report_{rid}.txt")
     # dpid come stringa, altrimenti pandas toglie gli zeri iniziali

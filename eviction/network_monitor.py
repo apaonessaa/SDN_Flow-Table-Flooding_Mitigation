@@ -75,9 +75,8 @@ class NetworkMonitor:
         self._stopped, self._report = False, None
         self._stop = threading.Event()
         self._t0: Optional[float] = None
-        self.flow_rows: List[tuple] = []   # (ts, t, switch, total, valid)
-        self.lat_rows: List[tuple] = []    # (ts, t, src, dst, rtt_ms, loss_pct)
-        self.marks: List[tuple] = []       # (ts, t, text)
+        self.flow_rows: List[tuple] = []   # (ts, switch, total, valid)
+        self.lat_rows: List[tuple] = []    # (ts, src, dst, rtt_ms, loss_pct)
         self.ping_interval = 1.0
         self.ping_procs = []     # (src, dst, file, popen, path)
         self._flows_thread = threading.Thread(target=self._loop, args=("flow", self._sample_flows), daemon=True)
@@ -97,7 +96,7 @@ class NetworkMonitor:
         parts = []
         for sw in self.switches:
             total, valid = get_flow_counts(sw, self.valid_re)
-            self.flow_rows.append((round(ts, 3), round(t, 2), sw, total, valid))
+            self.flow_rows.append((round(ts, 3), sw, total, valid))
             parts.append(f"{sw}=tot:{total}/val:{valid}")
         info(f"  [flow t={t:6.1f}s] {'  '.join(parts)}\n")
 
@@ -149,17 +148,11 @@ class NetworkMonitor:
             for seq in range(1, max(max(got), total) + 1):
                 if seq in got:
                     ts, rtt = got[seq]
-                    self.lat_rows.append((round(ts, 3), round(ts - self._t0, 2), s, dn, rtt, 0.0))
+                    self.lat_rows.append((round(ts, 3), s, dn, rtt, 0.0))
                 else:
                     ts = ts_ref + (seq - seq_ref) * self.ping_interval   # stima per i persi
-                    self.lat_rows.append((round(ts, 3), round(ts - self._t0, 2), s, dn, '', 100.0))
+                    self.lat_rows.append((round(ts, 3), s, dn, '', 100.0))
         self.lat_rows.sort(key=lambda r: r[0])
-
-    def mark(self, text: str):
-        """Segna un evento (es. attack_start / attack_end) per i grafici."""
-        now = time.time()
-        self.marks.append((round(now, 3), round(now - self._t0, 2), text))
-        info(f"[monitor:{self.label}] evento: {text}\n")
 
     def start(self) -> 'NetworkMonitor':
         self._t0 = time.time()
@@ -190,22 +183,23 @@ class NetworkMonitor:
 
 
 def _summary(m: NetworkMonitor) -> List[str]:
+    dur = (m.flow_rows[-1][0] - m.flow_rows[0][0]) if m.flow_rows else None
     out = [f"Label: {m.label}",
            f"Intervallo: {m.interval}s",
-           f"Durata: {m.flow_rows[-1][1]:.1f}s" if m.flow_rows else "Durata: N/A"]
+           f"Durata: {dur:.1f}s" if dur is not None else "Durata: N/A"]
     for sw in m.switches:
-        rows = [r for r in m.flow_rows if r[2] == sw]
+        rows = [r for r in m.flow_rows if r[1] == sw]
         if rows:
-            out.append(f"{sw}: picco totali={max(r[3] for r in rows)}  "
-                       f"picco valide={max(r[4] for r in rows)}")
-    rtts = [r[4] for r in m.lat_rows if r[4] != '']
+            out.append(f"{sw}: picco totali={max(r[2] for r in rows)}  "
+                       f"picco valide={max(r[3] for r in rows)}")
+    rtts = [r[3] for r in m.lat_rows if r[3] != '']
     if rtts:
         p95 = statistics.quantiles(rtts, n=20)[-1] if len(rtts) > 1 else rtts[0]
         out.append(f"RTT ms min/avg/p95/max: {min(rtts):.3f} / {statistics.mean(rtts):.3f} / "
                    f"{p95:.3f} / {max(rtts):.3f}")
     if m.lat_rows:
-        out.append(f"Packet loss medio: {statistics.mean(r[5] for r in m.lat_rows):.1f}%  "
-                   f"(ping con 100% loss: {sum(1 for r in m.lat_rows if r[5] >= 100)}/{len(m.lat_rows)})")
+        out.append(f"Packet loss medio: {statistics.mean(r[4] for r in m.lat_rows):.1f}%  "
+                   f"(pacchetti persi: {sum(1 for r in m.lat_rows if r[4] >= 100)}/{len(m.lat_rows)})")
     return out
 
 
@@ -213,9 +207,8 @@ def generate_report(m: NetworkMonitor) -> str:
     base = m.out_prefix
     os.makedirs(os.path.dirname(base) or ".", exist_ok=True)
     for suffix, header, rows in (
-        ("flows",   ["ts", "t", "switch", "flows_total", "flows_valid"], m.flow_rows),
-        ("latency", ["ts", "t", "src", "dst", "rtt_ms", "loss_pct"],     m.lat_rows),
-        ("events",  ["ts", "t", "event"],                                m.marks),
+        ("flows",   ["ts", "switch", "flows_total", "flows_valid"],        m.flow_rows),
+        ("latency", ["ts", "src", "dst", "rtt_ms", "loss_pct"],           m.lat_rows),
     ):
         with open(f"{base}_{suffix}.csv", "w", newline="") as f:
             w = csv.writer(f)

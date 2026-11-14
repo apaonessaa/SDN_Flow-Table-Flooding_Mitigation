@@ -59,19 +59,10 @@ class ResourceMonitor(threading.Thread):
         # {"ryu": Process, "ovs": Process}; i processi None vengono ignorati
         self.procs = {n: p for n, p in procs.items() if p is not None}
         self.out_path = out_path
-        self.events_path = out_path.replace(".csv", "_events.csv")
         self.interval = interval
         # Attenzione: NON chiamare questo attributo _stop, e' un metodo
         # interno di threading.Thread e sovrascriverlo rompe join().
         self._halt = threading.Event()
-        self._lock = threading.Lock()
-        with open(self.events_path, "w", newline="") as f:
-            csv.writer(f).writerow(["ts", "label"])
-
-    def mark(self, label):
-        """Registra subito un cambio di fase (resiste a un crash della run)."""
-        with self._lock, open(self.events_path, "a", newline="") as f:
-            csv.writer(f).writerow([time.time(), label])
 
     def run(self):
         for p in self.procs.values():
