@@ -55,7 +55,6 @@ if __name__ == "__main__":
         best_featBERT_params = None
         best_tempBERT_params = None
 
-        """
         print("\n\n=== Tuning TempBERT ===")
         best_tempBERT_params = tune_tempBERT(X_train, y_train, groups_train, profiles_train, keys_train, plots_dir=PLOTS_DIR)
         save_best_params_csv(best_tempBERT_params, os.path.join(dataset_model_dir, "best_params_tempbert.csv"))
@@ -104,7 +103,7 @@ if __name__ == "__main__":
         #    PLOTS_DIR, ["DecisionTree", "RandomForest", "XGBoost", "CatBoost", "FeatBERT", "TempBERT"],
         #    os.path.join(PLOTS_DIR, "convergence_all_models.png"),
         #)
-        
+        """
         comparison = pd.DataFrame(results).set_index("model")
         print(f"\n\n=== Confronto finale ({subdir}) ===")
         print(comparison.to_string(float_format="%.4f"))
@@ -116,17 +115,17 @@ if __name__ == "__main__":
         best_params_path = os.path.join(dataset_model_dir, "best_params.joblib")
         joblib.dump(
             {
-                "decision_tree": best_dt_params,
-                "random_forest": best_rf_params,
-                "xgboost": best_xgb_params,
-                "catboost": best_cb_params,
+                #"decision_tree": best_dt_params,
+                #"random_forest": best_rf_params,
+                #"xgboost": best_xgb_params,
+                #"catboost": best_cb_params,
                 "featBERT": best_featBERT_params,
                 "tempBERT": best_tempBERT_params,
             },
             best_params_path,
         )
         print(f"Migliori iperparametri salvati in: {best_params_path}")
-
+    """
     pd.DataFrame(dt_param_rows).set_index("dataset").to_csv(
         os.path.join(MODELS_DIR, "best_params_decision_tree_all_datasets.csv"))
     pd.DataFrame(rf_param_rows).set_index("dataset").to_csv(
@@ -135,6 +134,7 @@ if __name__ == "__main__":
         os.path.join(MODELS_DIR, "best_params_xgboost_all_datasets.csv"))
     pd.DataFrame(cb_param_rows).set_index("dataset").to_csv(
         os.path.join(MODELS_DIR, "best_params_catboost_all_datasets.csv"))
+    """
     pd.DataFrame(featbert_param_rows).set_index("dataset").to_csv(
         os.path.join(MODELS_DIR, "best_params_featbert_all_datasets.csv"))
     pd.DataFrame(tempbert_param_rows).set_index("dataset").to_csv(
