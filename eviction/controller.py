@@ -102,16 +102,16 @@ class FTFMController(app_manager.RyuApp):
     MAX_COLLATERAL_PORT = int(os.environ.get('MAX_COLLATERAL_PORT', '0'))
     REPORT_PATH = os.environ.get('REPORT_PATH', '/tmp/report.txt')
     LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
+    FLOW_TABLE_THRESHOLD = float(os.environ.get('FLOW_TABLE_THRESHOLD', '0.8'))
 
     # Round di assenza dalle stats prima di eliminare la finestra MFR di una
     # regola. 0 = si elimina appena sparisce (la storia riparte da zero se
     # la stessa regola riappare).
-    FR_PRUNE_GRACE = int(os.environ.get('FR_PRUNE_GRACE', '0'))
+    FR_PRUNE_GRACE = int(os.environ.get('FR_PRUNE_GRACE', '3'))
 
     FTF_MODEL_DIR = os.environ.get('FTF_MODEL_DIR', root + '/models/ftf_detector/2_100/')
     MFR_MODEL_DIR = os.environ.get('MFR_MODEL_DIR', root + '/models/mfr_detector/2/')
 
-    FLOW_TABLE_THRESHOLD = 0.8
 
     def __init__(self, *args, **kwargs):
         super(FTFMController, self).__init__(*args, **kwargs)

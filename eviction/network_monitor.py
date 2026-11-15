@@ -132,25 +132,29 @@ class NetworkMonitor:
             except Exception:
                 p.kill()
             f.close()
-            got, ref, total = {}, None, 0
-            for line in open(path):
-                m = _PING_RE.match(line)
-                if m:
-                    ts, seq, rtt = float(m.group(1)), int(m.group(2)), float(m.group(3))
-                    got[seq] = (ts, rtt)
-                    ref = ref or (ts, seq)
-                m = _TX_RE.search(line)
-                if m:
-                    total = int(m.group(1))
+
+            got, total = {}, 0                    # got: seq -> (ts_invio, rtt_ms)
+            with open(path) as fh:
+                for line in fh:
+                    m = _PING_RE.match(line)
+                    if m:
+                        ts_rx, seq, rtt = float(m.group(1)), int(m.group(2)), float(m.group(3))
+                        got.setdefault(seq, (ts_rx - rtt / 1000.0, rtt))   # setdefault: ignora i (DUP!)
+                        continue
+                    m = _TX_RE.search(line)
+                    if m:
+                        total = int(m.group(1))
             if not got:
                 continue
-            ts_ref, seq_ref = ref
+
+            seq_ref = min(got)
+            ts_ref = got[seq_ref][0]              # istante di invio del primo pacchetto ricevuto
             for seq in range(1, max(max(got), total) + 1):
                 if seq in got:
                     ts, rtt = got[seq]
                     self.lat_rows.append((round(ts, 3), s, dn, rtt, 0.0))
-                else:
-                    ts = ts_ref + (seq - seq_ref) * self.ping_interval   # stima per i persi
+                else:                             # pacchetto perso: invio stimato dalla cadenza
+                    ts = ts_ref + (seq - seq_ref) * self.ping_interval
                     self.lat_rows.append((round(ts, 3), s, dn, '', 100.0))
         self.lat_rows.sort(key=lambda r: r[0])
 

@@ -100,20 +100,21 @@ def sample_attack_rate(npkts, flow_table_size, profile):
 def main(args) -> None:
     pcap_prefix = current + "/pcaps/scenario_016/"
     topo = TestOnlineTopology()
-    #flow_table_size = 100
+    flow_table_size = 150
     idle_timeout = 10
     hard_timeout = 15
     k_factor = 2
-    #npkts = 150
-    #anp = 20
-    #anm = 30
+    npkts = 300
+    anp = 20
+    anm = 30
+    fill_time = None
     n_host = 15
     profile = "aggressive"
     full_size = int(math.factorial(n_host) / math.factorial(n_host-2)) + 1
     half_size = int(full_size / 2)
-    flow_table_size = rng.randint(half_size, 2*full_size)
-    npkts = flow_table_size + rng.randint(0, half_size)
-    anp, anm, fill_time = sample_attack_rate(npkts, flow_table_size, profile)
+    #flow_table_size = rng.randint(half_size, 2*full_size)
+    #npkts = flow_table_size + rng.randint(0, half_size)
+    #anp, anm, fill_time = sample_attack_rate(npkts, flow_table_size, profile)
     log_path = current + "/logs/"+args.controller
     os.makedirs(log_path, exist_ok=True)
     log_timestamp = int(time())
@@ -127,11 +128,12 @@ def main(args) -> None:
         "K_FACTOR": f"{k_factor}",
         "MAX_COLLATERAL_PORT": "10",
         "LOG_LEVEL": args.log_level,
+        "FLOW_TABLE_THRESHOLD": "0.3"
     }
     controller = start_controller(
         controller_envs,
         log_path=f"{log_path}/controller_{log_timestamp}.log",
-        app=CONTROLLER_APPS[args.controller],
+        app=CONTROLLER_APPS[args.controller], verbose=False
     )
 
     if controller.poll() is not None:

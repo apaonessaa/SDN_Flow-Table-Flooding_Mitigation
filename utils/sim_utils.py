@@ -12,17 +12,25 @@ def load_metadata(prefix):
         return json.load(f)
 
 def start_controller(env_vars: dict, log_path: str = "controller.log",
-                     app: str = "controller.py") -> subprocess.Popen:
+                     app: str = "controller.py", verbose: bool = True) -> subprocess.Popen:
     """app: file dell'app Ryu da lanciare (relativo alla cwd o assoluto)."""
     log_file = open(log_path, "a")
     full_env = os.environ.copy()
     full_env.update(env_vars)
-    proc = subprocess.Popen(
-        ['ryu-manager','--verbose','--observe-links', app],
-        env=full_env,
-        stdout=log_file,
-        stderr=subprocess.STDOUT,
-        text=True,)
+    if verbose:
+        proc = subprocess.Popen(
+            ['ryu-manager','--verbose','--observe-links', app],
+            env=full_env,
+            stdout=log_file,
+            stderr=subprocess.STDOUT,
+            text=True,)
+    else:
+        proc = subprocess.Popen(
+            ['ryu-manager','--observe-links', app],
+            env=full_env,
+            stdout=log_file,
+            stderr=subprocess.STDOUT,
+            text=True,)
     return proc
 
 def wait_for_controller(host: str = "127.0.0.1", port: int = 6653, timeout: float = 15.0) -> bool:
