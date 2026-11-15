@@ -15,6 +15,7 @@ import time
 import threading
 from collections import defaultdict, deque
 from hashlib import sha256
+from contextlib import contextmanager
 
 import joblib
 import numpy as np
@@ -59,6 +60,20 @@ REPORT_COLUMNS = [
     "mitig_wall_s", "mitig_cpu_s",
 ]
 
+class StageTimer:
+    def __init__(self):
+        self.wall = defaultdict(float)
+        self.cpu = defaultdict(float)
+
+    @contextmanager
+    def stage(self, name, cpu=True):
+        w, c = time.perf_counter(), time.thread_time()
+        try:
+            yield
+        finally:
+            self.wall[name] += time.perf_counter() - w
+            if cpu:
+                self.cpu[name] += time.thread_time() - c
 
 def load_tempbert(model_dir, device, order):
     """model_dir/temp_bert/ contiene model.pt e meta.joblib (da train_tempBERT)."""

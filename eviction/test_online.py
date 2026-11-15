@@ -15,7 +15,6 @@ from mininet.topo import Topo
 from mininet.log import setLogLevel, info
 from mininet.cli import CLI
 from topology import *
-from contextlib import contextmanager
 
 import sys
 import os
@@ -61,21 +60,6 @@ def parse_cpus(spec):
         else:
             cpus.add(int(part))
     return cpus
-
-class StageTimer:
-    def __init__(self):
-        self.wall = defaultdict(float)
-        self.cpu = defaultdict(float)
-
-    @contextmanager
-    def stage(self, name, cpu=True):
-        w, c = time.perf_counter(), time.thread_time()
-        try:
-            yield
-        finally:
-            self.wall[name] += time.perf_counter() - w
-            if cpu:
-                self.cpu[name] += time.thread_time() - c
 
 def parse_args():
     ap = argparse.ArgumentParser(description="Test online FTF detection/mitigation")
@@ -234,7 +218,7 @@ def main(args) -> None:
                 )
                 threads.append(t)
 
-        info(f"*** [FTF ATTACK] ({attacker} -> {dst}), NPkts={npkts}, ANP={anp}, ANM={anm}n")
+        info(f"*** [FTF ATTACK] ({attacker} -> {dst}), NPkts={npkts}, ANP={anp}, ANM={anm}\n")
         attack = FTFAttack(
             attacker=attacker,
             probe_dst=dst,
