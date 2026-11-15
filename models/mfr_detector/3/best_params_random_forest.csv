@@ -1,0 +1,2 @@
+n_estimators,bootstrap,max_depth,min_samples_leaf,max_features
+48,True,4,18,0.2788441133807552
