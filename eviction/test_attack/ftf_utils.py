@@ -9,6 +9,8 @@ from scapy.all import (
     Ether, IP, TCP, UDP, ICMP, Packet, RandIP, RandMAC
 )
 
+rng = random.Random(37)
+
 class FTFUtils:
 
     SUPPORTED_PROTOS = ["TCP", "UDP", "ICMP"]
@@ -23,19 +25,19 @@ class FTFUtils:
 
     @staticmethod
     def random_local_ip() -> str:
-        return f'10.0.0.{random.randint(1,254)}'
+        return f'10.0.0.{rng.randint(1,254)}'
 
     @staticmethod
     def random_port() -> int:
-        return random.randint(1024, 65535)
+        return rng.randint(1024, 65535)
 
     @staticmethod
     def random_proto() -> str:
-        return random.choice(FTFUtils.SUPPORTED_PROTOS)
+        return rng.choice(FTFUtils.SUPPORTED_PROTOS)
 
     @staticmethod
     def random_data() -> bytes:
-        n = random.randint(100, 1400)
+        n = rng.randint(100, 1400)
         return os.urandom(n)
 
     @staticmethod
@@ -56,7 +58,7 @@ class FTFUtils:
             )
         elif proto == "ICMP":
             transport = ICMP(
-                type=random.choice([0, 8]),   # 0 = reply, 8 = echo request
+                type=rng.choice([0, 8]),   # 0 = reply, 8 = echo request
                 code=0
             )
         return eth / ip / transport / FTFUtils.random_data()
@@ -64,17 +66,17 @@ class FTFUtils:
     @staticmethod
     def random_af(attack_frequency: int) -> int:
         start = math.ceil(attack_frequency * 0.2)
-        return random.randint(start, attack_frequency - 1) if attack_frequency != 0 else 1
+        return rng.randint(start, attack_frequency - 1) if attack_frequency != 0 else 1
 
     @staticmethod
     def random_anp(added_new_packet: int) -> int:
         start = math.ceil(added_new_packet * 0.2)
-        return random.randint(start, added_new_packet) if added_new_packet != 0 else 1
+        return rng.randint(start, added_new_packet) if added_new_packet != 0 else 1
 
     @staticmethod
     def random_anm(added_new_mac: int) -> int:
         start = math.ceil(added_new_mac * 0.5)
-        return random.randint(start, added_new_mac) if added_new_mac != 0 else 1
+        return rng.randint(start, added_new_mac) if added_new_mac != 0 else 1
 
     @staticmethod
     def measure_rtt(dst_ip: str, timeout: int = 10) -> float:
