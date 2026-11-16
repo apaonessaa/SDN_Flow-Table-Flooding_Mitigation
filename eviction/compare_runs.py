@@ -161,28 +161,48 @@ def occupancy_block(flows, victim, size, ph, ft_thr, a, out, warns):
 
 
 def detection_block(rep, ph, victim, out, warns):
+    """Metriche di detection a TASSO (per round), cosi' fase benigna e flood sono confrontabili
+    anche se hanno durate diverse. Il potere discriminante e' detrate(flood) - detrate(benigna)."""
     need = {"timestamp", "dpid", "ftf_detected"}
     if rep is None or not need <= set(rep.columns):
         return
     vd = f"{int(victim[1:]):016x}"
+    f0, f1 = ph["flood"]
     for name in ("benign", "prelude", "flood", "tail"):
         t0, t1 = ph[name]
+        dur = max(t1 - t0, 1e-9)
         r = rep[(rep.timestamp >= t0) & (rep.timestamp < t1)]
-        det = r[r.ftf_detected == 1]
-        out[f"det_{name}_victim"] = int((det.dpid == vd).sum())
-        out[f"det_{name}_other"] = int((det.dpid != vd).sum())
+        for grp, sub in (("victim", r[r.dpid == vd]), ("other", r[r.dpid != vd])):
+            det = int((sub.ftf_detected == 1).sum())
+            out[f"rounds_{name}_{grp}"] = len(sub)
+            out[f"det_{name}_{grp}"] = det
+            out[f"detrate_{name}_{grp}"] = det / len(sub) if len(sub) else NAN
         if "n_eviction_msgs_total" in r.columns:
             out[f"evict_{name}"] = int(r.n_eviction_msgs_total.sum())
+            out[f"evict_per_s_{name}"] = out[f"evict_{name}"] / dur
         if "n_malicious_rules" in r.columns:
             out[f"flagged_{name}"] = int(r.n_malicious_rules.sum())
-    a0, (f0, f1) = ph["prelude"][0], ph["flood"]
-    vdet = rep[(rep.dpid == vd) & (rep.ftf_detected == 1) & (rep.timestamp >= a0) & (rep.timestamp < f1)]
-    out["t_first_det_from_attack_start_s"] = (vdet.timestamp.min() - a0) if len(vdet) else NAN
+
+    nb = out["rounds_benign_victim"] + out["rounds_benign_other"]
+    db = out["det_benign_victim"] + out["det_benign_other"]
+    out["fp_rate_benign_all"] = db / nb if nb else NAN
+    fb, ff = out["detrate_benign_victim"], out["detrate_flood_victim"]
+    out["detrate_flood_minus_benign_victim"] = ff - fb
+    eb, ef = out.get("evict_per_s_benign", NAN), out.get("evict_per_s_flood", NAN)
+    out["evict_rate_ratio"] = ef / eb if eb and eb > 0 else NAN
+
+    # prima detection SOLO dentro il flood (il prelude non conta come detection dell'attacco)
+    vdet = rep[(rep.dpid == vd) & (rep.ftf_detected == 1) & (rep.timestamp >= f0) & (rep.timestamp < f1)]
     out["t_first_det_from_flood_s"] = (vdet.timestamp.min() - f0) if len(vdet) else NAN
-    if out["det_benign_victim"] + out["det_benign_other"] > 0:
-        warns.append("detection in fase benigna (possibili falsi positivi)")
+    sat = out.get("flood_t_to80_s", NAN)
+    out["t_first_det_vs_sat_s"] = out["t_first_det_from_flood_s"] - sat
+
+    if db > 0:
+        warns.append(f"falsi positivi: {db} detection su {nb} round in fase benigna")
     if out["det_flood_victim"] == 0:
         warns.append("nessuna detection sulla vittima durante il flood")
+    elif not math.isnan(out["detrate_flood_minus_benign_victim"]) and out["detrate_flood_minus_benign_victim"] <= 0.05:
+        warns.append("la detection non discrimina: tasso nel flood ~ tasso in fase benigna")
     tmp = {}
     ar.report_metrics(rep, ph, tmp, warns)         # tempi per round, skipped, polling...
     out.update(tmp)
@@ -378,7 +398,6 @@ METRICS = [
     ("", "lat_victim_flood_p95", "ping via vittima p95 [ms]", -1),
     ("", "lat_victim_flood_slow", "ping via vittima % lenti/persi", -1),
     ("", "lat_control_flood_slow", "ping di controllo % lenti/persi", -1),
-    ("", "benign_tx_ratio", "traffico benigno consegnato flood/pre", +1),
     ("", "drops_flood", "pacchetti scartati dalle porte nel flood", -1),
     ("CONSUMO", None, None, None),
     ("", "ryu_cores_flood", "core medi di Ryu nel flood", -1),
@@ -396,16 +415,18 @@ METRICS = [
     ("", "sys_busy_flood", "CPU di sistema occupata nel flood [0-1]", 0),
     ("", "sys_steal_flood", "steal della VM nel flood [0-1]", 0),
     ("", "sys_ge95_flood_frac", "frazione campioni con sistema >=95%", 0),
-    ("DETECTION - solo FTFM", None, None, None),
-    ("", "t_first_det_from_attack_start_s", "prima detection dall'inizio dell'attacco [s]", 0),
-    ("", "t_first_det_from_flood_s", "prima detection dall'inizio del flood [s]", 0),
-    ("", "det_benign_victim", "detection in fase benigna (vittima)", 0),
-    ("", "det_benign_other", "detection in fase benigna (altri dpid)", 0),
-    ("", "det_prelude_victim", "detection nel prelude (vittima)", 0),
-    ("", "det_flood_victim", "detection nel flood (vittima)", 0),
-    ("", "det_flood_other", "detection nel flood (altri dpid)", 0),
-    ("", "evict_benign", "messaggi di evizione in fase benigna", 0),
-    ("", "evict_flood", "messaggi di evizione nel flood", 0),
+    ("DETECTION - solo FTFM (tassi per round)", None, None, None),
+    ("", "fp_rate_benign_all", "tasso detection in fase benigna, tutti i dpid (falsi positivi)", 0),
+    ("", "detrate_benign_victim", "tasso detection fase benigna (vittima)", 0),
+    ("", "detrate_prelude_victim", "tasso detection nel prelude (vittima)", 0),
+    ("", "detrate_flood_victim", "tasso detection nel flood (vittima)", 0),
+    ("", "detrate_flood_other", "tasso detection nel flood (altri dpid)", 0),
+    ("", "detrate_flood_minus_benign_victim", "potere discriminante: flood - benigna (vittima)", 0),
+    ("", "t_first_det_from_flood_s", "prima detection DENTRO il flood [s dal suo inizio]", 0),
+    ("", "t_first_det_vs_sat_s", "prima detection rispetto alla saturazione 80% [s]", 0),
+    ("", "evict_per_s_benign", "evizioni/s in fase benigna", 0),
+    ("", "evict_per_s_flood", "evizioni/s nel flood", 0),
+    ("", "evict_rate_ratio", "evizioni/s flood / benigna", 0),
     ("", "flagged_flood", "regole segnalate nel flood", 0),
     ("", "pre_occ_max", "occupazione massima benigna (vs soglia controller)", 0),
 ]

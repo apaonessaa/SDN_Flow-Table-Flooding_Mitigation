@@ -348,8 +348,8 @@ def parse_args():
     ap.add_argument("--tail", type=float, default=30.0,
                     help="secondi di traffico dopo la fine dell'attacco (misura il recupero)")
     ap.add_argument("--log-level", default="INFO")
-    ap.add_argument("--ft-threshold", type=float, default=0.3,
-                    help="FLOW_TABLE_THRESHOLD del controller FTFM (default 0.3, come nel test precedente)")
+    ap.add_argument("--ft-threshold", type=float, default=0.8,
+                    help="FLOW_TABLE_THRESHOLD del controller FTFM (default 0.8, come nel test precedente)")
     ap.add_argument("--valid-match", choices=("src", "any"), default="src",
                     help="una flow e' 'valida' se il MAC reale e' in dl_src (src) o ovunque (any)")
     ap.add_argument("--probe-pairs", type=int, default=8,
@@ -393,11 +393,11 @@ def sample_attack_rate(npkts, flow_table_size, profile):
 def main(args) -> None:
     pcap_prefix = current + "/pcaps/scenario_016/"
     topo = TestOnlineTopology()
-    flow_table_size = 150
+    flow_table_size = 100
     idle_timeout = 10
     hard_timeout = 15
-    k_factor = 3
-    npkts = 300
+    k_factor = 2
+    npkts = 150
     anp = 20
     anm = 30
     fill_time = None
