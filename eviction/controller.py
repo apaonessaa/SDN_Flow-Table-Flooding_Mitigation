@@ -20,6 +20,8 @@ from contextlib import contextmanager
 import joblib
 import numpy as np
 import torch
+torch.set_num_threads(1)
+torch.set_num_interop_threads(1)
 
 # Modules loader
 current = os.path.dirname(os.path.realpath(__file__))
@@ -216,7 +218,7 @@ class FTFMController(app_manager.RyuApp):
             out_port=ofproto.OFPP_ANY, out_group=ofproto.OFPG_ANY,
             priority=priority, match=match)
         datapath.send_msg(mod)
-        self.logger.info('[EVICTION] dpid=%016x priority=%s match=%s', datapath.id, priority, match)
+        self.logger.debug('[EVICTION] dpid=%016x priority=%s match=%s', datapath.id, priority, match)
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
@@ -363,7 +365,7 @@ class FTFMController(app_manager.RyuApp):
     # ----------------------------------------------------------------- #
     # Inferenza
     # ----------------------------------------------------------------- #
-    @torch.no_grad()
+    @torch.inference_mode()
     def _forward_many(self, model, windows, max_batch=512):
         """Gira in un thread nativo (tpool): tocca solo gli array ricevuti e il
         modello, mai le strutture condivise. Restituisce (predizioni, wall, cpu)."""
@@ -422,6 +424,8 @@ class FTFMController(app_manager.RyuApp):
                     for stat in remaining:
                         self.delete_flow(datapath, stat.match, priority=stat.priority, strict=True)
                         n_strict += 1
+                    self.logger.info('[EVICTION] dpid=%016x wildcard_msgs=%d covered=%d strict_msgs=%d',
+                                    dpid, n_wc_msgs, n_rules_wildcard, n_strict)
 
         return {
             "ftf_detected": int(bool(ftf_pred)),

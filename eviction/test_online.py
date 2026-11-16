@@ -421,7 +421,11 @@ def main(args) -> None:
         "MAX_COLLATERAL_PORT": "10",
         "LOG_LEVEL": args.log_level,
         "FLOW_TABLE_THRESHOLD": f"{args.ft_threshold}",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
     }
+
     controller = start_controller(
         controller_envs,
         log_path=f"{P('controller')}.log",
