@@ -14,7 +14,7 @@ import csv
 import time
 import threading
 from collections import defaultdict, deque
-from hashlib import sha256
+from hashlib import md5
 from contextlib import contextmanager
 
 import joblib
@@ -111,8 +111,8 @@ class FTFMController(app_manager.RyuApp):
     # la stessa regola riappare).
     FR_PRUNE_GRACE = int(os.environ.get('FR_PRUNE_GRACE', '3'))
 
-    FTF_MODEL_DIR = os.environ.get('FTF_MODEL_DIR', root + '/models/ftf_detector/2_100/')
-    MFR_MODEL_DIR = os.environ.get('MFR_MODEL_DIR', root + '/models/mfr_detector/2/')
+    FTF_MODEL_DIR = os.environ.get('FTF_MODEL_DIR', root + '/models/ftf_detector/3_100/')
+    MFR_MODEL_DIR = os.environ.get('MFR_MODEL_DIR', root + '/models/mfr_detector/3/')
 
 
     def __init__(self, *args, **kwargs):
@@ -303,7 +303,7 @@ class FTFMController(app_manager.RyuApp):
             mfr_rows = self._scale(self.mfr, [fe.get_flow_feature(s) for s in stats])  # 1 transform per round
             seen, hashes = self._fr_last_seen[dpid], []
             for stat, row in zip(stats, mfr_rows):
-                h = sha256(str(stat.match).encode()).hexdigest()
+                h = md5(str(stat.match).encode()).hexdigest()
                 self.w_round_per_fr[dpid][h].append(row)
                 seen[h] = rnd
                 hashes.append(h)

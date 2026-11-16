@@ -396,7 +396,7 @@ def main(args) -> None:
     flow_table_size = 100
     idle_timeout = 10
     hard_timeout = 15
-    k_factor = 2
+    k_factor = 3
     npkts = flow_table_size*2
     anp = 20
     anm = 30
