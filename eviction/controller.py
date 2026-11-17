@@ -243,15 +243,25 @@ class FTFMController(app_manager.RyuApp):
             return
 
         dst, src, dpid = eth.dst, eth.src, datapath.id
+        
+        ip = pkt.get_protocol(ipv4.ipv4) if eth.ethertype == ether_types.ETH_TYPE_IP else None
+        
+        # Packet-In Collector
+        if ip is not None:
+            payload = pkt.protocols[-1]
+            if not isinstance(payload, (bytes, bytearray)):
+                payload = b""
+            self.feature_ext[dpid].add_pkt_in(payload=payload, src_ip=ip.src, dst_ip=ip.dst,
+                                            src_mac=src, dst_mac=dst)
 
-        # Packet In Blocker
+        # Packet-In Blocker
         key = (dpid, in_port, src)
         until = self.blocked.get(key)
         if until is not None:
             now = time.time()
             if now < until:
                 self.n_blocked[dpid] += 1
-                return        # niente learning, flow-mod, packet-out né feature extraction
+                return        # niente learning, flow-mod e packet-out
             del self.blocked[key]
 
         # Update MAC to Port
@@ -260,7 +270,6 @@ class FTFMController(app_manager.RyuApp):
 
         out_port = self.mac_to_port[dpid].get(dst, ofproto.OFPP_FLOOD)
         actions = [parser.OFPActionOutput(out_port)]
-        ip = pkt.get_protocol(ipv4.ipv4) if eth.ethertype == ether_types.ETH_TYPE_IP else None
 
         if out_port != ofproto.OFPP_FLOOD:
             if ip is not None:
@@ -275,41 +284,19 @@ class FTFMController(app_manager.RyuApp):
         data = msg.data if msg.buffer_id == ofproto.OFP_NO_BUFFER else None
         datapath.send_msg(parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
                                               in_port=in_port, actions=actions, data=data))
-
-        # Packet-In collector (solo pacchetti IPv4)
-        if ip is None:
-            return
-        payload = pkt.protocols[-1]
-        if not isinstance(payload, (bytes, bytearray)):
-            payload = b""
-        self.feature_ext[dpid].add_pkt_in(payload=payload, src_ip=ip.src, dst_ip=ip.dst,
-                                          src_mac=src, dst_mac=dst)
+        
 
     # Packet in blocker
-    def _update_blocker(self, dpid, mal_stats, legit_stats):
-        mal, leg = defaultdict(int), defaultdict(int)
+    def _update_blocker(self, dpid, mal_stats):
+        mal = defaultdict(int)
         for s in mal_stats:   mal[(s.match['in_port'], s.match['eth_src'])] += 1
-        for s in legit_stats: leg[(s.match['in_port'], s.match['eth_src'])] += 1
         now = time.time()
-        for k in set(mal) | set(leg):
-            n_m, n_l = mal[k], leg[k]
+        for k in set(mal):
             key = (dpid,) + k
             self._blk_hits[key] += 1
             if self._blk_hits[key] >= self.BLK_CONFIRM:
                 self.blocked[key] = now + self.BLK_TTL
-                self.logger.info('[BLOCK%s] dpid=%016x port=%s mac=%s mal=%d legit=%d', dpid, k[0], k[1], n_m, n_l)
-        
-        #seen = {(dpid,) + k for k in set(mal) | set(leg)}
-        #for key in [k for k in self._blk_hits if k[0] == dpid and k not in seen]:
-        #    del self._blk_hits[key]
-
-    def _purge_blocked(self):
-        """Rimuove i lease scaduti. Il packet-in handler li elimina solo se la
-        stessa chiave ricompare, quindi le chiavi sparite resterebbero per sempre."""
-        now = time.time()
-        for key in [k for k, until in self.blocked.items() if until <= now]:
-            self.blocked.pop(key, None)
-            self._blk_hits.pop(key, None)
+                self.logger.info('[BLOCK] dpid=%016x port=%s mac=%s n=%d', dpid, k[0], k[1], mal[k])
 
     # ----------------------------------------------------------------- #
     # Flow stats -> round
@@ -476,7 +463,7 @@ class FTFMController(app_manager.RyuApp):
                     self.logger.info('[EVICTION] dpid=%016x wildcard_msgs=%d covered=%d strict_msgs=%d',
                                     dpid, n_wc_msgs, n_rules_wildcard, n_strict)
                     # Packet In Blocker
-                    self._update_blocker(dpid, malicious_stats, legit_stats)
+                    self._update_blocker(dpid, malicious_stats)
 
         return {
             "ftf_detected": int(bool(ftf_pred)),
