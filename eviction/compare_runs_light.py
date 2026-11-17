@@ -2,9 +2,9 @@
 """
 compare_runs_light.py - confronto sintetico baseline vs FTFM sulle run di test_online.py.
 
-Versione ridotta di compare_runs.py: ~13 metriche invece di ~45, scelte per
-raccontare in poche righe il punto di forza principale di FTFM (detection/eviction
-ed efficacia sulla tabella) e il suo costo (latenza, CPU, RAM), senza la copertura
+Versione ridotta di compare_runs.py: poche metriche invece di ~45, scelte per
+raccontare in modo leggibile il punto di forza principale di FTFM (detection/eviction
+e Packet-In Blocker) e il suo costo (latenza, CPU, RAM), senza la copertura
 esaustiva ma anche senza il rumore statistico di troppe metriche correlate.
 
 Riusa le utility di lettura/fasi di analyze_run.py.
@@ -74,6 +74,7 @@ def occupancy_metrics(flows, victim, size, ph, a, out, warns):
     if t_sat is None:
         out["occ_above80_frac_post_sat"] = 0.0
         out["occ_full_frac_post_sat"] = 0.0
+        warns.append("la tabella non ha mai raggiunto la soglia di saturazione nel flood")
     else:
         post = [(max(s, t_sat), e, x) for s, e, x in iv if e > t_sat]
         pdur = sum(e - s for s, e, _ in post)
@@ -176,6 +177,48 @@ def detection_metrics(rep, ph, victim, out, warns):
         out["eviction_rate_per_s_flood"] = float(r.n_eviction_msgs_total.sum()) / dur
 
 
+def blocker_metrics(rep, ph, victim, out, warns):
+    """Packet-In Blocker: packet-in scartati e MAC bloccati, solo sullo switch vittima.
+    n_blocked_pktin e' un contatore cumulativo (si legge per differenza), n_blocked_macs
+    e' una fotografia del numero di identita' attualmente bloccate a quel round."""
+    need = {"timestamp", "dpid", "n_blocked_pktin", "n_blocked_macs"}
+    if rep is None or not need <= set(rep.columns):
+        return
+    vd = f"{int(victim[1:]):016x}"
+    v = rep[rep.dpid == vd].copy().sort_values("timestamp")
+    v["n_blocked_pktin"] = pd.to_numeric(v["n_blocked_pktin"], errors="coerce").fillna(0)
+    v["n_blocked_macs"] = pd.to_numeric(v["n_blocked_macs"], errors="coerce").fillna(0)
+    if v.empty:
+        return
+
+    def cum_at(t):
+        prev = v[v.timestamp < t]
+        return float(prev["n_blocked_pktin"].iloc[-1]) if len(prev) else 0.0
+
+    b0 = ph["benign"][0]
+    f0, f1 = ph["flood"]
+    blocked_benign = cum_at(f0) - cum_at(b0)
+    blocked_flood = cum_at(f1) - cum_at(f0)
+    dur_fl = max(f1 - f0, 1e-9)
+    out["blocked_pktin_rate_flood"] = blocked_flood / dur_fl
+
+    w = v[(v.timestamp >= f0) & (v.timestamp < f1)]
+    out["blocked_macs_max_flood"] = float(w["n_blocked_macs"].max()) if len(w) else 0.0
+
+    out["blocked_pktin_benign_count"] = blocked_benign
+    if blocked_benign > 0:
+        warns.append(f"{int(blocked_benign)} packet-in bloccati in fase benigna: possibili falsi blocchi")
+    if blocked_flood == 0:
+        warns.append("blocker mai attivo nel flood (nessun packet-in scartato)")
+
+    o = rep[rep.dpid != vd]
+    if len(o):
+        other = float(pd.to_numeric(o["n_blocked_pktin"], errors="coerce").fillna(0)
+                       .groupby(o["dpid"]).max().sum())
+        if other > 0:
+            warns.append(f"{int(other)} packet-in bloccati su dpid non vittima (collaterale)")
+
+
 # ---------------------------------------------------------------------------
 # Una run
 # ---------------------------------------------------------------------------
@@ -208,21 +251,25 @@ def analyze_one(d, rid, a):
         acct = _num(acct, ["ts", "user_s", "sys_s"])
     resource_metrics(res, acct, ph, out, warns)
     detection_metrics(rep, ph, victim, out, warns)
+    blocker_metrics(rep, ph, victim, out, warns)
 
     out["avvisi"] = " | ".join(dict.fromkeys(warns)) if warns else "-"
     return out
 
 
 # ---------------------------------------------------------------------------
-# Le 13 metriche: (sezione, chiave, etichetta, direzione: +1 piu'=meglio, -1 meno=meglio)
-# Ordine scelto per mettere avanti i punti di forza di FTFM (detection/eviction,
+# Le metriche: (sezione, chiave, etichetta, direzione: +1 piu'=meglio, -1 meno=meglio)
+# Ordine scelto per mettere avanti i punti di forza di FTFM (detection/eviction/blocker,
 # efficacia sulla tabella) e mostrare per ultimo il costo (latenza, CPU, RAM).
 # ---------------------------------------------------------------------------
 METRICS = [
-    ("PUNTI DI FORZA - detection ed eviction", None, None, None),
+    ("PUNTI DI FORZA - detection, eviction e blocker", None, None, None),
     ("", "detect_rate_flood", "tasso di detection nel flood (vittima)", +1),
     ("", "detect_rate_benign", "tasso di detection in fase benigna (falsi positivi)", -1),
     ("", "eviction_rate_per_s_flood", "evizioni/s nel flood (reattivita' alla saturazione)", +1),
+    ("", "blocked_pktin_rate_flood", "packet-in bloccati/s nel flood (Packet-In Blocker)", +1),
+    ("", "blocked_macs_max_flood", "identita' bloccate in contemporanea, max nel flood", 0),
+    ("", "blocked_pktin_benign_count", "packet-in bloccati in fase benigna (falsi blocchi)", -1),
     ("EFFICACIA - stato della tabella e traffico legittimo", None, None, None),
     ("", "occ_above80_frac_post_sat", "frazione di tempo >=80% dopo la 1a saturazione", -1),
     ("", "occ_full_frac_post_sat", "frazione di tempo con tabella piena (>=99%)", -1),
