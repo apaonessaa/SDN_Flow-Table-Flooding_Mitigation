@@ -398,8 +398,8 @@ def main(args) -> None:
     hard_timeout = 15
     k_factor = 3
     npkts = flow_table_size*2
-    anp = 20
-    anm = 30
+    anp = 20 #5
+    anm = 30 #10
     fill_time = None
     profile = "aggressive"
     log_path = current + "/logs/" + args.controller

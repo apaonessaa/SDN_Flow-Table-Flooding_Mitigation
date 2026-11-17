@@ -197,6 +197,46 @@ def detection_block(rep, ph, victim, out, warns):
     sat = out.get("flood_t_to80_s", NAN)
     out["t_first_det_vs_sat_s"] = out["t_first_det_from_flood_s"] - sat
 
+    # --- Packet-In Blocker (contatori cumulativi per dpid scritti dal controller)
+    if {"n_blocked_pktin", "n_blocked_macs"} <= set(rep.columns):
+        rep = rep.copy()
+        rep["n_blocked_pktin"] = pd.to_numeric(rep["n_blocked_pktin"], errors="coerce").fillna(0)
+        rep["n_blocked_macs"] = pd.to_numeric(rep["n_blocked_macs"], errors="coerce").fillna(0)
+        v = rep[rep.dpid == vd].sort_values("timestamp")
+
+        def cum_at(t):
+            prev = v[v.timestamp < t]
+            return float(prev["n_blocked_pktin"].iloc[-1]) if len(prev) else 0.0
+
+        for name in ("benign", "prelude", "flood", "tail"):
+            t0, t1 = ph[name]
+            dur = max(t1 - t0, 1e-9)
+            out[f"blocked_pktin_{name}"] = cum_at(t1) - cum_at(t0)
+            out[f"blocked_pktin_per_s_{name}"] = out[f"blocked_pktin_{name}"] / dur
+            w = v[(v.timestamp >= t0) & (v.timestamp < t1)]
+            out[f"blocked_macs_max_{name}"] = float(w["n_blocked_macs"].max()) if len(w) else 0.0
+
+        # packet-in bloccati sugli altri dpid (collaterale: non dovrebbero essercene)
+        o = rep[rep.dpid != vd]
+        out["blocked_pktin_other_total"] = (float(o.groupby("dpid")["n_blocked_pktin"].max().sum())
+                                            if len(o) else 0.0)
+
+        # primo blocco effettivo nel flood
+        fb = v[(v.timestamp >= f0) & (v.timestamp < f1) & (v.n_blocked_macs > 0)]
+        out["t_first_block_from_flood_s"] = (fb.timestamp.min() - f0) if len(fb) else NAN
+        out["t_first_block_vs_det_s"] = (out["t_first_block_from_flood_s"] - out["t_first_det_from_flood_s"]
+                                         if len(fb) and not math.isnan(out["t_first_det_from_flood_s"]) else NAN)
+
+        pre_blk = out["blocked_pktin_benign"] + out["blocked_pktin_prelude"]
+        if pre_blk > 0:
+            warns.append(f"{int(pre_blk)} packet-in bloccati prima del flood: blocco su traffico benigno?")
+        if out["blocked_pktin_other_total"] > 0:
+            warns.append(f"{int(out['blocked_pktin_other_total'])} packet-in bloccati su dpid non vittima")
+        if out["blocked_pktin_flood"] == 0:
+            warns.append("blocker mai attivo nel flood (nessun packet-in scartato)")
+    else:
+        warns.append("report senza colonne del blocker (n_blocked_pktin / n_blocked_macs)")
+
     if db > 0:
         warns.append(f"falsi positivi: {db} detection su {nb} round in fase benigna")
     if out["det_flood_victim"] == 0:
@@ -370,6 +410,9 @@ def analyze_one(d, rid, a):
     cpu_block(res, acct, ph, out, warns)
     port_block(_opt(d, f"portstats_{rid}.csv"), meta, ph, out, warns)
 
+    bf, ap, fd = out.get("blocked_pktin_flood", NAN), out.get("attack_rx_pps_flood", NAN), out.get("flood_dur_s", NAN)
+    out["blocked_per_attack_pkt"] = (bf / (ap * fd)) if ap and fd and not any(map(math.isnan, (bf, ap, fd))) else NAN
+
     out["avvisi"] = " | ".join(dict.fromkeys(warns)) if warns else "-"
     return out
 
@@ -415,7 +458,7 @@ METRICS = [
     ("", "sys_busy_flood", "CPU di sistema occupata nel flood [0-1]", 0),
     ("", "sys_steal_flood", "steal della VM nel flood [0-1]", 0),
     ("", "sys_ge95_flood_frac", "frazione campioni con sistema >=95%", 0),
-    ("DETECTION - solo FTFM (tassi per round)", None, None, None),
+    ("DETECTION & BLOCKER - solo FTFM (tassi per round)", None, None, None),
     ("", "fp_rate_benign_all", "tasso detection in fase benigna, tutti i dpid (falsi positivi)", 0),
     ("", "detrate_benign_victim", "tasso detection fase benigna (vittima)", 0),
     ("", "detrate_prelude_victim", "tasso detection nel prelude (vittima)", 0),
@@ -428,6 +471,15 @@ METRICS = [
     ("", "evict_per_s_flood", "evizioni/s nel flood", 0),
     ("", "evict_rate_ratio", "evizioni/s flood / benigna", 0),
     ("", "flagged_flood", "regole segnalate nel flood", 0),
+    ("", "blocked_pktin_flood", "packet-in bloccati nel flood (vittima)", 0),
+    ("", "blocked_pktin_per_s_flood", "packet-in bloccati/s nel flood", 0),
+    ("", "blocked_per_attack_pkt", "packet-in bloccati / pacchetti d'attacco offerti", 0),
+    ("", "blocked_macs_max_flood", "MAC bloccati contemporaneamente, max nel flood", 0),
+    ("", "t_first_block_from_flood_s", "primo blocco DENTRO il flood [s dal suo inizio]", 0),
+    ("", "t_first_block_vs_det_s", "primo blocco rispetto alla prima detection [s]", 0),
+    ("", "blocked_pktin_benign", "packet-in bloccati in fase benigna (falsi blocchi)", 0),
+    ("", "blocked_pktin_prelude", "packet-in bloccati nel prelude", 0),
+    ("", "blocked_pktin_other_total", "packet-in bloccati su dpid non vittima", 0),
     ("", "pre_occ_max", "occupazione massima benigna (vs soglia controller)", 0),
 ]
 
