@@ -115,11 +115,8 @@ class FTFMController(app_manager.RyuApp):
     FTF_MODEL_DIR = os.environ.get('FTF_MODEL_DIR', root + '/models/ftf_detector/3_100/')
     MFR_MODEL_DIR = os.environ.get('MFR_MODEL_DIR', root + '/models/mfr_detector/3/')
 
-    BLK_MIN_RULES = int(os.environ.get('BLK_MIN_RULES', '3'))
-    BLK_MIN_FRAC  = float(os.environ.get('BLK_MIN_FRAC', '0.8'))
     BLK_CONFIRM   = int(os.environ.get('BLK_CONFIRM', '2'))
     BLK_TTL       = float(os.environ.get('BLK_TTL', '30'))
-    BLK_DRY_RUN   = os.environ.get('BLK_DRY_RUN', '0') == '1'
 
     def __init__(self, *args, **kwargs):
         super(FTFMController, self).__init__(*args, **kwargs)
@@ -185,7 +182,7 @@ class FTFMController(app_manager.RyuApp):
         while True:
             for datapath in list(self.datapaths.values()):
                 datapath.send_msg(datapath.ofproto_parser.OFPFlowStatsRequest(datapath))
-            self._purge_blocked()
+            #self._purge_blocked()
             hub.sleep(self.T)
 
     # ----------------------------------------------------------------- #
@@ -253,7 +250,6 @@ class FTFMController(app_manager.RyuApp):
         if until is not None:
             now = time.time()
             if now < until:
-                self.blocked[key] = now + self.BLK_TTL      # lease scorrevole
                 self.n_blocked[dpid] += 1
                 return        # niente learning, flow-mod, packet-out né feature extraction
             del self.blocked[key]
@@ -298,15 +294,10 @@ class FTFMController(app_manager.RyuApp):
         for k in set(mal) | set(leg):
             n_m, n_l = mal[k], leg[k]
             key = (dpid,) + k
-            if n_m >= self.BLK_MIN_RULES and n_m / (n_m + n_l) >= self.BLK_MIN_FRAC:
-                self._blk_hits[key] += 1
-                if self._blk_hits[key] >= self.BLK_CONFIRM:
-                    if not self.BLK_DRY_RUN:
-                        self.blocked[key] = now + self.BLK_TTL
-                    self.logger.info('[BLOCK%s] dpid=%016x port=%s mac=%s mal=%d legit=%d',
-                                    '-DRY' if self.BLK_DRY_RUN else '', dpid, k[0], k[1], n_m, n_l)
-            else:
-                self._blk_hits[key] = 0
+            self._blk_hits[key] += 1
+            if self._blk_hits[key] >= self.BLK_CONFIRM:
+                self.blocked[key] = now + self.BLK_TTL
+                self.logger.info('[BLOCK%s] dpid=%016x port=%s mac=%s mal=%d legit=%d', dpid, k[0], k[1], n_m, n_l)
         
         #seen = {(dpid,) + k for k in set(mal) | set(leg)}
         #for key in [k for k in self._blk_hits if k[0] == dpid and k not in seen]:
