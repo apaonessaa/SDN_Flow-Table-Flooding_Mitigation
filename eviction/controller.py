@@ -97,7 +97,7 @@ class FTFMController(app_manager.RyuApp):
     REPORT_PATH = os.environ.get('REPORT_PATH', '/tmp/report.txt')
     LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
     FLOW_TABLE_THRESHOLD = float(os.environ.get('FLOW_TABLE_THRESHOLD', '0.8'))
-    REAL_MACS = {m.strip().lower() for m in os.environ.get('REAL_MACS', '').split(',') if m.strip()}
+    REAL_MACS = {m.strip().lower() for m in os.environ.get('REAL_MACS', '').split(',') if m.strip()} #TODO errore con REAL_MACS
 
     FTF_MODEL_DIR = os.environ.get('FTF_MODEL_DIR', root + '/models/ftf_detector/2_100/')
     MFR_MODEL_DIR = os.environ.get('MFR_MODEL_DIR', root + '/models/mfr_detector/2/')
@@ -249,32 +249,34 @@ class FTFMController(app_manager.RyuApp):
             self.n_pktin_real[dpid] += 1
 
         # Packet-In Blocker
+        bypass_flow_mod = False
         key = (dpid, in_port, src)
-        until = self.blocked.get(key)
+        until = self.blocked.get(key, None)
         if until is not None:
             now = time.time()
-            if now < until:
+            if until is not None and now < until:
                 self.n_blocked[dpid] += 1
                 if is_real:
                     self.n_blocked_real[dpid] += 1
-                return
+                bypass_flow_mod = True
 
         # Update MAC to Port
         self.mac_to_port.setdefault(dpid, {})
         self.mac_to_port[dpid][src] = in_port
-
         out_port = self.mac_to_port[dpid].get(dst, ofproto.OFPP_FLOOD)
         actions = [parser.OFPActionOutput(out_port)]
-
-        if out_port != ofproto.OFPP_FLOOD:
-            if ip is not None:
-                match = parser.OFPMatch(in_port=in_port, eth_type=ether_types.ETH_TYPE_IP,
-                                        eth_dst=dst, eth_src=src,
-                                        ipv4_dst=ip.dst, ipv4_src=ip.src)
-            else:
-                match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
-            self.add_flow(datapath, 1, match, actions,
-                          idle_timeout=self.IDLE_TIMEOUT, hard_timeout=self.HARD_TIMEOUT)
+    
+        # Bypass flow-mod for Packet-In Blocker
+        if not bypass_flow_mod:
+            if out_port != ofproto.OFPP_FLOOD:
+                if ip is not None:
+                    match = parser.OFPMatch(in_port=in_port, eth_type=ether_types.ETH_TYPE_IP,
+                                            eth_dst=dst, eth_src=src,
+                                            ipv4_dst=ip.dst, ipv4_src=ip.src)
+                else:
+                    match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
+                self.add_flow(datapath, 1, match, actions,
+                            idle_timeout=self.IDLE_TIMEOUT, hard_timeout=self.HARD_TIMEOUT)
 
         data = msg.data if msg.buffer_id == ofproto.OFP_NO_BUFFER else None
         datapath.send_msg(parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
@@ -356,6 +358,8 @@ class FTFMController(app_manager.RyuApp):
             self._detecting.add(dpid)
             try:
                 res = self._detect_and_mitigate(dpid, stats, ftf_win, fr_snap, tm)
+                # TODO: FTF on detect and MFR + EVICTION on mitigate
+                # TODO: if FTF detects FTF attack, MFR + EVICTION on mitigate for TIMEOUT s
             finally:
                 self._detecting.discard(dpid)
         res = res or {}
