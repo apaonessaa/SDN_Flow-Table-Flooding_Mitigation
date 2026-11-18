@@ -170,11 +170,26 @@ def detection_metrics(rep, ph, victim, out, warns):
     if fb and not math.isnan(fb) and fb > 0.1:
         warns.append(f"tasso di detection in fase benigna alto ({fb:.2f}): possibili falsi positivi")
 
-    if "n_eviction_msgs_total" in rep.columns:
+    ev_cols = {"n_eviction_msgs_total", "n_eviction_msgs_wildcard",
+               "n_eviction_msgs_strict", "n_rules_wildcard"}
+    if ev_cols <= set(rep.columns):
         t0, t1 = ph["flood"]
-        r = rep[(rep.timestamp >= t0) & (rep.timestamp < t1)]
+        r = rep[(rep.timestamp >= t0) & (rep.timestamp < t1) & (rep.dpid == vd)].copy()
+        for c in ev_cols:
+            r[c] = pd.to_numeric(r[c], errors="coerce")
         dur = max(t1 - t0, 1e-9)
+
+        n_wc_msgs = float(r.n_eviction_msgs_wildcard.sum())
+        n_strict_msgs = float(r.n_eviction_msgs_strict.sum())
+        n_wc_rules = float(r.n_rules_wildcard.sum())
+
         out["eviction_rate_per_s_flood"] = float(r.n_eviction_msgs_total.sum()) / dur
+        out["evicted_rules_flood"] = n_wc_rules + n_strict_msgs   # ogni strict toglie 1 regola
+        out["evict_msgs_strict_flood"] = n_strict_msgs
+        out["evict_msgs_wildcard_flood"] = n_wc_msgs
+        out["rules_per_wildcard_msg_flood"] = n_wc_rules / n_wc_msgs if n_wc_msgs > 0 else NAN
+    else:
+        warns.append("report senza colonne di eviction dettagliate")
 
 def _delta(rep_d, col, t0, t1):
     """Incremento di un contatore cumulativo del controller tra t0 e t1."""
@@ -259,6 +274,10 @@ METRICS = [
     ("", "detect_rate_flood", "tasso di detection nel flood (vittima)", +1),
     ("", "detect_rate_benign", "tasso di detection in fase benigna (falsi positivi)", -1),
     ("", "eviction_rate_per_s_flood", "evizioni/s nel flood (reattivita' alla saturazione)", +1),
+    ("", "evicted_rules_flood", "regole evictate nel flood (totale)", 0),
+    ("", "evict_msgs_strict_flood", "messaggi di eviction STRICT nel flood", 0),
+    ("", "evict_msgs_wildcard_flood", "messaggi di eviction NON STRICT (wildcard) nel flood", 0),
+    ("", "rules_per_wildcard_msg_flood", "regole eliminate per messaggio NON STRICT (media)", 0),
     ("", "blocked_pktin_flood", "Packet-In scartati dal blocker nel flood", 0),
     ("", "benign_blocked_pct_flood", "% Packet-In benigni scartati (su tutti i benigni)", -1),
     ("", "malicious_blocked_pct_flood", "% Packet-In malevoli scartati (su tutti i malevoli)", +1),
