@@ -52,7 +52,8 @@ REPORT_COLUMNS = [
     "prep_wall_s", "prep_cpu_s",
     "infer_wall_s", "infer_cpu_s",
     "mitig_wall_s", "mitig_cpu_s",
-    "n_blocked_pktin", "n_blocked_macs"
+    "n_blocked_pktin", "n_blocked_macs",
+    "n_pktin_total", "n_pktin_real", "n_blocked_pktin_real"
 ]
 
 class StageTimer:
@@ -132,6 +133,9 @@ class FTFMController(app_manager.RyuApp):
         self.blocked = {}                       # (dpid, in_port, eth_src) -> lease time
         self.strikes = {}                       # (dpid, in_port, eth_src) -> (n_segnalazioni, ts ultima)
         self.n_blocked = defaultdict(int)       # num of blocked per dpid
+        self.n_pktin_total = defaultdict(int)
+        self.n_pktin_real = defaultdict(int)
+        self.n_blocked_real = defaultdict(int)
         
         self.T = float("{:.2f}".format(self.IDLE_TIMEOUT / self.K_FACTOR))
         self._init_report()
@@ -238,6 +242,11 @@ class FTFMController(app_manager.RyuApp):
             self.feature_ext[dpid].add_pkt_in(payload=payload, src_ip=ip.src, dst_ip=ip.dst,
                                             src_mac=src, dst_mac=dst)
 
+        is_real = src.lower() in self.REAL_MACS
+        self.n_pktin_total[dpid] += 1
+        if is_real:
+            self.n_pktin_real[dpid] += 1
+
         # Packet-In Blocker
         key = (dpid, in_port, src)
         until = self.blocked.get(key)
@@ -245,9 +254,9 @@ class FTFMController(app_manager.RyuApp):
             now = time.time()
             if now < until:
                 self.n_blocked[dpid] += 1
-                return                  # pass the MAC learning, the flow-mod and the Packet-Out
-            #else:
-            #    del self.blocked[key]   # update the Packet-In Blocker list by removing the entry if the lease is elapsed
+                if is_real:
+                    self.n_blocked_real[dpid] += 1
+                return
 
         # Update MAC to Port
         self.mac_to_port.setdefault(dpid, {})
@@ -368,6 +377,9 @@ class FTFMController(app_manager.RyuApp):
             mitig_wall_s=round(tm.wall["mitig"], 4), mitig_cpu_s=round(tm.cpu["mitig"], 4),
             n_blocked_pktin=self.n_blocked[dpid],
             n_blocked_macs=sum(1 for k, u in self.blocked.items() if k[0] == dpid and u > ts0),
+            n_pktin_total=self.n_pktin_total[dpid],
+            n_pktin_real=self.n_pktin_real[dpid],
+            n_blocked_pktin_real=self.n_blocked_real[dpid],
         )
 
     # ----------------------------------------------------------------- #

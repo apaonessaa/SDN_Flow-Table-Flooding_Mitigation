@@ -176,48 +176,40 @@ def detection_metrics(rep, ph, victim, out, warns):
         dur = max(t1 - t0, 1e-9)
         out["eviction_rate_per_s_flood"] = float(r.n_eviction_msgs_total.sum()) / dur
 
+def _delta(rep_d, col, t0, t1):
+    """Incremento di un contatore cumulativo del controller tra t0 e t1."""
+    d = rep_d.sort_values("timestamp")
+    def at(t):
+        s = d.loc[d.timestamp < t, col]
+        return float(s.iloc[-1]) if len(s) else 0.0
+    return at(t1) - at(t0)
 
 def blocker_metrics(rep, ph, victim, out, warns):
-    """Packet-In Blocker: packet-in scartati e MAC bloccati, solo sullo switch vittima.
-    n_blocked_pktin e' un contatore cumulativo (si legge per differenza), n_blocked_macs
-    e' una fotografia del numero di identita' attualmente bloccate a quel round."""
-    need = {"timestamp", "dpid", "n_blocked_pktin", "n_blocked_macs"}
-    if rep is None or not need <= set(rep.columns):
+    """Packet-In scartati dal blocker nel flood sullo switch vittima.
+    Benigno = MAC sorgente in REAL_MACS; malevolo = tutto il resto."""
+    cols = ["n_blocked_pktin", "n_pktin_total", "n_pktin_real", "n_blocked_pktin_real"]
+    if rep is None or not (set(cols) | {"timestamp", "dpid"}) <= set(rep.columns):
+        warns.append("report senza contatori del blocker")
+        return
+    rep = rep.copy()
+    for c in cols:
+        rep[c] = pd.to_numeric(rep[c], errors="coerce")
+    if rep["n_pktin_real"].max() == 0:
+        warns.append("REAL_MACS vuoto o non corrispondente: percentuali del blocker non affidabili")
         return
     vd = f"{int(victim[1:]):016x}"
-    v = rep[rep.dpid == vd].copy().sort_values("timestamp")
-    v["n_blocked_pktin"] = pd.to_numeric(v["n_blocked_pktin"], errors="coerce").fillna(0)
-    v["n_blocked_macs"] = pd.to_numeric(v["n_blocked_macs"], errors="coerce").fillna(0)
-    if v.empty:
-        return
-
-    def cum_at(t):
-        prev = v[v.timestamp < t]
-        return float(prev["n_blocked_pktin"].iloc[-1]) if len(prev) else 0.0
-
-    b0 = ph["benign"][0]
+    rv = rep[rep.dpid == vd]
     f0, f1 = ph["flood"]
-    blocked_benign = cum_at(f0) - cum_at(b0)
-    blocked_flood = cum_at(f1) - cum_at(f0)
-    dur_fl = max(f1 - f0, 1e-9)
-    out["blocked_pktin_rate_flood"] = blocked_flood / dur_fl
 
-    w = v[(v.timestamp >= f0) & (v.timestamp < f1)]
-    out["blocked_macs_max_flood"] = float(w["n_blocked_macs"].max()) if len(w) else 0.0
+    blk = _delta(rv, "n_blocked_pktin", f0, f1)
+    blk_real = _delta(rv, "n_blocked_pktin_real", f0, f1)
+    tot = _delta(rv, "n_pktin_total", f0, f1)
+    tot_real = _delta(rv, "n_pktin_real", f0, f1)
+    tot_mal, blk_mal = tot - tot_real, blk - blk_real
 
-    out["blocked_pktin_benign_count"] = blocked_benign
-    if blocked_benign > 0:
-        warns.append(f"{int(blocked_benign)} packet-in bloccati in fase benigna: possibili falsi blocchi")
-    if blocked_flood == 0:
-        warns.append("blocker mai attivo nel flood (nessun packet-in scartato)")
-
-    o = rep[rep.dpid != vd]
-    if len(o):
-        other = float(pd.to_numeric(o["n_blocked_pktin"], errors="coerce").fillna(0)
-                       .groupby(o["dpid"]).max().sum())
-        if other > 0:
-            warns.append(f"{int(other)} packet-in bloccati su dpid non vittima (collaterale)")
-
+    out["blocked_pktin_flood"] = blk
+    out["benign_blocked_pct_flood"] = 100.0 * blk_real / tot_real if tot_real > 0 else NAN
+    out["malicious_blocked_pct_flood"] = 100.0 * blk_mal / tot_mal if tot_mal > 0 else NAN
 
 # ---------------------------------------------------------------------------
 # Una run
@@ -267,9 +259,9 @@ METRICS = [
     ("", "detect_rate_flood", "tasso di detection nel flood (vittima)", +1),
     ("", "detect_rate_benign", "tasso di detection in fase benigna (falsi positivi)", -1),
     ("", "eviction_rate_per_s_flood", "evizioni/s nel flood (reattivita' alla saturazione)", +1),
-    ("", "blocked_pktin_rate_flood", "packet-in bloccati/s nel flood (Packet-In Blocker)", +1),
-    ("", "blocked_macs_max_flood", "identita' bloccate in contemporanea, max nel flood", 0),
-    ("", "blocked_pktin_benign_count", "packet-in bloccati in fase benigna (falsi blocchi)", -1),
+    ("", "blocked_pktin_flood", "Packet-In scartati dal blocker nel flood", 0),
+    ("", "benign_blocked_pct_flood", "% Packet-In benigni scartati (su tutti i benigni)", -1),
+    ("", "malicious_blocked_pct_flood", "% Packet-In malevoli scartati (su tutti i malevoli)", +1),
     ("EFFICACIA - stato della tabella e traffico legittimo", None, None, None),
     ("", "occ_above80_frac_post_sat", "frazione di tempo >=80% dopo la 1a saturazione", -1),
     ("", "occ_full_frac_post_sat", "frazione di tempo con tabella piena (>=99%)", -1),
