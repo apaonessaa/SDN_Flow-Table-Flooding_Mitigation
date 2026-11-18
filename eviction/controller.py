@@ -6,8 +6,6 @@ from ryu.ofproto import ofproto_v1_4
 from ryu.lib.packet import packet, ethernet, ether_types, ipv4
 from ryu.lib import hub
 
-from eventlet import tpool
-
 import os
 import sys
 import csv
@@ -15,6 +13,7 @@ import time
 import threading
 from collections import defaultdict, deque
 from hashlib import md5
+from eventlet import tpool
 from contextlib import contextmanager
 
 import joblib
@@ -29,11 +28,8 @@ root = os.path.dirname(current)
 sys.path.append(root)
 from mitigation.feature_ext import FeatureExt
 
-# Architettura e padding delle finestre: unica sorgente, condivisa con il training.
 from mitigation.tempbert_arch import TempBert, pad_window
 
-# Ordine in cui FeatureExt restituisce le feature. L'ordine del modello
-# (meta["features"]) puo' essere diverso: load_tempbert calcola la permutazione.
 FTF_ORDER = [
     "payload_entropy_mean", "payload_entropy_cv", "payload_size_entropy",
     "src_ip_entropy", "dst_ip_entropy", "src_mac_entropy", "dst_mac_entropy",
@@ -46,10 +42,6 @@ MFR_ORDER = [
     "packets_per_seconds", "bytes_per_seconds", "psi",
 ]
 
-# Una riga per ogni round di polling (anche quando la detection non parte).
-# Per ogni fase (prep, infer, mitig): wall = tempo reale, cpu = tempo di calcolo
-# effettivo; wall - cpu = attesa (scheduling del kernel o altri greenlet).
-#   round_wall_s : durata totale del round
 REPORT_COLUMNS = [
     "timestamp", "dpid", "round", "detection_run", "skipped",
     "flow_table_occupancy", "ftf_detected",
@@ -67,7 +59,6 @@ class StageTimer:
     def __init__(self):
         self.wall = defaultdict(float)
         self.cpu = defaultdict(float)
-
     @contextmanager
     def stage(self, name, cpu=True):
         w, c = time.perf_counter(), time.thread_time()
@@ -94,7 +85,6 @@ def load_tempbert(model_dir, device, order):
         "idx": [order.index(f) for f in features],   # ordine FeatureExt -> ordine modello
     }
 
-
 class FTFMController(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_4.OFP_VERSION]
     FLOW_TABLE_SIZE = int(os.environ.get('FLOW_TABLE_SIZE', '50'))
@@ -107,15 +97,10 @@ class FTFMController(app_manager.RyuApp):
     LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
     FLOW_TABLE_THRESHOLD = float(os.environ.get('FLOW_TABLE_THRESHOLD', '0.8'))
 
-    # Round di assenza dalle stats prima di eliminare la finestra MFR di una
-    # regola. 0 = si elimina appena sparisce (la storia riparte da zero se
-    # la stessa regola riappare).
+    FTF_MODEL_DIR = os.environ.get('FTF_MODEL_DIR', root + '/models/ftf_detector/2_100/')
+    MFR_MODEL_DIR = os.environ.get('MFR_MODEL_DIR', root + '/models/mfr_detector/2/')
+
     FR_PRUNE_GRACE = int(os.environ.get('FR_PRUNE_GRACE', '3'))
-
-    FTF_MODEL_DIR = os.environ.get('FTF_MODEL_DIR', root + '/models/ftf_detector/3_100/')
-    MFR_MODEL_DIR = os.environ.get('MFR_MODEL_DIR', root + '/models/mfr_detector/3/')
-
-    BLK_CONFIRM   = int(os.environ.get('BLK_CONFIRM', '2'))
     BLK_TTL       = float(os.environ.get('BLK_TTL', '30'))
 
     def __init__(self, *args, **kwargs):
@@ -123,30 +108,27 @@ class FTFMController(app_manager.RyuApp):
         self.logger.setLevel(self.LOG_LEVEL)
         self.mac_to_port = {}
         self.datapaths = {}
+        # Feature Extractor per dpid
         self.feature_ext = defaultdict(lambda: FeatureExt(window_size=self.W_PKTIN))
 
+        # TempBERT models
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.ftf = load_tempbert(self.FTF_MODEL_DIR, self.device, FTF_ORDER)
         self.mfr = load_tempbert(self.MFR_MODEL_DIR, self.device, MFR_ORDER)
         self.logger.info(f"TempBERT su {self.device}: FTF window={self.ftf['window']} "
                          f"n_feat={self.ftf['n_feat']}, MFR window={self.mfr['window']} n_feat={self.mfr['n_feat']}")
 
-        # Finestre W_round: una per DPID (FT), una per (DPID, match_hash) (FR).
-        # deque(maxlen=window): l'eviction del piu' vecchio e' automatica.
+        # W_pktin per FTF and MFR
         self.w_round_per_ft = defaultdict(lambda: deque(maxlen=self.ftf["window"]))
         self.w_round_per_fr = defaultdict(lambda: defaultdict(lambda: deque(maxlen=self.mfr["window"])))
         self._round_idx = defaultdict(int)
         self._fr_last_seen = defaultdict(dict)
-
-        # Inferenza in UN thread nativo: l'event loop di Ryu continua a servire
-        # Packet-In ed echo; inferenze serializzate = misure non falsate.
         tpool.set_num_threads(1)
-        self._detecting = set()   # DPID con una detection in corso
+        self._detecting = set()                 # detection in progress on dpid
 
         # Packet-In Blocker
-        self.blocked = {}                       # (dpid, in_port, eth_src) -> scadenza del lease
-        self._blk_hits = defaultdict(int)       # round consecutivi sospetti
-        self.n_blocked = defaultdict(int)       # packet-in scartati per dpid
+        self.blocked = {}                       # (dpid, in_port, eth_src) -> lease time
+        self.n_blocked = defaultdict(int)       # num of blocked per dpid
 
         self.T = float("{:.2f}".format(self.IDLE_TIMEOUT / self.K_FACTOR))
         self._init_report()
@@ -178,11 +160,10 @@ class FTFMController(app_manager.RyuApp):
             pass
 
     def _collector(self):
-        """Polling ogni T = idle_timeout / K (campionamento: T <= T_max / k, k >= 2)."""
+        """Polling: T = idle_timeout / K, K>1."""
         while True:
             for datapath in list(self.datapaths.values()):
                 datapath.send_msg(datapath.ofproto_parser.OFPFlowStatsRequest(datapath))
-            #self._purge_blocked()
             hub.sleep(self.T)
 
     # ----------------------------------------------------------------- #
@@ -218,7 +199,7 @@ class FTFMController(app_manager.RyuApp):
         datapath.send_msg(mod)
 
     def delete_flow(self, datapath, match, priority=1, strict=True):
-        """OFPFC_DELETE_STRICT (match+priority) oppure OFPFC_DELETE (wildcard)."""
+        """OFPFC_DELETE_STRICT (match+priority) or OFPFC_DELETE (wildcard)."""
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
         command = ofproto.OFPFC_DELETE_STRICT if strict else ofproto.OFPFC_DELETE
@@ -261,8 +242,9 @@ class FTFMController(app_manager.RyuApp):
             now = time.time()
             if now < until:
                 self.n_blocked[dpid] += 1
-                return        # niente learning, flow-mod e packet-out
-            del self.blocked[key]
+                return                  # pass the MAC learning, the flow-mod and the Packet-Out
+            else:
+                del self.blocked[key]   # update the Packet-In Blocker list by removing the entry if the lease is elapsed
 
         # Update MAC to Port
         self.mac_to_port.setdefault(dpid, {})
@@ -285,18 +267,15 @@ class FTFMController(app_manager.RyuApp):
         datapath.send_msg(parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
                                               in_port=in_port, actions=actions, data=data))
         
-
-    # Packet in blocker
     def _update_blocker(self, dpid, mal_stats):
+        """ Packet-In Blocker """
         mal = defaultdict(int)
         for s in mal_stats:   mal[(s.match['in_port'], s.match['eth_src'])] += 1
         now = time.time()
         for k in set(mal):
             key = (dpid,) + k
-            self._blk_hits[key] += 1
-            if self._blk_hits[key] >= self.BLK_CONFIRM:
-                self.blocked[key] = now + self.BLK_TTL
-                self.logger.info('[BLOCK] dpid=%016x port=%s mac=%s n=%d', dpid, k[0], k[1], mal[k])
+            self.blocked[key] = now + self.BLK_TTL
+            self.logger.info('[BLOCK] dpid=%016x port=%s mac=%s n=%d', dpid, k[0], k[1], mal[k])
 
     # ----------------------------------------------------------------- #
     # Flow stats -> round
@@ -306,22 +285,23 @@ class FTFMController(app_manager.RyuApp):
         dpid = ev.msg.datapath.id
         stats = [s for s in ev.msg.body if s.priority == 1]
         if not stats:
-            # Tabella vuota (es. dopo un'eviction): le finestre delle regole sparite vanno potate.
             self._round_idx[dpid] += 1
             self._prune_fr_windows(dpid, self._round_idx[dpid])
             return
         hub.spawn(self._update_windows_and_maybe_detect, dpid, stats)
 
     def _prune_fr_windows(self, dpid, rnd):
-        """Elimina le finestre FR delle regole non piu' presenti nelle stats."""
+        """Delete the window of the FR that is not in stats."""
         seen, wins = self._fr_last_seen[dpid], self.w_round_per_fr[dpid]
         for h in [h for h, r in seen.items() if rnd - r > self.FR_PRUNE_GRACE]:
             seen.pop(h, None)
             wins.pop(h, None)
 
     def _update_windows_and_maybe_detect(self, dpid, stats):
-        """La fase prep (feature + finestre + snapshot) non cede mai il controllo
-        ad altri greenlet. Ogni fase e' misurata con wall e CPU dal StageTimer."""
+        """TODO: 
+        La fase prep (feature + finestre + snapshot) non cede mai il controllo
+        ad altri greenlet. Ogni fase e' misurata con wall e CPU dal StageTimer.
+        """
         tm = StageTimer()
         ts0, t0 = time.time(), time.perf_counter()
         self._round_idx[dpid] += 1
@@ -383,7 +363,7 @@ class FTFMController(app_manager.RyuApp):
         )
 
     # ----------------------------------------------------------------- #
-    # Feature -> matrice (n, F) nell'ordine del modello, scalata in un'unica transform
+    # Feature -> Matrix (n, F) and only one transform
     # ----------------------------------------------------------------- #
     @staticmethod
     def _scale(model_info, rows):
@@ -399,11 +379,12 @@ class FTFMController(app_manager.RyuApp):
         return self._scale(self.ftf, [raw])[0]
 
     # ----------------------------------------------------------------- #
-    # Inferenza
+    # Inference
     # ----------------------------------------------------------------- #
     @torch.inference_mode()
     def _forward_many(self, model, windows, max_batch=512):
-        """Gira in un thread nativo (tpool): tocca solo gli array ricevuti e il
+        """TODO:
+        Gira in un thread nativo (tpool): tocca solo gli array ricevuti e il
         modello, mai le strutture condivise. Restituisce (predizioni, wall, cpu)."""
         t_wall, t_cpu = time.perf_counter(), time.thread_time()
         preds = []
@@ -417,13 +398,15 @@ class FTFMController(app_manager.RyuApp):
         return preds, time.perf_counter() - t_wall, time.thread_time() - t_cpu
 
     def _infer(self, model, windows):
-        """Sospende solo questo greenlet: l'event loop di Ryu resta libero."""
+        """TODO:
+        Sospende solo questo greenlet: l'event loop di Ryu resta libero."""
         return tpool.execute(self._forward_many, model, windows)
 
     # ----------------------------------------------------------------- #
-    # Detection (FTF) + classificazione per-regola (MFR) + eviction
+    # Detection FTF + MFR and Eviction
     # ----------------------------------------------------------------- #
     def _detect_and_mitigate(self, dpid, stats, ftf_win, fr_snap, tm):
+        """TODO"""
         if self.datapaths.get(dpid) is None:
             return None
 
@@ -462,7 +445,8 @@ class FTFMController(app_manager.RyuApp):
                         n_strict += 1
                     self.logger.info('[EVICTION] dpid=%016x wildcard_msgs=%d covered=%d strict_msgs=%d',
                                     dpid, n_wc_msgs, n_rules_wildcard, n_strict)
-                    # Packet In Blocker
+                    
+                    # The Packet-In Blocker collects malicious stats to block
                     self._update_blocker(dpid, malicious_stats)
 
         return {
@@ -474,7 +458,8 @@ class FTFMController(app_manager.RyuApp):
         }
 
     def _evict_by_port(self, datapath, malicious_stats, legit_stats):
-        """Ritorna (regole coperte da wildcard, regole rimaste per il delete
+        """TODO:
+        Ritorna (regole coperte da wildcard, regole rimaste per il delete
         strict, numero di messaggi wildcard inviati)."""
         by_port = defaultdict(list)
         for stat in malicious_stats:

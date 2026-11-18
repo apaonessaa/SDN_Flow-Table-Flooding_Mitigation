@@ -66,7 +66,8 @@ class FTFUtils:
     @staticmethod
     def random_af(attack_frequency: int) -> int:
         start = math.ceil(attack_frequency * 0.01)
-        return rng.randint(start, attack_frequency*0.3) if attack_frequency != 0 else 1
+        return rng.randint(start, attack_frequency) if attack_frequency != 0 else 1
+        #rng.randint(start, attack_frequency*0.3) if attack_frequency != 0 else 1
 
     @staticmethod
     def random_anp(added_new_packet: int) -> int:

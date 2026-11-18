@@ -394,9 +394,9 @@ def main(args) -> None:
     pcap_prefix = current + "/pcaps/scenario_016/"
     topo = TestOnlineTopology()
     flow_table_size = 100
-    idle_timeout = 10
-    hard_timeout = 15
-    k_factor = 3
+    idle_timeout = 5#10
+    hard_timeout = 5#15
+    k_factor = 2
     npkts = flow_table_size*2
     anp = 20 #5
     anm = 30 #10
