@@ -97,6 +97,7 @@ class FTFMController(app_manager.RyuApp):
     REPORT_PATH = os.environ.get('REPORT_PATH', '/tmp/report.txt')
     LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
     FLOW_TABLE_THRESHOLD = float(os.environ.get('FLOW_TABLE_THRESHOLD', '0.8'))
+    REAL_MACS = {m.strip().lower() for m in os.environ.get('REAL_MACS', '').split(',') if m.strip()}
 
     FTF_MODEL_DIR = os.environ.get('FTF_MODEL_DIR', root + '/models/ftf_detector/2_100/')
     MFR_MODEL_DIR = os.environ.get('MFR_MODEL_DIR', root + '/models/mfr_detector/2/')

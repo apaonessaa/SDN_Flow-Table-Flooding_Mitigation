@@ -405,6 +405,9 @@ def main(args) -> None:
     os.makedirs(log_path, exist_ok=True)
     log_timestamp = args.run_id or int(time())
     P = lambda name: f"{log_path}/{name}_{log_timestamp}"
+    legit = [h for h in net.hosts if h.name != attacker]
+        valid_macs = ([f"dl_src={h.MAC()}" for h in legit] if args.valid_match == "src"
+                      else [h.MAC() for h in legit])
 
     if args.warmup < 55:
         info("*** ATTENZIONE: warmup < 55 s: la fase benigna pulita (dopo lo scarto iniziale "
@@ -423,6 +426,7 @@ def main(args) -> None:
         "OMP_NUM_THREADS": "1",
         "MKL_NUM_THREADS": "1",
         "OPENBLAS_NUM_THREADS": "1",
+        "REAL_MACS": valid_macs
     }
 
     controller = start_controller(
@@ -506,9 +510,6 @@ def main(args) -> None:
         probe_pairs = build_probe_pairs([s.name for s in net.switches], sw_of, victim,
                                         {attacker, atk_dst}, args.probe_pairs,
                                         random.Random(args.seed))
-        legit = [h for h in net.hosts if h.name != attacker]
-        valid_macs = ([f"dl_src={h.MAC()}" for h in legit] if args.valid_match == "src"
-                      else [h.MAC() for h in legit])
 
         info("*** START TRAFFIC\n")
         metadata = load_metadata(pcap_prefix)
