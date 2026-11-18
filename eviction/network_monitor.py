@@ -63,7 +63,7 @@ class NetworkMonitor:
     `duration`. start() ritorna subito: la CLI Mininet resta libera."""
 
     def __init__(self, net: Mininet, switches, ping_pairs, out_prefix, interval: float = MONITOR_INTERVAL,
-                 duration: Optional[float] = None, label: str = "monitor", host_macs=None):
+                 duration: Optional[float] = None, label: str = "monitor", host_macs=None, ping_interval: float = 1.0):
         """switches / ping_pairs / host_macs: se omessi si usano le costanti del
         modulo. out_prefix: path (senza suffisso) dei file di output"""
         self.net, self.interval, self.duration, self.label = net, interval, duration, label
@@ -77,7 +77,7 @@ class NetworkMonitor:
         self._t0: Optional[float] = None
         self.flow_rows: List[tuple] = []   # (ts, switch, total, valid)
         self.lat_rows: List[tuple] = []    # (ts, src, dst, rtt_ms, loss_pct)
-        self.ping_interval = 1.0
+        self.ping_interval = ping_interval
         self.ping_procs = []     # (src, dst, file, popen, path)
         self._flows_thread = threading.Thread(target=self._loop, args=("flow", self._sample_flows), daemon=True)
 

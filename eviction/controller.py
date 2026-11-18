@@ -102,6 +102,8 @@ class FTFMController(app_manager.RyuApp):
 
     FR_PRUNE_GRACE = int(os.environ.get('FR_PRUNE_GRACE', '3'))
     BLK_TTL       = float(os.environ.get('BLK_TTL', '30'))
+    BLK_MIN_ROUNDS = int(os.environ.get('BLK_MIN_ROUNDS', '2'))
+    STRIKE_TTL     = float(os.environ.get('STRIKE_TTL', '30'))
 
     def __init__(self, *args, **kwargs):
         super(FTFMController, self).__init__(*args, **kwargs)
@@ -128,8 +130,9 @@ class FTFMController(app_manager.RyuApp):
 
         # Packet-In Blocker
         self.blocked = {}                       # (dpid, in_port, eth_src) -> lease time
+        self.strikes = {}                       # (dpid, in_port, eth_src) -> (n_segnalazioni, ts ultima)
         self.n_blocked = defaultdict(int)       # num of blocked per dpid
-
+        
         self.T = float("{:.2f}".format(self.IDLE_TIMEOUT / self.K_FACTOR))
         self._init_report()
         self.collector = hub.spawn(self._collector)
@@ -243,8 +246,8 @@ class FTFMController(app_manager.RyuApp):
             if now < until:
                 self.n_blocked[dpid] += 1
                 return                  # pass the MAC learning, the flow-mod and the Packet-Out
-            else:
-                del self.blocked[key]   # update the Packet-In Blocker list by removing the entry if the lease is elapsed
+            #else:
+            #    del self.blocked[key]   # update the Packet-In Blocker list by removing the entry if the lease is elapsed
 
         # Update MAC to Port
         self.mac_to_port.setdefault(dpid, {})
@@ -269,13 +272,18 @@ class FTFMController(app_manager.RyuApp):
         
     def _update_blocker(self, dpid, mal_stats):
         """ Packet-In Blocker """
-        mal = defaultdict(int)
-        for s in mal_stats:   mal[(s.match['in_port'], s.match['eth_src'])] += 1
         now = time.time()
-        for k in set(mal):
+        for k in {(s.match['in_port'], s.match['eth_src']) for s in mal_stats}:
             key = (dpid,) + k
-            self.blocked[key] = now + self.BLK_TTL
-            self.logger.info('[BLOCK] dpid=%016x port=%s mac=%s n=%d', dpid, k[0], k[1], mal[k])
+            n, last = self.strikes.get(key, (0, 0.0))
+            n = n + 1 if now - last <= self.STRIKE_TTL else 1
+            self.strikes[key] = (n, now)
+            if n >= self.BLK_MIN_ROUNDS:
+                self.blocked[key] = now + self.BLK_TTL
+                self.logger.debug('[BLOCK] dpid=%016x port=%s mac=%s strikes=%d', dpid, k[0], k[1], n)
+        # Clean the blocker
+        for k in [k for k, u in self.blocked.items() if u <= now]:
+            del self.blocked[k]
 
     # ----------------------------------------------------------------- #
     # Flow stats -> round

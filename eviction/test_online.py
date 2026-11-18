@@ -386,7 +386,6 @@ def sample_attack_rate(npkts, flow_table_size, profile):
     anm = rng.uniform(anms[profile][0], anms[profile][1])
     return anp, int(anm), fill_time
 
-
 # ---------------------------------------------------------------------------
 # Una run
 # ---------------------------------------------------------------------------
@@ -394,8 +393,8 @@ def main(args) -> None:
     pcap_prefix = current + "/pcaps/scenario_016/"
     topo = TestOnlineTopology()
     flow_table_size = 100
-    idle_timeout = 5#10
-    hard_timeout = 5#15
+    idle_timeout = 10
+    hard_timeout = 15
     k_factor = 2
     npkts = flow_table_size*2
     anp = 20 #5
@@ -548,6 +547,7 @@ def main(args) -> None:
             switches=[sw.name for sw in net.switches],
             ping_pairs=topo.ping_pairs,
             host_macs=valid_macs,
+            ping_interval=5.0,
             out_prefix=P("network"),
         )
         sampler = CounterSampler(net, {"ryu": ryu_proc, "ovs": ovs_proc},
@@ -667,10 +667,10 @@ def orchestrate(args):
 
     info(f"*** CAMPAGNA terminata. Sessione: {session_path}\n")
     try:
-        import compare_runs
-        compare_runs.main(["--session", session_path, "--out", f"{current}/logs/compare_{session_id}"])
+        import compare_runs_light
+        compare_runs_light.main(["--session", session_path, "--out", f"{current}/logs/compare_{session_id}"])
     except ImportError:
-        info("*** compare_runs.py non trovato: lancialo a mano con --session\n")
+        info("*** compare_runs_light.py non trovato: lancialo a mano con --session\n")
 
 
 if __name__ == '__main__':
