@@ -102,16 +102,22 @@ class FTFMController(app_manager.RyuApp):
     FTF_MODEL_DIR = os.environ.get('FTF_MODEL_DIR', root + '/models/ftf_detector/2_100/')
     MFR_MODEL_DIR = os.environ.get('MFR_MODEL_DIR', root + '/models/mfr_detector/2/')
 
-    FR_PRUNE_GRACE = int(os.environ.get('FR_PRUNE_GRACE', '3'))
-    BLK_TTL       = float(os.environ.get('BLK_TTL', '30'))
-    BLK_MIN_ROUNDS = int(os.environ.get('BLK_MIN_ROUNDS', '2'))
-    STRIKE_TTL     = float(os.environ.get('STRIKE_TTL', '30'))
+    FR_PRUNE_GRACE  = int(os.environ.get('FR_PRUNE_GRACE', '3'))
+    BLK_TTL         = float(os.environ.get('BLK_TTL', '30'))
+    BLK_MIN_ROUNDS  = int(os.environ.get('BLK_MIN_ROUNDS', '2'))
+    STRIKE_TTL      = float(os.environ.get('STRIKE_TTL', '30'))
+
+    FTF_TTL         = float(os.environ.get('FTF_TTL', '30'))
 
     def __init__(self, *args, **kwargs):
         super(FTFMController, self).__init__(*args, **kwargs)
         self.logger.setLevel(self.LOG_LEVEL)
         self.mac_to_port = {}
         self.datapaths = {}
+
+        # FTF detection per dpid -> lease
+        self.ftf_detected = defaultdict(lambda: None)
+
         # Feature Extractor per dpid
         self.feature_ext = defaultdict(lambda: FeatureExt(window_size=self.W_PKTIN))
 
@@ -303,6 +309,9 @@ class FTFMController(app_manager.RyuApp):
     @set_ev_cls(ofp_event.EventOFPFlowStatsReply, MAIN_DISPATCHER)
     def flow_stats_reply_handler(self, ev):
         dpid = ev.msg.datapath.id
+        until = self.ftf_detected.get(dpid)
+        if until is not None and time.time() > until:
+            self.ftf_detected[dpid] = None
         stats = [s for s in ev.msg.body if s.priority == 1]
         if not stats:
             self._round_idx[dpid] += 1
@@ -318,10 +327,6 @@ class FTFMController(app_manager.RyuApp):
             wins.pop(h, None)
 
     def _update_windows_and_maybe_detect(self, dpid, stats):
-        """TODO: 
-        La fase prep (feature + finestre + snapshot) non cede mai il controllo
-        ad altri greenlet. Ogni fase e' misurata con wall e CPU dal StageTimer.
-        """
         tm = StageTimer()
         ts0, t0 = time.time(), time.perf_counter()
         self._round_idx[dpid] += 1
@@ -330,11 +335,9 @@ class FTFMController(app_manager.RyuApp):
 
         ftf_win = fr_snap = None
         with tm.stage("prep"):
-            # Le finestre si aggiornano SEMPRE, anche sotto soglia di occupazione:
-            # altrimenti il modello vedrebbe quasi solo padding quando serve.
             self.w_round_per_ft[dpid].append(self._extract_ftf_vector(fe, stats))
 
-            mfr_rows = self._scale(self.mfr, [fe.get_flow_feature(s) for s in stats])  # 1 transform per round
+            mfr_rows = self._scale(self.mfr, [fe.get_flow_feature(s) for s in stats])
             seen, hashes = self._fr_last_seen[dpid], []
             for stat, row in zip(stats, mfr_rows):
                 h = md5(str(stat.match).encode()).hexdigest()
@@ -345,21 +348,31 @@ class FTFMController(app_manager.RyuApp):
 
             occupancy = len(stats) / float(self.FLOW_TABLE_SIZE)
             ready = fe.has_enough_data() and occupancy >= self.FLOW_TABLE_THRESHOLD
-            skipped = ready and dpid in self._detecting   # inferenza precedente ancora in corso
-            detect = ready and not skipped
+            busy = dpid in self._detecting                      # inferenza/mitigazione precedente in corso
+            ftf_active = self.ftf_detected.get(dpid) is not None
 
-            # Snapshot prima di cedere il controllo: i round successivi modificano le deque.
-            if detect:
+            run_ftf = ready and not busy and not ftf_active     # serve la detection FTF
+            run_mit = ftf_active and not busy                   # attacco già dichiarato: solo MFR
+            skipped = busy and (ready or ftf_active)
+
+            # Snapshot (prima di cedere il controllo): servono sia a run_ftf (la mitigazione
+            # parte subito se la FTF risulta positiva) sia a run_mit.
+            if run_ftf:
                 ftf_win = pad_window(self.w_round_per_ft[dpid], self.ftf["window"], self.ftf["n_feat"])
+            if run_ftf or run_mit:
                 fr_snap = [tuple(self.w_round_per_fr[dpid][h]) for h in hashes]
 
         res = None
-        if detect:
+        if fr_snap is not None:
             self._detecting.add(dpid)
             try:
-                res = self._detect_and_mitigate(dpid, stats, ftf_win, fr_snap, tm)
-                # TODO: FTF on detect and MFR + EVICTION on mitigate
-                # TODO: if FTF detects FTF attack, MFR + EVICTION on mitigate for TIMEOUT s
+                if run_ftf:
+                    # FTF detection
+                    pred = self._detect(dpid, stats, ftf_win, tm)
+                    self.ftf_detected[dpid] = (time.time() + self.FTF_TTL) if pred else None
+                if self.ftf_detected.get(dpid) is not None:
+                    # MFR detection + eviction + packet-in blocker
+                    res = self._mitigate(dpid, stats, fr_snap, tm)
             finally:
                 self._detecting.discard(dpid)
         res = res or {}
@@ -369,7 +382,7 @@ class FTFMController(app_manager.RyuApp):
             timestamp=round(ts0, 3), dpid=f"{dpid:016x}", round=rnd,
             detection_run=int(bool(res)), skipped=int(skipped),
             flow_table_occupancy=round(occupancy, 4),
-            ftf_detected=res.get("ftf_detected", 0),
+            ftf_detected=int(self.ftf_detected.get(dpid) is not None),
             n_malicious_rules=res.get("n_malicious_rules", 0),
             n_legit_rules=res.get("n_legit_rules", 0),
             n_fr_windows=len(self.w_round_per_fr[dpid]),
@@ -430,52 +443,53 @@ class FTFMController(app_manager.RyuApp):
     # ----------------------------------------------------------------- #
     # Detection FTF + MFR and Eviction
     # ----------------------------------------------------------------- #
-    def _detect_and_mitigate(self, dpid, stats, ftf_win, fr_snap, tm):
-        """TODO"""
-        if self.datapaths.get(dpid) is None:
-            return None
+    def _detect(self, dpid, stats, ftf_win, tm):
+        if self.datapaths.get(dpid) is None:    return None
 
-        n_malicious = n_legit = n_rules_wildcard = n_wc_msgs = n_strict = 0
-
-        # --- inferenza FTF. Wall: misurato qui (include l'attesa del thread nativo).
-        #     CPU: misurata dentro il thread di inferenza e sommata a mano.
         with tm.stage("infer", cpu=False):
             (ftf_pred,), _, c = self._infer(self.ftf["model"], [ftf_win])
         tm.cpu["infer"] += c
 
-        if ftf_pred:
-            # --- mitigazione, parte 1: finestre per l'MFR
-            with tm.stage("mitig"):
-                windows = [pad_window(snap, self.mfr["window"], self.mfr["n_feat"])
-                        for snap in fr_snap]
+        if ftf_pred: self.logger.info(f"[!] FTF Attack Detected on DPID={dpid:016x}")
 
-            # --- inferenza MFR
-            with tm.stage("infer", cpu=False):
-                mfr_preds, _, c = self._infer(self.mfr["model"], windows)
-            tm.cpu["infer"] += c
+        return ftf_pred
 
-            # --- mitigazione, parte 2: classificazione + invio delle delete
-            with tm.stage("mitig"):
-                malicious_stats = [s for s, p in zip(stats, mfr_preds) if p]
-                legit_stats = [s for s, p in zip(stats, mfr_preds) if not p]
-                n_malicious, n_legit = len(malicious_stats), len(legit_stats)
-                self.logger.info(f"[!] FTF Attack Detected on DPID={dpid:016x}")
-                datapath = self.datapaths.get(dpid)   # dopo l'attesa lo switch potrebbe essere sparito
-                if datapath is not None and malicious_stats:
-                    self.logger.info(f"[!] {n_malicious} regole malevole su DPID={dpid:016x}")
-                    evicted, remaining, n_wc_msgs = self._evict_by_port(datapath, malicious_stats, legit_stats)
-                    n_rules_wildcard = len(evicted)
-                    for stat in remaining:
-                        self.delete_flow(datapath, stat.match, priority=stat.priority, strict=True)
-                        n_strict += 1
-                    self.logger.info('[EVICTION] dpid=%016x wildcard_msgs=%d covered=%d strict_msgs=%d',
-                                    dpid, n_wc_msgs, n_rules_wildcard, n_strict)
-                    
-                    # The Packet-In Blocker collects malicious stats to block
-                    self._update_blocker(dpid, malicious_stats)
+    def _mitigate(self, dpid, stats, fr_snap, tm):
+        if self.datapaths.get(dpid) is None:    return None
+        
+        n_malicious = n_legit = n_rules_wildcard = n_wc_msgs = n_strict = 0
+
+        # --- mitigazione, parte 1: finestre per l'MFR
+        with tm.stage("mitig"):
+            windows = [pad_window(snap, self.mfr["window"], self.mfr["n_feat"])
+                    for snap in fr_snap]
+
+        # --- inferenza MFR
+        with tm.stage("infer", cpu=False):
+            mfr_preds, _, c = self._infer(self.mfr["model"], windows)
+        tm.cpu["infer"] += c
+
+        # --- mitigazione, parte 2: classificazione + invio delle delete
+        with tm.stage("mitig"):
+            malicious_stats = [s for s, p in zip(stats, mfr_preds) if p]
+            legit_stats = [s for s, p in zip(stats, mfr_preds) if not p]
+            n_malicious, n_legit = len(malicious_stats), len(legit_stats)
+            datapath = self.datapaths.get(dpid)   # dopo l'attesa lo switch potrebbe essere sparito
+            if datapath is not None and malicious_stats:
+                self.logger.info(f"[!] {n_malicious} regole malevole su DPID={dpid:016x}")
+                evicted, remaining, n_wc_msgs = self._evict_by_port(datapath, malicious_stats, legit_stats)
+                n_rules_wildcard = len(evicted)
+                for stat in remaining:
+                    self.delete_flow(datapath, stat.match, priority=stat.priority, strict=True)
+                    n_strict += 1
+                self.logger.info('[EVICTION] dpid=%016x wildcard_msgs=%d covered=%d strict_msgs=%d',
+                                dpid, n_wc_msgs, n_rules_wildcard, n_strict)
+                
+                # The Packet-In Blocker collects malicious stats to block
+                self._update_blocker(dpid, malicious_stats)
 
         return {
-            "ftf_detected": int(bool(ftf_pred)),
+            "ftf_detected": 1,#int(bool(ftf_pred)),
             "n_malicious_rules": n_malicious, "n_legit_rules": n_legit,
             "n_rules_wildcard": n_rules_wildcard,
             "n_eviction_msgs_wildcard": n_wc_msgs,
