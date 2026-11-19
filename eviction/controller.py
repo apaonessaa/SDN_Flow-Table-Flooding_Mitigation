@@ -7,6 +7,7 @@ from ryu.lib.packet import packet, ethernet, ether_types, ipv4
 from ryu.lib import hub
 
 import os
+import re
 import sys
 import csv
 import time
@@ -42,9 +43,16 @@ MFR_ORDER = [
     "packets_per_seconds", "bytes_per_seconds", "psi",
 ]
 
+# Semantica delle colonne (una riga per round):
+#   per round : detection_run, skipped, ftf_run, ftf_pred, mfr_run, n_malicious_rules,
+#               n_legit_rules, n_rules_wildcard, n_eviction_msgs_*, tempi *_s
+#   istantanee: flow_table_occupancy, ftf_detected (lease FTF attiva a fine round),
+#               n_fr_windows, n_blocked_macs
+#   cumulative: n_blocked_pktin, n_pktin_total, n_pktin_real, n_blocked_pktin_real
 REPORT_COLUMNS = [
     "timestamp", "dpid", "round", "detection_run", "skipped",
     "flow_table_occupancy", "ftf_detected",
+    "ftf_run", "ftf_pred", "mfr_run",
     "n_malicious_rules", "n_legit_rules", "n_fr_windows",
     "n_rules_wildcard",
     "n_eviction_msgs_wildcard", "n_eviction_msgs_strict", "n_eviction_msgs_total",
@@ -55,6 +63,23 @@ REPORT_COLUMNS = [
     "n_blocked_pktin", "n_blocked_macs",
     "n_pktin_total", "n_pktin_real", "n_blocked_pktin_real"
 ]
+
+_MAC_RE = re.compile(r'^(?:[0-9a-f]{2}:){5}[0-9a-f]{2}$')
+
+
+def parse_macs(raw):
+    """Accetta separatori , ; spazi e MAC con ':' o '-'. Ritorna (set valido, token scartati)."""
+    macs, bad = set(), []
+    for tok in re.split(r'[,;\s]+', raw.strip().lower()):
+        if not tok:
+            continue
+        tok = tok.replace('-', ':')
+        if _MAC_RE.match(tok):
+            macs.add(tok)
+        else:
+            bad.append(tok)
+    return macs, bad
+
 
 class StageTimer:
     def __init__(self):
@@ -97,7 +122,7 @@ class FTFMController(app_manager.RyuApp):
     REPORT_PATH = os.environ.get('REPORT_PATH', '/tmp/report.txt')
     LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
     FLOW_TABLE_THRESHOLD = float(os.environ.get('FLOW_TABLE_THRESHOLD', '0.8'))
-    REAL_MACS = {m.strip().lower() for m in os.environ.get('REAL_MACS', '').split(',') if m.strip()} #TODO errore con REAL_MACS
+    REAL_MACS, _REAL_MACS_BAD = parse_macs(os.environ.get('REAL_MACS', ''))
 
     FTF_MODEL_DIR = os.environ.get('FTF_MODEL_DIR', root + '/models/ftf_detector/2_100/')
     MFR_MODEL_DIR = os.environ.get('MFR_MODEL_DIR', root + '/models/mfr_detector/2/')
@@ -112,11 +137,19 @@ class FTFMController(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(FTFMController, self).__init__(*args, **kwargs)
         self.logger.setLevel(self.LOG_LEVEL)
+        if self._REAL_MACS_BAD:
+            self.logger.warning('REAL_MACS: token non validi ignorati: %s', self._REAL_MACS_BAD)
+        if self.REAL_MACS:
+            self.logger.info('REAL_MACS: %d MAC caricati', len(self.REAL_MACS))
+        else:
+            self.logger.warning('REAL_MACS vuoto: le metriche benigno/malevolo del blocker non saranno affidabili')
+
         self.mac_to_port = {}
         self.datapaths = {}
 
-        # FTF detection per dpid -> lease
-        self.ftf_detected = defaultdict(lambda: None)
+        # Lease FTF per dpid: istante di scadenza (None = nessun attacco dichiarato).
+        # Finche' e' attiva gira solo l'MFR, poi riprende la detection FTF.
+        self._ftf_until = {}
 
         # Feature Extractor per dpid
         self.feature_ext = defaultdict(lambda: FeatureExt(window_size=self.W_PKTIN))
@@ -134,16 +167,16 @@ class FTFMController(app_manager.RyuApp):
         self._round_idx = defaultdict(int)
         self._fr_last_seen = defaultdict(dict)
         tpool.set_num_threads(1)
-        self._detecting = set()                 # detection in progress on dpid
+        self._detecting = set()                 # inferenza/mitigazione in corso sul dpid
 
         # Packet-In Blocker
         self.blocked = {}                       # (dpid, in_port, eth_src) -> lease time
         self.strikes = {}                       # (dpid, in_port, eth_src) -> (n_segnalazioni, ts ultima)
-        self.n_blocked = defaultdict(int)       # num of blocked per dpid
+        self.n_blocked = defaultdict(int)       # Packet-In senza flow-mod per dpid
         self.n_pktin_total = defaultdict(int)
         self.n_pktin_real = defaultdict(int)
         self.n_blocked_real = defaultdict(int)
-        
+
         self.T = float("{:.2f}".format(self.IDLE_TIMEOUT / self.K_FACTOR))
         self._init_report()
         self.collector = hub.spawn(self._collector)
@@ -238,56 +271,52 @@ class FTFMController(app_manager.RyuApp):
             return
 
         dst, src, dpid = eth.dst, eth.src, datapath.id
-        
+
         ip = pkt.get_protocol(ipv4.ipv4) if eth.ethertype == ether_types.ETH_TYPE_IP else None
-        
+
         # Packet-In Collector
         if ip is not None:
             payload = pkt.protocols[-1]
             if not isinstance(payload, (bytes, bytearray)):
                 payload = b""
             self.feature_ext[dpid].add_pkt_in(payload=payload, src_ip=ip.src, dst_ip=ip.dst,
-                                            src_mac=src, dst_mac=dst)
+                                              src_mac=src, dst_mac=dst)
 
         is_real = src.lower() in self.REAL_MACS
         self.n_pktin_total[dpid] += 1
         if is_real:
             self.n_pktin_real[dpid] += 1
 
-        # Packet-In Blocker
+        # Packet-In Blocker: il pacchetto viene comunque inoltrato (PacketOut) ma
+        # non si installa nessuna regola e non si apprende il MAC.
         bypass_flow_mod = False
-        key = (dpid, in_port, src)
-        until = self.blocked.get(key, None)
-        if until is not None:
-            now = time.time()
-            if until is not None and now < until:
-                self.n_blocked[dpid] += 1
-                if is_real:
-                    self.n_blocked_real[dpid] += 1
-                bypass_flow_mod = True
+        until = self.blocked.get((dpid, in_port, src))
+        if until is not None and time.time() < until:
+            self.n_blocked[dpid] += 1
+            if is_real:
+                self.n_blocked_real[dpid] += 1
+            bypass_flow_mod = True
 
-        # Update MAC to Port
-        self.mac_to_port.setdefault(dpid, {})
-        self.mac_to_port[dpid][src] = in_port
-        out_port = self.mac_to_port[dpid].get(dst, ofproto.OFPP_FLOOD)
-        actions = [parser.OFPActionOutput(out_port)]
-    
-        # Bypass flow-mod for Packet-In Blocker
+        mac_table = self.mac_to_port.setdefault(dpid, {})
         if not bypass_flow_mod:
-            if out_port != ofproto.OFPP_FLOOD:
-                if ip is not None:
-                    match = parser.OFPMatch(in_port=in_port, eth_type=ether_types.ETH_TYPE_IP,
-                                            eth_dst=dst, eth_src=src,
-                                            ipv4_dst=ip.dst, ipv4_src=ip.src)
-                else:
-                    match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
-                self.add_flow(datapath, 1, match, actions,
-                            idle_timeout=self.IDLE_TIMEOUT, hard_timeout=self.HARD_TIMEOUT)
+            mac_table[src] = in_port            # niente apprendimento da MAC bloccati/spoofati
+        out_port = mac_table.get(dst, ofproto.OFPP_FLOOD)
+        actions = [parser.OFPActionOutput(out_port)]
+
+        if not bypass_flow_mod and out_port != ofproto.OFPP_FLOOD:
+            if ip is not None:
+                match = parser.OFPMatch(in_port=in_port, eth_type=ether_types.ETH_TYPE_IP,
+                                        eth_dst=dst, eth_src=src,
+                                        ipv4_dst=ip.dst, ipv4_src=ip.src)
+            else:
+                match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
+            self.add_flow(datapath, 1, match, actions,
+                          idle_timeout=self.IDLE_TIMEOUT, hard_timeout=self.HARD_TIMEOUT)
 
         data = msg.data if msg.buffer_id == ofproto.OFP_NO_BUFFER else None
         datapath.send_msg(parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
                                               in_port=in_port, actions=actions, data=data))
-        
+
     def _update_blocker(self, dpid, mal_stats):
         """ Packet-In Blocker """
         now = time.time()
@@ -299,9 +328,11 @@ class FTFMController(app_manager.RyuApp):
             if n >= self.BLK_MIN_ROUNDS:
                 self.blocked[key] = now + self.BLK_TTL
                 self.logger.debug('[BLOCK] dpid=%016x port=%s mac=%s strikes=%d', dpid, k[0], k[1], n)
-        # Clean the blocker
+        # Clean the blocker e le strikes scadute (con MAC casuali crescerebbero senza limite)
         for k in [k for k, u in self.blocked.items() if u <= now]:
             del self.blocked[k]
+        for k in [k for k, (n, t) in self.strikes.items() if now - t > self.STRIKE_TTL]:
+            del self.strikes[k]
 
     # ----------------------------------------------------------------- #
     # Flow stats -> round
@@ -309,9 +340,9 @@ class FTFMController(app_manager.RyuApp):
     @set_ev_cls(ofp_event.EventOFPFlowStatsReply, MAIN_DISPATCHER)
     def flow_stats_reply_handler(self, ev):
         dpid = ev.msg.datapath.id
-        until = self.ftf_detected.get(dpid)
+        until = self._ftf_until.get(dpid)
         if until is not None and time.time() > until:
-            self.ftf_detected[dpid] = None
+            self._ftf_until[dpid] = None
         stats = [s for s in ev.msg.body if s.priority == 1]
         if not stats:
             self._round_idx[dpid] += 1
@@ -349,13 +380,13 @@ class FTFMController(app_manager.RyuApp):
             occupancy = len(stats) / float(self.FLOW_TABLE_SIZE)
             ready = fe.has_enough_data() and occupancy >= self.FLOW_TABLE_THRESHOLD
             busy = dpid in self._detecting                      # inferenza/mitigazione precedente in corso
-            ftf_active = self.ftf_detected.get(dpid) is not None
+            ftf_active = self._ftf_until.get(dpid) is not None
 
             run_ftf = ready and not busy and not ftf_active     # serve la detection FTF
-            run_mit = ftf_active and not busy                   # attacco già dichiarato: solo MFR
+            run_mit = ftf_active and not busy                   # attacco gia' dichiarato: solo MFR
             skipped = busy and (ready or ftf_active)
 
-            # Snapshot (prima di cedere il controllo): servono sia a run_ftf (la mitigazione
+            # Snapshot prima di cedere il controllo: servono sia a run_ftf (la mitigazione
             # parte subito se la FTF risulta positiva) sia a run_mit.
             if run_ftf:
                 ftf_win = pad_window(self.w_round_per_ft[dpid], self.ftf["window"], self.ftf["n_feat"])
@@ -363,16 +394,19 @@ class FTFMController(app_manager.RyuApp):
                 fr_snap = [tuple(self.w_round_per_fr[dpid][h]) for h in hashes]
 
         res = None
+        ftf_run = ftf_pred = mfr_run = 0
         if fr_snap is not None:
             self._detecting.add(dpid)
             try:
                 if run_ftf:
-                    # FTF detection
                     pred = self._detect(dpid, stats, ftf_win, tm)
-                    self.ftf_detected[dpid] = (time.time() + self.FTF_TTL) if pred else None
-                if self.ftf_detected.get(dpid) is not None:
+                    ftf_run = int(pred is not None)
+                    ftf_pred = int(bool(pred))
+                    self._ftf_until[dpid] = (time.time() + self.FTF_TTL) if pred else None
+                if self._ftf_until.get(dpid) is not None:
                     # MFR detection + eviction + packet-in blocker
                     res = self._mitigate(dpid, stats, fr_snap, tm)
+                    mfr_run = int(res is not None)
             finally:
                 self._detecting.discard(dpid)
         res = res or {}
@@ -380,9 +414,10 @@ class FTFMController(app_manager.RyuApp):
         n_wc, n_strict = res.get("n_eviction_msgs_wildcard", 0), res.get("n_eviction_msgs_strict", 0)
         self._write_report(
             timestamp=round(ts0, 3), dpid=f"{dpid:016x}", round=rnd,
-            detection_run=int(bool(res)), skipped=int(skipped),
+            detection_run=int(bool(ftf_run or mfr_run)), skipped=int(skipped),
             flow_table_occupancy=round(occupancy, 4),
-            ftf_detected=int(self.ftf_detected.get(dpid) is not None),
+            ftf_detected=int(self._ftf_until.get(dpid) is not None),
+            ftf_run=ftf_run, ftf_pred=ftf_pred, mfr_run=mfr_run,
             n_malicious_rules=res.get("n_malicious_rules", 0),
             n_legit_rules=res.get("n_legit_rules", 0),
             n_fr_windows=len(self.w_round_per_fr[dpid]),
@@ -421,8 +456,7 @@ class FTFMController(app_manager.RyuApp):
     # ----------------------------------------------------------------- #
     @torch.inference_mode()
     def _forward_many(self, model, windows, max_batch=512):
-        """TODO:
-        Gira in un thread nativo (tpool): tocca solo gli array ricevuti e il
+        """Gira in un thread nativo (tpool): tocca solo gli array ricevuti e il
         modello, mai le strutture condivise. Restituisce (predizioni, wall, cpu)."""
         t_wall, t_cpu = time.perf_counter(), time.thread_time()
         preds = []
@@ -436,40 +470,42 @@ class FTFMController(app_manager.RyuApp):
         return preds, time.perf_counter() - t_wall, time.thread_time() - t_cpu
 
     def _infer(self, model, windows):
-        """TODO:
-        Sospende solo questo greenlet: l'event loop di Ryu resta libero."""
+        """Sospende solo questo greenlet: l'event loop di Ryu resta libero."""
         return tpool.execute(self._forward_many, model, windows)
 
     # ----------------------------------------------------------------- #
-    # Detection FTF + MFR and Eviction
+    # Detection FTF, poi MFR + eviction durante la lease
     # ----------------------------------------------------------------- #
     def _detect(self, dpid, stats, ftf_win, tm):
-        if self.datapaths.get(dpid) is None:    return None
+        """Ritorna 0/1, oppure None se lo switch e' sparito (inferenza non eseguita)."""
+        if self.datapaths.get(dpid) is None:
+            return None
 
         with tm.stage("infer", cpu=False):
             (ftf_pred,), _, c = self._infer(self.ftf["model"], [ftf_win])
         tm.cpu["infer"] += c
 
-        if ftf_pred: self.logger.info(f"[!] FTF Attack Detected on DPID={dpid:016x}")
-
+        if ftf_pred:
+            self.logger.info(f"[!] FTF Attack Detected on DPID={dpid:016x}")
         return ftf_pred
 
     def _mitigate(self, dpid, stats, fr_snap, tm):
-        if self.datapaths.get(dpid) is None:    return None
-        
+        if self.datapaths.get(dpid) is None:
+            return None
+
         n_malicious = n_legit = n_rules_wildcard = n_wc_msgs = n_strict = 0
 
-        # --- mitigazione, parte 1: finestre per l'MFR
+        # --- parte 1: finestre per l'MFR
         with tm.stage("mitig"):
             windows = [pad_window(snap, self.mfr["window"], self.mfr["n_feat"])
-                    for snap in fr_snap]
+                       for snap in fr_snap]
 
         # --- inferenza MFR
         with tm.stage("infer", cpu=False):
             mfr_preds, _, c = self._infer(self.mfr["model"], windows)
         tm.cpu["infer"] += c
 
-        # --- mitigazione, parte 2: classificazione + invio delle delete
+        # --- parte 2: classificazione + invio delle delete
         with tm.stage("mitig"):
             malicious_stats = [s for s, p in zip(stats, mfr_preds) if p]
             legit_stats = [s for s, p in zip(stats, mfr_preds) if not p]
@@ -483,13 +519,12 @@ class FTFMController(app_manager.RyuApp):
                     self.delete_flow(datapath, stat.match, priority=stat.priority, strict=True)
                     n_strict += 1
                 self.logger.info('[EVICTION] dpid=%016x wildcard_msgs=%d covered=%d strict_msgs=%d',
-                                dpid, n_wc_msgs, n_rules_wildcard, n_strict)
-                
+                                 dpid, n_wc_msgs, n_rules_wildcard, n_strict)
+
                 # The Packet-In Blocker collects malicious stats to block
                 self._update_blocker(dpid, malicious_stats)
 
         return {
-            "ftf_detected": 1,#int(bool(ftf_pred)),
             "n_malicious_rules": n_malicious, "n_legit_rules": n_legit,
             "n_rules_wildcard": n_rules_wildcard,
             "n_eviction_msgs_wildcard": n_wc_msgs,
@@ -497,8 +532,7 @@ class FTFMController(app_manager.RyuApp):
         }
 
     def _evict_by_port(self, datapath, malicious_stats, legit_stats):
-        """TODO:
-        Ritorna (regole coperte da wildcard, regole rimaste per il delete
+        """Ritorna (regole coperte da wildcard, regole rimaste per il delete
         strict, numero di messaggi wildcard inviati)."""
         by_port = defaultdict(list)
         for stat in malicious_stats:

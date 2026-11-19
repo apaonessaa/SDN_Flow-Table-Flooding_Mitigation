@@ -12,6 +12,10 @@ Ogni argomento e' "<cartella>:<run_id>". Legge (se presenti) questi file:
     network_<id>_latency.csv, resources_<id>.csv, report_<id>.txt (solo FTFM),
     ftf_<id>.csv (stage dell'attacco).
 
+Il report FTFM deve avere le colonne del controller con lease FTF -> MFR:
+    ftf_run, ftf_pred (FTF eseguita / positiva in QUESTO round), mfr_run (MFR eseguita),
+    ftf_detected (lease attiva a fine round), detection_run (qualsiasi inferenza).
+
 FASI (tutte ricavate da events_<id>.csv e, se c'e', da ftf_<id>.csv):
     idle    : idle_start      -> benign_start  (nessun traffico)
     benign  : benign_start+skip -> attack_start (solo traffico benigno; si scartano
@@ -43,6 +47,9 @@ VICTIM_SWITCH = 2                  # switch attaccato (dpid = numero dello switc
 
 LAT_PHASES = ("benign", "flood", "tail")
 GROUP_PHASES = ("benign", "flood")
+
+REPORT_NEEDED = {"timestamp", "dpid", "detection_run", "ftf_detected",
+                 "ftf_run", "ftf_pred", "mfr_run"}
 
 
 # ---------------------------------------------------------------------------
@@ -225,31 +232,39 @@ def occupancy_metrics(occ, args, ph, out, warns):
 
 
 # ---------------------------------------------------------------------------
-# Report del controller FTFM
+# Report del controller FTFM (lease FTF -> MFR)
 # ---------------------------------------------------------------------------
 def report_metrics(rep, ph, out, warns):
-    """Ritorna il timestamp assoluto della prima detection sullo switch vittima (o NaN)."""
-    need = {"timestamp", "dpid", "ftf_detected", "detection_run"}
-    if not need <= set(rep.columns):
-        warns.append(f"report senza colonne {sorted(need - set(rep.columns))}")
+    """Ritorna il timestamp assoluto del primo positivo FTF sullo switch vittima (o NaN)."""
+    if not REPORT_NEEDED <= set(rep.columns):
+        warns.append(f"report senza colonne {sorted(REPORT_NEEDED - set(rep.columns))}")
         return NAN
     vd = f"{VICTIM_SWITCH:016x}"
     f0, f1 = ph["flood"]
     pre = rep[rep.timestamp < f0]
     fl = rep[(rep.timestamp >= f0) & (rep.timestamp < f1)]
     v = fl[fl.dpid == vd]
-    det = v[v.ftf_detected == 1]
+    det = v[v.ftf_pred == 1]                      # primo vero positivo dell'FTF
 
     out["n_rounds_victim"] = len(v)
     out["n_detection_runs_victim"] = int(v.detection_run.sum())
-    out["n_detected_victim"] = len(det)
+    out["n_ftf_runs_victim"] = int(v.ftf_run.sum())
+    out["n_detected_victim"] = len(det)           # esecuzioni FTF positive
+    out["n_mfr_runs_victim"] = int(v.mfr_run.sum())
+    out["n_mfr_only_rounds_victim"] = int(((v.mfr_run == 1) & (v.ftf_run == 0)).sum())
+    out["lease_frac_victim"] = float((v.ftf_detected == 1).mean()) if len(v) else NAN
     out["t_first_detection_s"] = (det.timestamp.min() - f0) if len(det) else NAN
-    out["n_detected_other_dpid"] = int(((fl.ftf_detected == 1) & (fl.dpid != vd)).sum())
-    out["n_detected_before_flood"] = int((pre.ftf_detected == 1).sum())
+    out["n_detected_other_dpid"] = int(((fl.ftf_pred == 1) & (fl.dpid != vd)).sum())
+    out["n_detected_before_flood"] = int((pre.ftf_pred == 1).sum())
+    out["n_mfr_runs_before_flood"] = int((pre.mfr_run == 1).sum())
+
     for c, name in (("n_eviction_msgs_total", "evict_msgs"), ("n_malicious_rules", "rules_flagged")):
         if c in rep.columns:
             out[f"{name}_flood"] = int(fl[c].sum())
             out[f"{name}_before_flood"] = int(pre[c].sum())
+    if "n_eviction_msgs_total" in v.columns:
+        ev = v[v.n_eviction_msgs_total > 0]
+        out["t_first_eviction_s"] = (ev.timestamp.min() - f0) if len(ev) else NAN
     if "skipped" in rep.columns:
         out["n_skipped_victim"] = int(v.skipped.sum())
     if "flow_table_occupancy" in rep.columns and len(v):
@@ -260,11 +275,16 @@ def report_metrics(rep, ph, out, warns):
         if c in v.columns and len(v):
             out[f"rep_{c}_p50"] = float(v[c].quantile(.5))
             out[f"rep_{c}_max"] = float(v[c].max())
-    runs = v[v.detection_run == 1]
-    for c in ("infer_wall_s", "infer_cpu_s", "mitig_wall_s", "mitig_cpu_s"):
+    runs = v[v.detection_run == 1]                # qualsiasi inferenza (FTF e/o MFR)
+    for c in ("infer_wall_s", "infer_cpu_s"):
         if c in runs.columns and len(runs):
             out[f"rep_{c}_mean_det"] = float(runs[c].mean())
             out[f"rep_{c}_max_det"] = float(runs[c].max())
+    mruns = v[v.mfr_run == 1]                     # round con MFR: costo della mitigazione
+    for c in ("mitig_wall_s", "mitig_cpu_s"):
+        if c in mruns.columns and len(mruns):
+            out[f"rep_{c}_mean_det"] = float(mruns[c].mean())
+            out[f"rep_{c}_max_det"] = float(mruns[c].max())
 
     # regolarita' del polling (dovrebbe essere T = idle/k, es. 5 s)
     b0 = ph["benign"][0]

@@ -10,6 +10,8 @@ from scapy.all import sendp
 
 from ftf_utils import FTFUtils
 
+rng = random.Random(37)
+
 def log_stage(path, stage, name, t0, t1, detail=""):
     new = not os.path.exists(path)
     with open(path, "a", newline="") as f:
@@ -48,7 +50,7 @@ def stage_1(iface, npacket, added_new_macs, attack_frequency, local_ip: bool=Fal
 
 def stage_2(iface, npacket, added_new_packets, attack_frequency, macs, local_ip: bool=False):
     local_pool = macs.copy()
-    random.shuffle(local_pool)
+    rng.shuffle(local_pool)
     packets = []
     for i in range(npacket):
         src_mac = FTFUtils.random_mac()

@@ -7,13 +7,19 @@ Singola run:
 Campagna di confronto (N coppie, ordine alternato ftfm/baseline, poi analisi):
     sudo python3 test_online.py --pairs 5 --warmup 60 --isolate
 
+REAL_MACS (MAC dei client legittimi, per le metriche del Packet-In Blocker):
+    di default sono letti dagli host Mininet gia' creati e passati al controller
+    PRIMA del suo avvio (la rete viene costruita, ma non avviata, prima del controller).
+    A mano: --real-macs "00:00:00:00:00:01,00:00:00:00:00:02"  (utile solo se la topologia
+    assegna MAC fissi, altrimenti Mininet li genera diversi a ogni run).
+
 File scritti in logs/<controller>/ (prefisso <id> = timestamp della run):
-    meta_<id>.json           parametri, ambiente, affinity reale, switch vittima, coppie di probe
+    meta_<id>.json           parametri, ambiente, affinity reale, switch vittima, coppie di probe, REAL_MACS
     events_<id>.csv          marker di fase
     resources_<id>.csv       CPU%/RAM per processo (ResourceMonitor, 0.5 s)
-    cpuacct_<id>.csv         CPU-secondi CUMULATIVI, context switch, steal della VM (1 s)  [NUOVO]
-    portstats_<id>.csv       contatori di tutte le porte degli switch (carico offerto)    [NUOVO]
-    setup_<id>.csv           latenza di setup di flow NUOVE (probe a freddo)              [NUOVO]
+    cpuacct_<id>.csv         CPU-secondi CUMULATIVI, context switch, steal della VM (1 s)
+    portstats_<id>.csv       contatori di tutte le porte degli switch (carico offerto)
+    setup_<id>.csv           latenza di setup di flow NUOVE (probe a freddo)
     network_<id>_*.csv       flow rule e ping (NetworkMonitor)
     ftf_<id>.csv, report_<id>.txt, controller_<id>.log
 """
@@ -58,6 +64,7 @@ CONTROLLER_APPS = {
 }
 
 _RTT_RE = re.compile(r'time=([\d.]+) ms')
+_MAC_RE = re.compile(r'^(?:[0-9a-f]{2}:){5}[0-9a-f]{2}$')
 
 
 # ---------------------------------------------------------------------------
@@ -175,6 +182,27 @@ def victim_switch_name(topo, sw_of, attacker):
             return f"s{int(s)}"
     info("*** ATTENZIONE: topo.victim_dpid non utilizzabile, uso lo switch dell'attaccante\n")
     return sw_of.get(attacker, "s2")
+
+
+def resolve_real_macs(net, legit_hosts, manual):
+    """MAC dei client legittimi (minuscoli, separati da ':'), per REAL_MACS del controller.
+    Auto: letti dagli host Mininet. Manuale (--real-macs): validati e confrontati con gli host."""
+    known = {h.MAC().lower() for h in net.hosts if h.MAC()}
+    if manual:
+        macs = [m.replace("-", ":") for m in re.split(r"[,;\s]+", manual.strip().lower()) if m]
+        bad = [m for m in macs if not _MAC_RE.match(m)]
+        if bad:
+            raise ValueError(f"--real-macs: MAC non validi: {bad}")
+        unknown = [m for m in macs if m not in known]
+        if unknown:
+            info(f"*** ATTENZIONE: --real-macs contiene MAC che non sono di nessun host: {unknown}\n"
+                 "    (Mininet genera MAC casuali a ogni run se la topologia non li fissa)\n")
+    else:
+        macs = [h.MAC().lower() for h in legit_hosts if h.MAC()]
+    macs = sorted(set(macs))
+    if not macs:
+        raise RuntimeError("nessun MAC reale determinato: il controller riceverebbe REAL_MACS vuoto")
+    return macs
 
 
 def build_probe_pairs(switch_names, sw_of, victim, excluded, n_per_group, prng):
@@ -355,6 +383,8 @@ def parse_args():
     ap.add_argument("--probe-pairs", type=int, default=8,
                     help="coppie per gruppo (victim/control) del probe di setup")
     ap.add_argument("--seed", type=int, default=69)
+    ap.add_argument("--real-macs", default=None,
+                    help="MAC dei client legittimi separati da virgola (default: letti dagli host Mininet)")
     # isolamento delle risorse
     ap.add_argument("--controller-cpus", default=None, help="core del controller (es. '0')")
     ap.add_argument("--ovs-cpus", default=None, help="core di ovs-vswitchd (es. '1')")
@@ -411,46 +441,15 @@ def main(args) -> None:
         info("*** ATTENZIONE: warmup < 55 s: la fase benigna pulita (dopo lo scarto iniziale "
              "dell'analisi) sara' < 30 s\n")
 
-    info(f"*** CONTROLLER ({args.controller})\n")
-    controller_envs = {
-        "REPORT_PATH": f"{P('report')}.txt",   # solo ftfm
-        "FLOW_TABLE_SIZE": f"{flow_table_size}",
-        "IDLE_TIMEOUT": f"{idle_timeout}",
-        "HARD_TIMEOUT": f"{hard_timeout}",
-        "K_FACTOR": f"{k_factor}",
-        "MAX_COLLATERAL_PORT": "10",
-        "LOG_LEVEL": args.log_level,
-        "FLOW_TABLE_THRESHOLD": f"{args.ft_threshold}",
-        "OMP_NUM_THREADS": "1",
-        "MKL_NUM_THREADS": "1",
-        "OPENBLAS_NUM_THREADS": "1",
-    }
-
-    controller = start_controller(
-        controller_envs,
-        log_path=f"{P('controller')}.log",
-        app=CONTROLLER_APPS[args.controller], verbose=False
-    )
-
-    if controller.poll() is not None:
-        raise RuntimeError(f"Il controller è terminato subito con codice {controller.returncode}, controlla controller.log")
-
-    if not wait_for_controller(port=6653, timeout=20):
-        controller.terminate()
-        raise RuntimeError("Timeout: il controller non si è messo in ascolto sulla porta 6653")
-
-    ryu_proc = find_ryu(controller)
-
     # Pinning: controller (e opzionalmente OVS) su core dedicati, tutto il resto
-    # (host Mininet, replay, attacco, questo script) sugli altri. Va fatto PRIMA di
-    # creare la rete: i processi figli ereditano l'affinita'.
+    # (host Mininet, replay, attacco, questo script) sugli altri. L'affinity di questo
+    # processo va impostata PRIMA di creare la rete e di avviare il controller: i figli
+    # la ereditano. Il controller viene poi spostato sul suo core con pin_process().
     ctl_cpus, ovs_cpus = plan_cpus(args)
     rest_cpus = None
     if ctl_cpus or ovs_cpus:
         rest = set(os.sched_getaffinity(0)) - (ctl_cpus or set()) - (ovs_cpus or set())
         if rest:
-            if ctl_cpus:
-                pin_process(ryu_proc, ctl_cpus)
             os.sched_setaffinity(0, rest)
             rest_cpus = rest
             info(f"*** PINNING: controller={sorted(ctl_cpus or [])} ovs={sorted(ovs_cpus or [])} "
@@ -459,34 +458,79 @@ def main(args) -> None:
             info("*** PINNING ignorato: nessun core rimane libero per il resto della simulazione\n")
             ctl_cpus = ovs_cpus = None
 
-    meta = {
-        "run_id": log_timestamp, "controller": args.controller,
-        "flow_table_size": flow_table_size, "idle_timeout": idle_timeout,
-        "hard_timeout": hard_timeout, "k_factor": k_factor,
-        "npkts": npkts, "anp": anp, "anm": anm,
-        "idle_baseline_s": max(hard_timeout, args.idle),
-        "controller_cpus": args.controller_cpus, "ovs_cpus": args.ovs_cpus, "isolate": args.isolate,
-        "pinning_requested": {"controller": sorted(ctl_cpus or []), "ovs": sorted(ovs_cpus or []),
-                              "rest": sorted(rest_cpus or [])},
-        "controller_envs": controller_envs,
-        "controller_app": CONTROLLER_APPS[args.controller],
-        "controller_app_sha1": file_sha1(CONTROLLER_APPS[args.controller]),
-        "ryu_pid": ryu_proc.pid,
-        "profile": profile, "fill_time": fill_time,
-        "warmup": args.warmup, "tail": args.tail, "valid_match": args.valid_match,
-        "args": vars(args), "env": env_info(), "started": time(),
-    }
-    meta_path = f"{log_path}/meta_{log_timestamp}.json"
-    write_json(meta_path, meta)
-
-    net = mon = net_mon = sampler = probe = None
-    info("*** NETWORK\n")
+    controller = net = mon = net_mon = sampler = probe = None
     try:
+        # La rete viene COSTRUITA qui (host, switch, link) ma non avviata: cosi' i MAC
+        # degli host sono noti prima di lanciare il controller e possono essere passati
+        # via REAL_MACS. Gli switch si connettono solo con net.start(), dopo il controller.
+        info("*** NETWORK (build)\n")
         net = Mininet(
             topo=topo,
             controller=lambda name: RemoteController(name, ip='127.0.0.1', port=6653),
             switch=OVSSwitch,
             autoStaticArp=True)
+
+        sw_of = host_switch_map(net)
+        attacker, atk_dst = topo.att_hosts
+        victim = victim_switch_name(topo, sw_of, attacker)
+        legit = [h for h in net.hosts if h.name != attacker]
+        real_macs = resolve_real_macs(net, legit, args.real_macs)
+        info(f"*** REAL_MACS ({len(real_macs)}): {','.join(real_macs)}\n")
+
+        info(f"*** CONTROLLER ({args.controller})\n")
+        controller_envs = {
+            "REPORT_PATH": f"{P('report')}.txt",   # solo ftfm
+            "FLOW_TABLE_SIZE": f"{flow_table_size}",
+            "IDLE_TIMEOUT": f"{idle_timeout}",
+            "HARD_TIMEOUT": f"{hard_timeout}",
+            "K_FACTOR": f"{k_factor}",
+            "MAX_COLLATERAL_PORT": "10",
+            "LOG_LEVEL": args.log_level,
+            "FLOW_TABLE_THRESHOLD": f"{args.ft_threshold}",
+            "REAL_MACS": ",".join(real_macs),
+            "OMP_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+        }
+
+        controller = start_controller(
+            controller_envs,
+            log_path=f"{P('controller')}.log",
+            app=CONTROLLER_APPS[args.controller], verbose=False
+        )
+
+        if controller.poll() is not None:
+            raise RuntimeError(f"Il controller è terminato subito con codice {controller.returncode}, controlla controller.log")
+
+        if not wait_for_controller(port=6653, timeout=20):
+            raise RuntimeError("Timeout: il controller non si è messo in ascolto sulla porta 6653")
+
+        ryu_proc = find_ryu(controller)
+        if ctl_cpus and rest_cpus:
+            pin_process(ryu_proc, ctl_cpus)
+
+        meta = {
+            "run_id": log_timestamp, "controller": args.controller,
+            "flow_table_size": flow_table_size, "idle_timeout": idle_timeout,
+            "hard_timeout": hard_timeout, "k_factor": k_factor,
+            "npkts": npkts, "anp": anp, "anm": anm,
+            "idle_baseline_s": max(hard_timeout, args.idle),
+            "controller_cpus": args.controller_cpus, "ovs_cpus": args.ovs_cpus, "isolate": args.isolate,
+            "pinning_requested": {"controller": sorted(ctl_cpus or []), "ovs": sorted(ovs_cpus or []),
+                                  "rest": sorted(rest_cpus or [])},
+            "controller_envs": controller_envs,
+            "real_macs": real_macs,
+            "controller_app": CONTROLLER_APPS[args.controller],
+            "controller_app_sha1": file_sha1(CONTROLLER_APPS[args.controller]),
+            "ryu_pid": ryu_proc.pid,
+            "profile": profile, "fill_time": fill_time,
+            "warmup": args.warmup, "tail": args.tail, "valid_match": args.valid_match,
+            "args": vars(args), "env": env_info(), "started": time(),
+        }
+        meta_path = f"{log_path}/meta_{log_timestamp}.json"
+        write_json(meta_path, meta)
+
+        info("*** NETWORK (start)\n")
         net.start()
 
         info("*** NETWORK CONFIG\n")
@@ -500,14 +544,9 @@ def main(args) -> None:
         if ovs_cpus and rest_cpus and ovs_proc is not None:
             pin_process(ovs_proc, ovs_cpus)
 
-        # topologia reale: switch vittima, collegamenti host-switch, MAC "validi"
-        sw_of = host_switch_map(net)
-        attacker, atk_dst = topo.att_hosts
-        victim = victim_switch_name(topo, sw_of, attacker)
         probe_pairs = build_probe_pairs([s.name for s in net.switches], sw_of, victim,
                                         {attacker, atk_dst}, args.probe_pairs,
                                         random.Random(args.seed))
-        legit = [h for h in net.hosts if h.name != attacker]
         valid_macs = ([f"dl_src={h.MAC()}" for h in legit] if args.valid_match == "src"
                       else [h.MAC() for h in legit])
 
@@ -629,7 +668,8 @@ def main(args) -> None:
         sleep(30)
         if net is not None:
             net.stop()
-        stop_controller(controller)
+        if controller is not None:
+            stop_controller(controller)
         subprocess.run(['sudo', 'mn', '-c'], capture_output=True)
 
 
@@ -650,6 +690,8 @@ def orchestrate(args):
         pass_args += ["--ovs-cpus", args.ovs_cpus]
     if args.isolate:
         pass_args.append("--isolate")
+    if args.real_macs:
+        pass_args += ["--real-macs", args.real_macs]
 
     runs = []
     for i in range(args.pairs):

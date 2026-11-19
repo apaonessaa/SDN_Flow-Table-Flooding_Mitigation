@@ -7,6 +7,7 @@ raccontare in modo leggibile il punto di forza principale di FTFM (detection/evi
 e Packet-In Blocker) e il suo costo (latenza, CPU, RAM), senza la copertura
 esaustiva ma anche senza il rumore statistico di troppe metriche correlate.
 
+Richiede report FTFM del controller con lease FTF -> MFR (colonne ftf_run, ftf_pred, mfr_run).
 Riusa le utility di lettura/fasi di analyze_run.py.
 
 Uso:
@@ -154,42 +155,48 @@ def resource_metrics(res, acct, ph, out, warns):
         warns.append("manca cpuacct_<id>.csv")
 
 
+REPORT_COLS = {"timestamp", "dpid", "ftf_detected", "ftf_run", "ftf_pred", "mfr_run",
+               "n_malicious_rules", "n_eviction_msgs_total", "n_eviction_msgs_wildcard",
+               "n_eviction_msgs_strict", "n_rules_wildcard"}
+
+
 def detection_metrics(rep, ph, victim, out, warns):
-    """Tasso di detection (benigna vs flood, per round) ed evizioni/s nel flood."""
-    need = {"timestamp", "dpid", "ftf_detected"}
-    if rep is None or not need <= set(rep.columns):
-        warns.append("manca il report FTFM")
+    """Difesa FTF -> MFR nel flood e in fase benigna (per round) ed eviction nel flood.
+    ftf_pred/ftf_run = FTF positiva/eseguita nel round; mfr_run = MFR eseguita nel round
+    (cioe' lease attiva e switch non occupato)."""
+    if rep is None or not REPORT_COLS <= set(rep.columns):
+        warns.append("manca il report FTFM o ha colonne mancanti "
+                     f"{sorted(REPORT_COLS - set(rep.columns)) if rep is not None else ''}")
         return
+    rep = _num(rep.copy(), sorted(REPORT_COLS - {"dpid"}))
     vd = f"{int(victim[1:]):016x}"
+
     for name in ("benign", "flood"):
         t0, t1 = ph[name]
         r = rep[(rep.timestamp >= t0) & (rep.timestamp < t1) & (rep.dpid == vd)]
-        det = int((r.ftf_detected == 1).sum())
-        out[f"detect_rate_{name}"] = det / len(r) if len(r) else NAN
-    fb = out.get("detect_rate_benign", NAN)
-    if fb and not math.isnan(fb) and fb > 0.1:
-        warns.append(f"tasso di detection in fase benigna alto ({fb:.2f}): possibili falsi positivi")
+        runs = float(r.ftf_run.sum())
+        out[f"ftf_pos_rate_{name}"] = float(r.ftf_pred.sum()) / runs if runs else NAN
+        out[f"mfr_active_frac_{name}"] = float((r.mfr_run == 1).mean()) if len(r) else NAN
+        if name == "benign":
+            out["mfr_flagged_rules_benign"] = float(r.n_malicious_rules.sum())
 
-    ev_cols = {"n_eviction_msgs_total", "n_eviction_msgs_wildcard",
-               "n_eviction_msgs_strict", "n_rules_wildcard"}
-    if ev_cols <= set(rep.columns):
-        t0, t1 = ph["flood"]
-        r = rep[(rep.timestamp >= t0) & (rep.timestamp < t1) & (rep.dpid == vd)].copy()
-        for c in ev_cols:
-            r[c] = pd.to_numeric(r[c], errors="coerce")
-        dur = max(t1 - t0, 1e-9)
+    fb = out.get("mfr_active_frac_benign", NAN)
+    if not math.isnan(fb) and fb > 0.1:
+        warns.append(f"difesa MFR attiva in fase benigna ({fb:.2f}): possibili falsi positivi FTF")
 
-        n_wc_msgs = float(r.n_eviction_msgs_wildcard.sum())
-        n_strict_msgs = float(r.n_eviction_msgs_strict.sum())
-        n_wc_rules = float(r.n_rules_wildcard.sum())
+    t0, t1 = ph["flood"]
+    r = rep[(rep.timestamp >= t0) & (rep.timestamp < t1) & (rep.dpid == vd)]
+    dur = max(t1 - t0, 1e-9)
+    n_wc_msgs = float(r.n_eviction_msgs_wildcard.sum())
+    n_strict_msgs = float(r.n_eviction_msgs_strict.sum())
+    n_wc_rules = float(r.n_rules_wildcard.sum())
 
-        out["eviction_rate_per_s_flood"] = float(r.n_eviction_msgs_total.sum()) / dur
-        out["evicted_rules_flood"] = n_wc_rules + n_strict_msgs   # ogni strict toglie 1 regola
-        out["evict_msgs_strict_flood"] = n_strict_msgs
-        out["evict_msgs_wildcard_flood"] = n_wc_msgs
-        out["rules_per_wildcard_msg_flood"] = n_wc_rules / n_wc_msgs if n_wc_msgs > 0 else NAN
-    else:
-        warns.append("report senza colonne di eviction dettagliate")
+    out["eviction_rate_per_s_flood"] = float(r.n_eviction_msgs_total.sum()) / dur
+    out["evicted_rules_flood"] = n_wc_rules + n_strict_msgs   # ogni strict toglie 1 regola
+    out["evict_msgs_strict_flood"] = n_strict_msgs
+    out["evict_msgs_wildcard_flood"] = n_wc_msgs
+    out["rules_per_wildcard_msg_flood"] = n_wc_rules / n_wc_msgs if n_wc_msgs > 0 else NAN
+
 
 def _delta(rep_d, col, t0, t1):
     """Incremento di un contatore cumulativo del controller tra t0 e t1."""
@@ -199,8 +206,10 @@ def _delta(rep_d, col, t0, t1):
         return float(s.iloc[-1]) if len(s) else 0.0
     return at(t1) - at(t0)
 
+
 def blocker_metrics(rep, ph, victim, out, warns):
-    """Packet-In scartati dal blocker nel flood sullo switch vittima.
+    """Packet-In 'bloccati' dal blocker nel flood sullo switch vittima.
+    Bloccato = nessun flow-mod e nessun apprendimento MAC, ma il pacchetto viene comunque inoltrato.
     Benigno = MAC sorgente in REAL_MACS; malevolo = tutto il resto."""
     cols = ["n_blocked_pktin", "n_pktin_total", "n_pktin_real", "n_blocked_pktin_real"]
     if rep is None or not (set(cols) | {"timestamp", "dpid"}) <= set(rep.columns):
@@ -210,7 +219,8 @@ def blocker_metrics(rep, ph, victim, out, warns):
     for c in cols:
         rep[c] = pd.to_numeric(rep[c], errors="coerce")
     if rep["n_pktin_real"].max() == 0:
-        warns.append("REAL_MACS vuoto o non corrispondente: percentuali del blocker non affidabili")
+        warns.append("n_pktin_real = 0: REAL_MACS non corrisponde ai MAC visti dal controller, "
+                     "percentuali del blocker non affidabili")
         return
     vd = f"{int(victim[1:]):016x}"
     rv = rep[rep.dpid == vd]
@@ -225,6 +235,7 @@ def blocker_metrics(rep, ph, victim, out, warns):
     out["blocked_pktin_flood"] = blk
     out["benign_blocked_pct_flood"] = 100.0 * blk_real / tot_real if tot_real > 0 else NAN
     out["malicious_blocked_pct_flood"] = 100.0 * blk_mal / tot_mal if tot_mal > 0 else NAN
+
 
 # ---------------------------------------------------------------------------
 # Una run
@@ -257,8 +268,9 @@ def analyze_one(d, rid, a):
     if acct is not None:
         acct = _num(acct, ["ts", "user_s", "sys_s"])
     resource_metrics(res, acct, ph, out, warns)
-    detection_metrics(rep, ph, victim, out, warns)
-    blocker_metrics(rep, ph, victim, out, warns)
+    if meta.get("controller") == "ftfm":          # il baseline non ha report
+        detection_metrics(rep, ph, victim, out, warns)
+        blocker_metrics(rep, ph, victim, out, warns)
 
     out["avvisi"] = " | ".join(dict.fromkeys(warns)) if warns else "-"
     return out
@@ -268,19 +280,23 @@ def analyze_one(d, rid, a):
 # Le metriche: (sezione, chiave, etichetta, direzione: +1 piu'=meglio, -1 meno=meglio)
 # Ordine scelto per mettere avanti i punti di forza di FTFM (detection/eviction/blocker,
 # efficacia sulla tabella) e mostrare per ultimo il costo (latenza, CPU, RAM).
+# Le etichette vengono troncate a 52 caratteri in render().
 # ---------------------------------------------------------------------------
 METRICS = [
     ("PUNTI DI FORZA - detection, eviction e blocker", None, None, None),
-    ("", "detect_rate_flood", "tasso di detection nel flood (vittima)", +1),
-    ("", "detect_rate_benign", "tasso di detection in fase benigna (falsi positivi)", -1),
+    ("", "mfr_active_frac_flood", "round di flood con MFR attiva [frazione]", +1),
+    ("", "ftf_pos_rate_flood", "FTF: positivi/esecuzioni nel flood", +1),
+    ("", "mfr_active_frac_benign", "round benigni con MFR attiva (falsi pos.)", -1),
+    ("", "ftf_pos_rate_benign", "FTF: positivi/esecuzioni in fase benigna", -1),
+    ("", "mfr_flagged_rules_benign", "regole flaggate da MFR in fase benigna", -1),
     ("", "eviction_rate_per_s_flood", "evizioni/s nel flood (reattivita' alla saturazione)", +1),
     ("", "evicted_rules_flood", "regole evictate nel flood (totale)", 0),
     ("", "evict_msgs_strict_flood", "messaggi di eviction STRICT nel flood", 0),
-    ("", "evict_msgs_wildcard_flood", "messaggi di eviction NON STRICT (wildcard) nel flood", 0),
-    ("", "rules_per_wildcard_msg_flood", "regole eliminate per messaggio NON STRICT (media)", 0),
-    ("", "blocked_pktin_flood", "Packet-In scartati dal blocker nel flood", 0),
-    ("", "benign_blocked_pct_flood", "% Packet-In benigni scartati (su tutti i benigni)", -1),
-    ("", "malicious_blocked_pct_flood", "% Packet-In malevoli scartati (su tutti i malevoli)", +1),
+    ("", "evict_msgs_wildcard_flood", "messaggi di eviction NON STRICT nel flood", 0),
+    ("", "rules_per_wildcard_msg_flood", "regole per messaggio NON STRICT (media)", 0),
+    ("", "blocked_pktin_flood", "Packet-In senza flow-mod (blocker) nel flood", 0),
+    ("", "benign_blocked_pct_flood", "% Packet-In benigni bloccati", -1),
+    ("", "malicious_blocked_pct_flood", "% Packet-In malevoli bloccati", +1),
     ("EFFICACIA - stato della tabella e traffico legittimo", None, None, None),
     ("", "occ_above80_frac_post_sat", "frazione di tempo >=80% dopo la 1a saturazione", -1),
     ("", "occ_full_frac_post_sat", "frazione di tempo con tabella piena (>=99%)", -1),
