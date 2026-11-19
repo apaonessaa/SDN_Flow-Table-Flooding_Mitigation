@@ -156,7 +156,7 @@ def resource_metrics(res, acct, ph, out, warns):
 
 
 REPORT_COLS = {"timestamp", "dpid", "ftf_detected", "ftf_run", "ftf_pred", "mfr_run",
-               "n_malicious_rules", "n_eviction_msgs_total", "n_eviction_msgs_wildcard",
+               "n_malicious_rules", "n_malicious_real", "n_eviction_msgs_total", "n_eviction_msgs_wildcard",
                "n_eviction_msgs_strict", "n_rules_wildcard"}
 
 
@@ -190,6 +190,8 @@ def detection_metrics(rep, ph, victim, out, warns):
     n_wc_msgs = float(r.n_eviction_msgs_wildcard.sum())
     n_strict_msgs = float(r.n_eviction_msgs_strict.sum())
     n_wc_rules = float(r.n_rules_wildcard.sum())
+    tot_m = float(r.n_malicious_rules.sum())
+    out["mfr_fp_frac_flood"] = float(r.n_malicious_real.sum()) / tot_m if tot_m > 0 else NAN
 
     out["eviction_rate_per_s_flood"] = float(r.n_eviction_msgs_total.sum()) / dur
     out["evicted_rules_flood"] = n_wc_rules + n_strict_msgs   # ogni strict toglie 1 regola
@@ -211,7 +213,8 @@ def blocker_metrics(rep, ph, victim, out, warns):
     """Packet-In 'bloccati' dal blocker nel flood sullo switch vittima.
     Bloccato = nessun flow-mod e nessun apprendimento MAC, ma il pacchetto viene comunque inoltrato.
     Benigno = MAC sorgente in REAL_MACS; malevolo = tutto il resto."""
-    cols = ["n_blocked_pktin", "n_pktin_total", "n_pktin_real", "n_blocked_pktin_real"]
+    cols = ["n_blocked_pktin", "n_pktin_total", "n_pktin_real", "n_blocked_pktin_real",
+            "n_real_macs_seen", "n_real_macs_blocked_cum", "n_blocked_macs_real"]
     if rep is None or not (set(cols) | {"timestamp", "dpid"}) <= set(rep.columns):
         warns.append("report senza contatori del blocker")
         return
@@ -233,8 +236,14 @@ def blocker_metrics(rep, ph, victim, out, warns):
     tot_mal, blk_mal = tot - tot_real, blk - blk_real
 
     out["blocked_pktin_flood"] = blk
-    out["benign_blocked_pct_flood"] = 100.0 * blk_real / tot_real if tot_real > 0 else NAN
     out["malicious_blocked_pct_flood"] = 100.0 * blk_mal / tot_mal if tot_mal > 0 else NAN
+
+    rf = rv[(rv.timestamp >= f0) & (rv.timestamp < f1)]
+    seen_end = float(rv.loc[rv.timestamp < f1, "n_real_macs_seen"].max())
+    new_blk = _delta(rv, "n_real_macs_blocked_cum", f0, f1)
+    out["real_macs_blocked_pct_flood"] = 100.0 * new_blk / seen_end if seen_end > 0 else NAN
+    out["real_macs_blocked_mean_flood"] = (float(rf.n_blocked_macs_real.mean())
+                                           if len(rf) else NAN)
 
 
 # ---------------------------------------------------------------------------
@@ -289,13 +298,15 @@ METRICS = [
     ("", "mfr_active_frac_benign", "round benigni con MFR attiva (falsi pos.)", -1),
     ("", "ftf_pos_rate_benign", "FTF: positivi/esecuzioni in fase benigna", -1),
     ("", "mfr_flagged_rules_benign", "regole flaggate da MFR in fase benigna", -1),
+    ("", "mfr_fp_frac_flood", "regole flaggate dall'MFR con MAC reale [frazione]", -1),
     ("", "eviction_rate_per_s_flood", "evizioni/s nel flood (reattivita' alla saturazione)", +1),
     ("", "evicted_rules_flood", "regole evictate nel flood (totale)", 0),
     ("", "evict_msgs_strict_flood", "messaggi di eviction STRICT nel flood", 0),
     ("", "evict_msgs_wildcard_flood", "messaggi di eviction NON STRICT nel flood", 0),
     ("", "rules_per_wildcard_msg_flood", "regole per messaggio NON STRICT (media)", 0),
     ("", "blocked_pktin_flood", "Packet-In senza flow-mod (blocker) nel flood", 0),
-    ("", "benign_blocked_pct_flood", "% Packet-In benigni bloccati", -1),
+    ("", "real_macs_blocked_pct_flood", "% MAC reali bloccati (su quelli visti)", -1),
+    ("", "real_macs_blocked_mean_flood", "MAC reali bloccati in media nello stesso round", -1),
     ("", "malicious_blocked_pct_flood", "% Packet-In malevoli bloccati", +1),
     ("EFFICACIA - stato della tabella e traffico legittimo", None, None, None),
     ("", "occ_above80_frac_post_sat", "frazione di tempo >=80% dopo la 1a saturazione", -1),

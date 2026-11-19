@@ -53,7 +53,7 @@ REPORT_COLUMNS = [
     "timestamp", "dpid", "round", "detection_run", "skipped",
     "flow_table_occupancy", "ftf_detected",
     "ftf_run", "ftf_pred", "mfr_run",
-    "n_malicious_rules", "n_legit_rules", "n_fr_windows",
+    "n_malicious_rules", "n_malicious_real", "n_legit_rules", "n_fr_windows",
     "n_rules_wildcard",
     "n_eviction_msgs_wildcard", "n_eviction_msgs_strict", "n_eviction_msgs_total",
     "round_wall_s",
@@ -61,7 +61,8 @@ REPORT_COLUMNS = [
     "infer_wall_s", "infer_cpu_s",
     "mitig_wall_s", "mitig_cpu_s",
     "n_blocked_pktin", "n_blocked_macs",
-    "n_pktin_total", "n_pktin_real", "n_blocked_pktin_real"
+    "n_pktin_total", "n_pktin_real", "n_blocked_pktin_real",
+    "n_real_macs_seen", "n_real_macs_blocked_cum", "n_blocked_macs_real"
 ]
 
 _MAC_RE = re.compile(r'^(?:[0-9a-f]{2}:){5}[0-9a-f]{2}$')
@@ -177,6 +178,9 @@ class FTFMController(app_manager.RyuApp):
         self.n_pktin_real = defaultdict(int)
         self.n_blocked_real = defaultdict(int)
 
+        self.real_seen = defaultdict(set)           # MAC reali visti in Packet-In, per dpid
+        self.real_blocked_ever = defaultdict(set)   # MAC reali bloccati almeno una volta, per dpid
+
         self.T = float("{:.2f}".format(self.IDLE_TIMEOUT / self.K_FACTOR))
         self._init_report()
         self.collector = hub.spawn(self._collector)
@@ -286,6 +290,7 @@ class FTFMController(app_manager.RyuApp):
         self.n_pktin_total[dpid] += 1
         if is_real:
             self.n_pktin_real[dpid] += 1
+            self.real_seen[dpid].add(src.lower())
 
         # Packet-In Blocker: il pacchetto viene comunque inoltrato (PacketOut) ma
         # non si installa nessuna regola e non si apprende il MAC.
@@ -327,6 +332,8 @@ class FTFMController(app_manager.RyuApp):
             self.strikes[key] = (n, now)
             if n >= self.BLK_MIN_ROUNDS:
                 self.blocked[key] = now + self.BLK_TTL
+                if k[1].lower() in self.REAL_MACS:
+                    self.real_blocked_ever[dpid].add(k[1].lower())
                 self.logger.debug('[BLOCK] dpid=%016x port=%s mac=%s strikes=%d', dpid, k[0], k[1], n)
         # Clean the blocker e le strikes scadute (con MAC casuali crescerebbero senza limite)
         for k in [k for k, u in self.blocked.items() if u <= now]:
@@ -419,6 +426,7 @@ class FTFMController(app_manager.RyuApp):
             ftf_detected=int(self._ftf_until.get(dpid) is not None),
             ftf_run=ftf_run, ftf_pred=ftf_pred, mfr_run=mfr_run,
             n_malicious_rules=res.get("n_malicious_rules", 0),
+            n_malicious_real=res.get("n_malicious_real", 0),
             n_legit_rules=res.get("n_legit_rules", 0),
             n_fr_windows=len(self.w_round_per_fr[dpid]),
             n_rules_wildcard=res.get("n_rules_wildcard", 0),
@@ -433,6 +441,9 @@ class FTFMController(app_manager.RyuApp):
             n_pktin_total=self.n_pktin_total[dpid],
             n_pktin_real=self.n_pktin_real[dpid],
             n_blocked_pktin_real=self.n_blocked_real[dpid],
+            n_real_macs_seen=len(self.real_seen[dpid]),
+            n_real_macs_blocked_cum=len(self.real_blocked_ever[dpid]),
+            n_blocked_macs_real=sum(1 for k, u in self.blocked.items() if k[0] == dpid and u > ts0 and k[2].lower() in self.REAL_MACS),
         )
 
     # ----------------------------------------------------------------- #
@@ -494,6 +505,7 @@ class FTFMController(app_manager.RyuApp):
             return None
 
         n_malicious = n_legit = n_rules_wildcard = n_wc_msgs = n_strict = 0
+        n_mal_real = 0
 
         # --- parte 1: finestre per l'MFR
         with tm.stage("mitig"):
@@ -510,6 +522,8 @@ class FTFMController(app_manager.RyuApp):
             malicious_stats = [s for s, p in zip(stats, mfr_preds) if p]
             legit_stats = [s for s, p in zip(stats, mfr_preds) if not p]
             n_malicious, n_legit = len(malicious_stats), len(legit_stats)
+            n_mal_real = sum(1 for s in malicious_stats
+                             if s.match['eth_src'].lower() in self.REAL_MACS)
             datapath = self.datapaths.get(dpid)   # dopo l'attesa lo switch potrebbe essere sparito
             if datapath is not None and malicious_stats:
                 self.logger.info(f"[!] {n_malicious} regole malevole su DPID={dpid:016x}")
@@ -529,6 +543,7 @@ class FTFMController(app_manager.RyuApp):
             "n_rules_wildcard": n_rules_wildcard,
             "n_eviction_msgs_wildcard": n_wc_msgs,
             "n_eviction_msgs_strict": n_strict,
+            "n_malicious_real": n_mal_real
         }
 
     def _evict_by_port(self, datapath, malicious_stats, legit_stats):

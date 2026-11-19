@@ -484,7 +484,7 @@ def main(args) -> None:
             "IDLE_TIMEOUT": f"{idle_timeout}",
             "HARD_TIMEOUT": f"{hard_timeout}",
             "K_FACTOR": f"{k_factor}",
-            "MAX_COLLATERAL_PORT": "10",
+            "MAX_COLLATERAL_PORT": "5",
             "LOG_LEVEL": args.log_level,
             "FLOW_TABLE_THRESHOLD": f"{args.ft_threshold}",
             "REAL_MACS": ",".join(real_macs),
