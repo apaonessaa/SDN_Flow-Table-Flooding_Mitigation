@@ -214,7 +214,8 @@ def blocker_metrics(rep, ph, victim, out, warns):
     Bloccato = nessun flow-mod e nessun apprendimento MAC, ma il pacchetto viene comunque inoltrato.
     Benigno = MAC sorgente e destinazione in REAL_MACS; malevolo = tutto il resto."""
     cols = ["n_blocked_pktin", "n_pktin_total", "n_pktin_real", "n_blocked_pktin_real",
-            "n_real_pairs_seen", "n_real_pairs_blocked_cum", "n_blocked_pairs_real"]
+            "n_pktin_atk", "n_blocked_pktin_atk", "n_real_pairs_seen", "n_real_pairs_blocked_cum",
+            "n_blocked_pairs_real"]
     if rep is None or not (set(cols) | {"timestamp", "dpid"}) <= set(rep.columns):
         warns.append("report senza contatori del blocker")
         return
@@ -233,8 +234,8 @@ def blocker_metrics(rep, ph, victim, out, warns):
     blk_real = _delta(rv, "n_blocked_pktin_real", f0, f1)
     tot = _delta(rv, "n_pktin_total", f0, f1)
     tot_real = _delta(rv, "n_pktin_real", f0, f1)
-    tot_mal = delta(rv, "n_pktin_atk", f0, f1)
-    blk_mal = delta(rv, "n_blocked_pktin_atk", f0, f1)
+    tot_mal = _delta(rv, "n_pktin_atk", f0, f1)
+    blk_mal = _delta(rv, "n_blocked_pktin_atk", f0, f1)
 
     out["blocked_pktin_flood"] = blk
     out["benign_blocked_pct_flood"] = 100.0 * blk_real / tot_real if tot_real > 0 else NAN

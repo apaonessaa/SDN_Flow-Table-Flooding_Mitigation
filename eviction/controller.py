@@ -299,7 +299,7 @@ class FTFMController(app_manager.RyuApp):
         if until is not None and time.time() < until:
             self.n_blocked[dpid] += 1
             if not src_real:
-                self.n_blocked_atk[dpid] += 1
+                self.n_blocked_pktin_atk[dpid] += 1
             if is_real:
                 self.n_blocked_real[dpid] += 1
             bypass_flow_mod = True
