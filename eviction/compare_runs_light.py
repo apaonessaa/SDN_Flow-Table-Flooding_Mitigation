@@ -212,9 +212,9 @@ def _delta(rep_d, col, t0, t1):
 def blocker_metrics(rep, ph, victim, out, warns):
     """Packet-In 'bloccati' dal blocker nel flood sullo switch vittima.
     Bloccato = nessun flow-mod e nessun apprendimento MAC, ma il pacchetto viene comunque inoltrato.
-    Benigno = MAC sorgente in REAL_MACS; malevolo = tutto il resto."""
+    Benigno = MAC sorgente e destinazione in REAL_MACS; malevolo = tutto il resto."""
     cols = ["n_blocked_pktin", "n_pktin_total", "n_pktin_real", "n_blocked_pktin_real",
-            "n_real_macs_seen", "n_real_macs_blocked_cum", "n_blocked_macs_real"]
+            "n_real_pairs_seen", "n_real_pairs_blocked_cum", "n_blocked_pairs_real"]
     if rep is None or not (set(cols) | {"timestamp", "dpid"}) <= set(rep.columns):
         warns.append("report senza contatori del blocker")
         return
@@ -233,16 +233,18 @@ def blocker_metrics(rep, ph, victim, out, warns):
     blk_real = _delta(rv, "n_blocked_pktin_real", f0, f1)
     tot = _delta(rv, "n_pktin_total", f0, f1)
     tot_real = _delta(rv, "n_pktin_real", f0, f1)
-    tot_mal, blk_mal = tot - tot_real, blk - blk_real
+    tot_mal = delta(rv, "n_pktin_atk", f0, f1)
+    blk_mal = delta(rv, "n_blocked_pktin_atk", f0, f1)
 
     out["blocked_pktin_flood"] = blk
+    out["benign_blocked_pct_flood"] = 100.0 * blk_real / tot_real if tot_real > 0 else NAN
     out["malicious_blocked_pct_flood"] = 100.0 * blk_mal / tot_mal if tot_mal > 0 else NAN
 
     rf = rv[(rv.timestamp >= f0) & (rv.timestamp < f1)]
-    seen_end = float(rv.loc[rv.timestamp < f1, "n_real_macs_seen"].max())
-    new_blk = _delta(rv, "n_real_macs_blocked_cum", f0, f1)
-    out["real_macs_blocked_pct_flood"] = 100.0 * new_blk / seen_end if seen_end > 0 else NAN
-    out["real_macs_blocked_mean_flood"] = (float(rf.n_blocked_macs_real.mean())
+    seen_end = float(rv.loc[rv.timestamp < f1, "n_real_pairs_seen"].max())
+    new_blk = _delta(rv, "n_real_pairs_blocked_cum", f0, f1)
+    out["real_pairs_blocked_pct_flood"] = 100.0 * new_blk / seen_end if seen_end > 0 else NAN
+    out["real_pairs_blocked_mean_flood"] = (float(rf.n_blocked_pairs_real.mean())
                                            if len(rf) else NAN)
 
 
@@ -305,8 +307,9 @@ METRICS = [
     ("", "evict_msgs_wildcard_flood", "messaggi di eviction NON STRICT nel flood", 0),
     ("", "rules_per_wildcard_msg_flood", "regole per messaggio NON STRICT (media)", 0),
     ("", "blocked_pktin_flood", "Packet-In senza flow-mod (blocker) nel flood", 0),
-    ("", "real_macs_blocked_pct_flood", "% MAC reali bloccati (su quelli visti)", -1),
-    ("", "real_macs_blocked_mean_flood", "MAC reali bloccati in media nello stesso round", -1),
+    ("", "real_pairs_blocked_pct_flood", "% coppie MAC reali bloccate (su quelle viste)", -1),
+    ("", "real_pairs_blocked_mean_flood", "coppie MAC reali bloccate in media nello stesso round", -1),
+    ("", "benign_blocked_pct_flood", "% Packet-In benigni senza flow-mod (costo)", -1),
     ("", "malicious_blocked_pct_flood", "% Packet-In malevoli bloccati", +1),
     ("EFFICACIA - stato della tabella e traffico legittimo", None, None, None),
     ("", "occ_above80_frac_post_sat", "frazione di tempo >=80% dopo la 1a saturazione", -1),
