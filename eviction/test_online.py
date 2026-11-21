@@ -427,9 +427,9 @@ def main(args) -> None:
     idle_timeout = 10
     hard_timeout = 15
     k_factor = 2
-    npkts = flow_table_size*2
-    anp = 20 #5
-    anm = 30 #10
+    npkts = flow_table_size*5
+    anp = 50 #5
+    anm = 100 #10
     fill_time = None
     profile = "aggressive"
     log_path = current + "/logs/" + args.controller
@@ -588,6 +588,7 @@ def main(args) -> None:
             ping_pairs=topo.ping_pairs,
             host_macs=valid_macs,
             out_prefix=P("network"),
+            ping_interval=5.0
         )
         sampler = CounterSampler(net, {"ryu": ryu_proc, "ovs": ovs_proc},
                                  f"{P('portstats')}.csv", f"{P('cpuacct')}.csv")
