@@ -1,0 +1,38 @@
+metric,label,direction,baseline_n,baseline_median,baseline_q1,baseline_q3,ftfm_n,ftfm_median,ftfm_q1,ftfm_q3,pairs,diff_median,ci_lo,ci_hi
+mfr_active_frac_flood,round di flood con MFR attiva [frazione],1,0,,,,2,0.9354166666666667,0.934375,0.9364583333333334,0,,,
+ftf_pos_rate_flood,FTF: positivi/esecuzioni nel flood,1,0,,,,2,1.0,1.0,1.0,0,,,
+mfr_active_frac_benign,round benigni con MFR attiva (falsi pos.),-1,0,,,,2,0.5,0.25,0.75,0,,,
+ftf_pos_rate_benign,FTF: positivi/esecuzioni in fase benigna,-1,0,,,,1,1.0,1.0,1.0,0,,,
+mfr_flagged_rules_benign,regole flaggate da MFR in fase benigna,-1,0,,,,2,8.5,4.25,12.75,0,,,
+mfr_fp_frac_flood,regole flaggate dall'MFR con MAC reale [frazione],-1,0,,,,2,0.03545677939754777,0.0331048478111811,0.037808710983914445,0,,,
+eviction_rate_per_s_flood,evizioni/s nel flood (reattivita' alla saturazione),1,0,,,,2,0.6215239817414291,0.5995216456629159,0.6435263178199422,0,,,
+evicted_rules_flood,regole evictate nel flood (totale),0,0,,,,2,969.5,956.25,982.75,0,,,
+evict_msgs_strict_flood,messaggi di eviction STRICT nel flood,0,0,,,,2,31.5,30.25,32.75,0,,,
+evict_msgs_wildcard_flood,messaggi di eviction NON STRICT nel flood,0,0,,,,2,16.0,15.0,17.0,0,,,
+rules_per_wildcard_msg_flood,regole per messaggio NON STRICT (media),0,0,,,,2,59.36507936507937,56.404761904761905,62.32539682539683,0,,,
+blocked_pktin_flood,Packet-In senza flow-mod (blocker) nel flood,0,0,,,,2,1921.0,1896.0,1946.0,0,,,
+real_pairs_blocked_pct_flood,% coppie MAC reali bloccate (su quelle viste),-1,0,,,,2,5.504587155963303,5.504587155963303,5.504587155963303,0,,,
+real_pairs_blocked_mean_flood,coppie MAC reali bloccate in media nello stesso round,-1,0,,,,2,1.4083333333333332,1.2375,1.5791666666666666,0,,,
+benign_blocked_pct_flood,% Packet-In benigni senza flow-mod (costo),-1,0,,,,2,0.1297300489357484,0.08074308099375543,0.17871701687774136,0,,,
+malicious_blocked_pct_flood,% Packet-In malevoli bloccati,1,0,,,,2,38.322659079850034,37.80760028577585,38.83771787392422,0,,,
+occ_above80_frac_post_sat,frazione di tempo >=80% dopo la 1a saturazione,-1,2,1.0,1.0,1.0,2,0.7814277360714073,0.7687268106347516,0.794128661508063,2,-0.2185722639285927,-0.24397411480190423,-0.19317041305528115
+occ_full_frac_post_sat,frazione di tempo con tabella piena (>=99%),-1,2,1.0,1.0,1.0,2,0.767076643503769,0.747200171783294,0.7869531152242439,2,-0.23292335649623103,-0.2726762999371809,-0.19317041305528115
+valid_flow_survival_ratio,flow valide: rapporto flood/pre (sopravvivenza),1,2,0.5817730715283966,0.5807101261750928,0.5828360168817004,2,0.6456519063461488,0.6437298155505571,0.6475739971417405,2,0.0638788348177522,0.05790876251996113,0.06984890711554326
+invalid_flow_mean_flood,flow non valide medie in tabella nel flood,-1,2,63.77571201139094,63.693008622783864,63.85841539999801,2,48.774576727691226,47.837835762625296,49.711317692757156,2,-15.00113528369971,-16.70921043661742,-13.293060130782003
+ping_victim_n,ping via vittima: campioni,0,2,80.0,80.0,80.0,2,75.0,74.5,75.5,2,-5.0,-6.0,-4.0
+ping_victim_p95_ms,"ping via vittima, p95 [ms] (solo ricevuti)",-1,2,80.75,71.125,90.375,2,66.45,61.475,71.42500000000001,2,-14.299999999999997,-23.599999999999994,-5.0
+ping_victim_p50_ms,"ping via vittima, mediana [ms]",-1,2,11.25,11.25,11.25,2,4.886,3.324,6.448,2,-6.364,-9.488,-3.24
+ping_victim_loss_pct,"ping via vittima, perdita [%]",-1,2,0.0,0.0,0.0,2,0.0,0.0,0.0,2,0.0,0.0,0.0
+ping_control_p95_ms,"ping via controllo, p95 [ms] (riferimento)",0,2,55.45,48.175,62.725,2,24.55,23.025,26.075000000000003,2,-30.9,-42.4,-19.4
+ping_control_p50_ms,"ping via controllo, mediana [ms] (riferimento)",0,2,0.10175000000000001,0.100375,0.103125,2,0.0985,0.09825,0.09875,2,-0.003249999999999996,-0.005499999999999991,-0.0010000000000000009
+ping_control_loss_pct,"ping via controllo, perdita [%] (riferimento)",0,2,0.0,0.0,0.0,2,0.0,0.0,0.0,2,0.0,0.0,0.0
+ryu_cpu_pct_mean_flood,CPU% media di Ryu nel flood,-1,2,12.670943077285951,12.649136134916267,12.692750019655634,2,12.785189726381002,12.74355640165204,12.826823051109965,2,0.114246649095052,-0.01263388510223784,0.24112718329234184
+ryu_cpu_cores_mean_flood,core medi di Ryu nel flood,-1,2,0.12770301612128832,0.1274139161038167,0.12799211613875996,2,0.13248235788295637,0.13107747963180266,0.13388723613411008,2,0.004779341761668041,0.002547785294303856,0.007010898229032225
+ryu_ram_max_mb,RAM massima di Ryu [MB],-1,2,46.415000000000006,46.3975,46.432500000000005,2,504.51,504.185,504.83500000000004,2,458.095,457.48,458.71000000000004
+ping_victim_n_benign,ping via vittima: campioni (benigno),0,2,31.0,31.0,31.0,2,31.0,31.0,31.0,2,0.0,0.0,0.0
+ping_victim_p95_ms_benign,"ping via vittima, p95 [ms] (benigno)",-1,2,37.599999999999994,32.5,42.699999999999996,2,48.05,47.425,48.675,2,10.45,1.5,19.4
+ping_victim_p50_ms_benign,"ping via vittima, mediana [ms] (benigno)",-1,2,0.1205,0.12025,0.12075,2,0.1265,0.12325,0.12975,2,0.006000000000000005,-0.0010000000000000009,0.013000000000000012
+ping_victim_loss_pct_benign,"ping via vittima, perdita [%] (benigno)",-1,2,0.0,0.0,0.0,2,0.0,0.0,0.0,2,0.0,0.0,0.0
+ping_control_p95_ms_benign,"ping via controllo, p95 [ms] (benigno)",-1,2,15.75,14.424999999999999,17.075,2,22.5,18.95,26.05,2,6.750000000000002,2.3000000000000007,11.200000000000003
+ping_control_p50_ms_benign,"ping via controllo, mediana [ms] (benigno)",-1,2,0.10775,0.104875,0.110625,2,0.10125,0.098625,0.103875,2,-0.006499999999999999,-0.006999999999999992,-0.006000000000000005
+ping_control_loss_pct_benign,"ping via controllo, perdita [%] (benigno)",-1,2,0.0,0.0,0.0,2,0.0,0.0,0.0,2,0.0,0.0,0.0

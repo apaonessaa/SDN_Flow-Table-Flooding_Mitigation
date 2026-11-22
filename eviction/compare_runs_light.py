@@ -98,11 +98,7 @@ def occupancy_metrics(flows, victim, size, ph, a, out, warns):
     out["valid_flow_survival_ratio"] = (v_fl / v_pre) if v_pre and v_pre > 0 else NAN
     out["invalid_flow_mean_flood"] = tw_mean(ivn_fl) if ivn_fl else NAN
 
-
 def latency_metrics(lat, ph, a, out, warns):
-    """Latenza ping, vittima vs controllo, nel flood.
-    p95 e mediana sono calcolati solo sui pacchetti ricevuti; le perdite sono una metrica a parte,
-    cosi' una perdita non trasforma il p95 in inf e non fa sparire la coppia dal confronto."""
     if lat is None:
         warns.append("manca la latenza dei ping")
         return
@@ -116,24 +112,25 @@ def latency_metrics(lat, ph, a, out, warns):
         return cache[(s, d)]
 
     lat["grp"] = [grp(s, d) for s, d in zip(lat["src"], lat["dst"])]
-    f0, f1 = ph["flood"]
-    for g in ("victim", "control"):
-        sub = lat[(lat.grp == g) & (lat.ts >= f0) & (lat.ts < f1)]
-        st = ar.lat_stats(sub, a.slow_ms)
-        rx = pd.to_numeric(sub["rtt_ms"], errors="coerce").dropna().values
-        out[f"ping_{g}_n"] = st["n"]
-        out[f"ping_{g}_p95_ms"] = ar.quantile_inf(rx, .95) if len(rx) else NAN
-        out[f"ping_{g}_p50_ms"] = st["p50_rx"]
-        out[f"ping_{g}_loss_pct"] = st["loss"]
-        out[f"ping_{g}_slow_loss_pct"] = st["slow"]
-        if st["n"] < 30:
-            warns.append(f"pochi ping {g} nel flood (n={st['n']})")
 
-    vp, cp = out.get("ping_victim_p95_ms", NAN), out.get("ping_control_p95_ms", NAN)
-    out["ping_extra_p95_ms"] = (vp - cp) if not (math.isnan(vp) or math.isnan(cp)) else NAN
-    vl, cl = out.get("ping_victim_loss_pct", NAN), out.get("ping_control_loss_pct", NAN)
-    out["ping_extra_loss_pct"] = (vl - cl) if not (math.isnan(vl) or math.isnan(cl)) else NAN
+    for phase, suf in (("flood", ""), ("benign", "_benign")):
+        t0, t1 = ph[phase]
+        for g in ("victim", "control"):
+            sub = lat[(lat.grp == g) & (lat.ts >= t0) & (lat.ts < t1)]
+            st = ar.lat_stats(sub, a.slow_ms)
+            rx = pd.to_numeric(sub["rtt_ms"], errors="coerce").dropna().values
+            out[f"ping_{g}_n{suf}"] = st["n"]
+            out[f"ping_{g}_p95_ms{suf}"] = ar.quantile_inf(rx, .95) if len(rx) else NAN
+            out[f"ping_{g}_p50_ms{suf}"] = st["p50_rx"]
+            out[f"ping_{g}_loss_pct{suf}"] = st["loss"]
+            out[f"ping_{g}_slow_loss_pct{suf}"] = st["slow"]
+            if st["n"] < 30:
+                warns.append(f"pochi ping {g} in fase {phase} (n={st['n']})")
 
+        vp, cp = out.get(f"ping_victim_p95_ms{suf}", NAN), out.get(f"ping_control_p95_ms{suf}", NAN)
+        out[f"ping_extra_p95_ms{suf}"] = (vp - cp) if not (math.isnan(vp) or math.isnan(cp)) else NAN
+        vl, cl = out.get(f"ping_victim_loss_pct{suf}", NAN), out.get(f"ping_control_loss_pct{suf}", NAN)
+        out[f"ping_extra_loss_pct{suf}"] = (vl - cl) if not (math.isnan(vl) or math.isnan(cl)) else NAN
 
 def resource_metrics(res, acct, ph, out, warns):
     """CPU e RAM di Ryu nel flood."""
@@ -318,15 +315,24 @@ METRICS = [
     ("", "valid_flow_survival_ratio", "flow valide: rapporto flood/pre (sopravvivenza)", +1),
     ("", "invalid_flow_mean_flood", "flow non valide medie in tabella nel flood", -1),
     ("COSTO - latenza, CPU e RAM", None, None, None),
+    ("", "ping_victim_n", "ping via vittima: campioni", 0),
     ("", "ping_victim_p95_ms", "ping via vittima, p95 [ms] (solo ricevuti)", -1),
     ("", "ping_victim_p50_ms", "ping via vittima, mediana [ms]", -1),
     ("", "ping_victim_loss_pct", "ping via vittima, perdita [%]", -1),
     ("", "ping_control_p95_ms", "ping via controllo, p95 [ms] (riferimento)", 0),
-    ("", "ping_extra_p95_ms", "ping: extra p95 ms (vittima - controllo)", -1),
-    ("", "ping_extra_loss_pct", "ping: extra perdita % (vittima - controllo)", -1),
+    ("", "ping_control_p50_ms", "ping via controllo, mediana [ms] (riferimento)", 0),
+    ("", "ping_control_loss_pct", "ping via controllo, perdita [%] (riferimento)", 0),
     ("", "ryu_cpu_pct_mean_flood", "CPU% media di Ryu nel flood", -1),
     ("", "ryu_cpu_cores_mean_flood", "core medi di Ryu nel flood", -1),
     ("", "ryu_ram_max_mb", "RAM massima di Ryu [MB]", -1),
+    ("RIFERIMENTO - fase benigna (warmup, senza attacco)", None, None, None),
+    ("", "ping_victim_n_benign", "ping via vittima: campioni (benigno)", 0),
+    ("", "ping_victim_p95_ms_benign", "ping via vittima, p95 [ms] (benigno)", -1),
+    ("", "ping_victim_p50_ms_benign", "ping via vittima, mediana [ms] (benigno)", -1),
+    ("", "ping_victim_loss_pct_benign", "ping via vittima, perdita [%] (benigno)", -1),
+    ("", "ping_control_p95_ms_benign", "ping via controllo, p95 [ms] (benigno)", -1),
+    ("", "ping_control_p50_ms_benign", "ping via controllo, mediana [ms] (benigno)", -1),
+    ("", "ping_control_loss_pct_benign", "ping via controllo, perdita [%] (benigno)", -1),
 ]
 
 
