@@ -427,8 +427,8 @@ def main(args) -> None:
     idle_timeout = 10
     hard_timeout = 15
     k_factor = 2
-    npkts = flow_table_size*5
-    anp = 50 #5
+    npkts = flow_table_size*3
+    anp = 20 #5
     anm = 100 #10
     fill_time = None
     profile = "aggressive"
