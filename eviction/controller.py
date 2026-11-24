@@ -7,12 +7,16 @@ from ryu.lib.packet import packet, ethernet, ether_types, ipv4
 from ryu.lib import hub
 
 import os
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ.setdefault("MKL_NUM_THREADS", "1")
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
+
 import re
 import sys
 import csv
 import time
 import threading
-from collections import defaultdict, deque
+from collections import defaultdict, deque, namedtuple
 from hashlib import md5
 from eventlet import tpool
 from contextlib import contextmanager
@@ -62,7 +66,6 @@ REPORT_COLUMNS = [
 
 _MAC_RE = re.compile(r'^(?:[0-9a-f]{2}:){5}[0-9a-f]{2}$')
 
-
 def parse_macs(raw):
     """Accetta separatori , ; spazi e MAC con ':' o '-'. Ritorna (set valido, token scartati)."""
     macs, bad = set(), []
@@ -75,7 +78,6 @@ def parse_macs(raw):
         else:
             bad.append(tok)
     return macs, bad
-
 
 class StageTimer:
     def __init__(self):
@@ -106,6 +108,8 @@ def load_tempbert(model_dir, device, order):
         "window": params["window"], "n_feat": len(features),
         "idx": [order.index(f) for f in features],   # ordine FeatureExt -> ordine modello
     }
+
+PairOfMAC = namedtuple('PairOfMAC', ['src', 'dst'])
 
 class FTFMController(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_4.OFP_VERSION]
@@ -154,8 +158,9 @@ class FTFMController(app_manager.RyuApp):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.ftf = load_tempbert(self.FTF_MODEL_DIR, self.device, FTF_ORDER)
         self.mfr = load_tempbert(self.MFR_MODEL_DIR, self.device, MFR_ORDER)
-        self.logger.info(f"TempBERT su {self.device}: FTF window={self.ftf['window']} "
-                         f"n_feat={self.ftf['n_feat']}, MFR window={self.mfr['window']} n_feat={self.mfr['n_feat']}")
+        self.logger.info(f"TempBERT su {self.device}:\n"
+                            f"\tFTF window={self.ftf['window']} n_feat={self.ftf['n_feat']}\n"
+                            f"\tMFR window={self.mfr['window']} n_feat={self.mfr['n_feat']}\n")
 
         # W_pktin per FTF and MFR
         self.w_round_per_ft = defaultdict(lambda: deque(maxlen=self.ftf["window"]))
@@ -283,14 +288,15 @@ class FTFMController(app_manager.RyuApp):
             self.feature_ext[dpid].add_pkt_in(payload=payload, src_ip=ip.src, dst_ip=ip.dst,
                                               src_mac=src, dst_mac=dst)
 
-        src_real = src.lower() in self.REAL_MACS
-        is_real = src_real and dst.lower() in self.REAL_MACS
+        macs = PairOfMAC(src.lower(), dst.lower())
+        src_real = macs.src in self.REAL_MACS
+        is_real = src_real and macs.dst in self.REAL_MACS
         self.n_pktin_total[dpid] += 1
         if not src_real:
             self.n_pktin_atk[dpid] += 1
         if is_real:
             self.n_pktin_real[dpid] += 1
-            self.real_seen[dpid].add((src.lower(), dst.lower()))
+            self.real_seen[dpid].add(macs)
 
         # Packet-In Blocker: il pacchetto viene comunque inoltrato (PacketOut) ma
         # non si installa nessuna regola e non si apprende il MAC.
@@ -334,9 +340,10 @@ class FTFMController(app_manager.RyuApp):
             self.strikes[key] = (n, now)
             if n >= self.BLK_MIN_ROUNDS:
                 self.blocked[key] = now + self.BLK_TTL
-                if k[1].lower() in self.REAL_MACS and k[2].lower() in self.REAL_MACS:
-                    self.real_blocked_ever[dpid].add((k[1].lower(), k[2].lower()))
-                self.logger.debug('[BLOCK] dpid=%016x port=%s mac=%s strikes=%d', dpid, k[0], k[1], n)
+                macs = PairOfMAC(k[1].lower(), k[2].lower())
+                if macs.src in self.REAL_MACS and macs.dst in self.REAL_MACS:
+                    self.real_blocked_ever[dpid].add(macs)
+                self.logger.debug('[BLOCK] dpid=%016x port=%s src=%s dst=%s strikes=%d', dpid, k[0], macs.src, macs.dst, n)
         # Clean the blocker e le strikes scadute (con MAC casuali crescerebbero senza limite)
         for k in [k for k, u in self.blocked.items() if u <= now]:
             del self.blocked[k]

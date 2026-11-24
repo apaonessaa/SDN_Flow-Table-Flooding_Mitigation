@@ -1,0 +1,92 @@
+[
+  {
+    "controller": "ftfm",
+    "dir": "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/eviction/logs/ftfm",
+    "rid": 1795470178,
+    "pair": 0,
+    "pos": 0,
+    "rc": 0,
+    "profile": "stealth"
+  },
+  {
+    "controller": "baseline",
+    "dir": "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/eviction/logs/baseline",
+    "rid": 1795471119,
+    "pair": 0,
+    "pos": 1,
+    "rc": 0,
+    "profile": "stealth"
+  },
+  {
+    "controller": "baseline",
+    "dir": "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/eviction/logs/baseline",
+    "rid": 1795472066,
+    "pair": 1,
+    "pos": 0,
+    "rc": 0,
+    "profile": "stealth"
+  },
+  {
+    "controller": "ftfm",
+    "dir": "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/eviction/logs/ftfm",
+    "rid": 1795473013,
+    "pair": 1,
+    "pos": 1,
+    "rc": 0,
+    "profile": "stealth"
+  },
+  {
+    "controller": "ftfm",
+    "dir": "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/eviction/logs/ftfm",
+    "rid": 1795473962,
+    "pair": 2,
+    "pos": 0,
+    "rc": 0,
+    "profile": "stealth"
+  },
+  {
+    "controller": "baseline",
+    "dir": "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/eviction/logs/baseline",
+    "rid": 1795474901,
+    "pair": 2,
+    "pos": 1,
+    "rc": 0,
+    "profile": "stealth"
+  },
+  {
+    "controller": "baseline",
+    "dir": "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/eviction/logs/baseline",
+    "rid": 1795475848,
+    "pair": 3,
+    "pos": 0,
+    "rc": 0,
+    "profile": "stealth"
+  },
+  {
+    "controller": "ftfm",
+    "dir": "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/eviction/logs/ftfm",
+    "rid": 1795476767,
+    "pair": 3,
+    "pos": 1,
+    "rc": 0,
+    "profile": "stealth"
+  },
+  {
+    "controller": "ftfm",
+    "dir": "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/eviction/logs/ftfm",
+    "rid": 1795477718,
+    "pair": 4,
+    "pos": 0,
+    "rc": 0,
+    "profile": "stealth"
+  },
+  {
+    "controller": "baseline",
+    "dir": "/home/ubuntu/Desktop/SDN_Flow-Table-Flooding_Mitigation/eviction/logs/baseline",
+    "rid": 1795478659,
+    "pair": 4,
+    "pos": 1,
+    "rc": 0,
+    "profile": "stealth"
+  }
+]

@@ -33,6 +33,7 @@ import subprocess
 import random
 import platform
 import re
+from collections import namedtuple, defaultdict
 rng = random.Random(69)
 
 from time import time, sleep
@@ -62,6 +63,9 @@ CONTROLLER_APPS = {
     "ftfm": "controller.py",
     "baseline": "baseline_controller.py",
 }
+PROFILES = [
+    "aggressive", "moderate", "stealth"
+]
 
 _RTT_RE = re.compile(r'time=([\d.]+) ms')
 _MAC_RE = re.compile(r'^(?:[0-9a-f]{2}:){5}[0-9a-f]{2}$')
@@ -395,27 +399,10 @@ def parse_args():
     ap.add_argument("--pairs", type=int, default=0,
                     help="se > 0: esegue N coppie ftfm/baseline con ordine alternato e analizza")
     ap.add_argument("--cooldown", type=float, default=20.0, help="pausa tra le run di una campagna")
+    ap.add_argument("--profile", choices=sorted(PROFILES), default="aggressive")
     return ap.parse_args()
 
-
-def sample_attack_rate(npkts, flow_table_size, profile):
-    attack_profiles = {
-        "aggressive": (10, 60),
-        "moderate":   (120, 300),
-        "stealth":    (350, 550),
-    }
-    min_anp = {"aggressive": 10, "moderate": 7, "stealth": 2}
-    anms = {
-        "aggressive": (100, 200),
-        "moderate":   (30, 70),
-        "stealth":    (5, 20),
-    }
-    t_min, t_max = attack_profiles[profile]
-    fill_time = rng.uniform(t_min, t_max)
-    anp = max(min_anp[profile], math.ceil(flow_table_size / fill_time))
-    anm = rng.uniform(anms[profile][0], anms[profile][1])
-    return anp, int(anm), fill_time
-
+Profile = namedtuple('Profile', ['npkts','anp','anm'])
 
 # ---------------------------------------------------------------------------
 # Una run
@@ -427,11 +414,21 @@ def main(args) -> None:
     idle_timeout = 10
     hard_timeout = 15
     k_factor = 2
-    npkts = flow_table_size*3
-    anp = 20 #5
-    anm = 100 #10
+
+    profiles = {
+        "aggressive": Profile(npkts=flow_table_size*3, anp=10, anm=100),
+        "moderate":   Profile(npkts=flow_table_size*3, anp=7, anm=50),
+        "stealth":    Profile(npkts=flow_table_size*3, anp=2,  anm=20),
+    }
+
     fill_time = None
-    profile = "aggressive"
+    profile = args.profile
+    if profile not in profiles:
+        info(f"*** WARNING: unknown '{profile}', run with the default attack profile\n")
+        profile = "aggressive"
+    npkts, anp, anm = profiles[profile]
+    info(f"Profile: {profile} => npkts={npkts}, ANP={anp}, ANM={anm}\n")
+
     log_path = current + "/logs/" + args.controller
     os.makedirs(log_path, exist_ok=True)
     log_timestamp = args.run_id or int(time())
@@ -488,9 +485,7 @@ def main(args) -> None:
             "LOG_LEVEL": args.log_level,
             "FLOW_TABLE_THRESHOLD": f"{args.ft_threshold}",
             "REAL_MACS": ",".join(real_macs),
-            "OMP_NUM_THREADS": "1",
-            "MKL_NUM_THREADS": "1",
-            "OPENBLAS_NUM_THREADS": "1",
+            "MALLOC_ARENA_MAX": "2"
         }
 
         controller = start_controller(
@@ -684,7 +679,8 @@ def orchestrate(args):
     pass_args = ["--no-cli", "--idle", str(args.idle), "--warmup", str(args.warmup),
                  "--tail", str(args.tail), "--log-level", args.log_level,
                  "--ft-threshold", str(args.ft_threshold), "--valid-match", args.valid_match,
-                 "--probe-pairs", str(args.probe_pairs), "--seed", str(args.seed)]
+                 "--probe-pairs", str(args.probe_pairs), "--seed", str(args.seed),
+                 "--profile", args.profile]
     if args.controller_cpus:
         pass_args += ["--controller-cpus", args.controller_cpus]
     if args.ovs_cpus:
@@ -704,7 +700,7 @@ def orchestrate(args):
             rc = subprocess.run([sys.executable, os.path.abspath(__file__),
                                  "--controller", ctl, "--run-id", str(rid)] + pass_args).returncode
             runs.append({"controller": ctl, "dir": f"{current}/logs/{ctl}", "rid": rid,
-                         "pair": i, "pos": pos, "rc": rc})
+                         "pair": i, "pos": pos, "rc": rc, "profile": args.profile})
             write_json(session_path, runs)          # salvataggio incrementale
             sleep(args.cooldown)
 
@@ -714,7 +710,6 @@ def orchestrate(args):
         compare_runs_light.main(["--session", session_path, "--out", f"{current}/logs/compare_{session_id}"])
     except ImportError:
         info("*** compare_runs_light.py non trovato: lancialo a mano con --session\n")
-
 
 if __name__ == '__main__':
     setLogLevel('info')
