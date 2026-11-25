@@ -55,7 +55,7 @@ FLOW_KEY_COL = "flow_key"
 # Numpy SEED
 np.random.seed(RANDOM_SEED)
 
-def load_data_ftf(dataset_path: str):
+def load_data_ftf(dataset_path: str, ftf_features: list = FTF_FEATURES, return_meta: bool = False):
     df = pd.read_csv(dataset_path)
     print(f"Numero di entry del dataset: {len(df)}")
 
@@ -68,7 +68,7 @@ def load_data_ftf(dataset_path: str):
     print(counts)
     print(f"\nDeviazione standard tra scenari: {counts.sum(axis=1).std()}")
     
-    X = df[FTF_FEATURES]
+    X = df[ftf_features]
     y = df[TARGET]
     scenarios = df[SCENARIO_COL]
 
@@ -113,7 +113,24 @@ def load_data_ftf(dataset_path: str):
     scenarios_val = scenarios_trainval[val_mask].reset_index(drop=True)
     scenarios_test = scenarios[test_mask].reset_index(drop=True)
 
+    if return_meta:
+        meta = {
+            "val": pd.DataFrame({
+                "scenario_id": scenarios_val,
+                "label": y_val,
+                "round": df_trainval.loc[val_mask, ROUND_COL].reset_index(drop=True),
+            }),
+            "test": pd.DataFrame({
+                "scenario_id": scenarios_test,
+                "label": y_test,
+                "round": df.loc[test_mask, ROUND_COL].reset_index(drop=True),
+            }),
+        }
+        return (X_train, X_val, X_test, y_train, y_val, y_test, profiles_train,
+                scenarios_train, scenarios_val, scenarios_test, meta)
+
     return X_train, X_val, X_test, y_train, y_val, y_test, profiles_train, scenarios_train, scenarios_val, scenarios_test
+
 
 def load_data_mfr(dataset_path: str):
     df = pd.read_csv(dataset_path)

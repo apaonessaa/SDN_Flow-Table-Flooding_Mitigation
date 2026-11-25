@@ -1,0 +1,63 @@
+RUN: {'baseline': 5, 'ftfm': 5}   coppie complete: 5
+
+
+== PUNTI DI FORZA - detection, eviction e blocker ==
+metrica                                                    baseline med [IQR]           ftfm med [IQR]                    Δ appaiato med [CI95]
+round di flood con MFR attiva [frazione]                              - [---]      0.6154 [0.5-0.6923]                                        -
+FTF: positivi/esecuzioni nel flood                                    - [---]      0.3333 [0.1429-0.4]                                        -
+round benigni con MFR attiva (falsi pos.)                             - [---]              0.5 [0-0.5]                                        -
+FTF: positivi/esecuzioni in fase benigna                              - [---]                  1 [1-1]                                        -
+regole flaggate da MFR in fase benigna                                - [---]                14 [0-15]                                        -
+regole flaggate dall'MFR con MAC reale [frazione]                     - [---] 0.02545 [0.0137-0.02667]                                        -
+evizioni/s nel flood (reattivita' alla saturazione)                   - [---]   0.2667 [0.2597-0.3323]                                        -
+regole evictate nel flood (totale)                                    - [---]            553 [492-584]                                        -
+messaggi di eviction STRICT nel flood                                 - [---]                10 [8-13]                                        -
+messaggi di eviction NON STRICT nel flood                             - [---]                  9 [8-9]                                        -
+regole per messaggio NON STRICT (media)                               - [---]               60 [55-64]                                        -
+Packet-In senza flow-mod (blocker) nel flood                          - [---]          1058 [706-1391]                                        -
+% coppie MAC reali bloccate (su quelle viste)                         - [---]         0.9174 [0-1.835]                                        -
+coppie MAC reali bloccate in media nello stesso roun                  - [---]        0.1538 [0-0.3571]                                        -
+% Packet-In benigni senza flow-mod (costo)                            - [---]                  0 [0-0]                                        -
+% Packet-In malevoli bloccati                                         - [---]       34.1 [21.77-44.71]                                        -
+
+== EFFICACIA - stato della tabella e traffico legittimo ==
+metrica                                                    baseline med [IQR]           ftfm med [IQR]                    Δ appaiato med [CI95]
+frazione di tempo >=80% dopo la 1a saturazione                        1 [1-1]    0.826 [0.7087-0.8381]           -0.174 [-0.3125, -0.09204] n=5
+frazione di tempo con tabella piena (>=99%)             0.9703 [0.969-0.9738]     0.7762 [0.628-0.826]          -0.1976 [-0.3939, -0.03081] n=5
+flow valide: rapporto flood/pre (sopravvivenza)         0.6206 [0.606-0.6428]   0.7013 [0.6428-0.7624]            0.05851 [0.02218, 0.1971] n=5
+flow non valide medie in tabella nel flood                 61.3 [59.37-61.38]      47.74 [38.52-50.17]              -11.63 [-23.42, -4.332] n=5
+
+== COSTO - latenza, CPU e RAM ==
+metrica                                                    baseline med [IQR]           ftfm med [IQR]                    Δ appaiato med [CI95]
+ping via vittima: campioni                                         66 [65-69]               66 [63-69]                           -2 [-4, 4] n=5
+ping via vittima, p95 [ms] (solo ricevuti)                     84.2 [77-86.4]         72.5 [62.2-83.5]                     -12.1 [-22, 8.1] n=5
+ping via vittima, mediana [ms]                               11.1 [10.8-11.7]       3.78 [0.181-4.475]               -6.325 [-10.92, -2.26] n=5
+ping via vittima, perdita [%]                                         0 [0-0]                  0 [0-0]                             0 [0, 0] n=5
+ping via controllo, p95 [ms] (riferimento)                   27.4 [25.9-41.4]         28.1 [20.2-60.6]                   -7.7 [-34.8, 46.9] n=5
+ping via controllo, mediana [ms] (riferimento)           0.1075 [0.105-0.111]       0.102 [0.1-0.1025]               -0.005 [-0.032, 0.017] n=5
+ping via controllo, perdita [%] (riferimento)                         0 [0-0]                  0 [0-0]                             0 [0, 0] n=5
+CPU% media di Ryu nel flood                               12.48 [11.57-12.53]       11.2 [10.95-13.24]              -0.8333 [-1.527, 2.639] n=5
+core medi di Ryu nel flood                             0.1252 [0.1153-0.1263]   0.1168 [0.1133-0.1411]        -0.006559 [-0.01198, 0.05323] n=5
+RAM massima di Ryu [MB]                                   46.24 [46.23-46.28]      504.8 [504.7-505.7]                 458.5 [457.2, 459.6] n=5
+
+== RIFERIMENTO - fase benigna (warmup, senza attacco) ==
+metrica                                                    baseline med [IQR]           ftfm med [IQR]                    Δ appaiato med [CI95]
+ping via vittima: campioni (benigno)                               71 [71-71]               71 [71-71]                             0 [0, 1] n=5
+ping via vittima, p95 [ms] (benigno)                         48.6 [47.3-53.3]         42.1 [40.7-53.1]                    -6.5 [-16.4, 6.2] n=5
+ping via vittima, mediana [ms] (benigno)                  0.135 [0.128-0.137]        0.14 [0.129-0.14]                 0.005 [-0.004, 0.02] n=5
+ping via vittima, perdita [%] (benigno)                               0 [0-0]                  0 [0-0]                             0 [0, 0] n=5
+ping via controllo, p95 [ms] (benigno)                       20.2 [20.2-21.2]         17.2 [17.1-18.2]                   -4.1 [-24.1, 8.03] n=5
+ping via controllo, mediana [ms] (benigno)             0.1085 [0.1075-0.1305]    0.1265 [0.1205-2.075]              0.0205 [-0.0545, 2.124] n=5
+ping via controllo, perdita [%] (benigno)                             0 [0-0]                  0 [0-0]                             0 [0, 0] n=5
+
+== AVVISI PER RUN ==
+  pair 0 baseline 1795432467: pochi ping control in fase flood (n=26) | pochi ping control in fase benign (n=28)
+  pair 0 ftfm     1795360338: pochi ping control in fase flood (n=26) | pochi ping control in fase benign (n=28) | difesa MFR attiva in fase benigna (0.50): possibili falsi positivi FTF
+  pair 1 baseline 1795432911: pochi ping control in fase flood (n=27) | pochi ping control in fase benign (n=28)
+  pair 1 ftfm     1795433367: pochi ping control in fase flood (n=28) | pochi ping control in fase benign (n=28)
+  pair 2 baseline 1795434275: pochi ping control in fase flood (n=28) | pochi ping control in fase benign (n=28)
+  pair 2 ftfm     1795433820: pochi ping control in fase flood (n=26) | pochi ping control in fase benign (n=28)
+  pair 3 baseline 1795434732: pochi ping control in fase flood (n=26) | pochi ping control in fase benign (n=28)
+  pair 3 ftfm     1795435181: pochi ping control in fase flood (n=24) | pochi ping control in fase benign (n=28) | difesa MFR attiva in fase benigna (0.50): possibili falsi positivi FTF
+  pair 4 baseline 1795436078: pochi ping control in fase flood (n=26) | pochi ping control in fase benign (n=28)
+  pair 4 ftfm     1795435630: pochi ping control in fase flood (n=24) | pochi ping control in fase benign (n=28) | difesa MFR attiva in fase benigna (0.50): possibili falsi positivi FTF

@@ -194,3 +194,15 @@ def predict_model(model, inputs, batch_size=512):
     for *xs, _ in _loader(inputs, np.zeros(len(inputs[0])), batch_size, False):
         preds.append(model(*[x.to(DEVICE) for x in xs]).argmax(-1).cpu().numpy())
     return np.concatenate(preds)
+
+@torch.no_grad()
+def predict_proba_model(model, inputs, batch_size=512):
+    model.eval()
+    out = []
+    for *xs, _ in _loader(inputs, np.zeros(len(inputs[0])), batch_size, False):
+        logits = model(*[x.to(DEVICE) for x in xs])
+        out.append(torch.softmax(logits, dim=-1)[:, 1].cpu().numpy())
+    return np.concatenate(out)
+
+def predict_proba_seq(model, seq, valid):
+    return predict_proba_model(model, (seq, valid))
