@@ -15,26 +15,27 @@ os.makedirs(MODELS_DIR, exist_ok=True)
 SUBDIR = [
     #'2_10', '3_10', 
     #'4_10',
-    #'2_100', '3_100', 
-    '4_100',
+    '2_100', 
+    #'3_100', 
+    #'4_100',
     #'2_1000', 
     #'3_1000', 
-    '4_1000',
+    #'4_1000',
 ]
 
 TRAINING_SETS = [
     #root + '/feature_collector/datasets/dataset_ftf_1793987224_2_10.csv',
     #root + '/feature_collector/datasets/dataset_ftf_1793987224_3_10.csv',
     #root + '/feature_collector/datasets/dataset_ftf_1793987224_4_10.csv',
-    #root + '/feature_collector/datasets/dataset_ftf_1793987224_2_100.csv',
+    root + '/feature_collector/datasets/dataset_ftf_1793987224_2_100.csv',
     #root + '/feature_collector/datasets/dataset_ftf_1793987224_3_100.csv',
     #root + '/feature_collector/datasets/dataset_ftf_1793987224_4_100.csv',
     #root + '/feature_collector/datasets/dataset_ftf_1793987224_2_1000.csv',
     #root + '/feature_collector/datasets/dataset_ftf_1793987224_3_1000.csv',
     #root + '/feature_collector/datasets/dataset_ftf_1793987224_4_1000.csv',
     #root + '/feature_collector/datasets/dataset_ftf_4_10.csv',
-    root + '/feature_collector/datasets/dataset_ftf_4_100.csv',
-    root + '/feature_collector/datasets/dataset_ftf_4_1000.csv',
+    #root + '/feature_collector/datasets/dataset_ftf_4_100.csv',
+    #root + '/feature_collector/datasets/dataset_ftf_4_1000.csv',
 ]
 
 def save_best_params_csv(params: dict, path: str, dataset: str = None):
@@ -69,63 +70,61 @@ if __name__ == "__main__":
         best_featBERT_params = None
         best_tempBERT_params = None
 
+        """
         print("\n\n=== Tuning TempBERT ===")
-        best_tempBERT_params = tune_tempBERT(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
+        best_tempBERT_params = tune_tempBERT(
+            X_train, y_train, groups_train, profiles_train, 
+            plots_dir=PLOTS_DIR, trials_csv=os.path.join(dataset_model_dir, "trials_tempbert.csv"))
         save_best_params_csv(best_tempBERT_params, os.path.join(dataset_model_dir, "best_params_tempbert.csv"))
         tempbert_param_rows.append({"dataset": subdir, **best_tempBERT_params})
         print("\n\n=== Training TempBERT ===")
         train_tempBERT(X_train, X_val, X_test, y_train, y_val, y_test,
-                groups_train, groups_val, groups_test, results, best_tempBERT_params, features=FTF_FEATURES, model_dir=dataset_model_dir)
-
+                groups_train, groups_val, groups_test, results, best_tempBERT_params, 
+                features=FTF_FEATURES, model_dir=dataset_model_dir)
+        
         print("\n\n=== Tuning FeatBERT ===")
         best_featBERT_params = tune_featBERT(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
         save_best_params_csv(best_featBERT_params, os.path.join(dataset_model_dir, "best_params_featbert.csv"))
         featbert_param_rows.append({"dataset": subdir, **best_featBERT_params})
         print("\n\n=== Training FeatBERT ===")
         train_featBERT(X_train, X_val, X_test, y_train, y_val, y_test, results, best_featBERT_params, features=FTF_FEATURES, model_dir=dataset_model_dir)
-
+        """
+        """
         print("\n\n=== Ablation FeatBERT ===")
         run_featbert_ablation(X_train, X_val, X_test, y_train, y_val, y_test, best_featBERT_params, out_dir=PLOTS_DIR, csv_name="featbert_ablation.csv")
-
         print("\n\n=== Ablation TempBERT ===")
         run_tempbert_ablation(TempBert, prepare_seq, X_train, X_val, X_test, y_train, y_val, y_test, groups_train, groups_val, groups_test, 
             best_tempBERT_params, out_dir=PLOTS_DIR, csv_name="tempbert_ablation.csv")
-
         """
+
         print("\n\n=== Tuning Decision Tree ===")
         best_dt_params = tune_decision_tree(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
- 
-        print("\n\n=== Tuning Random Forest ===")
-        best_rf_params = tune_random_forest(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
-        
-        print("\n\n=== Tuning XGBoost===")
-        best_xgb_params = tune_xgboost(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
-
-        print("\n\n=== Tuning CatBoost ===")
-        best_cb_params = tune_catboost(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
-
         save_best_params_csv(best_dt_params, os.path.join(dataset_model_dir, "best_params_decision_tree.csv"))
-        save_best_params_csv(best_rf_params, os.path.join(dataset_model_dir, "best_params_random_forest.csv"))
-        save_best_params_csv(best_xgb_params, os.path.join(dataset_model_dir, "best_params_xgboost.csv"))
-        save_best_params_csv(best_cb_params, os.path.join(dataset_model_dir, "best_params_catboost.csv"))
-        
         dt_param_rows.append({"dataset": subdir, **best_dt_params})
-        rf_param_rows.append({"dataset": subdir, **best_rf_params})
-        xgb_param_rows.append({"dataset": subdir, **best_xgb_params})
-        cb_param_rows.append({"dataset": subdir, **best_cb_params})
-        
         print("\n\n=== Training Decision Tree ===")
         train_decision_tree(X_train, X_test, y_train, y_test, results, best_dt_params, features=FTF_FEATURES, model_dir=dataset_model_dir)
  
+        print("\n\n=== Tuning Random Forest ===")
+        best_rf_params = tune_random_forest(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
+        save_best_params_csv(best_rf_params, os.path.join(dataset_model_dir, "best_params_random_forest.csv"))
+        rf_param_rows.append({"dataset": subdir, **best_rf_params})
         print("\n\n=== Training Random Forest ===")
         train_random_forest(X_train, X_test, y_train, y_test, results, best_rf_params, features=FTF_FEATURES, model_dir=dataset_model_dir)
         
+        print("\n\n=== Tuning XGBoost===")
+        best_xgb_params = tune_xgboost(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
+        save_best_params_csv(best_xgb_params, os.path.join(dataset_model_dir, "best_params_xgboost.csv"))
+        xgb_param_rows.append({"dataset": subdir, **best_xgb_params})
         print("\n\n=== Training XGBoost ===")
         train_xgboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_xgb_params, features=FTF_FEATURES, model_dir=dataset_model_dir)
 
+        print("\n\n=== Tuning CatBoost ===")
+        best_cb_params = tune_catboost(X_train, y_train, groups_train, profiles_train, plots_dir=PLOTS_DIR)
+        save_best_params_csv(best_cb_params, os.path.join(dataset_model_dir, "best_params_catboost.csv"))
+        cb_param_rows.append({"dataset": subdir, **best_cb_params})
         print("\n\n=== Training CatBoost ===")
         train_catboost(X_train, X_val, X_test, y_train, y_val, y_test, results, best_cb_params, model_dir=dataset_model_dir)
-        """
+
         comparison = pd.DataFrame(results).set_index("model")
         print(f"\n\n=== Confronto finale ({subdir}) ===")
         print(comparison.to_string(float_format="%.4f"))
@@ -137,17 +136,16 @@ if __name__ == "__main__":
         best_params_path = os.path.join(dataset_model_dir, "best_params.joblib")
         joblib.dump(
             {
-                #"decision_tree": best_dt_params,
-                #"random_forest": best_rf_params,
-                #"xgboost": best_xgb_params,
-                #"catboost": best_cb_params,
-                "featBERT": best_featBERT_params,
-                "tempBERT": best_tempBERT_params,
+                "decision_tree": best_dt_params,
+                "random_forest": best_rf_params,
+                "xgboost": best_xgb_params,
+                "catboost": best_cb_params,
+                #"featBERT": best_featBERT_params,
+                #"tempBERT": best_tempBERT_params,
             },
             best_params_path,
         )
         print(f"Migliori iperparametri salvati in: {best_params_path}")
-    """
     pd.DataFrame(dt_param_rows).set_index("dataset").to_csv(
         os.path.join(MODELS_DIR, "best_params_decision_tree_all_datasets.csv"))
     pd.DataFrame(rf_param_rows).set_index("dataset").to_csv(
@@ -161,5 +159,6 @@ if __name__ == "__main__":
         os.path.join(MODELS_DIR, "best_params_featbert_all_datasets.csv"))
     pd.DataFrame(tempbert_param_rows).set_index("dataset").to_csv(
         os.path.join(MODELS_DIR, "best_params_tempbert_all_datasets.csv"))
+    """
 
     print(f"\n\nCSV aggregati dei best params (tutti i dataset) salvati in: {MODELS_DIR}")

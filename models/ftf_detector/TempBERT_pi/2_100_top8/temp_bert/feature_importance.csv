@@ -1,0 +1,9 @@
+model,feature,importance
+TempBERT2_100_top8,src_mac_entropy,0.09737996852772039
+TempBERT2_100_top8,src_ip_entropy,0.09707481836045503
+TempBERT2_100_top8,ft_psi,0.05268006526629816
+TempBERT2_100_top8,payload_entropy_cv,0.0337892089517845
+TempBERT2_100_top8,payload_entropy_mean,0.02935860507795258
+TempBERT2_100_top8,mean_bytes,0.023166634320759116
+TempBERT2_100_top8,durations_entropy,0.01846391289506453
+TempBERT2_100_top8,cvp,0.0012650427109568874

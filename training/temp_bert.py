@@ -24,7 +24,7 @@ torch.manual_seed(RANDOM_SEED)
 
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
-def tune_tempBERT(X_train, y_train, groups_train, profiles_train, plots_dir=None):
+def tune_tempBERT(X_train, y_train, groups_train, profiles_train, plots_dir=None, trials_csv=None):
     splits = make_group_kfold_splits(X_train, groups_train, profiles_train)
 
     def objective(trial):
@@ -54,6 +54,7 @@ def tune_tempBERT(X_train, y_train, groups_train, profiles_train, plots_dir=None
             del model
             gc.collect()
 
+            trial.set_user_attr('fold_scores', [round(float(s), 6) for s in scores])
             trial.report(float(np.mean(scores)), step=fold_idx)
             if trial.should_prune():
                 raise optuna.TrialPruned()
@@ -66,6 +67,8 @@ def tune_tempBERT(X_train, y_train, groups_train, profiles_train, plots_dir=None
     )
     study.optimize(objective, n_trials=N_TRIALS, show_progress_bar=True, gc_after_trial=True)
 
+    if trials_csv:
+        save_trials_csv(study, trials_csv)
     if plots_dir:
         save_study_plots(study, "TempBERT", plots_dir)
 
@@ -74,7 +77,7 @@ def tune_tempBERT(X_train, y_train, groups_train, profiles_train, plots_dir=None
     return study.best_params
 
 def train_tempBERT(X_train, X_val, X_test, y_train, y_val, y_test,
-              groups_train, groups_val, groups_test, results, best_params, features, model_dir:str):
+              groups_train, groups_val, groups_test, results, best_params, features, model_dir: str, label: str=''):
     scaler, ((s_tr, m_tr), (s_va, m_va), (s_te, m_te)) = prepare_seq(
         X_train.values, groups_train.values,
         [(X_val.values, groups_val.values), (X_test.values, groups_test.values)],
@@ -87,7 +90,7 @@ def train_tempBERT(X_train, X_val, X_test, y_train, y_val, y_test,
     elapsed = time.time() - t0
 
     y_pred = predict_seq(model, s_te, m_te)
-    evaluate(f"TempBERT (W={best_params['window']})", y_test, y_pred, results, elapsed)
+    evaluate(f"TempBERT{label} (W={best_params['window']})", y_test, y_pred, results, elapsed)
     
     ## F1-score permutation importance
     importances = permutation_importance_seq(
@@ -99,6 +102,8 @@ def train_tempBERT(X_train, X_val, X_test, y_train, y_val, y_test,
 
     out_dir = os.path.join(model_dir, "temp_bert")
     os.makedirs(out_dir, exist_ok=True)
+
+    save_importances_csv(importances, os.path.join(out_dir, "feature_importance.csv"), model_name=f"TempBERT{label}")
 
     torch.save(model.state_dict(), os.path.join(out_dir, "model.pt"))
     joblib.dump({"scaler": scaler, "params": best_params, "features": features},

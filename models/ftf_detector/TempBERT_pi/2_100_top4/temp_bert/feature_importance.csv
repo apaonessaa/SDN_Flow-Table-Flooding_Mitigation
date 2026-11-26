@@ -1,0 +1,5 @@
+model,feature,importance
+TempBERT2_100_top4,src_ip_entropy,0.12150514766463254
+TempBERT2_100_top4,src_mac_entropy,0.10996540639160284
+TempBERT2_100_top4,durations_entropy,0.057896550202516515
+TempBERT2_100_top4,ft_psi,0.04129761645158703

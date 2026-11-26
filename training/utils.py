@@ -27,7 +27,7 @@ current = os.path.dirname(os.path.realpath(__file__))
 root = os.path.dirname(current)
 sys.path.append(root)
 
-from config import *
+from training.config import *
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -391,3 +391,28 @@ def plot_models_convergence(plots_dir, names, out_path):
     fig.tight_layout()
     fig.savefig(out_path, dpi=200)
     plt.close(fig)
+
+# --------------------------------------------------------------------------- #
+# STORE
+# --------------------------------------------------------------------------- #
+def save_trials_csv(study, path: str, dataset: str = None):
+    """Salva TUTTI i trial di uno studio Optuna (params, valore, stato, durata)."""
+    df = study.trials_dataframe()  # include anche i trial PRUNED/FAIL (value=NaN)
+    df.columns = [c.replace("params_", "").replace("user_attrs_", "") for c in df.columns]
+    if dataset is not None:
+        df.insert(0, "dataset", dataset)
+    df.to_csv(path, index=False)
+    return df
+
+def save_importances_csv(importances, path: str, dataset: str = None, model_name: str = None):
+    """Salva le feature importance."""
+    df = (importances.rename("importance")
+                     .rename_axis("feature")
+                     .sort_values(ascending=False)
+                     .reset_index())
+    if model_name is not None:
+        df.insert(0, "model", model_name)
+    if dataset is not None:
+        df.insert(0, "dataset", dataset)
+    df.to_csv(path, index=False)
+    return df
