@@ -54,7 +54,7 @@ current = os.path.dirname(os.path.realpath(__file__))
 root = os.path.dirname(current)
 sys.path.append(root)
 
-from utils import load_data_ftf  # noqa: E402
+from training.utils import load_data_ftf  # noqa: E402
 from mitigation.tempbert_arch import DEVICE, TempBert, build_windows  # noqa: E402
 
 
@@ -88,29 +88,6 @@ def predict_proba(model, seq, valid, batch_size=512):
         logits = model(xb.to(DEVICE), vb.to(DEVICE))
         out.append(torch.softmax(logits, dim=-1)[:, 1].cpu().numpy())
     return np.concatenate(out)
-
-
-@torch.no_grad()
-def measure_latency(model, seq, valid, n=200, warmup=20, seed=0):
-    """Latenza di inferenza FTF per una singola finestra (batch 1), in ms."""
-    model.eval()
-    rng = np.random.default_rng(seed)
-    idx = rng.integers(0, len(seq), n + warmup)
-    times = []
-    for k, i in enumerate(idx):
-        x = torch.from_numpy(seq[i:i + 1]).to(DEVICE)
-        v = torch.from_numpy(valid[i:i + 1]).to(DEVICE)
-        if DEVICE == "cuda":
-            torch.cuda.synchronize()
-        t0 = time.perf_counter()
-        model(x, v)
-        if DEVICE == "cuda":
-            torch.cuda.synchronize()
-        if k >= warmup:
-            times.append((time.perf_counter() - t0) * 1000.0)
-    t = np.asarray(times)
-    return {"mean_ms": float(t.mean()), "p95_ms": float(np.percentile(t, 95)),
-            "max_ms": float(t.max()), "device": DEVICE, "n": int(n)}
 
 
 # ----------------------------------------------------------------------------
@@ -329,14 +306,10 @@ def main():
     print("\nPunti di funzionamento (tau scelto su validation, metriche su test):")
     print(table[[c for c in cols if c in table.columns]].to_string(index=False, float_format="%.3f"))
 
-    # 8) latenza di inferenza di FTF (singola finestra)
-    lat = measure_latency(model, seq_te, valid_te)
-    summary["ftf_latency"] = lat
-    print(f"\nLatenza FTF (batch 1, {lat['device']}): media {lat['mean_ms']:.2f} ms, p95 {lat['p95_ms']:.2f} ms")
     with open(os.path.join(out_dir, "summary.json"), "w") as f:
         json.dump(summary, f, indent=2)
 
-    # 9) grafici
+    # 8) grafici
     plot_curves(dv, dt, out_dir)
     print(f"\nRisultati salvati in: {out_dir}")
 

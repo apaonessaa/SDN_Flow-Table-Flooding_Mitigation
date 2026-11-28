@@ -131,8 +131,7 @@ def load_data_ftf(dataset_path: str, ftf_features: list = FTF_FEATURES, return_m
 
     return X_train, X_val, X_test, y_train, y_val, y_test, profiles_train, scenarios_train, scenarios_val, scenarios_test
 
-
-def load_data_mfr(dataset_path: str):
+def load_data_mfr(dataset_path: str, return_meta: bool = False):
     df = pd.read_csv(dataset_path)
     print(f"Numero di entry del dataset: {len(df)}")
 
@@ -192,6 +191,14 @@ def load_data_mfr(dataset_path: str):
     keys_val = keys_trainval[val_mask].reset_index(drop=True)
 
     profiles_train = df_train[ATTACK_PROFILE_COL].reset_index(drop=True)
+
+    if return_meta:
+        meta_test = pd.DataFrame({
+            "scenario_id": df.loc[test_mask, SCENARIO_COL].reset_index(drop=True),
+            "round": df.loc[test_mask, ROUND_COL].reset_index(drop=True),
+        })
+        return (X_train, X_val, X_test, y_train, y_val, y_test, scenarios_train, profiles_train,
+                keys_train, keys_val, keys_test, meta_test)
 
     return X_train, X_val, X_test, y_train, y_val, y_test, scenarios_train, profiles_train, keys_train, keys_val, keys_test
 
